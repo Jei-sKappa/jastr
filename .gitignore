@@ -1,0 +1,12 @@
+temp/
+
+.library/
+
+docs/threads/**/.wip/
+
+dist/
+node_modules/
+
+.claude/skills
+
+.planning/
