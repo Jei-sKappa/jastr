@@ -1,0 +1,32 @@
+{
+  "name": "skillrouter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "skillrouter": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "bun build src/cli/index.ts --target=node --outdir=dist --banner='#!/usr/bin/env node'",
+    "check": "biome check .",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "execa": "^9.6.1",
+    "remark-directive": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
+  }
+}

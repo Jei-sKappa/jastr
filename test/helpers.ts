@@ -1,0 +1,43 @@
+import { mkdtemp, readFile, rm, writeFile, mkdir } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { execa } from "execa";
+
+export type TempProject = {
+  root: string;
+  cleanup: () => Promise<void>;
+};
+
+export async function createTempProject(): Promise<TempProject> {
+  const root = await mkdtemp(path.join(tmpdir(), "skillrouter-"));
+  await mkdir(path.join(root, ".skillrouter"), { recursive: true });
+  return {
+    root,
+    cleanup: () => rm(root, { recursive: true, force: true }),
+  };
+}
+
+export async function writeProjectFile(
+  projectRoot: string,
+  relativePath: string,
+  contents: string,
+): Promise<void> {
+  const absolutePath = path.join(projectRoot, relativePath);
+  await mkdir(path.dirname(absolutePath), { recursive: true });
+  await writeFile(absolutePath, contents, "utf8");
+}
+
+export async function readProjectFile(
+  projectRoot: string,
+  relativePath: string,
+): Promise<string> {
+  return readFile(path.join(projectRoot, relativePath), "utf8");
+}
+
+export async function runCli(args: string[], cwd: string) {
+  return execa("bun", ["x", "tsx", "src/cli/index.ts", ...args], {
+    cwd: path.resolve(import.meta.dirname, ".."),
+    env: { SKILLROUTER_TEST_CWD: cwd },
+    reject: false,
+  });
+}
