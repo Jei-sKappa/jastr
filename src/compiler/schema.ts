@@ -11,7 +11,7 @@ export type TemplateSchema = {
   inputs: Record<string, InputDefinition>;
 };
 
-const INPUT_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
+export const INPUT_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 export function validateInputName(name: string): string {
   if (!INPUT_NAME_PATTERN.test(name)) {
