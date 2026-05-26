@@ -25,11 +25,41 @@ Update `AGENTS.md` when:
   the relevant Architecture Decisions bullet. If the new spec changes what an
   existing bullet asserts, rewrite the bullet, do not just append the link.
 
+Also update `README.md` when a meaningful project change affects the public
+description, user-facing behavior, setup/usage instructions, or current status.
+
 > Note: `CLAUDE.md` is a symlink to `AGENTS.md`.
 
 ## Project
 
-<!-- TODO: Add a description of the project both high level and technical -->
+Skillrouter is a CLI for deterministic AI-agent skill specialization. Its goal
+is to keep agent-facing skill files tiny while moving argument validation,
+branch selection, includes, interpolation, and final instruction rendering into
+a command-line workflow.
+
+The authoring surface is project-local Markdown templates under
+`.skillrouter/<skill>/SKILL.template.md`. Agent-facing skills should be minimal
+router files that tell the agent to run `skillrouter run <skill> $ARGUMENTS`
+and follow the rendered Markdown output.
+
+The project is currently in the design stage. The primary design thread is
+`docs/threads/260526113604Z-agent-skill-router-cli/`. Treat claims there as
+design context, and prefer the latest discussion decisions over older proposal
+examples when they disagree.
+
+Current v1 direction:
+
+- Canonical commands are `skillrouter run <skill> [input flags...]` and
+  `skillrouter generate <skill> --out <path> [--force]`.
+- V1 stays agent-agnostic; generated router skill output paths are explicit.
+- Templates use Markdown with frontmatter inputs and a small directive set:
+  `if`, `else-if`, `else`, `include`, and `include-raw`.
+- The CLI should remain a thin shell around independently testable parsing,
+  validation, rendering, include resolution, condition evaluation, and
+  interpolation modules.
+- Use Bun as runtime/package manager/bundler, but avoid Bun-specific runtime
+  APIs and Bun's test runner so the project can move to Node or another runtime
+  later if needed.
 
 ## Engineering Principles
 
