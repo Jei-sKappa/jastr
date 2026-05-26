@@ -79,3 +79,37 @@ C
 Choice: Use byte-stable/source-preserving rendered output for v1: after removing directive syntax and unselected content, preserve the leftover authored whitespace exactly rather than applying additional blank-line cleanup.
 
 Rationale: This is the simplest, most explicit, and most unambiguous v1 behavior. Note: I recommended bounded normalization because hidden routing syntax can create extra blank lines in agent-facing Markdown, but the user accepted that trade-off and preferred source-preserving behavior for now. If exact preservation becomes inconvenient, a later spec can introduce a bounded normalization rule.
+
+## P5: Directive Colon Fence Syntax
+
+Point: Decide whether Skillrouter block directives should be documented with `:::` or `::::`, especially when directives are nested.
+
+What you need to know: `remark-directive` supports container directives with three or more colons. A non-nested directive can use `:::`. Nested directives need longer outer fences when inner directives also use `:::`; otherwise the first inner closing fence can close the outer directive early. A local parser smoke test showed that this all-triple form does not nest as intended:
+
+```md
+:::if{condition="${example} == true"}
+:::if{condition="${A} == true"}
+A
+:::
+:::else
+B
+:::
+:::
+```
+
+It parses the outer `if` as containing only the inner `if`, then parses `else` as a sibling outside the outer `if`, and leaves the final `:::` as paragraph text. The intended nesting requires a longer outer fence:
+
+```md
+::::if{condition="${example} == true"}
+:::if{condition="${A} == true"}
+A
+:::
+:::else
+B
+:::
+::::
+```
+
+Choice: Document `:::` as the canonical non-nested container directive fence, while explicitly allowing three or more colons following `remark-directive`; nested directives must use a longer outer fence than any nested container fence they contain.
+
+Rationale: `:::` is the standard minimal container directive marker and should remain the default in examples and tests. However, requiring exactly `:::` would make nested directives impossible or surprising with the chosen parser. The accepted rule keeps simple templates simple while documenting the necessary `::::` pattern for nesting.
