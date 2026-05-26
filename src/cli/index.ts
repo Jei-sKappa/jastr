@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { formatCliError } from "../errors";
 import { runSkillrouterCommand } from "./commands";
 
