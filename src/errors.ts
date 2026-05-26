@@ -5,6 +5,7 @@ export type SkillrouterErrorCode =
   | "missing_skill"
   | "invalid_frontmatter"
   | "malformed_schema"
+  | "invalid_directive"
   | "invalid_input_name"
   | "missing_required_input"
   | "unknown_input_flag"
