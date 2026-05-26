@@ -95,4 +95,32 @@ Hello
       await project.cleanup();
     }
   });
+
+  it("refuses to overwrite generated output unless force is passed", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+---
+Hello
+`,
+      );
+      await writeProjectFile(project.root, "out/SKILL.md", "existing");
+
+      const blocked = await runCli(["generate", "demo", "--out=out/SKILL.md"], project.root);
+      expect(blocked.exitCode).not.toBe(0);
+      expect(blocked.stdout).toBe("");
+      expect(blocked.stderr).toBe("Error: Output file out/SKILL.md already exists. Use --force to overwrite it.");
+
+      const forced = await runCli(["generate", "demo", "--out=out/SKILL.md", "--force"], project.root);
+      expect(forced.exitCode).toBe(0);
+      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toContain("skillrouter run demo $ARGUMENTS");
+    } finally {
+      await project.cleanup();
+    }
+  });
 });

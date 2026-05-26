@@ -98,4 +98,10 @@ describe("conditions", () => {
       validateConditionInputs(parseCondition("${missing}"), schema),
     ).toThrow("Condition references undeclared input missing.");
   });
+
+  it("uses left associative equality and boolean operators", () => {
+    expect(evaluateCondition(parseCondition("true == true == true"), {})).toBe(true);
+    expect(evaluateCondition(parseCondition("false || true && false"), {})).toBe(false);
+    expect(evaluateCondition(parseCondition("!false == true"), {})).toBe(true);
+  });
 });

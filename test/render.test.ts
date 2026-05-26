@@ -155,4 +155,31 @@ description: Demo skill
       await project.cleanup();
     }
   });
+
+  it("renders included frontmatter-like content as ordinary markdown", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo
+---
+:::include{path="fragment.md"}
+`,
+      );
+      await writeProjectFile(project.root, ".skillrouter/demo/fragment.md", "---\nnot: metadata\n---\nBody\n");
+
+      await expect(
+        renderSkillTemplate({
+          projectRoot: project.root,
+          templatePath: `${project.root}/.skillrouter/demo/SKILL.template.md`,
+          rawFlags: [],
+        }),
+      ).resolves.toBe("---\nnot: metadata\n---\nBody\n");
+    } finally {
+      await project.cleanup();
+    }
+  });
 });

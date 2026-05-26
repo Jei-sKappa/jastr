@@ -1,6 +1,6 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { resolveIncludePath, readIncludeFile } from "../src/compiler/includes";
+import { detectIncludeCycle, resolveIncludePath, readIncludeFile } from "../src/compiler/includes";
 import { createTempProject, writeProjectFile } from "./helpers";
 
 describe("include resolution", () => {
@@ -47,5 +47,11 @@ describe("include resolution", () => {
     } finally {
       await project.cleanup();
     }
+  });
+
+  it("reports include cycles with the chain", () => {
+    expect(() => detectIncludeCycle(["/project/a.md", "/project/b.md"], "/project/a.md")).toThrow(
+      "Include cycle detected: a.md -> b.md -> a.md.",
+    );
   });
 });

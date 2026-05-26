@@ -61,4 +61,13 @@ describe("coerceInputFlags", () => {
       ]),
     ).toThrow("Boolean input --dry-run must be true, false, or a bare flag.");
   });
+
+  it("rejects bare string and enum flags", () => {
+    expect(() =>
+      coerceInputFlags(schema, [{ name: "language", form: "bare", value: true }]),
+    ).toThrow("Input --language requires --language=value.");
+    expect(() =>
+      coerceInputFlags(schema, [{ name: "target-file", form: "bare", value: true }]),
+    ).toThrow("Input --target-file requires --target-file=value.");
+  });
 });
