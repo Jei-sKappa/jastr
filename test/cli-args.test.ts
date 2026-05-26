@@ -5,7 +5,12 @@ import { SkillrouterError } from "../src/errors";
 describe("parseCliArgs", () => {
   it("parses run with raw skill flags after the skill name", () => {
     expect(
-      parseCliArgs(["run", "analyze-code", "--language=typescript", "--dry-run"]),
+      parseCliArgs([
+        "run",
+        "analyze-code",
+        "--language=typescript",
+        "--dry-run",
+      ]),
     ).toEqual({
       command: "run",
       skill: "analyze-code",
@@ -18,7 +23,13 @@ describe("parseCliArgs", () => {
 
   it("parses generate with mandatory out value and force flag", () => {
     expect(
-      parseCliArgs(["generate", "analyze-code", "--out", ".claude/skills/analyze/SKILL.md", "--force"]),
+      parseCliArgs([
+        "generate",
+        "analyze-code",
+        "--out",
+        ".claude/skills/analyze/SKILL.md",
+        "--force",
+      ]),
     ).toEqual({
       command: "generate",
       skill: "analyze-code",
@@ -30,19 +41,28 @@ describe("parseCliArgs", () => {
   it("rejects malformed raw flags before schema validation", () => {
     expect(() => parseCliArgs(["run", "demo", "-x"])).toThrow(SkillrouterError);
     expect(() => parseCliArgs(["run", "demo", "--"])).toThrow(SkillrouterError);
-    expect(() => parseCliArgs(["run", "demo", "--name", "value"])).toThrow(SkillrouterError);
-    expect(() => parseCliArgs(["run", "demo", "--no-dry-run"])).toThrow(SkillrouterError);
+    expect(() => parseCliArgs(["run", "demo", "--name", "value"])).toThrow(
+      SkillrouterError,
+    );
+    expect(() => parseCliArgs(["run", "demo", "--no-dry-run"])).toThrow(
+      SkillrouterError,
+    );
   });
 
   it("rejects duplicate raw flags for run", () => {
     expect(() =>
-      parseCliArgs(["run", "demo", "--language=typescript", "--language=python"]),
+      parseCliArgs([
+        "run",
+        "demo",
+        "--language=typescript",
+        "--language=python",
+      ]),
     ).toThrow("Duplicate flag --language.");
   });
 
   it("rejects unknown generate options", () => {
-    expect(() => parseCliArgs(["generate", "demo", "--out=a", "--dry-run"])).toThrow(
-      "Unknown generate option --dry-run.",
-    );
+    expect(() =>
+      parseCliArgs(["generate", "demo", "--out=a", "--dry-run"]),
+    ).toThrow("Unknown generate option --dry-run.");
   });
 });

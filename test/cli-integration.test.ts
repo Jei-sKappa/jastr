@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { createTempProject, readProjectFile, runCli, writeProjectFile } from "./helpers";
+import {
+  createTempProject,
+  readProjectFile,
+  runCli,
+  writeProjectFile,
+} from "./helpers";
 
 describe("skillrouter cli", () => {
   it("runs a skill from a nested cwd and prints rendered markdown only", async () => {
@@ -22,7 +27,10 @@ Hello {{language}}
       );
       await writeProjectFile(project.root, "nested/.keep", "");
 
-      const result = await runCli(["run", "demo", "--language=typescript"], `${project.root}/nested`);
+      const result = await runCli(
+        ["run", "demo", "--language=typescript"],
+        `${project.root}/nested`,
+      );
 
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toBe("Hello typescript");
@@ -59,14 +67,17 @@ Hello
 `,
       );
 
-      const result = await runCli(["generate", "demo", "--out", "out/SKILL.md"], project.root);
+      const result = await runCli(
+        ["generate", "demo", "--out", "out/SKILL.md"],
+        project.root,
+      );
 
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe("");
-      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toContain(
-        "skillrouter run demo $ARGUMENTS",
-      );
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).resolves.toContain("skillrouter run demo $ARGUMENTS");
     } finally {
       await project.cleanup();
     }
@@ -111,14 +122,24 @@ Hello
       );
       await writeProjectFile(project.root, "out/SKILL.md", "existing");
 
-      const blocked = await runCli(["generate", "demo", "--out=out/SKILL.md"], project.root);
+      const blocked = await runCli(
+        ["generate", "demo", "--out=out/SKILL.md"],
+        project.root,
+      );
       expect(blocked.exitCode).not.toBe(0);
       expect(blocked.stdout).toBe("");
-      expect(blocked.stderr).toBe("Error: Output file out/SKILL.md already exists. Use --force to overwrite it.");
+      expect(blocked.stderr).toBe(
+        "Error: Output file out/SKILL.md already exists. Use --force to overwrite it.",
+      );
 
-      const forced = await runCli(["generate", "demo", "--out=out/SKILL.md", "--force"], project.root);
+      const forced = await runCli(
+        ["generate", "demo", "--out=out/SKILL.md", "--force"],
+        project.root,
+      );
       expect(forced.exitCode).toBe(0);
-      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toContain("skillrouter run demo $ARGUMENTS");
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).resolves.toContain("skillrouter run demo $ARGUMENTS");
     } finally {
       await project.cleanup();
     }

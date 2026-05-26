@@ -6,7 +6,10 @@ const SKILL_NAME_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
 export function validateSkillName(skill: string): string {
   if (!SKILL_NAME_PATTERN.test(skill)) {
-    throw new SkillrouterError("invalid_skill_name", `Invalid skill name ${skill}.`);
+    throw new SkillrouterError(
+      "invalid_skill_name",
+      `Invalid skill name ${skill}.`,
+    );
   }
   return skill;
 }

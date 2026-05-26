@@ -15,17 +15,26 @@ export const INPUT_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 export function validateInputName(name: string): string {
   if (!INPUT_NAME_PATTERN.test(name)) {
-    throw new SkillrouterError("invalid_input_name", `Invalid input name ${name}.`);
+    throw new SkillrouterError(
+      "invalid_input_name",
+      `Invalid input name ${name}.`,
+    );
   }
   return name;
 }
 
 export function validateTemplateSchema(frontmatter: unknown): TemplateSchema {
   if (!isRecord(frontmatter)) {
-    throw new SkillrouterError("malformed_schema", "Template frontmatter must be a mapping.");
+    throw new SkillrouterError(
+      "malformed_schema",
+      "Template frontmatter must be a mapping.",
+    );
   }
 
-  const name = expectString(frontmatter.name, "Template frontmatter must declare string name.");
+  const name = expectString(
+    frontmatter.name,
+    "Template frontmatter must declare string name.",
+  );
   const description = expectString(
     frontmatter.description,
     "Template frontmatter must declare string description.",
@@ -36,7 +45,10 @@ export function validateTemplateSchema(frontmatter: unknown): TemplateSchema {
 
   if (rawInputs !== undefined) {
     if (!isRecord(rawInputs)) {
-      throw new SkillrouterError("malformed_schema", "Template inputs must be a mapping.");
+      throw new SkillrouterError(
+        "malformed_schema",
+        "Template inputs must be a mapping.",
+      );
     }
 
     for (const [inputName, rawDefinition] of Object.entries(rawInputs)) {
@@ -48,9 +60,15 @@ export function validateTemplateSchema(frontmatter: unknown): TemplateSchema {
   return { name, description, inputs };
 }
 
-function validateInputDefinition(inputName: string, rawDefinition: unknown): InputDefinition {
+function validateInputDefinition(
+  inputName: string,
+  rawDefinition: unknown,
+): InputDefinition {
   if (!isRecord(rawDefinition)) {
-    throw new SkillrouterError("malformed_schema", `Input ${inputName} must be a mapping.`);
+    throw new SkillrouterError(
+      "malformed_schema",
+      `Input ${inputName} must be a mapping.`,
+    );
   }
 
   if (rawDefinition.required !== true && rawDefinition.required !== false) {

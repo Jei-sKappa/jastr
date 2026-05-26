@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SkillrouterError, formatCliError } from "../src/errors";
+import { formatCliError, SkillrouterError } from "../src/errors";
 
 describe("SkillrouterError", () => {
   it("formats concise CLI errors", () => {

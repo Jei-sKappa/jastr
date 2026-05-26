@@ -1,12 +1,20 @@
 import { readFile } from "node:fs/promises";
-import { coerceInputFlags, type InputValues } from "./flags";
 import type { RawFlag } from "../cli/args";
-import { parseTemplateSource } from "./frontmatter";
-import { scanDirectives, validateDirectives, type TemplateDocument, type TemplateNode } from "./directives";
-import { readIncludeFile, detectIncludeCycle } from "./includes";
-import { interpolateText, validateInterpolationReferences } from "./interpolation";
 import { evaluateCondition } from "./conditions";
-import { validateTemplateSchema, type TemplateSchema } from "./schema";
+import {
+  scanDirectives,
+  type TemplateDocument,
+  type TemplateNode,
+  validateDirectives,
+} from "./directives";
+import { coerceInputFlags, type InputValues } from "./flags";
+import { parseTemplateSource } from "./frontmatter";
+import { detectIncludeCycle, readIncludeFile } from "./includes";
+import {
+  interpolateText,
+  validateInterpolationReferences,
+} from "./interpolation";
+import { type TemplateSchema, validateTemplateSchema } from "./schema";
 
 export type LoadedTemplate = {
   schema: TemplateSchema;
@@ -37,7 +45,13 @@ export async function validateSkillTemplate(
   templatePath: string,
 ): Promise<LoadedTemplate> {
   const loaded = await loadAndValidateTemplate(templatePath);
-  await validateStaticIncludes(projectRoot, templatePath, loaded.document, loaded.schema, [templatePath]);
+  await validateStaticIncludes(
+    projectRoot,
+    templatePath,
+    loaded.document,
+    loaded.schema,
+    [templatePath],
+  );
   return loaded;
 }
 
@@ -64,7 +78,13 @@ async function validateStaticIncludes(
   includeStack: string[],
 ): Promise<void> {
   for (const node of document.nodes) {
-    await validateNodeInclude(projectRoot, containingFilePath, node, schema, includeStack);
+    await validateNodeInclude(
+      projectRoot,
+      containingFilePath,
+      node,
+      schema,
+      includeStack,
+    );
   }
 }
 
@@ -76,7 +96,11 @@ async function validateNodeInclude(
   includeStack: string[],
 ): Promise<void> {
   if (node.type === "include" || node.type === "include-raw") {
-    const include = await readIncludeFile(projectRoot, containingFilePath, node.path);
+    const include = await readIncludeFile(
+      projectRoot,
+      containingFilePath,
+      node.path,
+    );
     if (node.type === "include-raw") {
       return;
     }
@@ -84,18 +108,30 @@ async function validateNodeInclude(
     const parsed = scanDirectives(include.contents);
     validateDirectives(parsed, schema);
     validateStaticInterpolation(parsed, schema);
-    await validateStaticIncludes(projectRoot, include.path, parsed, schema, [...includeStack, include.path]);
+    await validateStaticIncludes(projectRoot, include.path, parsed, schema, [
+      ...includeStack,
+      include.path,
+    ]);
     return;
   }
 
   if (node.type === "conditionalGroup") {
     for (const branch of node.branches) {
-      await validateStaticIncludes(projectRoot, containingFilePath, { nodes: branch.children }, schema, includeStack);
+      await validateStaticIncludes(
+        projectRoot,
+        containingFilePath,
+        { nodes: branch.children },
+        schema,
+        includeStack,
+      );
     }
   }
 }
 
-function validateStaticInterpolation(document: TemplateDocument, schema: TemplateSchema): void {
+function validateStaticInterpolation(
+  document: TemplateDocument,
+  schema: TemplateSchema,
+): void {
   for (const node of document.nodes) {
     if (node.type === "text") {
       validateInterpolationReferences(node.value, schema);
@@ -140,7 +176,11 @@ async function renderNode(
   }
 
   if (node.type === "include" || node.type === "include-raw") {
-    const include = await readIncludeFile(options.projectRoot, options.containingFilePath, node.path);
+    const include = await readIncludeFile(
+      options.projectRoot,
+      options.containingFilePath,
+      node.path,
+    );
     if (node.type === "include-raw") {
       return include.contents;
     }
@@ -161,7 +201,10 @@ async function renderNode(
 
   if (node.type === "conditionalGroup") {
     for (const branch of node.branches) {
-      if (branch.kind === "else" || evaluateCondition(branch.condition!, options.values)) {
+      if (
+        branch.kind === "else" ||
+        evaluateCondition(branch.condition!, options.values)
+      ) {
         return renderDocument({
           projectRoot: options.projectRoot,
           containingFilePath: options.containingFilePath,

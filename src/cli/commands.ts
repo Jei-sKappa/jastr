@@ -1,11 +1,17 @@
-import { parseCliArgs } from "./args";
-import { findProjectRoot } from "../fs/project-root";
-import { resolveSkillTemplatePath, validateSkillName } from "../skills/skill";
 import { renderSkillTemplate, validateSkillTemplate } from "../compiler/render";
-import { buildRouterSkillContent, writeRouterSkill } from "../generate/router-skill";
 import { SkillrouterError } from "../errors";
+import { findProjectRoot } from "../fs/project-root";
+import {
+  buildRouterSkillContent,
+  writeRouterSkill,
+} from "../generate/router-skill";
+import { resolveSkillTemplatePath, validateSkillName } from "../skills/skill";
+import { parseCliArgs } from "./args";
 
-export async function runSkillrouterCommand(argv: string[], cwd: string): Promise<string> {
+export async function runSkillrouterCommand(
+  argv: string[],
+  cwd: string,
+): Promise<string> {
   const parsed = parseCliArgs(argv);
   const projectRoot = await findProjectRoot(cwd);
   const skill = validateSkillName(parsed.skill);
@@ -21,7 +27,10 @@ export async function runSkillrouterCommand(argv: string[], cwd: string): Promis
 
   // A completely absent --out is enforced here; args.ts only rejects a present-but-valueless --out.
   if (!parsed.out) {
-    throw new SkillrouterError("missing_output_path", "Missing required --out <path>.");
+    throw new SkillrouterError(
+      "missing_output_path",
+      "Missing required --out <path>.",
+    );
   }
 
   const loaded = await validateSkillTemplate(projectRoot, templatePath);

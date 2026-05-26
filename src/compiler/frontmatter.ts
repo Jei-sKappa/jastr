@@ -28,6 +28,9 @@ export function parseTemplateSource(source: string): ParsedTemplateSource {
   try {
     return { frontmatter: YAML.parse(frontmatterSource), body };
   } catch {
-    throw new SkillrouterError("invalid_frontmatter", "Root template frontmatter is invalid YAML.");
+    throw new SkillrouterError(
+      "invalid_frontmatter",
+      "Root template frontmatter is invalid YAML.",
+    );
   }
 }

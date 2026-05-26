@@ -6,7 +6,11 @@ const schema: TemplateSchema = {
   name: "demo",
   description: "Demo",
   inputs: {
-    language: { type: "enum", values: ["typescript", "python"], required: true },
+    language: {
+      type: "enum",
+      values: ["typescript", "python"],
+      required: true,
+    },
     "dry-run": { type: "boolean", required: false },
   },
 };
@@ -30,7 +34,9 @@ Other
 `;
 
     const document = scanDirectives(body);
-    expect(document.nodes.some((node) => node.type === "conditionalGroup")).toBe(true);
+    expect(
+      document.nodes.some((node) => node.type === "conditionalGroup"),
+    ).toBe(true);
     expect(() => validateDirectives(document, schema)).not.toThrow();
   });
 
@@ -61,12 +67,18 @@ Other
       scanDirectives(
         ':::if{condition="${dry-run}"}\nA\n:::\n:::include{path="fragment.md"}\n:::else\nB\n:::\n',
       ),
-    ).toThrow("else directive must immediately follow an if or else-if branch.");
+    ).toThrow(
+      "else directive must immediately follow an if or else-if branch.",
+    );
   });
 
   it("rejects nested containers whose inner fence is not shorter than the outer fence", () => {
     expect(() =>
-      scanDirectives(':::if{condition="${dry-run}"}\n:::if{condition="${dry-run}"}\nInner\n:::\n:::\n'),
-    ).toThrow("Nested conditional containers require a longer outer fence than inner fences.");
+      scanDirectives(
+        ':::if{condition="${dry-run}"}\n:::if{condition="${dry-run}"}\nInner\n:::\n:::\n',
+      ),
+    ).toThrow(
+      "Nested conditional containers require a longer outer fence than inner fences.",
+    );
   });
 });

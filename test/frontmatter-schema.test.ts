@@ -27,7 +27,11 @@ describe("frontmatter and schema validation", () => {
         name: "analyze-code",
         description: "Analyze code",
         inputs: {
-          language: { type: "enum", values: ["typescript", "python"], required: true },
+          language: {
+            type: "enum",
+            values: ["typescript", "python"],
+            required: true,
+          },
           "target-file": { type: "string", required: false },
           "dry-run": { type: "boolean", required: false },
         },
@@ -42,7 +46,11 @@ describe("frontmatter and schema validation", () => {
       name: "analyze-code",
       description: "Analyze code",
       inputs: {
-        language: { type: "enum", values: ["typescript", "python"], required: true },
+        language: {
+          type: "enum",
+          values: ["typescript", "python"],
+          required: true,
+        },
         "target-file": { type: "string", required: false },
         "dry-run": { type: "boolean", required: false },
       },
@@ -51,19 +59,37 @@ describe("frontmatter and schema validation", () => {
 
   it("rejects missing requiredness, unsupported types, bad names, and empty enums", () => {
     expect(() =>
-      validateTemplateSchema({ name: "x", description: "x", inputs: { file: { type: "string" } } }),
-    ).toThrow("Input file must explicitly declare required: true or required: false.");
+      validateTemplateSchema({
+        name: "x",
+        description: "x",
+        inputs: { file: { type: "string" } },
+      }),
+    ).toThrow(
+      "Input file must explicitly declare required: true or required: false.",
+    );
 
     expect(() =>
-      validateTemplateSchema({ name: "x", description: "x", inputs: { count: { type: "number", required: false } } }),
+      validateTemplateSchema({
+        name: "x",
+        description: "x",
+        inputs: { count: { type: "number", required: false } },
+      }),
     ).toThrow("Input count uses unsupported type number.");
 
     expect(() =>
-      validateTemplateSchema({ name: "x", description: "x", inputs: { "Bad-Name": { type: "string", required: false } } }),
+      validateTemplateSchema({
+        name: "x",
+        description: "x",
+        inputs: { "Bad-Name": { type: "string", required: false } },
+      }),
     ).toThrow("Invalid input name Bad-Name.");
 
     expect(() =>
-      validateTemplateSchema({ name: "x", description: "x", inputs: { language: { type: "enum", values: [], required: true } } }),
+      validateTemplateSchema({
+        name: "x",
+        description: "x",
+        inputs: { language: { type: "enum", values: [], required: true } },
+      }),
     ).toThrow("Enum input language must declare at least one value.");
   });
 });

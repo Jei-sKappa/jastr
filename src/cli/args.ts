@@ -19,7 +19,10 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
   }
 
   if (!skill) {
-    throw new SkillrouterError("invalid_command", `Missing skill name for ${command}.`);
+    throw new SkillrouterError(
+      "invalid_command",
+      `Missing skill name for ${command}.`,
+    );
   }
 
   return command === "run"
@@ -33,7 +36,10 @@ function parseRunArgs(skill: string, rest: string[]): ParsedCliArgs {
 
   for (const arg of rest) {
     if (!arg.startsWith("--") || arg === "--") {
-      throw new SkillrouterError("invalid_command", `Invalid flag syntax ${arg}.`);
+      throw new SkillrouterError(
+        "invalid_command",
+        `Invalid flag syntax ${arg}.`,
+      );
     }
 
     if (arg.startsWith("--no-")) {
@@ -48,11 +54,17 @@ function parseRunArgs(skill: string, rest: string[]): ParsedCliArgs {
     const name = equalsIndex === -1 ? raw : raw.slice(0, equalsIndex);
 
     if (name === "") {
-      throw new SkillrouterError("invalid_command", `Invalid flag syntax ${arg}.`);
+      throw new SkillrouterError(
+        "invalid_command",
+        `Invalid flag syntax ${arg}.`,
+      );
     }
 
     if (seen.has(name)) {
-      throw new SkillrouterError("duplicate_input_flag", `Duplicate flag --${name}.`);
+      throw new SkillrouterError(
+        "duplicate_input_flag",
+        `Duplicate flag --${name}.`,
+      );
     }
     seen.add(name);
 
@@ -83,7 +95,10 @@ function parseGenerateArgs(skill: string, rest: string[]): ParsedCliArgs {
     if (arg === "--out") {
       const value = rest[index + 1];
       if (!value || value.startsWith("--")) {
-        throw new SkillrouterError("missing_output_path", "Missing value for --out.");
+        throw new SkillrouterError(
+          "missing_output_path",
+          "Missing value for --out.",
+        );
       }
       out = value;
       index += 1;
@@ -93,16 +108,25 @@ function parseGenerateArgs(skill: string, rest: string[]): ParsedCliArgs {
     if (arg.startsWith("--out=")) {
       out = arg.slice("--out=".length);
       if (out === "") {
-        throw new SkillrouterError("missing_output_path", "Missing value for --out.");
+        throw new SkillrouterError(
+          "missing_output_path",
+          "Missing value for --out.",
+        );
       }
       continue;
     }
 
     if (arg.startsWith("--")) {
-      throw new SkillrouterError("invalid_command", `Unknown generate option ${arg}.`);
+      throw new SkillrouterError(
+        "invalid_command",
+        `Unknown generate option ${arg}.`,
+      );
     }
 
-    throw new SkillrouterError("invalid_command", `Invalid generate argument ${arg}.`);
+    throw new SkillrouterError(
+      "invalid_command",
+      `Invalid generate argument ${arg}.`,
+    );
   }
 
   return { command: "generate", skill, out, force };

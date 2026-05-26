@@ -100,8 +100,12 @@ describe("conditions", () => {
   });
 
   it("uses left associative equality and boolean operators", () => {
-    expect(evaluateCondition(parseCondition("true == true == true"), {})).toBe(true);
-    expect(evaluateCondition(parseCondition("false || true && false"), {})).toBe(false);
+    expect(evaluateCondition(parseCondition("true == true == true"), {})).toBe(
+      true,
+    );
+    expect(
+      evaluateCondition(parseCondition("false || true && false"), {}),
+    ).toBe(false);
     expect(evaluateCondition(parseCondition("!false == true"), {})).toBe(true);
   });
 });

@@ -6,7 +6,11 @@ const schema: TemplateSchema = {
   name: "analyze-code",
   description: "Analyze code",
   inputs: {
-    language: { type: "enum", values: ["typescript", "python"], required: true },
+    language: {
+      type: "enum",
+      values: ["typescript", "python"],
+      required: true,
+    },
     "target-file": { type: "string", required: false },
     "dry-run": { type: "boolean", required: false },
   },
@@ -37,12 +41,16 @@ describe("coerceInputFlags", () => {
   });
 
   it("rejects unknown missing invalid and empty values", () => {
-    expect(() => coerceInputFlags(schema, [])).toThrow("Missing required input --language.");
+    expect(() => coerceInputFlags(schema, [])).toThrow(
+      "Missing required input --language.",
+    );
     expect(() =>
       coerceInputFlags(schema, [
         { name: "language", form: "value", value: "ruby" },
       ]),
-    ).toThrow("Invalid value ruby for --language. Expected one of: typescript, python.");
+    ).toThrow(
+      "Invalid value ruby for --language. Expected one of: typescript, python.",
+    );
     expect(() =>
       coerceInputFlags(schema, [
         { name: "language", form: "value", value: "typescript" },
@@ -64,10 +72,14 @@ describe("coerceInputFlags", () => {
 
   it("rejects bare string and enum flags", () => {
     expect(() =>
-      coerceInputFlags(schema, [{ name: "language", form: "bare", value: true }]),
+      coerceInputFlags(schema, [
+        { name: "language", form: "bare", value: true },
+      ]),
     ).toThrow("Input --language requires --language=value.");
     expect(() =>
-      coerceInputFlags(schema, [{ name: "target-file", form: "bare", value: true }]),
+      coerceInputFlags(schema, [
+        { name: "target-file", form: "bare", value: true },
+      ]),
     ).toThrow("Input --target-file requires --target-file=value.");
   });
 });

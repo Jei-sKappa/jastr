@@ -5,7 +5,10 @@ import { INPUT_NAME_PATTERN } from "./schema";
 
 const INTERPOLATION_PATTERN = /\{\{([^}]+)\}\}/g;
 
-export function validateInterpolationReferences(text: string, schema: TemplateSchema): void {
+export function validateInterpolationReferences(
+  text: string,
+  schema: TemplateSchema,
+): void {
   for (const reference of extractReferences(text)) {
     if (!(reference in schema.inputs)) {
       throw new SkillrouterError(

@@ -5,13 +5,19 @@ import type { TemplateSchema } from "./schema";
 export type InputValue = string | boolean;
 export type InputValues = Record<string, InputValue>;
 
-export function coerceInputFlags(schema: TemplateSchema, flags: RawFlag[]): InputValues {
+export function coerceInputFlags(
+  schema: TemplateSchema,
+  flags: RawFlag[],
+): InputValues {
   const values: InputValues = {};
 
   for (const flag of flags) {
     const definition = schema.inputs[flag.name];
     if (!definition) {
-      throw new SkillrouterError("unknown_input_flag", `Unknown input flag --${flag.name}.`);
+      throw new SkillrouterError(
+        "unknown_input_flag",
+        `Unknown input flag --${flag.name}.`,
+      );
     }
 
     if (definition.type === "boolean") {

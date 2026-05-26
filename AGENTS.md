@@ -42,14 +42,14 @@ The authoring surface is project-local Markdown templates under
 router files that tell the agent to run `skillrouter run <skill> $ARGUMENTS`
 and follow the rendered Markdown output.
 
-The project is currently in the design stage. The primary design thread is
-`docs/threads/260526113604Z-agent-skill-router-cli/`. Treat claims there as
-design context, and prefer the latest discussion decisions over older proposal
-examples when they disagree.
+The project has a v1 CLI implementation. The primary design thread remains
+`docs/threads/260526113604Z-agent-skill-router-cli/`; treat claims there as
+design context and prefer the current implementation plus the latest discussion
+decisions over older proposal examples when they disagree.
 
 Current v1 direction:
 
-- The current v1 implementation contract is
+- The implemented v1 contract is
   `docs/threads/260526113604Z-agent-skill-router-cli/specs/260526140146Z-v1-spec.md`.
 - Canonical commands are `skillrouter run <skill> [input flags...]` and
   `skillrouter generate <skill> --out <path> [--force]`.

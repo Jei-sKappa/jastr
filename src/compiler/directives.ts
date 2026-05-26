@@ -1,8 +1,12 @@
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import remarkDirective from "remark-directive";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
 import { SkillrouterError } from "../errors";
-import { parseCondition, validateConditionInputs, type ConditionAst } from "./conditions";
+import {
+  type ConditionAst,
+  parseCondition,
+  validateConditionInputs,
+} from "./conditions";
 import type { TemplateSchema } from "./schema";
 
 export type TextNode = { type: "text"; value: string };
@@ -12,7 +16,10 @@ export type ConditionalBranch = {
   condition?: ConditionAst;
   children: TemplateNode[];
 };
-export type ConditionalGroupNode = { type: "conditionalGroup"; branches: ConditionalBranch[] };
+export type ConditionalGroupNode = {
+  type: "conditionalGroup";
+  branches: ConditionalBranch[];
+};
 export type TemplateNode = TextNode | IncludeNode | ConditionalGroupNode;
 export type TemplateDocument = { nodes: TemplateNode[] };
 
@@ -71,10 +78,16 @@ export function scanDirectives(body: string): TemplateDocument {
     const attrs = parseAttributes(opening.attributes);
     if (opening.name === "if" || opening.name === "else-if") {
       if (Object.keys(attrs).length !== 1 || !attrs.condition) {
-        throw new SkillrouterError("invalid_directive", `${opening.name} directive requires condition.`);
+        throw new SkillrouterError(
+          "invalid_directive",
+          `${opening.name} directive requires condition.`,
+        );
       }
     } else if (Object.keys(attrs).length !== 0) {
-      throw new SkillrouterError("invalid_directive", "else directive does not accept attributes.");
+      throw new SkillrouterError(
+        "invalid_directive",
+        "else directive does not accept attributes.",
+      );
     }
 
     const parent = stack.at(-1);
@@ -89,7 +102,10 @@ export function scanDirectives(body: string): TemplateDocument {
       pendingGroups.delete(targetNodes(stack, root));
     }
 
-    if ((opening.name === "else-if" || opening.name === "else") && !pendingGroups.has(targetNodes(stack, root))) {
+    if (
+      (opening.name === "else-if" || opening.name === "else") &&
+      !pendingGroups.has(targetNodes(stack, root))
+    ) {
       throw new SkillrouterError(
         "invalid_directive",
         `${opening.name} directive must immediately follow an if or else-if branch.`,
@@ -105,13 +121,19 @@ export function scanDirectives(body: string): TemplateDocument {
   }
 
   if (stack.length > 0) {
-    throw new SkillrouterError("invalid_directive", "Unclosed conditional directive.");
+    throw new SkillrouterError(
+      "invalid_directive",
+      "Unclosed conditional directive.",
+    );
   }
 
   return { nodes: root };
 }
 
-export function validateDirectives(document: TemplateDocument, schema: TemplateSchema): void {
+export function validateDirectives(
+  document: TemplateDocument,
+  schema: TemplateSchema,
+): void {
   for (const node of walkNodes(document.nodes)) {
     if (node.type === "conditionalGroup") {
       for (const branch of node.branches) {
@@ -135,7 +157,10 @@ function appendBranch(
   };
 
   if (container.name === "if") {
-    const group: ConditionalGroupNode = { type: "conditionalGroup", branches: [branch] };
+    const group: ConditionalGroupNode = {
+      type: "conditionalGroup",
+      branches: [branch],
+    };
     nodes.push(group);
     pendingGroups.set(nodes, group);
     return;
@@ -155,7 +180,10 @@ function appendBranch(
   }
 }
 
-function targetNodes(stack: OpenContainer[], root: TemplateNode[]): TemplateNode[] {
+function targetNodes(
+  stack: OpenContainer[],
+  root: TemplateNode[],
+): TemplateNode[] {
   return stack.at(-1)?.children ?? root;
 }
 
@@ -171,16 +199,25 @@ function* walkNodes(nodes: TemplateNode[]): Generator<TemplateNode> {
 }
 
 function parseDirectiveOpening(line: string):
-  | { fenceLength: number; name: "if" | "else-if" | "else" | "include" | "include-raw"; attributes: string }
+  | {
+      fenceLength: number;
+      name: "if" | "else-if" | "else" | "include" | "include-raw";
+      attributes: string;
+    }
   | undefined {
-  const match = line.match(/^(:{3,})(if|else-if|else|include-raw|include)([^\n]*)\n?$/);
+  const match = line.match(
+    /^(:{3,})(if|else-if|else|include-raw|include)([^\n]*)\n?$/,
+  );
   if (!match) {
     return undefined;
   }
 
   const rest = match[3]!.trim();
   if (rest !== "" && !(rest.startsWith("{") && rest.endsWith("}"))) {
-    throw new SkillrouterError("invalid_directive", `Invalid directive attributes ${rest}.`);
+    throw new SkillrouterError(
+      "invalid_directive",
+      `Invalid directive attributes ${rest}.`,
+    );
   }
 
   return {
@@ -202,7 +239,10 @@ function parseAttributes(source: string): Record<string, string> {
   while (remaining !== "") {
     const match = remaining.match(/^([a-z-]+)="((?:\\"|[^"])*)"\s*/);
     if (!match) {
-      throw new SkillrouterError("invalid_directive", `Invalid directive attributes ${source}.`);
+      throw new SkillrouterError(
+        "invalid_directive",
+        `Invalid directive attributes ${source}.`,
+      );
     }
     attributes[match[1]!] = match[2]!.replace(/\\"/g, '"');
     remaining = remaining.slice(match[0].length);
@@ -215,6 +255,9 @@ function validateRemarkDirectiveSyntax(body: string): void {
   try {
     unified().use(remarkParse).use(remarkDirective).parse(body);
   } catch {
-    throw new SkillrouterError("invalid_directive", "Markdown directive syntax is invalid.");
+    throw new SkillrouterError(
+      "invalid_directive",
+      "Markdown directive syntax is invalid.",
+    );
   }
 }

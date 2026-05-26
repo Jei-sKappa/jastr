@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { renderSkillTemplate, validateSkillTemplate } from "../src/compiler/render";
+import {
+  renderSkillTemplate,
+  validateSkillTemplate,
+} from "../src/compiler/render";
 import { createTempProject, writeProjectFile } from "./helpers";
 
 describe("render pipeline", () => {
@@ -42,8 +45,16 @@ Other
 :::include-raw{path="raw.md"}
 `,
       );
-      await writeProjectFile(project.root, ".skillrouter/demo/fragments/typescript.md", "Nested {{language}}\n");
-      await writeProjectFile(project.root, ".skillrouter/demo/raw.md", "Raw {{language}}\n:::include{path=\"ignored.md\"}\n");
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/fragments/typescript.md",
+        "Nested {{language}}\n",
+      );
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/raw.md",
+        'Raw {{language}}\n:::include{path="ignored.md"}\n',
+      );
 
       await expect(
         renderSkillTemplate({
@@ -89,7 +100,10 @@ inputs:
       );
 
       await expect(
-        validateSkillTemplate(project.root, `${project.root}/.skillrouter/demo/SKILL.template.md`),
+        validateSkillTemplate(
+          project.root,
+          `${project.root}/.skillrouter/demo/SKILL.template.md`,
+        ),
       ).rejects.toThrow("Include file missing.md was not found.");
     } finally {
       await project.cleanup();
@@ -146,10 +160,17 @@ description: Demo skill
 :::include{path="fragment.md"}
 `,
       );
-      await writeProjectFile(project.root, ".skillrouter/demo/fragment.md", "Bad {{missing}}\n");
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/fragment.md",
+        "Bad {{missing}}\n",
+      );
 
       await expect(
-        validateSkillTemplate(project.root, `${project.root}/.skillrouter/demo/SKILL.template.md`),
+        validateSkillTemplate(
+          project.root,
+          `${project.root}/.skillrouter/demo/SKILL.template.md`,
+        ),
       ).rejects.toThrow("Interpolation references undeclared input missing.");
     } finally {
       await project.cleanup();
@@ -169,7 +190,11 @@ description: Demo
 :::include{path="fragment.md"}
 `,
       );
-      await writeProjectFile(project.root, ".skillrouter/demo/fragment.md", "---\nnot: metadata\n---\nBody\n");
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/fragment.md",
+        "---\nnot: metadata\n---\nBody\n",
+      );
 
       await expect(
         renderSkillTemplate({
