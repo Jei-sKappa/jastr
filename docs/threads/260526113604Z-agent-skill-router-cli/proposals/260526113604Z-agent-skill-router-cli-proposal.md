@@ -1,3 +1,148 @@
+# Draft
+
+I'm trying to build a cli for ai agent skills because complex skills have a problem they force the agent to read also unnecessary instructions.
+Here is an example:
+```
+---
+name: analyze-code
+description: Analyze TypeScript code for bugs, security issues, and code quality problems
+---
+
+<input>
+- language: typescript | python
+- target: file | file[] | directory | directory[] | null
+- depth: quick | standard | deep
+- fix: boolean | null
+</input>
+
+<check>
+- `language`: language is required and if not provided or not supported, return an error
+- `target`: target is not required but if provided, it must be a valid file/s or directory/ies
+- `depth`: depth is required and must be one of the following: quick, standard, deep
+
+If there is any error, stop immediately and return the error.
+</check>
+
+
+<steps>
+<step name="read-language-analysis-rules">
+if `language` is `typescript`, read the language analysis rules from `docs/languages/typescript/analysis-rules.md`.
+if `language` is `python`, read the language analysis rules from `docs/languages/python/analysis-rules.md`.
+</step>
+
+<step name="read-target">
+if `target` is provided, read the target files/directories.
+if `target` is not provided, read the target files/directories from the current working directory.
+</step>
+
+<step name="analyze-code">
+if `depth` is `quick`, analyze only the most important files/directories.
+if `depth` is `standard`, analyze all the files/directories.
+if `depth` is `deep`, analyze all the files/directories and the dependencies between them.
+</step>
+
+<step name="output-results">
+output the results in a human-readable format.
+</step>
+</steps>
+```
+
+In this case you see that the agent is forced to read also things that he shouldn't if the user was clear about it's intentions.
+
+My goal is to build a system that decomposes the skills into variants based on user input for example we can have a skill like this.
+
+# Idea
+
+```
+---
+name: analyze-code
+description: Analyze TypeScript code for bugs, security issues, and code quality problems
+---
+
+Run this cli and follow what it says.
+
+```
+my-cli analyze-code $ARGUMENTS
+```
+````
+
+## Examples
+
+### Errors
+
+Command ran: `my-cli analyze-code --language=c++`
+
+Output:
+```
+Error: Language 'c++' is not supported. Please tell the user to use a supported language.
+```
+
+Command ran: `my-cli analyze-code --invalid-argument=true`
+
+Output:
+```
+Error: Invalid argument 'invalid-argument'. Please tell the user to use a valid argument.
+```
+
+### Valid
+
+Command ran: `my-cli analyze-code --language=typescript --target=src/index.ts --depth=quick`
+
+Output:
+```
+<steps>
+<step name="read-language-analysis-rules">
+read the language analysis rules from `docs/languages/typescript/analysis-rules.md`.
+</step>
+
+<step name="read-target">
+read `src/index.ts`
+</step>
+
+<step name="analyze-code">
+analyze only the most important files/directories.
+</step>
+
+<step name="output-results">
+output the results in a human-readable format.
+</step>
+</steps>
+```
+
+So with this tool the more complex skills the author will just write in the skill body to run the cli and follow the instructions.
+
+I'n my mind I have this UX:
+<!-- Final user project structure -->
+```
+- .agents/ <!-- Or .claude/ depending on the agent used: not our business -->
+  - skills/
+    - analyze-code/
+      - SKILL.md <!-- This is the skill "router" that just instructs the agent to call the correct cli command -->
+- .skillrouter/
+  - analyze-code/
+    - SKILL.template.md <!-- This is the skill template that the user will write the skill in with conditional blocks -->
+```
+
+The cli job given an argument like `skillrouter <skill-name>` will search for the `.skillrouter/<skill-name>/SKILL.template.md` file and "parse" with cli arguments it to convert the template into a final instruction that will be outputted to the stdout and the agent can read it.
+
+```
+- .skillrouter/
+  - my-workflow/
+    - fragments/
+      - create-spec.md # Note that also the files in fragment *could** be a `.template.md` file in this case the cli will just recursively parse the template
+      - implement.md
+    - SKILL.template.md
+```
+
+This also helps with organization and readability.
+
+I'd like to desing this project in "a modular way" to avoid tight coupling between the components.
+
+I'd like to use bun as runtime, package manager and bunder but we should not use any native bun feature (including tests) to no being locked into bun and be able to use other runtimes like node in the future if needed.
+
+---
+
+
 # Agent Skill Router CLI Proposal
 
 ## Intent
