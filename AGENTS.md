@@ -49,6 +49,8 @@ examples when they disagree.
 
 Current v1 direction:
 
+- The current v1 implementation contract is
+  `docs/threads/260526113604Z-agent-skill-router-cli/specs/260526140146Z-v1-spec.md`.
 - Canonical commands are `skillrouter run <skill> [input flags...]` and
   `skillrouter generate <skill> --out <path> [--force]`.
 - V1 stays agent-agnostic; generated router skill output paths are explicit.
