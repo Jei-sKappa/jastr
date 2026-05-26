@@ -1,0 +1,98 @@
+import { describe, expect, it } from "vitest";
+import { createTempProject, readProjectFile, runCli, writeProjectFile } from "./helpers";
+
+describe("skillrouter cli", () => {
+  it("runs a skill from a nested cwd and prints rendered markdown only", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Hello {{language}}
+`,
+      );
+      await writeProjectFile(project.root, "nested/.keep", "");
+
+      const result = await runCli(["run", "demo", "--language=typescript"], `${project.root}/nested`);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toBe("Hello typescript");
+      expect(result.stderr).toBe("");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("prints errors to stderr and keeps stdout empty", async () => {
+    const project = await createTempProject();
+    try {
+      const result = await runCli(["run", "Missing"], project.root);
+
+      expect(result.exitCode).not.toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Invalid skill name Missing.");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("generates a router skill after shared static validation", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+---
+Hello
+`,
+      );
+
+      const result = await runCli(["generate", "demo", "--out", "out/SKILL.md"], project.root);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("");
+      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toContain(
+        "skillrouter run demo $ARGUMENTS",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("fails generate when --out is completely absent", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+---
+Hello
+`,
+      );
+
+      const result = await runCli(["generate", "demo"], project.root);
+
+      expect(result.exitCode).not.toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Missing required --out <path>.");
+    } finally {
+      await project.cleanup();
+    }
+  });
+});
