@@ -62,6 +62,12 @@ Hello {{language}}
         `---
 name: demo
 description: Demo skill
+license: Apache-2.0
+my-field: kept
+inputs:
+  dry-run:
+    type: boolean
+    required: false
 ---
 Hello
 `,
@@ -75,9 +81,11 @@ Hello
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe("");
-      await expect(
-        readProjectFile(project.root, "out/SKILL.md"),
-      ).resolves.toContain("skillrouter run demo $ARGUMENTS");
+      const generated = await readProjectFile(project.root, "out/SKILL.md");
+      expect(generated).toContain("license: Apache-2.0");
+      expect(generated).toContain("my-field: kept");
+      expect(generated).not.toContain("inputs:");
+      expect(generated).toContain("skillrouter run demo $ARGUMENTS");
     } finally {
       await project.cleanup();
     }

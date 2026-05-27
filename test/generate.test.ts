@@ -30,6 +30,59 @@ If the command exits non-zero, report the exact error output to the user and sto
 `);
   });
 
+  it("passes through official and kebab-case extension frontmatter fields", () => {
+    expect(
+      buildRouterSkillContent({
+        skill: "demo",
+        name: "demo",
+        description: "Demo skill",
+        frontmatter: {
+          name: "demo",
+          description: "Demo skill",
+          inputs: {},
+          license: "Apache-2.0",
+          "allowed-tools": "Read Bash(git:*)",
+          metadata: { author: "example-org" },
+          "anthropic-version": "1.0",
+        },
+      }),
+    ).toBe(`---
+name: demo
+description: Demo skill
+license: Apache-2.0
+allowed-tools: Read Bash(git:*)
+metadata:
+  author: example-org
+anthropic-version: "1.0"
+---
+
+Run this command and follow its output exactly:
+
+\`\`\`bash
+skillrouter run demo $ARGUMENTS
+\`\`\`
+
+If the command exits non-zero, report the exact error output to the user and stop.
+`);
+  });
+
+  it("rejects invalid generated skill frontmatter", () => {
+    expect(() =>
+      buildRouterSkillContent({
+        skill: "demo",
+        name: "demo",
+        description: "Demo skill",
+        frontmatter: {
+          name: "demo",
+          description: "Demo skill",
+          customField: "value",
+        },
+      }),
+    ).toThrow(
+      "Generated skill frontmatter field customField must be kebab-case.",
+    );
+  });
+
   it("writes to explicit paths creates parents and protects existing files", async () => {
     const project = await createTempProject();
     try {

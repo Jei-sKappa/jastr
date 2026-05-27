@@ -38,6 +38,7 @@ export async function runSkillrouterCommand(
     skill,
     name: loaded.schema.name,
     description: loaded.schema.description,
+    frontmatter: loaded.frontmatter,
   });
   await writeRouterSkill({
     cwd,

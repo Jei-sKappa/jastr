@@ -24,7 +24,10 @@ Skillrouter directives, resolves includes, interpolates inputs, and prints
 Markdown to stdout.
 
 `generate` writes a minimal router `SKILL.md` to an explicit destination. It
-does not guess agent-specific skill folders.
+validates Agent Skills `name` and `description` frontmatter, omits
+Skillrouter-owned fields such as `inputs`, and passes through additional
+kebab-case frontmatter fields for ecosystem-specific skill specs. It does not
+guess agent-specific skill folders.
 
 ## Template Example
 

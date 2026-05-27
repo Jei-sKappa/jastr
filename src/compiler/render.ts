@@ -18,6 +18,7 @@ import { type TemplateSchema, validateTemplateSchema } from "./schema";
 
 export type LoadedTemplate = {
   schema: TemplateSchema;
+  frontmatter: Record<string, unknown>;
   body: string;
   document: TemplateDocument;
 };
@@ -37,7 +38,12 @@ export async function loadAndValidateTemplate(
   const document = scanDirectives(parsed.body);
   validateDirectives(document, schema);
   validateStaticInterpolation(document, schema);
-  return { schema, body: parsed.body, document };
+  return {
+    schema,
+    frontmatter: parsed.frontmatter as Record<string, unknown>,
+    body: parsed.body,
+    document,
+  };
 }
 
 export async function validateSkillTemplate(
