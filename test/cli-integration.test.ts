@@ -1,3 +1,5 @@
+import { realpath } from "node:fs/promises";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   createTempProject,
@@ -79,7 +81,8 @@ Hello
       );
 
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("");
+      const realProjectRoot = await realpath(project.root);
+      expect(result.stdout).toBe(expectedGenerateOutput(realProjectRoot));
       expect(result.stderr).toBe("");
       const generated = await readProjectFile(project.root, "out/SKILL.md");
       expect(generated).toContain("license: Apache-2.0");
@@ -174,6 +177,8 @@ Hello
         project.root,
       );
       expect(forced.exitCode).toBe(0);
+      const realProjectRoot = await realpath(project.root);
+      expect(forced.stdout).toBe(expectedGenerateOutput(realProjectRoot));
       await expect(
         readProjectFile(project.root, "out/SKILL.md"),
       ).resolves.toContain("skillrouter run demo $ARGUMENTS");
@@ -182,3 +187,7 @@ Hello
     }
   });
 });
+
+function expectedGenerateOutput(projectRoot: string): string {
+  return `Generated \`${path.join(projectRoot, "out", "SKILL.md")}\` from template \`${path.join(projectRoot, ".skillrouter", "demo", "SKILL.template.md")}\``;
+}

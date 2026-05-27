@@ -40,11 +40,11 @@ export async function runSkillrouterCommand(
     description: loaded.schema.description,
     frontmatter: loaded.frontmatter,
   });
-  await writeRouterSkill({
+  const outputPath = await writeRouterSkill({
     cwd,
     out: parsed.out,
     force: parsed.force,
     content,
   });
-  return "";
+  return `Generated \`${outputPath}\` from template \`${templatePath}\``;
 }

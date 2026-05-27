@@ -26,8 +26,9 @@ Markdown to stdout.
 `generate` writes a minimal router `SKILL.md` to an explicit destination. It
 validates Agent Skills `name` and `description` frontmatter, omits
 Skillrouter-owned fields such as `inputs`, and passes through additional
-kebab-case frontmatter fields for ecosystem-specific skill specs. It does not
-guess agent-specific skill folders.
+kebab-case frontmatter fields for ecosystem-specific skill specs. On success it
+prints the generated path and source template path. It does not guess
+agent-specific skill folders.
 
 ## Template Example
 
