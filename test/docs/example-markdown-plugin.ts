@@ -13,8 +13,18 @@ export async function createExampleMarkdownPlugin(repoRoot: string) {
       "html_block",
       "skillrouter_example",
       (state, startLine, _endLine, silent) => {
-        const start = state.bMarks[startLine] + state.tShift[startLine];
-        const max = state.eMarks[startLine];
+        const bMark = state.bMarks[startLine];
+        const tShift = state.tShift[startLine];
+        const eMark = state.eMarks[startLine];
+        if (
+          bMark === undefined ||
+          tShift === undefined ||
+          eMark === undefined
+        ) {
+          return false;
+        }
+        const start = bMark + tShift;
+        const max = eMark;
         const line = state.src.slice(start, max).trim();
         const match = line.match(
           /^<Example\s+id="([a-z][a-z0-9]*(?:-[a-z0-9]+)*)"\s*\/>$/,

@@ -72,7 +72,11 @@ describe("validateExampleManifest", () => {
       validateExampleManifest(
         {
           ...validManifest,
-          expect: { exitCode: 0, stdoutFile: "expected\\stdout.md", stderr: "" },
+          expect: {
+            exitCode: 0,
+            stdoutFile: "expected\\stdout.md",
+            stderr: "",
+          },
         },
         { filePath: "docs/examples/run-basic/example.yml" },
       ),

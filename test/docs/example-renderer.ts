@@ -78,7 +78,11 @@ export function renderExampleHtml(example: LoadedExample): string {
     }
     if (item.kind === "command") {
       parts.push(
-        codeBlock(item.label ?? "Command", item.language ?? "bash", commandText(example)),
+        codeBlock(
+          item.label ?? "Command",
+          item.language ?? "bash",
+          commandText(example),
+        ),
       );
     }
     if (item.kind === "stdout") {

@@ -1,18 +1,11 @@
-import {
-  cp,
-  mkdir,
-  mkdtemp,
-  readFile,
-  realpath,
-  rm,
-} from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execa } from "execa";
 import { expect } from "vitest";
 import {
-  expandPlaceholders,
   type ExampleManifest,
+  expandPlaceholders,
   type LoadedExample,
 } from "./example-manifest";
 
@@ -80,7 +73,11 @@ export async function runExample(
   const temp = await createTempProject();
   try {
     await copyProjectFixture(example, temp.root);
-    const cwd = await resolveCwd(temp.root, example.manifest.cwd, example.manifest);
+    const cwd = await resolveCwd(
+      temp.root,
+      example.manifest.cwd,
+      example.manifest,
+    );
     const projectRoot = await realpath(temp.root);
     const cliPath = path.resolve(repoRoot, "src/cli/index.ts");
     const result = await execa("bun", [cliPath, ...example.manifest.command], {
@@ -114,8 +111,14 @@ export async function runExample(
       for (const [actualPath, expectedPath] of Object.entries(
         example.manifest.expect.files,
       )) {
-        const actual = await readFile(path.join(projectRoot, actualPath), "utf8");
-        const expected = await readFile(path.join(example.dirPath, expectedPath), "utf8");
+        const actual = await readFile(
+          path.join(projectRoot, actualPath),
+          "utf8",
+        );
+        const expected = await readFile(
+          path.join(example.dirPath, expectedPath),
+          "utf8",
+        );
         expect(actual, context(example.manifest, `files.${actualPath}`)).toBe(
           expandExpected(expected, projectRoot, cwd),
         );
@@ -126,7 +129,10 @@ export async function runExample(
       for (const [actualPath, substrings] of Object.entries(
         example.manifest.expect.fileContains,
       )) {
-        const actual = await readFile(path.join(projectRoot, actualPath), "utf8");
+        const actual = await readFile(
+          path.join(projectRoot, actualPath),
+          "utf8",
+        );
         for (const substring of substrings) {
           expect(
             actual.includes(expandExpected(substring, projectRoot, cwd)),
@@ -140,7 +146,10 @@ export async function runExample(
       for (const [actualPath, substrings] of Object.entries(
         example.manifest.expect.fileNotContains,
       )) {
-        const actual = await readFile(path.join(projectRoot, actualPath), "utf8");
+        const actual = await readFile(
+          path.join(projectRoot, actualPath),
+          "utf8",
+        );
         for (const substring of substrings) {
           expect(
             actual.includes(expandExpected(substring, projectRoot, cwd)),

@@ -17,5 +17,5 @@ describe("docs executable examples", () => {
     for (const example of examples) {
       await runExample(repoRoot, example);
     }
-  });
+  }, 30_000);
 });

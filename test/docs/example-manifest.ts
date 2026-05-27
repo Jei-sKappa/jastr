@@ -196,24 +196,23 @@ function validateRenderItem(
   if (!RENDER_ITEM_KINDS.has(kind)) {
     throw error(source, `unsupported render item kind ${kind}.`);
   }
-  const label = optionalString(value.label, `render.show[${index}].label`, source);
+  const label = optionalString(
+    value.label,
+    `render.show[${index}].label`,
+    source,
+  );
   const language = optionalString(
     value.language,
     `render.show[${index}].language`,
     source,
   );
   if (kind === "file" || kind === "generated-file") {
-    const item = {
-      kind,
-      path: validateSafePath(
-        `render.show[${index}].path`,
-        value.path,
-        source,
-      ),
+    return {
+      kind: kind as "file" | "generated-file",
+      path: validateSafePath(`render.show[${index}].path`, value.path, source),
       ...(label === undefined ? {} : { label }),
       ...(language === undefined ? {} : { language }),
     };
-    return item;
   }
   return {
     kind,
@@ -293,7 +292,11 @@ export function validateExampleManifest(
     throw error(withId, "expect must not set both stderr and stderrFile.");
   }
   if (value.expect.files !== undefined) {
-    expect.files = validateStringMap(value.expect.files, "expect.files", withId);
+    expect.files = validateStringMap(
+      value.expect.files,
+      "expect.files",
+      withId,
+    );
   }
   if (value.expect.fileContains !== undefined) {
     expect.fileContains = validateSubstringMap(
