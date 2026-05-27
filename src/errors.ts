@@ -16,6 +16,7 @@ export type SkillrouterErrorCode =
   | "invalid_interpolation"
   | "absent_optional_interpolation"
   | "include_not_found"
+  | "include_error"
   | "include_outside_project"
   | "include_path_rejected"
   | "include_cycle"

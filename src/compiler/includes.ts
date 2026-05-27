@@ -62,12 +62,32 @@ export async function readIncludeFile(
 
   try {
     return { path: resolved, contents: await readFile(resolved, "utf8") };
-  } catch {
+  } catch (error) {
+    const code = getFilesystemErrorCode(error);
+    if (code === "ENOENT") {
+      throw new SkillrouterError(
+        "include_not_found",
+        `Include file ${includePath} was not found.`,
+      );
+    }
+
     throw new SkillrouterError(
-      "include_not_found",
-      `Include file ${includePath} was not found.`,
+      "include_error",
+      `Include file ${includePath} could not be read: ${code ?? "unknown"}.`,
     );
   }
+}
+
+function getFilesystemErrorCode(error: unknown): string | undefined {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    return error.code;
+  }
+  return undefined;
 }
 
 export function detectIncludeCycle(stack: string[], nextPath: string): void {

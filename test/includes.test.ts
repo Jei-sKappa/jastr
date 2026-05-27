@@ -1,3 +1,4 @@
+import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -86,6 +87,33 @@ describe("include resolution", () => {
       await expect(
         readIncludeFile(project.root, from, "missing.md"),
       ).rejects.toThrow("Include file missing.md was not found.");
+      await expect(
+        readIncludeFile(project.root, from, "missing.md"),
+      ).rejects.toMatchObject({ code: "include_not_found" });
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports non-missing read failures as include errors", async () => {
+    const project = await createTempProject();
+    try {
+      const from = path.join(
+        project.root,
+        ".skillrouter",
+        "demo",
+        "SKILL.template.md",
+      );
+      await mkdir(path.join(project.root, ".skillrouter/demo/directory.md"), {
+        recursive: true,
+      });
+
+      await expect(
+        readIncludeFile(project.root, from, "directory.md"),
+      ).rejects.toThrow("Include file directory.md could not be read: EISDIR.");
+      await expect(
+        readIncludeFile(project.root, from, "directory.md"),
+      ).rejects.toMatchObject({ code: "include_error" });
     } finally {
       await project.cleanup();
     }
