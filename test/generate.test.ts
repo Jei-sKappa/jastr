@@ -67,7 +67,8 @@ If the command exits non-zero, report the exact error output to the user and sto
   });
 
   it("rejects invalid generated skill frontmatter", () => {
-    expect(() =>
+    let error: unknown;
+    try {
       buildRouterSkillContent({
         skill: "demo",
         name: "demo",
@@ -77,10 +78,16 @@ If the command exits non-zero, report the exact error output to the user and sto
           description: "Demo skill",
           customField: "value",
         },
-      }),
-    ).toThrow(
-      "Generated skill frontmatter field customField must be kebab-case.",
-    );
+      });
+    } catch (caught) {
+      error = caught;
+    }
+
+    expect(error).toMatchObject({
+      code: "generate_validation_failed",
+      message:
+        "Generated skill frontmatter field customField must be kebab-case.",
+    });
   });
 
   it("writes to explicit paths creates parents and protects existing files", async () => {

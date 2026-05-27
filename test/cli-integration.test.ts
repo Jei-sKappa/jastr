@@ -115,6 +115,35 @@ Hello
     }
   });
 
+  it("surfaces shared generate validation errors without wrapping", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+---
+{{missing}}
+`,
+      );
+
+      const result = await runCli(
+        ["generate", "demo", "--out", "out/SKILL.md"],
+        project.root,
+      );
+
+      expect(result.exitCode).not.toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: Interpolation references undeclared input missing.",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("refuses to overwrite generated output unless force is passed", async () => {
     const project = await createTempProject();
     try {
