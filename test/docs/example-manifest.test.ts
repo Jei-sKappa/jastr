@@ -60,6 +60,15 @@ describe("validateExampleManifest", () => {
     ).toThrow(/unknown top-level field surprise/);
   });
 
+  it("rejects non-boolean hidden values", () => {
+    expect(() =>
+      validateExampleManifest(
+        { ...validManifest, hidden: "false" },
+        { filePath: "docs/examples/run-basic/example.yml" },
+      ),
+    ).toThrow(/hidden must be a boolean/);
+  });
+
   it("rejects unsafe paths", () => {
     expect(() =>
       validateExampleManifest(

@@ -54,7 +54,7 @@ function codeBlock(label: string, language: string, value: string): string {
   return [
     `<section class="example-block">`,
     `<p class="example-label">${escapeHtml(label)}</p>`,
-    `<pre><code class="language-${escapeHtml(language)}">${escapeHtml(value)}</code></pre>`,
+    `<pre v-pre><code class="language-${escapeHtml(language)}">${escapeHtml(value)}</code></pre>`,
     `</section>`,
   ].join("\n");
 }

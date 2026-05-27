@@ -193,6 +193,11 @@ because it's gitignored.
   validated by `test/docs/`. Final-user docs pages live under `docs/site/`.
   Any user-facing command, output, generated file, or behavior shown in docs
   must be backed by an executable docs example or generated from one.
+- The VitePress docs site must render Skillrouter `{{...}}` placeholders
+  literally. The docs Markdown config marks inline code as `v-pre`, and
+  generated example code blocks are emitted with `v-pre`. Do not solve this by
+  changing Vue's global delimiters in VitePress config; that breaks VitePress
+  theme interpolation.
 
 ## Notes
 

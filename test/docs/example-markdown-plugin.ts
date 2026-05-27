@@ -2,6 +2,21 @@ import type MarkdownIt from "markdown-it";
 import { loadExamples } from "./example-manifest";
 import { renderExampleHtml } from "./example-renderer";
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+export function preserveVueTemplateSyntaxInInlineCode(md: MarkdownIt): void {
+  md.renderer.rules.code_inline = (tokens, index) => {
+    const token = tokens[index];
+    return `<code v-pre>${escapeHtml(token?.content ?? "")}</code>`;
+  };
+}
+
 export async function createExampleMarkdownPlugin(repoRoot: string) {
   const examples = await loadExamples(repoRoot);
   const byId = new Map(

@@ -321,6 +321,10 @@ export function validateExampleManifest(
       validateRenderItem(item, index, withId),
     ),
   };
+  const hidden = value.hidden;
+  if (hidden !== undefined && typeof hidden !== "boolean") {
+    throw error(withId, "hidden must be a boolean.");
+  }
 
   return {
     id,
@@ -330,7 +334,7 @@ export function validateExampleManifest(
     command,
     expect,
     render,
-    ...(value.hidden === undefined ? {} : { hidden: Boolean(value.hidden) }),
+    ...(hidden === undefined ? {} : { hidden }),
   };
 }
 
