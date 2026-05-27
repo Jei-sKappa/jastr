@@ -16,7 +16,14 @@ $ARGUMENTS` and follow the Markdown output.
 ```bash
 skillrouter run <skill> [input flags...]
 skillrouter generate <skill> --out <path> [--force]
+skillrouter --help
+skillrouter help [command]
+skillrouter --version
 ```
+
+`--version` reports the package version together with the git commit it was
+built from, e.g. `0.1.0 (abc1234)` (or `0.1.0 (dev)` when run from source). The
+commit hash is baked in at build time.
 
 `run` discovers the nearest ancestor containing `.skillrouter/`, loads
 `.skillrouter/<skill>/SKILL.template.md`, validates declared inputs, evaluates

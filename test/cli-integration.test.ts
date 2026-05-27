@@ -118,6 +118,34 @@ Hello
     }
   });
 
+  it("fails generate when --out is followed by an option-like token", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".skillrouter/demo/SKILL.template.md",
+        `---
+name: demo
+description: Demo skill
+---
+Hello
+`,
+      );
+
+      const result = await runCli(
+        ["generate", "demo", "--out", "--force"],
+        project.root,
+      );
+
+      expect(result.exitCode).not.toBe(0);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Missing value for --out.");
+      await expect(readProjectFile(project.root, "--force")).rejects.toThrow();
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("surfaces shared generate validation errors without wrapping", async () => {
     const project = await createTempProject();
     try {
@@ -142,6 +170,103 @@ description: Demo skill
       expect(result.stderr).toBe(
         "Error: Interpolation references undeclared input missing.",
       );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports version with the dev git sha when run from source", async () => {
+    const project = await createTempProject();
+    try {
+      const result = await runCli(["--version"], project.root);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout.trim()).toBe("0.1.0 (dev)");
+      expect(result.stderr).toBe("");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("prints help listing both commands", async () => {
+    const project = await createTempProject();
+    try {
+      const result = await runCli(["--help"], project.root);
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("run");
+      expect(result.stdout).toContain("generate");
+      expect(result.stderr).toBe("");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("treats the generated help subcommand as a successful help path", async () => {
+    const project = await createTempProject();
+    try {
+      const rootHelp = await runCli(["help"], project.root);
+      expect(rootHelp.exitCode).toBe(0);
+      expect(rootHelp.stdout).toContain("Commands:");
+      expect(rootHelp.stdout).toContain("help [command]");
+      expect(rootHelp.stderr).toBe("");
+
+      const runHelp = await runCli(["help", "run"], project.root);
+      expect(runHelp.exitCode).toBe(0);
+      expect(runHelp.stdout).toContain("Usage: skillrouter run");
+      expect(runHelp.stderr).toBe("");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports no arguments as a single skillrouter error", async () => {
+    const project = await createTempProject();
+    try {
+      const result = await runCli([], project.root);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: Expected command shape: skillrouter run <skill> [input flags...] or skillrouter generate <skill> --out <path> [--force].",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports child command usage errors as single skillrouter errors", async () => {
+    const project = await createTempProject();
+    try {
+      const missingSkill = await runCli(["generate"], project.root);
+      expect(missingSkill.exitCode).toBe(1);
+      expect(missingSkill.stdout).toBe("");
+      expect(missingSkill.stderr).toBe(
+        "Error: Missing skill name for generate.",
+      );
+
+      const unknownOption = await runCli(
+        ["generate", "demo", "--dry-run"],
+        project.root,
+      );
+      expect(unknownOption.exitCode).toBe(1);
+      expect(unknownOption.stdout).toBe("");
+      expect(unknownOption.stderr).toBe(
+        "Error: Unknown generate option --dry-run.",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports an unknown command as a skillrouter error", async () => {
+    const project = await createTempProject();
+    try {
+      const result = await runCli(["bogus"], project.root);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr.startsWith("Error: ")).toBe(true);
     } finally {
       await project.cleanup();
     }

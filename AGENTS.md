@@ -52,16 +52,34 @@ Current v1 direction:
 - The implemented v1 contract is
   `docs/threads/260526113604Z-agent-skill-router-cli/specs/260526140146Z-v1-spec.md`.
 - Canonical commands are `skillrouter run <skill> [input flags...]` and
-  `skillrouter generate <skill> --out <path> [--force]`.
+  `skillrouter generate <skill> --out <path> [--force]`, plus `--help`,
+  `help [command]`, and `--version`.
 - V1 stays agent-agnostic; generated router skill output paths are explicit.
 - Templates use Markdown with frontmatter inputs and a small directive set:
   `if`, `else-if`, `else`, `include`, and `include-raw`.
-- The CLI should remain a thin shell around independently testable parsing,
-  validation, rendering, include resolution, condition evaluation, and
-  interpolation modules.
+- The CLI is built on Commander (`@commander-js/extra-typings`):
+  `src/cli/program.ts` assembles the `run`/`generate` command factories
+  (`src/cli/commands/`), `--help`, and `--version`. Command bodies stay thin
+  over the testable `executeRun`/`executeGenerate` helpers
+  (`src/cli/commands.ts`), which front the parsing, validation, rendering,
+  include resolution, condition evaluation, and interpolation modules.
+- `run`'s per-template input flags are deliberately **not** Commander options
+  (they vary per template). Commander passes them through
+  (`passThroughOptions` + `allowUnknownOption`) to skillrouter's own
+  `parseRunFlags` (`src/cli/args.ts`), which enforces the strict v1 flag
+  syntax. `generate` declares `--out`/`--force` as Commander options.
+- Error UX is uniform: every failure prints `Error: <message>` to stderr with
+  exit code 1 (the entry point re-emits Commander usage errors in this form);
+  only `--help`, `help [command]`, and `--version` exit 0. Commander's own
+  stderr is silenced via `configureOutput`.
+- `--version` prints `<package version> (<git short SHA>)`, or `(dev)` when run
+  from source/tests. The SHA is injected at build time via
+  `bun build --define SKILLROUTER_GIT_SHA=...` and resolved in
+  `src/cli/version.ts` (with `src/cli/globals.d.ts` declaring the global).
 - Use Bun as runtime/package manager/bundler, but avoid Bun-specific runtime
   APIs and Bun's test runner so the project can move to Node or another runtime
-  later if needed.
+  later if needed. (The `--define` git-SHA injection is a build-time bundler
+  flag, not a runtime API.)
 
 ## Engineering Principles
 
@@ -186,6 +204,10 @@ All three commands should exit with code 0 before considering the codebase
 clean.
 
 Use `bun run format` to apply Biome formatting.
+
+Biome is configured with `vcs.useIgnoreFile` so it honors `.gitignore` and
+skips gitignored vendored content (e.g. `.library/`); without this, a nested
+`biome.json` inside a vendored project breaks `bun run check`/`format`.
 
 IMPORTANT: This project is currently private and in a high development phase.
 When considering making changes to the codebase we do need to worry about
