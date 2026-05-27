@@ -40,7 +40,15 @@ export function interpolateText(
 
 export function extractReferences(text: string): string[] {
   return [...text.matchAll(INTERPOLATION_PATTERN)].map((match) => {
-    const reference = match[1]!.trim();
+    const rawReference = match[1];
+    if (rawReference === undefined) {
+      throw new SkillrouterError(
+        "invalid_interpolation",
+        "Invalid interpolation syntax.",
+      );
+    }
+
+    const reference = rawReference.trim();
     if (!INPUT_NAME_PATTERN.test(reference)) {
       throw new SkillrouterError(
         "invalid_interpolation",

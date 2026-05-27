@@ -11,11 +11,16 @@ import type { TemplateSchema } from "./schema";
 
 export type TextNode = { type: "text"; value: string };
 export type IncludeNode = { type: "include" | "include-raw"; path: string };
-export type ConditionalBranch = {
-  kind: "if" | "else-if" | "else";
-  condition?: ConditionAst;
-  children: TemplateNode[];
-};
+export type ConditionalBranch =
+  | {
+      kind: "if" | "else-if";
+      condition: ConditionAst;
+      children: TemplateNode[];
+    }
+  | {
+      kind: "else";
+      children: TemplateNode[];
+    };
 export type ConditionalGroupNode = {
   type: "conditionalGroup";
   branches: ConditionalBranch[];
@@ -23,12 +28,18 @@ export type ConditionalGroupNode = {
 export type TemplateNode = TextNode | IncludeNode | ConditionalGroupNode;
 export type TemplateDocument = { nodes: TemplateNode[] };
 
-type OpenContainer = {
-  name: "if" | "else-if" | "else";
-  fenceLength: number;
-  condition?: ConditionAst;
-  children: TemplateNode[];
-};
+type OpenContainer =
+  | {
+      name: "if" | "else-if";
+      fenceLength: number;
+      condition: ConditionAst;
+      children: TemplateNode[];
+    }
+  | {
+      name: "else";
+      fenceLength: number;
+      children: TemplateNode[];
+    };
 
 export function scanDirectives(body: string): TemplateDocument {
   validateRemarkDirectiveSyntax(body);
@@ -112,10 +123,27 @@ export function scanDirectives(body: string): TemplateDocument {
       );
     }
 
+    if (opening.name === "else") {
+      stack.push({
+        name: opening.name,
+        fenceLength: opening.fenceLength,
+        children: [],
+      });
+      continue;
+    }
+
+    const condition = attrs.condition;
+    if (!condition) {
+      throw new SkillrouterError(
+        "invalid_directive",
+        `${opening.name} directive requires condition.`,
+      );
+    }
+
     stack.push({
       name: opening.name,
       fenceLength: opening.fenceLength,
-      condition: attrs.condition ? parseCondition(attrs.condition) : undefined,
+      condition: parseCondition(condition),
       children: [],
     });
   }
@@ -137,7 +165,7 @@ export function validateDirectives(
   for (const node of walkNodes(document.nodes)) {
     if (node.type === "conditionalGroup") {
       for (const branch of node.branches) {
-        if (branch.condition) {
+        if (branch.kind !== "else") {
           validateConditionInputs(branch.condition, schema);
         }
       }
@@ -150,11 +178,17 @@ function appendBranch(
   pendingGroups: Map<TemplateNode[], ConditionalGroupNode>,
   container: OpenContainer,
 ): void {
-  const branch: ConditionalBranch = {
-    kind: container.name,
-    condition: container.condition,
-    children: container.children,
-  };
+  const branch: ConditionalBranch =
+    container.name === "else"
+      ? {
+          kind: container.name,
+          children: container.children,
+        }
+      : {
+          kind: container.name,
+          condition: container.condition,
+          children: container.children,
+        };
 
   if (container.name === "if") {
     const group: ConditionalGroupNode = {
@@ -212,14 +246,19 @@ function parseDirectiveOpening(line: string):
     return undefined;
   }
 
-  const fenceLength = match[1]!.length;
-  const name = match[2] as
-    | "if"
-    | "else-if"
-    | "else"
-    | "include"
-    | "include-raw";
-  const rest = match[3]!.trim();
+  const fence = match[1];
+  const rawName = match[2];
+  const rawRest = match[3];
+  if (!fence || !rawName || rawRest === undefined) {
+    throw new SkillrouterError(
+      "invalid_directive",
+      `Invalid directive syntax ${line.trim()}.`,
+    );
+  }
+
+  const fenceLength = fence.length;
+  const name = rawName as "if" | "else-if" | "else" | "include" | "include-raw";
+  const rest = rawRest.trim();
   if (rest !== "" && !(rest.startsWith("{") && rest.endsWith("}"))) {
     throw new SkillrouterError(
       "invalid_directive",
@@ -250,7 +289,8 @@ function parseDirectiveOpening(line: string):
 
 function parseClosingFence(line: string): { fenceLength: number } | undefined {
   const match = line.match(/^(:{3,})\s*\n?$/);
-  return match ? { fenceLength: match[1]!.length } : undefined;
+  const fence = match?.[1];
+  return fence ? { fenceLength: fence.length } : undefined;
 }
 
 function parseAttributes(source: string): Record<string, string> {
@@ -265,7 +305,15 @@ function parseAttributes(source: string): Record<string, string> {
         `Invalid directive attributes ${source}.`,
       );
     }
-    attributes[match[1]!] = match[2]!.replace(/\\"/g, '"');
+    const key = match[1];
+    const value = match[2];
+    if (!key || value === undefined) {
+      throw new SkillrouterError(
+        "invalid_directive",
+        `Invalid directive attributes ${source}.`,
+      );
+    }
+    attributes[key] = value.replace(/\\"/g, '"');
     remaining = remaining.slice(match[0].length);
   }
 

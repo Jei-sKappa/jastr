@@ -209,7 +209,7 @@ async function renderNode(
     for (const branch of node.branches) {
       if (
         branch.kind === "else" ||
-        evaluateCondition(branch.condition!, options.values)
+        evaluateCondition(branch.condition, options.values)
       ) {
         return renderDocument({
           projectRoot: options.projectRoot,

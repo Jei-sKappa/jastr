@@ -116,7 +116,7 @@ function tokenize(source: string): Token[] {
   let index = 0;
 
   while (index < source.length) {
-    const char = source[index]!;
+    const char = source.charAt(index);
 
     if (/\s/.test(char)) {
       index += 1;
@@ -201,7 +201,7 @@ function readString(
   let index = start + 1;
 
   while (index < source.length) {
-    const char = source[index]!;
+    const char = source.charAt(index);
     if (char === quote) {
       return [value, index + 1];
     }
