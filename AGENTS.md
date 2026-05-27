@@ -206,8 +206,8 @@ To check that the project has no known local issues, run all of:
 - `bun run docs:check` for executable documentation example validation.
 - `bun run docs:build` for the static documentation site build.
 
-All three commands should exit with code 0 before considering the codebase
-clean.
+All of the above commands should exit with code 0 before considering the
+codebase clean.
 
 Use `bun run format` to apply Biome formatting.
 
