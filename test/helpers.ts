@@ -35,9 +35,9 @@ export async function readProjectFile(
 }
 
 export async function runCli(args: string[], cwd: string) {
-  return execa("bun", ["x", "tsx", "src/cli/index.ts", ...args], {
-    cwd: path.resolve(import.meta.dirname, ".."),
-    env: { SKILLROUTER_TEST_CWD: cwd },
+  const cliPath = path.resolve(import.meta.dirname, "..", "src/cli/index.ts");
+  return execa("bun", [cliPath, ...args], {
+    cwd,
     reject: false,
   });
 }

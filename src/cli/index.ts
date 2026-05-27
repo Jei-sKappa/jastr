@@ -1,10 +1,11 @@
 import { formatCliError } from "../errors";
 import { runSkillrouterCommand } from "./commands";
 
-const cwd = process.env.SKILLROUTER_TEST_CWD ?? process.cwd();
-
 try {
-  const output = await runSkillrouterCommand(process.argv.slice(2), cwd);
+  const output = await runSkillrouterCommand(
+    process.argv.slice(2),
+    process.cwd(),
+  );
   if (output !== "") {
     process.stdout.write(output);
   }
