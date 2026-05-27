@@ -49,7 +49,7 @@ inputs:
 
 ::::if{condition="${language} == 'typescript'"}
 Use the TypeScript checklist.
-:::include{path="fragments/typescript.md"}
+::include{path="fragments/typescript.md"}
 ::::
 
 ::::else-if{condition="${language} == 'python'"}

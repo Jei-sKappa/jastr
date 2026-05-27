@@ -31,7 +31,7 @@ inputs:
 
 ::::if{condition="\${language} == 'typescript'"}
 TypeScript for {{target-file}}
-:::include{path="fragments/typescript.md"}
+::include{path="fragments/typescript.md"}
 ::::
 
 ::::else-if{condition="\${language} == 'python'"}
@@ -42,7 +42,7 @@ Python
 Other
 ::::
 
-:::include-raw{path="raw.md"}
+::include-raw{path="raw.md"}
 `,
       );
       await writeProjectFile(
@@ -53,7 +53,7 @@ Other
       await writeProjectFile(
         project.root,
         ".skillrouter/demo/raw.md",
-        'Raw {{language}}\n:::include{path="ignored.md"}\n',
+        'Raw {{language}}\n::include{path="ignored.md"}\n',
       );
 
       await expect(
@@ -73,7 +73,7 @@ Nested typescript
 
 
 Raw {{language}}
-:::include{path="ignored.md"}
+::include{path="ignored.md"}
 `);
     } finally {
       await project.cleanup();
@@ -95,7 +95,7 @@ inputs:
     values: [typescript]
     required: true
 ---
-:::include{path="missing.md"}
+::include{path="missing.md"}
 `,
       );
 
@@ -130,7 +130,7 @@ Selected
 :::
 
 :::else-if{condition="\${language} == 'python'"}
-:::include{path="missing.md"}
+::include{path="missing.md"}
 :::
 `,
       );
@@ -157,7 +157,7 @@ Selected
 name: demo
 description: Demo skill
 ---
-:::include{path="fragment.md"}
+::include{path="fragment.md"}
 `,
       );
       await writeProjectFile(
@@ -187,7 +187,7 @@ description: Demo skill
 name: demo
 description: Demo
 ---
-:::include{path="fragment.md"}
+::include{path="fragment.md"}
 `,
       );
       await writeProjectFile(

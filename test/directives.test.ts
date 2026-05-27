@@ -21,7 +21,7 @@ describe("directive scanning", () => {
 
 ::::if{condition="\${language} == 'typescript'"}
 TypeScript
-:::include{path="fragments/typescript.md"}
+::include{path="fragments/typescript.md"}
 ::::
 
 ::::else-if{condition="\${language} == 'python'"}
@@ -46,7 +46,7 @@ Other
     );
 
     expect(() =>
-      scanDirectives(':::include{path="x.md" condition="${dry-run}"}\n'),
+      scanDirectives('::include{path="x.md" condition="${dry-run}"}\n'),
     ).toThrow("include directive accepts only path.");
 
     expect(() =>
@@ -65,7 +65,7 @@ Other
   it("rejects non-blank directive content between conditional branches", () => {
     expect(() =>
       scanDirectives(
-        ':::if{condition="${dry-run}"}\nA\n:::\n:::include{path="fragment.md"}\n:::else\nB\n:::\n',
+        ':::if{condition="${dry-run}"}\nA\n:::\n::include{path="fragment.md"}\n:::else\nB\n:::\n',
       ),
     ).toThrow(
       "else directive must immediately follow an if or else-if branch.",
@@ -79,6 +79,22 @@ Other
       ),
     ).toThrow(
       "Nested conditional containers require a longer outer fence than inner fences.",
+    );
+  });
+
+  it("accepts two-colon leaf include markers and rejects three-colon include markers", () => {
+    expect(() => scanDirectives('::include{path="a.md"}\n')).not.toThrow();
+    expect(() => scanDirectives('::include-raw{path="a.md"}\n')).not.toThrow();
+    expect(() => scanDirectives(':::include{path="a.md"}\n')).toThrow(
+      "include is a leaf directive and must start with exactly two colons (::include).",
+    );
+  });
+
+  it("rejects two-colon conditional container markers", () => {
+    expect(() =>
+      scanDirectives('::if{condition="${dry-run}"}\nBody\n:::\n'),
+    ).toThrow(
+      "if is a container directive and must start with three or more colons (:::if).",
     );
   });
 });

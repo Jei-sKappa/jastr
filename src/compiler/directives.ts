@@ -206,12 +206,19 @@ function parseDirectiveOpening(line: string):
     }
   | undefined {
   const match = line.match(
-    /^(:{3,})(if|else-if|else|include-raw|include)([^\n]*)\n?$/,
+    /^(:{2,})(if|else-if|else|include-raw|include)([^\n]*)\n?$/,
   );
   if (!match) {
     return undefined;
   }
 
+  const fenceLength = match[1]!.length;
+  const name = match[2] as
+    | "if"
+    | "else-if"
+    | "else"
+    | "include"
+    | "include-raw";
   const rest = match[3]!.trim();
   if (rest !== "" && !(rest.startsWith("{") && rest.endsWith("}"))) {
     throw new SkillrouterError(
@@ -220,9 +227,23 @@ function parseDirectiveOpening(line: string):
     );
   }
 
+  const isLeaf = name === "include" || name === "include-raw";
+  if (isLeaf && fenceLength !== 2) {
+    throw new SkillrouterError(
+      "invalid_directive",
+      `${name} is a leaf directive and must start with exactly two colons (::${name}).`,
+    );
+  }
+  if (!isLeaf && fenceLength < 3) {
+    throw new SkillrouterError(
+      "invalid_directive",
+      `${name} is a container directive and must start with three or more colons (:::${name}).`,
+    );
+  }
+
   return {
-    fenceLength: match[1]!.length,
-    name: match[2] as "if" | "else-if" | "else" | "include" | "include-raw",
+    fenceLength,
+    name,
     attributes: rest === "" ? "" : rest.slice(1, -1),
   };
 }
