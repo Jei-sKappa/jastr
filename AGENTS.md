@@ -154,51 +154,23 @@ For multi-step tasks, state a brief plan:
 Strong success criteria let you loop independently. Weak criteria ("make it
 work") require constant clarification.
 
-## Documents
-
-This folders serves as a knowledge base for the project, update as needed.
-
-Run `tree documents` to see all the available documents.
-
-### Specs
-
-Specs live under `docs/superpowers/specs/` and are named
-`YYYY-MM-DD-<slug>-design.md`.
-
-**Specs are immutable records of past decisions.** When implementing a feature
-that revises, extends, or supersedes an earlier decision (including resolving
-something that was filed as an "Open Question" in a prior spec), do **not**
-edit the prior spec. Write a new dated spec that:
-
-- Cites the prior spec at the top (e.g., "Supersedes the X open question in
-  `docs/superpowers/specs/<old-spec>.md`.").
-- Stands on its own enough that a reader can understand the new decision
-  without reconstructing it from a diff against the old spec.
-- May be small. A few paragraphs is fine if the decision is small.
-
-The old spec stays as-is so the historical reasoning remains legible. New
-specs are how decisions evolve; edits would erase the trail.
-
 ## Playground
 
-The `playground` folder is a for testing out ideas and concepts and more
-importantly to actually test bylaw for real. Use it as you wish because it's
-gitignored.
+The `playground` folder is for testing out ideas and concepts and, more
+importantly, to actually exercise skillrouter for real. Use it as you wish
+because it's gitignored.
 
 ## Test Layout
 
-- Package-specific tests live beside the package they test:
-  `packages/<name>/test/**`.
-- Root `test/` is reserved for integration tests, end-to-end tests, and shared
-  fixtures.
-- LAW author tests live under each law directory as
-  `laws/<law-name>/tests/<case-name>/`. Keep these fixtures small and readable
-  because they are both regression tests and examples for law authors. Run them
-  with `bun packages/cli/src/index.ts test laws` or target one law with
-  `bun packages/cli/src/index.ts test laws/<law-name>`. Use
-  `--format json` when checking machine-readable output.
-- Keep package `tsconfig.json` files source-only unless there is a specific
-  reason to include tests in a package-local TypeScript project.
+- Skillrouter is a single package: source lives under root `src/`, tests under
+  root `test/`.
+- Tests are vitest specs named `test/<area>.test.ts` (for example
+  `test/includes.test.ts`, `test/cli-integration.test.ts`). Run the whole suite
+  with `bun run test` (which invokes `vitest run`).
+- Shared test helpers and fixtures live in `test/helpers.ts` and alongside the
+  specs that use them.
+- Keep `tsconfig.json` source-only unless there is a specific reason to include
+  tests in the TypeScript project.
 
 ## Notes
 
@@ -208,7 +180,7 @@ To check that the project has no known local issues, run all of:
 
 - `bun run check` for Biome formatting, lint, and assist diagnostics.
 - `bun run typecheck` for TypeScript compiler errors.
-- `bun test` for the automated test suite.
+- `bun run test` for the automated test suite.
 
 All three commands should exit with code 0 before considering the codebase
 clean.
