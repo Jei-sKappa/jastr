@@ -15,4 +15,3 @@ render:
     - kind: stdout
       label: Version
       language: txt
-hidden: true

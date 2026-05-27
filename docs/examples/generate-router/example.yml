@@ -25,4 +25,3 @@ render:
       path: out/SKILL.md
       label: Generated router skill
       language: md
-hidden: true

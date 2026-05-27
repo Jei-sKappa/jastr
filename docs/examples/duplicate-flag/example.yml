@@ -15,4 +15,3 @@ render:
     - kind: stderr
       label: Error
       language: txt
-hidden: true

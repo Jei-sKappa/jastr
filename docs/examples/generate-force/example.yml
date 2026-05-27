@@ -18,4 +18,3 @@ render:
     - kind: stdout
       label: Success message
       language: txt
-hidden: true
