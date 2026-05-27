@@ -1,0 +1,18 @@
+id: duplicate-flag
+title: Duplicate Flag
+description: Shows Skillrouter input validation errors.
+cwd: project
+command: ["run", "demo", "--language=typescript", "--language=python"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Duplicate flag --language.\n"
+render:
+  show:
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stderr
+      label: Error
+      language: txt
+hidden: true

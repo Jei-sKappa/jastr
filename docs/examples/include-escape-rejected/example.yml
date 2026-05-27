@@ -1,0 +1,18 @@
+id: include-escape-rejected
+title: Reject escaping includes
+description: Shows how include paths that escape the project root are rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path ../../../../outside.md escapes the project root.\n"
+render:
+  show:
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stderr
+      label: Error
+      language: txt
+hidden: true

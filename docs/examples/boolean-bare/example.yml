@@ -1,0 +1,22 @@
+id: boolean-bare
+title: Boolean input (bare)
+description: Shows how boolean inputs render in template output.
+cwd: project
+command: ["run", "demo", "--dry-run"]
+expect:
+  exitCode: 0
+  stdout: "dry-run=true\n"
+  stderr: ""
+render:
+  show:
+    - kind: file
+      path: project/.skillrouter/demo/SKILL.template.md
+      label: Template
+      language: md
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stdout
+      label: Rendered output
+      language: txt
+hidden: true

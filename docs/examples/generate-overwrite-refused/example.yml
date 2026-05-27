@@ -1,0 +1,18 @@
+id: generate-overwrite-refused
+title: Generate refuses overwrite
+description: Shows how generate refuses to overwrite an existing output file.
+cwd: .
+command: ["generate", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Output file out/SKILL.md already exists. Use --force to overwrite it.\n"
+render:
+  show:
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stderr
+      label: Error
+      language: txt
+hidden: true

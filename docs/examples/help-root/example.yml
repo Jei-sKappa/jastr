@@ -1,0 +1,18 @@
+id: help-root
+title: Root help
+description: Shows the root CLI help text.
+cwd: project
+command: ["--help"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""
+render:
+  show:
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stdout
+      label: Help
+      language: txt
+hidden: true

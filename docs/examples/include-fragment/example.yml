@@ -1,0 +1,22 @@
+id: include-fragment
+title: Include a fragment
+description: Shows how include resolves and processes nested template syntax.
+cwd: project
+command: ["run", "demo", "--language=typescript"]
+expect:
+  exitCode: 0
+  stdout: "Template\nFragment for typescript\n"
+  stderr: ""
+render:
+  show:
+    - kind: file
+      path: project/.skillrouter/demo/SKILL.template.md
+      label: Template
+      language: md
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stdout
+      label: Rendered output
+      language: md
+hidden: true

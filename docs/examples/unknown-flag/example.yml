@@ -1,0 +1,18 @@
+id: unknown-flag
+title: Unknown Flag
+description: Shows Skillrouter input validation errors.
+cwd: project
+command: ["run", "demo", "--language=typescript", "--unknown=x"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown input flag --unknown.\n"
+render:
+  show:
+    - kind: command
+      label: Command
+      language: bash
+    - kind: stderr
+      label: Error
+      language: txt
+hidden: true

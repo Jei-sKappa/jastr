@@ -1,0 +1,10 @@
+Usage: skillrouter run [options] <skill> [inputs...]
+
+Render a skill template to its final instructions
+
+Arguments:
+  skill       Skill to render
+  inputs      Template input flags (--name=value or --name for booleans)
+
+Options:
+  -h, --help  display help for command
