@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "bun: typecheck watch",
+      "type": "shell",
+      "command": "bunx",
+      "args": ["tsc", "--noEmit", "--watch"],
+      "isBackground": true,
+      "problemMatcher": {
+        "base": "$tsc-watch",
+        "applyTo": "allDocuments"
+      },
+      "runOptions": {
+        "runOn": "folderOpen",
+        "instanceLimit": 1
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": false
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
