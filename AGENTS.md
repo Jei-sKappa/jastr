@@ -185,6 +185,8 @@ To check that the project has no known local issues, run all of:
 All three commands should exit with code 0 before considering the codebase
 clean.
 
+Use `bun run format` to apply Biome formatting.
+
 IMPORTANT: This project is currently private and in a high development phase.
 When considering making changes to the codebase we do need to worry about
 breaking changes because currently no one is using it.

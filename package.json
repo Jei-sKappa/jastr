@@ -9,6 +9,7 @@
   "scripts": {
     "build": "bun build src/cli/index.ts --target=node --outdir=dist --banner='#!/usr/bin/env node'",
     "check": "biome check .",
+    "format": "biome format --write .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

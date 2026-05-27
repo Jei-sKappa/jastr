@@ -69,6 +69,7 @@ Ask the user for a supported language.
 
 ```bash
 bun install
+bun run format
 bun run check
 bun run typecheck
 bun run test
