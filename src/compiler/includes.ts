@@ -31,6 +31,8 @@ export function resolveIncludePath(
   );
   const relativeToRoot = path.relative(projectRoot, resolved);
 
+  // TODO: Consider resolving symlinks here; lexical containment can be bypassed
+  // by a project-local symlink that points outside the project root.
   if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
     throw new SkillrouterError(
       "include_outside_project",
