@@ -189,6 +189,10 @@ because it's gitignored.
   specs that use them.
 - Keep `tsconfig.json` source-only unless there is a specific reason to include
   tests in the TypeScript project.
+- Executable documentation examples live under `docs/examples/` and are
+  validated by `test/docs/`. Final-user docs pages live under `docs/site/`.
+  Any user-facing command, output, generated file, or behavior shown in docs
+  must be backed by an executable docs example or generated from one.
 
 ## Notes
 
@@ -199,6 +203,8 @@ To check that the project has no known local issues, run all of:
 - `bun run check` for Biome formatting, lint, and assist diagnostics.
 - `bun run typecheck` for TypeScript compiler errors.
 - `bun run test` for the automated test suite.
+- `bun run docs:check` for executable documentation example validation.
+- `bun run docs:build` for the static documentation site build.
 
 All three commands should exit with code 0 before considering the codebase
 clean.

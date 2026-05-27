@@ -81,3 +81,9 @@ bun run check
 bun run typecheck
 bun run test
 ```
+
+The user documentation site lives in `docs/site/`. Executable documentation
+examples live in `docs/examples/` and are checked with `bun run docs:check`.
+`bun run docs:build` runs the example checks and then builds the VitePress site.
+The normal `bun run test` suite includes the docs example validation because it
+runs the Vitest specs under `test/docs/`.
