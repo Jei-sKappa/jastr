@@ -9,11 +9,9 @@
   "scripts": {
     "build": "bun build src/cli/index.ts --target=node --outdir=dist --banner='#!/usr/bin/env node' --define SKILLROUTER_GIT_SHA=\"\\\"$(git rev-parse --short HEAD)\\\"\"",
     "check": "biome check .",
-    "docs:build": "bun run docs:check && vitepress build docs/site",
-    "docs:check": "vitest run test/docs",
-    "docs:dev": "vitepress dev docs/site",
     "format": "biome format --write .",
     "test": "vitest run",
+    "test:e2e": "vitest run test/e2e",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -33,7 +31,6 @@
     "@types/node": "^25.9.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3",
-    "vitepress": "^1.6.4",
     "vitest": "^4.1.7"
   }
 }

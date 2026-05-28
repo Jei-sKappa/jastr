@@ -13,6 +13,3 @@ node_modules/
 skills-lock.json
 
 .planning/
-
-docs/site/.vitepress/dist/
-docs/site/.vitepress/cache/
