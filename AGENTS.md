@@ -198,6 +198,13 @@ because it's gitignored.
   generated example code blocks are emitted with `v-pre`. Do not solve this by
   changing Vue's global delimiters in VitePress config; that breaks VitePress
   theme interpolation.
+- Planned replacement: the executable docs-site layer is superseded for future
+  work by
+  `docs/threads/260527120436Z-executable-ux-regression-coverage/specs/260528073027Z-v4-spec.md`.
+  That spec proposes replacing `docs/site` + `docs/examples` + `test/docs` with
+  a functional requirements registry and `test/e2e` cases. Treat this as a
+  planned design until the repo actually contains `requirements/` and
+  `test/e2e/`.
 
 ## Notes
 
