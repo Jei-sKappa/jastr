@@ -80,10 +80,13 @@ bun run format
 bun run check
 bun run typecheck
 bun run test
+bun run test:e2e
 ```
 
-The user documentation site lives in `docs/site/`. Executable documentation
-examples live in `docs/examples/` and are checked with `bun run docs:check`.
-`bun run docs:build` runs the example checks and then builds the VitePress site.
-The normal `bun run test` suite includes the docs example validation because it
-runs the Vitest specs under `test/docs/`.
+Functional requirements live in `requirements/functional-requirements.yml`.
+Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`); each
+requirement owns acceptance criteria with `AC-NNNN` IDs, referenced as
+`<FR-ID>.AC-NNNN`. E2E cases under `test/e2e/cases/<case-id>/case.yml`
+exercise those criteria via `covers: [<FR-ID>.AC-NNNN, ...]` and are executed by
+the Vitest suite under `test/e2e/`. Run `bun run test:e2e` for focused
+functional-requirement validation and traceability checks.

@@ -189,22 +189,19 @@ because it's gitignored.
   specs that use them.
 - Keep `tsconfig.json` source-only unless there is a specific reason to include
   tests in the TypeScript project.
-- Executable documentation examples live under `docs/examples/` and are
-  validated by `test/docs/`. Final-user docs pages live under `docs/site/`.
-  Any user-facing command, output, generated file, or behavior shown in docs
-  must be backed by an executable docs example or generated from one.
-- The VitePress docs site must render Skillrouter `{{...}}` placeholders
-  literally. The docs Markdown config marks inline code as `v-pre`, and
-  generated example code blocks are emitted with `v-pre`. Do not solve this by
-  changing Vue's global delimiters in VitePress config; that breaks VitePress
-  theme interpolation.
-- Planned replacement: the executable docs-site layer is superseded for future
-  work by
-  `docs/threads/260527120436Z-executable-ux-regression-coverage/specs/260528073027Z-v4-spec.md`.
-  That spec proposes replacing `docs/site` + `docs/examples` + `test/docs` with
-  a functional requirements registry and `test/e2e` cases. Treat this as a
-  planned design until the repo actually contains `requirements/` and
-  `test/e2e/`.
+- Functional requirements live in `requirements/functional-requirements.yml`.
+  Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`), and each
+  requirement owns acceptance criteria with `AC-NNNN` IDs scoped to that
+  requirement. The composite acceptance criterion reference is
+  `<FR-ID>.AC-NNNN`.
+- E2E cases live under `test/e2e/cases/<case-id>/case.yml` and are executed by
+  the Vitest suite under `test/e2e/`. Case IDs are lowercase kebab-case slugs;
+  traceability uses `covers: [<FR-ID>.AC-NNNN, ...]`, not IDs embedded in the
+  case name. Traceability validation fails when an active acceptance criterion
+  is uncovered or when a case references a missing or removed requirement or
+  acceptance criterion.
+- There is currently no docs site or VitePress layer. Do not add docs-site
+  fields such as `render` or `hidden` to e2e case manifests.
 
 ## Notes
 
@@ -215,8 +212,7 @@ To check that the project has no known local issues, run all of:
 - `bun run check` for Biome formatting, lint, and assist diagnostics.
 - `bun run typecheck` for TypeScript compiler errors.
 - `bun run test` for the automated test suite.
-- `bun run docs:check` for executable documentation example validation.
-- `bun run docs:build` for the static documentation site build.
+- `bun run test:e2e` for focused functional-requirement e2e case validation.
 
 All of the above commands should exit with code 0 before considering the
 codebase clean.
