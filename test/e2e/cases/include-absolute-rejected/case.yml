@@ -1,0 +1,11 @@
+id: include-absolute-rejected
+covers:
+  - INCLUDE-FR-0003.AC-0003
+title: Reject absolute includes
+description: Shows how absolute include paths are rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path /etc/hosts must be relative.\n"

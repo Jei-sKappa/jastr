@@ -19,8 +19,6 @@
       statement: Missing optional input interpolation exits with code 1.
     - id: AC-0002
       statement: Missing optional input interpolation prints an Error-prefixed stderr message.
-    - id: AC-0003
-      statement: Missing optional input interpolation prints nothing to stdout.
 
 - id: INPUT-FR-0003
   title: Missing required inputs are rejected
@@ -32,8 +30,6 @@
       statement: Missing required input exits with code 1.
     - id: AC-0002
       statement: Missing required input prints an Error-prefixed stderr message.
-    - id: AC-0003
-      statement: Missing required input prints nothing to stdout.
 
 - id: INPUT-FR-0004
   title: Invalid enum values are rejected

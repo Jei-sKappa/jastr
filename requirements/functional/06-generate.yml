@@ -11,6 +11,8 @@
       statement: Generate writes the expected router skill file.
     - id: AC-0003
       statement: Generate prints the generated path and source template path.
+    - id: AC-0004
+      statement: Generate creates missing parent directories for the output path.
 
 - id: GEN-FR-0002
   title: Generate requires an output path
@@ -60,7 +62,7 @@
       statement: An invalid template prints an Error-prefixed stderr message.
 
 - id: GEN-FR-0006
-  title: Generate validates generated skill metadata
+  title: Generate rejects a router name that does not match the skill slug
   status: active
   description: >
     The generate command validates that the template frontmatter name matches
@@ -70,3 +72,42 @@
       statement: A name mismatch exits with code 1.
     - id: AC-0002
       statement: A name mismatch prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0007
+  title: Generate passes through author frontmatter and omits owned fields
+  status: active
+  description: >
+    Generated router frontmatter preserves author-declared Agent Skills fields
+    and additional kebab-case extension fields, and omits Skillrouter-owned
+    fields such as `inputs`.
+  acceptance:
+    - id: AC-0001
+      statement: Generate writes the expected router skill file for a template with extra frontmatter.
+    - id: AC-0002
+      statement: The generated router omits Skillrouter-owned fields such as inputs.
+    - id: AC-0003
+      statement: The generated router preserves known and extension frontmatter fields.
+
+- id: GEN-FR-0008
+  title: Generate rejects unsupported router frontmatter fields
+  status: active
+  description: >
+    Generated router frontmatter rejects an extension field that is not a
+    kebab-case top-level name.
+  acceptance:
+    - id: AC-0001
+      statement: A non-kebab-case frontmatter field exits with code 1.
+    - id: AC-0002
+      statement: A non-kebab-case frontmatter field prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0009
+  title: Generate rejects an over-long router description
+  status: active
+  description: >
+    Generated router frontmatter rejects a description longer than 1024
+    characters.
+  acceptance:
+    - id: AC-0001
+      statement: An over-long description exits with code 1.
+    - id: AC-0002
+      statement: An over-long description prints an Error-prefixed stderr message.

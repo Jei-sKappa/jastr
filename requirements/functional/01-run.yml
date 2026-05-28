@@ -17,7 +17,7 @@
   status: active
   description: >
     The CLI rejects commands other than `run`, `generate`, `help`, `--help`,
-    `--version`, and `-V`.
+    `-h`, `--version`, and `-V`.
   acceptance:
     - id: AC-0001
       statement: An unknown command exits with code 1.
@@ -28,8 +28,8 @@
   title: CLI rejects invalid skill names
   status: active
   description: >
-    Skill names must match the pattern of lowercase letters, digits, and
-    hyphens.
+    Skill names must match `^[a-z0-9][a-z0-9-]*$`: they start with a lowercase
+    letter or digit, followed by lowercase letters, digits, or hyphens.
   acceptance:
     - id: AC-0001
       statement: An invalid skill name exits with code 1.

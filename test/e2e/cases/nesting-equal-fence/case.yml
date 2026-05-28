@@ -1,0 +1,12 @@
+id: nesting-equal-fence
+covers:
+  - TEMPLATE-FR-0005.AC-0001
+  - TEMPLATE-FR-0005.AC-0002
+title: Reject equal-length nested fences
+description: Shows how a nested conditional with an equal-length fence is rejected.
+cwd: project
+command: ["run", "demo", "--mode=full"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Nested conditional containers require a longer outer fence than inner fences.\n"

@@ -1,0 +1,11 @@
+id: typed-equality
+covers:
+  - COND-FR-0007.AC-0001
+title: Typed equality semantics
+description: Shows how a boolean input is not equal to a string literal of the same text.
+cwd: project
+command: ["run", "demo", "--dry-run=true"]
+expect:
+  exitCode: 0
+  stdout: "Typed not equal.\n"
+  stderr: ""

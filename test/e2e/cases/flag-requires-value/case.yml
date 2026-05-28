@@ -1,0 +1,12 @@
+id: flag-requires-value
+covers:
+  - FLAGS-FR-0006.AC-0001
+  - FLAGS-FR-0006.AC-0002
+title: Reject bare flag for string input
+description: Shows how a string input supplied as a bare flag is rejected.
+cwd: project
+command: ["run", "demo", "--target-file"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input --target-file requires --target-file=value.\n"

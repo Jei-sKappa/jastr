@@ -1,0 +1,12 @@
+id: undeclared-condition-input
+covers:
+  - TEMPLATE-FR-0008.AC-0001
+  - TEMPLATE-FR-0008.AC-0002
+title: Reject conditions referencing undeclared inputs
+description: Shows how a condition that references an undeclared input is rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Condition references undeclared input nope.\n"

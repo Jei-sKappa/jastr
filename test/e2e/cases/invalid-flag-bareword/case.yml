@@ -1,6 +1,7 @@
 id: invalid-flag-bareword
 covers:
   - FLAGS-FR-0004.AC-0001
+  - FLAGS-FR-0004.AC-0002
 title: Reject bare words as flags
 description: Shows how positional arguments without -- are rejected during flag parsing.
 cwd: project

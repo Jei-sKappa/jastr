@@ -1,0 +1,12 @@
+id: schema-missing-required
+covers:
+  - TEMPLATE-FR-0002.AC-0001
+  - TEMPLATE-FR-0002.AC-0002
+title: Reject inputs without explicit requiredness
+description: Shows how an input that omits required is rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input target-file must explicitly declare required: true or required: false.\n"

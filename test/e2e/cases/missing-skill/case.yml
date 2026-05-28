@@ -2,6 +2,8 @@ id: missing-skill
 covers:
   - RUN-FR-0005.AC-0001
   - RUN-FR-0005.AC-0002
+  - OUTPUT-FR-0001.AC-0001
+  - OUTPUT-FR-0001.AC-0002
 title: Reject missing skill template
 description: Shows how requesting a non-existent skill fails with a clear error.
 cwd: project

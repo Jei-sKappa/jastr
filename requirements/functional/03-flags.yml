@@ -41,6 +41,45 @@
     forms, including bare positional words and `--no-` negation.
   acceptance:
     - id: AC-0001
-      statement: A bare positional word instead of a flag exits with code 1 and prints an Error-prefixed stderr message.
+      statement: A bare positional word instead of a flag exits with code 1.
     - id: AC-0002
-      statement: A `--no-` negation flag exits with code 1 and prints an Error-prefixed stderr message.
+      statement: A bare positional word instead of a flag prints an Error-prefixed stderr message.
+    - id: AC-0003
+      statement: A `--no-` negation flag exits with code 1.
+    - id: AC-0004
+      statement: A `--no-` negation flag prints an Error-prefixed stderr message.
+
+- id: FLAGS-FR-0005
+  title: Empty input values are rejected
+  status: active
+  description: >
+    String and enum inputs reject an empty value supplied as `--name=`.
+  acceptance:
+    - id: AC-0001
+      statement: An empty input value exits with code 1.
+    - id: AC-0002
+      statement: An empty input value prints an Error-prefixed stderr message.
+
+- id: FLAGS-FR-0006
+  title: String and enum inputs require a value
+  status: active
+  description: >
+    String and enum inputs must be supplied as `--name=value`; a bare `--name`
+    flag is rejected for non-boolean inputs.
+  acceptance:
+    - id: AC-0001
+      statement: A bare flag for a string or enum input exits with code 1.
+    - id: AC-0002
+      statement: A bare flag for a string or enum input prints an Error-prefixed stderr message.
+
+- id: FLAGS-FR-0007
+  title: Invalid boolean values are rejected
+  status: active
+  description: >
+    A boolean input supplied with a value other than `true` or `false` is
+    rejected.
+  acceptance:
+    - id: AC-0001
+      statement: A boolean flag with a non-boolean value exits with code 1.
+    - id: AC-0002
+      statement: A boolean flag with a non-boolean value prints an Error-prefixed stderr message.

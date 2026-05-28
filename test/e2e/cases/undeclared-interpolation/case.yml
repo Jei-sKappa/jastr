@@ -1,0 +1,12 @@
+id: undeclared-interpolation
+covers:
+  - TEMPLATE-FR-0009.AC-0001
+  - TEMPLATE-FR-0009.AC-0002
+title: Reject interpolation referencing undeclared inputs
+description: Shows how a {{input}} placeholder referencing an undeclared input is rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Interpolation references undeclared input nope.\n"

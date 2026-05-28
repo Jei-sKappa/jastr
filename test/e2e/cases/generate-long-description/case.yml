@@ -1,0 +1,12 @@
+id: generate-long-description
+covers:
+  - GEN-FR-0009.AC-0001
+  - GEN-FR-0009.AC-0002
+title: Generate rejects over-long descriptions
+description: Shows how generate rejects a router description longer than 1024 characters.
+cwd: project
+command: ["generate", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Generated skill description must be 1-1024 characters.\n"

@@ -1,0 +1,12 @@
+id: schema-empty-enum
+covers:
+  - TEMPLATE-FR-0004.AC-0001
+  - TEMPLATE-FR-0004.AC-0002
+title: Reject enum inputs without values
+description: Shows how an enum input with no values is rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Enum input choice must declare at least one value.\n"

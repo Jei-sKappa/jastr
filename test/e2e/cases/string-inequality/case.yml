@@ -1,0 +1,11 @@
+id: string-inequality
+covers:
+  - COND-FR-0004.AC-0002
+title: String inequality in condition
+description: Shows how a string inequality (!=) comparison selects the matching branch.
+cwd: project
+command: ["run", "demo", "--language=typescript"]
+expect:
+  exitCode: 0
+  stdout: "Not Python.\n"
+  stderr: ""

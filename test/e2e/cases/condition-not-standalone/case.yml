@@ -1,0 +1,11 @@
+id: condition-not-standalone
+covers:
+  - COND-FR-0005.AC-0003
+title: Standalone NOT expression
+description: Isolates a NOT (!) expression selecting the branch when its operand is false.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Not enabled.\n"
+  stderr: ""

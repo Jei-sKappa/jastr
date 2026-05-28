@@ -1,0 +1,11 @@
+id: boolean-condition-false
+covers:
+  - COND-FR-0003.AC-0002
+title: False boolean input in condition
+description: Shows how a false boolean input selects the else branch.
+cwd: project
+command: ["run", "demo", "--dry-run=false"]
+expect:
+  exitCode: 0
+  stdout: "Not a dry run.\n"
+  stderr: ""

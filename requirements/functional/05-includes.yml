@@ -22,13 +22,17 @@
   title: Unsafe includes are rejected
   status: active
   description: >
-    Include directives cannot read files outside the project root or `.env`
-    files.
+    Include directives cannot read files outside the project root, `.env` files,
+    absolute paths, or `~` home-relative paths.
   acceptance:
     - id: AC-0001
       statement: Include paths escaping the project root are rejected.
     - id: AC-0002
       statement: Include paths targeting `.env` files are rejected.
+    - id: AC-0003
+      statement: Absolute include paths are rejected.
+    - id: AC-0004
+      statement: Home-relative (~) include paths are rejected.
 
 - id: INCLUDE-FR-0004
   title: Include cycles are detected and rejected
@@ -52,3 +56,16 @@
       statement: A missing include file exits with code 1.
     - id: AC-0002
       statement: A missing include file prints an Error-prefixed stderr message.
+
+- id: INCLUDE-FR-0006
+  title: Include read errors are reported
+  status: active
+  description: >
+    An include path that resolves inside the project root but cannot be read as
+    a file (for example, it points to a directory) fails with a normalized
+    filesystem cause rather than the raw platform error.
+  acceptance:
+    - id: AC-0001
+      statement: An include path that points to a directory exits with code 1.
+    - id: AC-0002
+      statement: An include path that points to a directory prints an Error-prefixed stderr message naming the filesystem cause.

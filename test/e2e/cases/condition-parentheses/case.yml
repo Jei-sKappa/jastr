@@ -1,0 +1,11 @@
+id: condition-parentheses
+covers:
+  - COND-FR-0005.AC-0004
+title: Parentheses group a subexpression
+description: Shows how parentheses make the grouped subexpression evaluate before the prefix operator.
+cwd: project
+command: ["run", "demo", "--flag-a"]
+expect:
+  exitCode: 0
+  stdout: "Grouped.\n"
+  stderr: ""
