@@ -1,0 +1,11 @@
+id: help-generate
+covers:
+  - HELP-FR-0001.AC-0003
+title: Generate help
+description: Shows the generate command help text.
+cwd: project
+command: ["generate", "--help"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

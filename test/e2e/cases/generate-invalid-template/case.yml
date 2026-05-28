@@ -1,0 +1,12 @@
+id: generate-invalid-template
+covers:
+  - GEN-FR-0005.AC-0001
+  - GEN-FR-0005.AC-0002
+title: Generate rejects invalid templates
+description: Shows how generate validates the template before writing and rejects invalid directives.
+cwd: project
+command: ["generate", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: else directive must immediately follow an if or else-if branch.\n"

@@ -1,0 +1,11 @@
+id: compound-condition-not
+covers:
+  - COND-FR-0005.AC-0003
+title: Compound condition with NOT
+description: Shows how NOT (!) inverts the condition result.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "NOT true\n"
+  stderr: ""

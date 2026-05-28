@@ -29,3 +29,26 @@
       statement: Include paths escaping the project root are rejected.
     - id: AC-0002
       statement: Include paths targeting `.env` files are rejected.
+
+- id: INCLUDE-FR-0004
+  title: Include cycles are detected and rejected
+  status: active
+  description: >
+    Circular includes are detected during template loading and rejected with a
+    clear error message.
+  acceptance:
+    - id: AC-0001
+      statement: An include cycle exits with code 1.
+    - id: AC-0002
+      statement: An include cycle prints an Error-prefixed stderr message.
+
+- id: INCLUDE-FR-0005
+  title: Missing include files are rejected
+  status: active
+  description: >
+    Include directives that reference a nonexistent file are rejected.
+  acceptance:
+    - id: AC-0001
+      statement: A missing include file exits with code 1.
+    - id: AC-0002
+      statement: A missing include file prints an Error-prefixed stderr message.

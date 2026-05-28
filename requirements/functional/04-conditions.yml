@@ -16,3 +16,46 @@
   acceptance:
     - id: AC-0001
       statement: A missing optional input takes the false branch.
+
+- id: COND-FR-0003
+  title: Boolean inputs are truthy in conditions
+  status: active
+  description: >
+    A supplied boolean input evaluates to its truth value in conditional
+    expressions, selecting the matching branch.
+  acceptance:
+    - id: AC-0001
+      statement: A supplied boolean input selects the true branch.
+
+- id: COND-FR-0004
+  title: String comparison conditions select branches
+  status: active
+  description: >
+    String equality comparisons in condition expressions select the branch
+    matching the compared value.
+  acceptance:
+    - id: AC-0001
+      statement: A string equality comparison selects the matching branch.
+
+- id: COND-FR-0005
+  title: Compound conditions select branches
+  status: active
+  description: >
+    Conditional expressions support logical operators AND (&&), OR (||), and
+    NOT (!).
+  acceptance:
+    - id: AC-0001
+      statement: An AND expression selects the branch when both sides are true.
+    - id: AC-0002
+      statement: An OR expression selects the branch when at least one side is true.
+    - id: AC-0003
+      statement: A NOT expression selects the branch when the operand is false.
+
+- id: COND-FR-0006
+  title: Conditional containers can be nested
+  status: active
+  description: >
+    Directives support nested conditional containers using longer outer fences.
+  acceptance:
+    - id: AC-0001
+      statement: A nested conditional selects the correct inner branch.

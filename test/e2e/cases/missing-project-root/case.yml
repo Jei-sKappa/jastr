@@ -1,0 +1,12 @@
+id: missing-project-root
+covers:
+  - RUN-FR-0004.AC-0001
+  - RUN-FR-0004.AC-0002
+title: Reject missing project root
+description: Shows how run command fails when no .skillrouter directory exists.
+cwd: "."
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: No .skillrouter directory found from the current directory.\n"

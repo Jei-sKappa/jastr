@@ -1,0 +1,11 @@
+id: invalid-flag-bareword
+covers:
+  - FLAGS-FR-0004.AC-0001
+title: Reject bare words as flags
+description: Shows how positional arguments without -- are rejected during flag parsing.
+cwd: project
+command: ["run", "demo", "bareword"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Invalid flag syntax bareword.\n"

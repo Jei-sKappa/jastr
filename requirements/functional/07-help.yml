@@ -8,3 +8,5 @@
       statement: Root help exits with code 0 and prints usage text.
     - id: AC-0002
       statement: Run help exits with code 0 and prints usage text.
+    - id: AC-0003
+      statement: Generate help exits with code 0 and prints usage text.

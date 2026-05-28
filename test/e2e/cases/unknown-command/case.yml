@@ -1,0 +1,12 @@
+id: unknown-command
+covers:
+  - RUN-FR-0002.AC-0001
+  - RUN-FR-0002.AC-0002
+title: Reject unknown commands
+description: Shows how unknown commands are rejected before any project lookup.
+cwd: project
+command: ["invalid-command"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Expected command shape: skillrouter run <skill> [input flags...] or skillrouter generate <skill> --out <path> [--force].\n"

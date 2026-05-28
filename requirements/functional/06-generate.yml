@@ -46,3 +46,27 @@
       statement: Existing output with `--force` exits with code 0.
     - id: AC-0002
       statement: Existing output with `--force` writes the generated router skill.
+
+- id: GEN-FR-0005
+  title: Generate validates the template before writing
+  status: active
+  description: >
+    The generate command validates the template schema, directives, and includes
+    before generating the router skill output.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid template exits with code 1.
+    - id: AC-0002
+      statement: An invalid template prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0006
+  title: Generate validates generated skill metadata
+  status: active
+  description: >
+    The generate command validates that the template frontmatter name matches
+    the skill slug before writing the output.
+  acceptance:
+    - id: AC-0001
+      statement: A name mismatch exits with code 1.
+    - id: AC-0002
+      statement: A name mismatch prints an Error-prefixed stderr message.

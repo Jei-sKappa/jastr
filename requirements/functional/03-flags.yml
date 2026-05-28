@@ -32,3 +32,15 @@
       statement: A duplicate input flag exits with code 1.
     - id: AC-0002
       statement: A duplicate input flag prints an Error-prefixed stderr message.
+
+- id: FLAGS-FR-0004
+  title: Syntactically invalid flags are rejected
+  status: active
+  description: >
+    The CLI rejects flag tokens that do not match the `--name` or `--name=value`
+    forms, including bare positional words and `--no-` negation.
+  acceptance:
+    - id: AC-0001
+      statement: A bare positional word instead of a flag exits with code 1 and prints an Error-prefixed stderr message.
+    - id: AC-0002
+      statement: A `--no-` negation flag exits with code 1 and prints an Error-prefixed stderr message.
