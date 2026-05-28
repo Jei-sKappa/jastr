@@ -1,0 +1,15 @@
+id: generate-router
+covers:
+  - GEN-FR-0001.AC-0001
+  - GEN-FR-0001.AC-0002
+  - GEN-FR-0001.AC-0003
+title: Generate a router skill
+description: Shows how generate writes a minimal router skill from a template.
+cwd: .
+command: ["generate", "demo", "--out", "out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

@@ -1,0 +1,11 @@
+id: missing-optional-condition
+covers:
+  - COND-FR-0002.AC-0001
+title: Optional input in conditions
+description: Shows how missing optional inputs are falsey in branch conditions.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "No target file.\n"
+  stderr: ""

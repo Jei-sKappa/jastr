@@ -1,0 +1,11 @@
+id: version
+covers:
+  - VERSION-FR-0001.AC-0001
+title: Version output
+description: Shows the CLI version string.
+cwd: project
+command: ["--version"]
+expect:
+  exitCode: 0
+  stdout: "{{version}} (dev)\n"
+  stderr: ""

@@ -1,0 +1,11 @@
+id: boolean-bare
+covers:
+  - FLAGS-FR-0001.AC-0001
+title: Boolean input (bare)
+description: Shows how boolean inputs render in template output.
+cwd: project
+command: ["run", "demo", "--dry-run"]
+expect:
+  exitCode: 0
+  stdout: "dry-run=true\n"
+  stderr: ""

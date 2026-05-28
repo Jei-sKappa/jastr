@@ -1,0 +1,11 @@
+id: help-run
+covers:
+  - HELP-FR-0001.AC-0002
+title: Run help
+description: Shows the run command help text.
+cwd: project
+command: ["help", "run"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

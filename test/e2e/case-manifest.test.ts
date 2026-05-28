@@ -1,5 +1,12 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { type RawCaseManifest, validateCaseManifest } from "./case-manifest";
+import {
+  loadCases,
+  type RawCaseManifest,
+  validateCaseManifest,
+} from "./case-manifest";
+
+const repoRoot = path.resolve(import.meta.dirname, "../..");
 
 const validCase: RawCaseManifest = {
   id: "basic-run",
@@ -113,5 +120,14 @@ describe("validateCaseManifest", () => {
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(/must not set both stdout and stdoutFile/);
+  });
+});
+
+describe("loadCases", () => {
+  it("loads the real e2e cases", async () => {
+    const cases = await loadCases(repoRoot);
+    expect(cases.map((entry) => entry.manifest.id)).toContain("basic-run");
+    expect(cases.map((entry) => entry.manifest.id)).toContain("version");
+    expect(cases.length).toBeGreaterThanOrEqual(23);
   });
 });

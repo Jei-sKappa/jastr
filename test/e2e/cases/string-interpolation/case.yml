@@ -1,0 +1,11 @@
+id: string-interpolation
+covers:
+  - INPUT-FR-0001.AC-0001
+title: Interpolate a string input
+description: Shows how template placeholders expand declared string inputs.
+cwd: project
+command: ["run", "demo", "--target-file=src/index.ts"]
+expect:
+  exitCode: 0
+  stdout: "Analyze `src/index.ts`.\n"
+  stderr: ""

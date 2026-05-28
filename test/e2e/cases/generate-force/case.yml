@@ -1,0 +1,15 @@
+id: generate-force
+covers:
+  - GEN-FR-0004.AC-0001
+  - GEN-FR-0004.AC-0002
+title: Generate with --force
+description: Shows how --force overwrites an existing output file.
+cwd: .
+command: ["generate", "demo", "--out=out/SKILL.md", "--force"]
+expect:
+  exitCode: 0
+  stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`"
+  stderr: ""
+  fileNotContains:
+    out/SKILL.md:
+      - "existing"

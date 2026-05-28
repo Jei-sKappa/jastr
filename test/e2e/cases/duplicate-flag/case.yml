@@ -1,0 +1,12 @@
+id: duplicate-flag
+covers:
+  - FLAGS-FR-0003.AC-0001
+  - FLAGS-FR-0003.AC-0002
+title: Duplicate Flag
+description: Shows Skillrouter input validation errors.
+cwd: project
+command: ["run", "demo", "--language=typescript", "--language=python"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Duplicate flag --language.\n"

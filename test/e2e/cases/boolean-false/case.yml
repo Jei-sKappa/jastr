@@ -1,0 +1,11 @@
+id: boolean-false
+covers:
+  - FLAGS-FR-0001.AC-0003
+title: Boolean input (false)
+description: Shows how boolean inputs render in template output.
+cwd: project
+command: ["run", "demo", "--dry-run=false"]
+expect:
+  exitCode: 0
+  stdout: "dry-run=false\n"
+  stderr: ""

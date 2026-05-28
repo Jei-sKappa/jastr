@@ -1,0 +1,11 @@
+id: help-root
+covers:
+  - HELP-FR-0001.AC-0001
+title: Root help
+description: Shows the root CLI help text.
+cwd: project
+command: ["--help"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

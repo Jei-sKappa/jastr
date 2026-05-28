@@ -1,7 +1,10 @@
+import path from "node:path";
 import { describe, expect, it } from "vitest";
-import type { CaseManifest } from "./case-manifest";
-import type { Requirement } from "./requirements";
+import { type CaseManifest, loadCases } from "./case-manifest";
+import { loadRequirements, type Requirement } from "./requirements";
 import { validateTraceability } from "./traceability";
+
+const repoRoot = path.resolve(import.meta.dirname, "../..");
 
 const requirements: Requirement[] = [
   {
@@ -82,5 +85,13 @@ describe("validateTraceability", () => {
         cases,
       ),
     ).toThrow(/covers removed acceptance criterion RUN-FR-0001.AC-0001/);
+  });
+});
+
+describe("real tree traceability", () => {
+  it("covers every active acceptance criterion", async () => {
+    const requirements = await loadRequirements(repoRoot);
+    const cases = (await loadCases(repoRoot)).map((entry) => entry.manifest);
+    expect(() => validateTraceability(requirements, cases)).not.toThrow();
   });
 });

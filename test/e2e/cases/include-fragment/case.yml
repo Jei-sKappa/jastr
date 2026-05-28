@@ -1,0 +1,11 @@
+id: include-fragment
+covers:
+  - INCLUDE-FR-0001.AC-0001
+title: Include a fragment
+description: Shows how include resolves and processes nested template syntax.
+cwd: project
+command: ["run", "demo", "--language=typescript"]
+expect:
+  exitCode: 0
+  stdout: "Template\nFragment for typescript\n"
+  stderr: ""

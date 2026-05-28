@@ -1,0 +1,11 @@
+id: include-raw
+covers:
+  - INCLUDE-FR-0002.AC-0001
+title: Include raw content
+description: Shows how include-raw copies file content without processing directives.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

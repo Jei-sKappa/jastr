@@ -1,0 +1,13 @@
+id: missing-required-input
+covers:
+  - INPUT-FR-0003.AC-0001
+  - INPUT-FR-0003.AC-0002
+  - INPUT-FR-0003.AC-0003
+title: Missing Required Input
+description: Shows Skillrouter input validation errors.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Missing required input --language.\n"

@@ -1,0 +1,13 @@
+id: basic-run
+covers:
+  - RUN-FR-0001.AC-0001
+  - RUN-FR-0001.AC-0002
+  - RUN-FR-0001.AC-0003
+title: Run a basic skill
+description: Render a minimal template with no inputs.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.md
+  stderr: ""
