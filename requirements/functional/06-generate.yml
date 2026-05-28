@@ -1,0 +1,48 @@
+- id: GEN-FR-0001
+  title: Generate writes a router skill
+  status: active
+  description: >
+    The generate command writes a minimal router skill to an explicit output
+    path.
+  acceptance:
+    - id: AC-0001
+      statement: Generate exits with code 0 for a valid template and output path.
+    - id: AC-0002
+      statement: Generate writes the expected router skill file.
+    - id: AC-0003
+      statement: Generate prints the generated path and source template path.
+
+- id: GEN-FR-0002
+  title: Generate requires an output path
+  status: active
+  description: >
+    The generate command requires callers to provide `--out`.
+  acceptance:
+    - id: AC-0001
+      statement: Missing `--out` exits with code 1.
+    - id: AC-0002
+      statement: Missing `--out` prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0003
+  title: Generate refuses overwrite without force
+  status: active
+  description: >
+    The generate command does not overwrite an existing destination unless
+    `--force` is supplied.
+  acceptance:
+    - id: AC-0001
+      statement: Existing output without `--force` exits with code 1.
+    - id: AC-0002
+      statement: Existing output without `--force` leaves the existing file unchanged.
+
+- id: GEN-FR-0004
+  title: Generate force overwrites existing output
+  status: active
+  description: >
+    The generate command overwrites an existing destination when `--force` is
+    supplied.
+  acceptance:
+    - id: AC-0001
+      statement: Existing output with `--force` exits with code 0.
+    - id: AC-0002
+      statement: Existing output with `--force` writes the generated router skill.

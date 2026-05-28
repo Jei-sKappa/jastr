@@ -83,7 +83,7 @@ bun run test
 bun run test:e2e
 ```
 
-Functional requirements live in `requirements/functional-requirements.yml`.
+Functional requirements live in area files under `requirements/functional/`.
 Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`); each
 requirement owns acceptance criteria with `AC-NNNN` IDs, referenced as
 `<FR-ID>.AC-NNNN`. E2E cases under `test/e2e/cases/<case-id>/case.yml`

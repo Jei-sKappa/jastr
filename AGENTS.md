@@ -189,7 +189,7 @@ because it's gitignored.
   alongside the specs that use them.
 - Keep `tsconfig.json` source-only unless there is a specific reason to include
   tests in the TypeScript project.
-- Functional requirements live in `requirements/functional-requirements.yml`.
+- Functional requirements live in area files under `requirements/functional/`.
   Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`), and each
   requirement owns acceptance criteria with `AC-NNNN` IDs scoped to that
   requirement. The composite acceptance criterion reference is

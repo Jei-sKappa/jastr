@@ -1,0 +1,9 @@
+- id: VERSION-FR-0001
+  title: Version prints package version and build SHA marker
+  status: active
+  description: >
+    The version command prints the current package version and either a build
+    SHA or the source-run `dev` marker.
+  acceptance:
+    - id: AC-0001
+      statement: Source-run version output is exactly the package version followed by ` (dev)`.

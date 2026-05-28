@@ -1,3 +1,5 @@
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -21,7 +23,7 @@ describe("validateRequirements", () => {
   it("accepts a valid active requirement with acceptance criteria", () => {
     expect(
       validateRequirements([validRequirement], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toEqual([validRequirement]);
   });
@@ -29,7 +31,7 @@ describe("validateRequirements", () => {
   it("rejects unknown requirement and acceptance fields", () => {
     expect(() =>
       validateRequirements([{ ...validRequirement, owner: "docs" }], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toThrow(/unknown requirement field owner/);
 
@@ -47,7 +49,7 @@ describe("validateRequirements", () => {
             ],
           },
         ],
-        { filePath: "requirements/functional-requirements.yml" },
+        { filePath: "requirements/functional/01-run.yml" },
       ),
     ).toThrow(/unknown acceptance field testCase/);
   });
@@ -55,7 +57,7 @@ describe("validateRequirements", () => {
   it("rejects invalid requirement ids", () => {
     expect(() =>
       validateRequirements([{ ...validRequirement, id: "FR-CLI-RUN-001" }], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toThrow(/invalid requirement id FR-CLI-RUN-001/);
   });
@@ -63,7 +65,7 @@ describe("validateRequirements", () => {
   it("rejects duplicate requirement ids", () => {
     expect(() =>
       validateRequirements([validRequirement, validRequirement], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toThrow(/duplicate requirement id RUN-FR-0001/);
   });
@@ -72,7 +74,7 @@ describe("validateRequirements", () => {
     expect(() =>
       validateRequirements(
         [{ ...validRequirement, status: "done" as "active" }],
-        { filePath: "requirements/functional-requirements.yml" },
+        { filePath: "requirements/functional/01-run.yml" },
       ),
     ).toThrow(/invalid requirement status RUN-FR-0001: done/);
   });
@@ -80,7 +82,7 @@ describe("validateRequirements", () => {
   it("requires removed requirements to explain removal", () => {
     expect(() =>
       validateRequirements([{ ...validRequirement, status: "removed" }], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toThrow(/removed requirement requires removedReason/);
   });
@@ -88,7 +90,7 @@ describe("validateRequirements", () => {
   it("requires deferred requirements to explain coverage", () => {
     expect(() =>
       validateRequirements([{ ...validRequirement, status: "deferred" }], {
-        filePath: "requirements/functional-requirements.yml",
+        filePath: "requirements/functional/01-run.yml",
       }),
     ).toThrow(/deferred requirement requires coverage/);
   });
@@ -102,7 +104,7 @@ describe("validateRequirements", () => {
             acceptance: [{ id: "AC-1", statement: "Bad id." }],
           },
         ],
-        { filePath: "requirements/functional-requirements.yml" },
+        { filePath: "requirements/functional/01-run.yml" },
       ),
     ).toThrow(/invalid acceptance criterion id RUN-FR-0001.AC-1/);
 
@@ -117,7 +119,7 @@ describe("validateRequirements", () => {
             ],
           },
         ],
-        { filePath: "requirements/functional-requirements.yml" },
+        { filePath: "requirements/functional/01-run.yml" },
       ),
     ).toThrow(/duplicate acceptance criterion id RUN-FR-0001.AC-0001/);
   });
@@ -137,7 +139,7 @@ describe("validateRequirements", () => {
             ],
           },
         ],
-        { filePath: "requirements/functional-requirements.yml" },
+        { filePath: "requirements/functional/01-run.yml" },
       ),
     ).toThrow(/removed acceptance criterion requires removedReason/);
   });
@@ -146,6 +148,52 @@ describe("validateRequirements", () => {
 const repoRoot = path.resolve(import.meta.dirname, "../../..");
 
 describe("loadRequirements", () => {
+  it("loads split functional requirement files in path order", async () => {
+    const tempRoot = await mkdtemp(
+      path.join(tmpdir(), "skillrouter-requirements-"),
+    );
+    const requirementsDir = path.join(tempRoot, "requirements/functional");
+
+    try {
+      await mkdir(requirementsDir, { recursive: true });
+      await writeFile(
+        path.join(requirementsDir, "b-generate.yml"),
+        [
+          "- id: GEN-FR-0001",
+          "  title: Generate writes a router skill",
+          "  status: active",
+          "  description: Generates a skill.",
+          "  acceptance:",
+          "    - id: AC-0001",
+          "      statement: Exits with code 0.",
+          "",
+        ].join("\n"),
+      );
+      await writeFile(
+        path.join(requirementsDir, "a-run.yml"),
+        [
+          "- id: RUN-FR-0001",
+          "  title: Run renders a skill template",
+          "  status: active",
+          "  description: Runs a skill.",
+          "  acceptance:",
+          "    - id: AC-0001",
+          "      statement: Exits with code 0.",
+          "",
+        ].join("\n"),
+      );
+
+      const requirements = await loadRequirements(tempRoot);
+
+      expect(requirements.map((entry) => entry.id)).toEqual([
+        "RUN-FR-0001",
+        "GEN-FR-0001",
+      ]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   it("loads the real requirements registry", async () => {
     const requirements = await loadRequirements(repoRoot);
     expect(requirements.map((entry) => entry.id)).toContain("RUN-FR-0001");

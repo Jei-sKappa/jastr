@@ -1,0 +1,34 @@
+- id: FLAGS-FR-0001
+  title: Boolean inputs accept supported flag forms
+  status: active
+  description: >
+    Boolean inputs can be supplied as a bare flag, as `=true`, or as `=false`.
+  acceptance:
+    - id: AC-0001
+      statement: A bare boolean flag sets the input to true.
+    - id: AC-0002
+      statement: A boolean flag with `=true` sets the input to true.
+    - id: AC-0003
+      statement: A boolean flag with `=false` sets the input to false.
+
+- id: FLAGS-FR-0002
+  title: Unknown flags are rejected
+  status: active
+  description: >
+    The CLI rejects flags that are not declared by the selected template.
+  acceptance:
+    - id: AC-0001
+      statement: An unknown input flag exits with code 1.
+    - id: AC-0002
+      statement: An unknown input flag prints an Error-prefixed stderr message.
+
+- id: FLAGS-FR-0003
+  title: Duplicate flags are rejected
+  status: active
+  description: >
+    The CLI rejects multiple values for the same input flag.
+  acceptance:
+    - id: AC-0001
+      statement: A duplicate input flag exits with code 1.
+    - id: AC-0002
+      statement: A duplicate input flag prints an Error-prefixed stderr message.

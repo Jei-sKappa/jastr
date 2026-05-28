@@ -1,0 +1,10 @@
+- id: HELP-FR-0001
+  title: CLI prints help for the program and commands
+  status: active
+  description: >
+    Skillrouter exposes help text for the root program and supported commands.
+  acceptance:
+    - id: AC-0001
+      statement: Root help exits with code 0 and prints usage text.
+    - id: AC-0002
+      statement: Run help exits with code 0 and prints usage text.

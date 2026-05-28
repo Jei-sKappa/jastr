@@ -1,0 +1,18 @@
+- id: COND-FR-0001
+  title: Enum inputs select conditional branches
+  status: active
+  description: >
+    Template conditionals can branch on enum input values.
+  acceptance:
+    - id: AC-0001
+      statement: An enum input selects the matching if or else-if branch.
+
+- id: COND-FR-0002
+  title: Missing optional inputs are false in conditions
+  status: active
+  description: >
+    An optional input that is not supplied evaluates false in conditional
+    expressions.
+  acceptance:
+    - id: AC-0001
+      statement: A missing optional input takes the false branch.

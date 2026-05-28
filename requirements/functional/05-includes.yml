@@ -1,0 +1,31 @@
+- id: INCLUDE-FR-0001
+  title: Include renders Markdown fragments
+  status: active
+  description: >
+    The include directive inserts a referenced Markdown fragment into rendered
+    output.
+  acceptance:
+    - id: AC-0001
+      statement: The include directive renders the referenced fragment content.
+
+- id: INCLUDE-FR-0002
+  title: Include raw emits verbatim text
+  status: active
+  description: >
+    The include-raw directive inserts referenced file content without processing
+    it as a template.
+  acceptance:
+    - id: AC-0001
+      statement: The include-raw directive preserves Skillrouter-looking syntax as text.
+
+- id: INCLUDE-FR-0003
+  title: Unsafe includes are rejected
+  status: active
+  description: >
+    Include directives cannot read files outside the project root or `.env`
+    files.
+  acceptance:
+    - id: AC-0001
+      statement: Include paths escaping the project root are rejected.
+    - id: AC-0002
+      statement: Include paths targeting `.env` files are rejected.

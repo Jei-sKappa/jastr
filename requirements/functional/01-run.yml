@@ -1,0 +1,13 @@
+- id: RUN-FR-0001
+  title: Run renders a skill template
+  status: active
+  description: >
+    The CLI renders `.skillrouter/<skill>/SKILL.template.md` when the user runs
+    `skillrouter run <skill>` from inside a project.
+  acceptance:
+    - id: AC-0001
+      statement: Exits with code 0 when the skill exists and inputs are valid.
+    - id: AC-0002
+      statement: Prints rendered Markdown to stdout.
+    - id: AC-0003
+      statement: Prints nothing to stderr.

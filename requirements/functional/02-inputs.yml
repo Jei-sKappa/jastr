@@ -1,0 +1,47 @@
+- id: INPUT-FR-0001
+  title: String inputs interpolate into rendered output
+  status: active
+  description: >
+    A declared string input supplied through a CLI flag is available to template
+    interpolation.
+  acceptance:
+    - id: AC-0001
+      statement: A supplied string input replaces the matching interpolation placeholder.
+
+- id: INPUT-FR-0002
+  title: Missing optional inputs are rejected in interpolation
+  status: active
+  description: >
+    An optional input that is not supplied fails rendering when directly
+    interpolated. Authors must guard optional interpolations with conditionals.
+  acceptance:
+    - id: AC-0001
+      statement: Missing optional input interpolation exits with code 1.
+    - id: AC-0002
+      statement: Missing optional input interpolation prints an Error-prefixed stderr message.
+    - id: AC-0003
+      statement: Missing optional input interpolation prints nothing to stdout.
+
+- id: INPUT-FR-0003
+  title: Missing required inputs are rejected
+  status: active
+  description: >
+    A template-declared required input must be supplied by the caller.
+  acceptance:
+    - id: AC-0001
+      statement: Missing required input exits with code 1.
+    - id: AC-0002
+      statement: Missing required input prints an Error-prefixed stderr message.
+    - id: AC-0003
+      statement: Missing required input prints nothing to stdout.
+
+- id: INPUT-FR-0004
+  title: Invalid enum values are rejected
+  status: active
+  description: >
+    Enum inputs accept only values declared in the template frontmatter.
+  acceptance:
+    - id: AC-0001
+      statement: A value outside the enum's allowed set exits with code 1.
+    - id: AC-0002
+      statement: A value outside the enum's allowed set prints an Error-prefixed stderr message.

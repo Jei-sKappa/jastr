@@ -1,4 +1,5 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
 import YAML from "yaml";
 
 const REQUIREMENT_ID_PATTERN = /^[A-Z]+-FR-\d{4}$/;
@@ -45,6 +46,11 @@ export type Requirement = {
 export type RawRequirement = Requirement;
 
 type Source = {
+  filePath: string;
+};
+
+type LoadedRequirement = {
+  requirement: Requirement;
   filePath: string;
 };
 
@@ -219,10 +225,41 @@ export function validateRequirements(
   });
 }
 
+function rejectDuplicateRequirementIds(
+  requirements: LoadedRequirement[],
+): void {
+  const seen = new Map<string, string>();
+  for (const { requirement, filePath } of requirements) {
+    const previous = seen.get(requirement.id);
+    if (previous !== undefined) {
+      throw new Error(
+        `${filePath}: duplicate requirement id ${requirement.id} (already defined in ${previous})`,
+      );
+    }
+    seen.set(requirement.id, filePath);
+  }
+}
+
 export async function loadRequirements(root: string): Promise<Requirement[]> {
-  const filePath = "requirements/functional-requirements.yml";
-  const source = await readFile(`${root}/${filePath}`, "utf8");
-  return validateRequirements(YAML.parse(source), { filePath });
+  const dirPath = "requirements/functional";
+  const absoluteDir = path.join(root, dirPath);
+  const entries = await readdir(absoluteDir, { withFileTypes: true });
+  const files = entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".yml"))
+    .map((entry) => path.join(dirPath, entry.name))
+    .sort();
+
+  const loaded: LoadedRequirement[] = [];
+  for (const filePath of files) {
+    const source = await readFile(path.join(root, filePath), "utf8");
+    const requirements = validateRequirements(YAML.parse(source), { filePath });
+    loaded.push(
+      ...requirements.map((requirement) => ({ requirement, filePath })),
+    );
+  }
+
+  rejectDuplicateRequirementIds(loaded);
+  return loaded.map((entry) => entry.requirement);
 }
 
 export function acceptanceRef(requirementId: string, acId: string): string {
