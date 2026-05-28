@@ -1,6 +1,8 @@
 id: missing-optional-interpolation
 covers:
   - INPUT-FR-0002.AC-0001
+  - INPUT-FR-0002.AC-0002
+  - INPUT-FR-0002.AC-0003
 title: Optional input in interpolation
 description: Shows how interpolating a missing optional input fails at run time.
 cwd: project

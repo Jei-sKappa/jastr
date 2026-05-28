@@ -10,6 +10,5 @@ expect:
   exitCode: 0
   stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`"
   stderr: ""
-  fileNotContains:
-    out/SKILL.md:
-      - "existing"
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

@@ -23,14 +23,18 @@
       statement: A supplied string input replaces the matching interpolation placeholder.
 
 - id: INPUT-FR-0002
-  title: Missing optional inputs interpolate as empty strings
+  title: Missing optional inputs are rejected in interpolation
   status: active
   description: >
-    An optional input that is not supplied does not fail rendering and expands to
-    an empty string when interpolated.
+    An optional input that is not supplied fails rendering when directly
+    interpolated. Authors must guard optional interpolations with conditionals.
   acceptance:
     - id: AC-0001
-      statement: Missing optional input interpolation produces an empty string.
+      statement: Missing optional input interpolation exits with code 1.
+    - id: AC-0002
+      statement: Missing optional input interpolation prints an Error-prefixed stderr message.
+    - id: AC-0003
+      statement: Missing optional input interpolation prints nothing to stdout.
 
 - id: INPUT-FR-0003
   title: Missing required inputs are rejected

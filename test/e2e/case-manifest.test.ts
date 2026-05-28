@@ -1,3 +1,5 @@
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -54,6 +56,21 @@ describe("validateCaseManifest", () => {
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(/unknown case field hidden/);
+  });
+
+  it("rejects unknown expect fields", () => {
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: {
+            ...validCase.expect,
+            matcher: "contains",
+          },
+        },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(/unknown expect field matcher/);
   });
 
   it("rejects duplicate covers and bare FR refs", () => {
@@ -120,10 +137,87 @@ describe("validateCaseManifest", () => {
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(/must not set both stdout and stdoutFile/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: {
+            exitCode: 0,
+            stdout: "",
+            stderr: "",
+            stderrFile: "expected/stderr.txt",
+          },
+        },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(/must not set both stderr and stderrFile/);
+  });
+
+  it("requires stdout and stderr expectations", () => {
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: {
+            exitCode: 0,
+            stderr: "",
+          },
+        },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(/expect requires stdout or stdoutFile/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: {
+            exitCode: 0,
+            stdout: "",
+          },
+        },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(/expect requires stderr or stderrFile/);
   });
 });
 
 describe("loadCases", () => {
+  it("rejects duplicate case ids across case directories", async () => {
+    const tempRoot = await mkdtemp(path.join(tmpdir(), "skillrouter-cases-"));
+    const casesDir = path.join(tempRoot, "test/e2e/cases");
+    const firstDir = path.join(casesDir, "first");
+    const secondDir = path.join(casesDir, "second");
+    const caseManifest = [
+      "id: duplicate-case",
+      "covers:",
+      "  - RUN-FR-0001.AC-0001",
+      "title: Duplicate case",
+      "description: Uses the same case id in two directories.",
+      "cwd: project",
+      'command: ["run", "demo"]',
+      "expect:",
+      "  exitCode: 0",
+      '  stdout: ""',
+      '  stderr: ""',
+      "",
+    ].join("\n");
+
+    try {
+      await mkdir(firstDir, { recursive: true });
+      await mkdir(secondDir, { recursive: true });
+      await writeFile(path.join(firstDir, "case.yml"), caseManifest);
+      await writeFile(path.join(secondDir, "case.yml"), caseManifest);
+
+      await expect(loadCases(tempRoot)).rejects.toThrow(
+        /duplicate case id duplicate-case/,
+      );
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   it("loads the real e2e cases", async () => {
     const cases = await loadCases(repoRoot);
     expect(cases.map((entry) => entry.manifest.id)).toContain("basic-run");

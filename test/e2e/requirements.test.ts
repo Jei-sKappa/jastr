@@ -26,6 +26,32 @@ describe("validateRequirements", () => {
     ).toEqual([validRequirement]);
   });
 
+  it("rejects unknown requirement and acceptance fields", () => {
+    expect(() =>
+      validateRequirements([{ ...validRequirement, owner: "docs" }], {
+        filePath: "requirements/functional-requirements.yml",
+      }),
+    ).toThrow(/unknown requirement field owner/);
+
+    expect(() =>
+      validateRequirements(
+        [
+          {
+            ...validRequirement,
+            acceptance: [
+              {
+                id: "AC-0001",
+                statement: "Exits with code 0.",
+                testCase: "basic-run",
+              },
+            ],
+          },
+        ],
+        { filePath: "requirements/functional-requirements.yml" },
+      ),
+    ).toThrow(/unknown acceptance field testCase/);
+  });
+
   it("rejects invalid requirement ids", () => {
     expect(() =>
       validateRequirements([{ ...validRequirement, id: "FR-CLI-RUN-001" }], {
