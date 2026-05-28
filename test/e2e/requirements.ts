@@ -228,3 +228,18 @@ export async function loadRequirements(root: string): Promise<Requirement[]> {
 export function acceptanceRef(requirementId: string, acId: string): string {
   return `${requirementId}.${acId}`;
 }
+
+export async function loadPackageVersion(root: string): Promise<string> {
+  const packageJson = JSON.parse(
+    await readFile(`${root}/package.json`, "utf8"),
+  ) as {
+    version?: unknown;
+  };
+  if (
+    typeof packageJson.version !== "string" ||
+    packageJson.version.length === 0
+  ) {
+    throw new Error("package.json: version must be a non-empty string.");
+  }
+  return packageJson.version;
+}
