@@ -67,11 +67,7 @@ function rejectUnknownFields(
   }
 }
 
-function requireString(
-  value: unknown,
-  field: string,
-  source: Source,
-): string {
+function requireString(value: unknown, field: string, source: Source): string {
   if (typeof value !== "string" || value.length === 0) {
     fail(source, `${field} must be a non-empty string.`);
   }
@@ -113,9 +109,16 @@ function validateAcceptance(
     `${requirementId}.${id}.statement`,
     source,
   );
-  const status = optionalString(value.status, `${requirementId}.${id}.status`, source);
+  const status = optionalString(
+    value.status,
+    `${requirementId}.${id}.status`,
+    source,
+  );
   if (status !== undefined && !ACCEPTANCE_STATUSES.has(status)) {
-    fail(source, `invalid acceptance criterion status ${requirementId}.${id}: ${status}`);
+    fail(
+      source,
+      `invalid acceptance criterion status ${requirementId}.${id}: ${status}`,
+    );
   }
   const removedReason = optionalString(
     value.removedReason,
@@ -123,7 +126,10 @@ function validateAcceptance(
     source,
   );
   if (status === "removed" && removedReason === undefined) {
-    fail(source, `${requirementId}.${id} removed acceptance criterion requires removedReason.`);
+    fail(
+      source,
+      `${requirementId}.${id} removed acceptance criterion requires removedReason.`,
+    );
   }
   return {
     id,
@@ -141,11 +147,14 @@ export function validateRequirements(
 
   const seenRequirements = new Set<string>();
   return value.map((raw, index) => {
-    if (!isRecord(raw)) fail(source, `requirements[${index}] must be a mapping.`);
+    if (!isRecord(raw))
+      fail(source, `requirements[${index}] must be a mapping.`);
     rejectUnknownFields(raw, REQUIREMENT_FIELDS, "requirement", source);
     const id = requireString(raw.id, `requirements[${index}].id`, source);
-    if (!REQUIREMENT_ID_PATTERN.test(id)) fail(source, `invalid requirement id ${id}`);
-    if (seenRequirements.has(id)) fail(source, `duplicate requirement id ${id}`);
+    if (!REQUIREMENT_ID_PATTERN.test(id))
+      fail(source, `invalid requirement id ${id}`);
+    if (seenRequirements.has(id))
+      fail(source, `duplicate requirement id ${id}`);
     seenRequirements.add(id);
 
     const title = requireString(raw.title, `${id}.title`, source);
@@ -153,7 +162,11 @@ export function validateRequirements(
     if (!REQUIREMENT_STATUSES.has(status)) {
       fail(source, `invalid requirement status ${id}: ${status}`);
     }
-    const description = requireString(raw.description, `${id}.description`, source);
+    const description = requireString(
+      raw.description,
+      `${id}.description`,
+      source,
+    );
     if (!Array.isArray(raw.acceptance) || raw.acceptance.length === 0) {
       fail(source, `${id}.acceptance must be a non-empty list.`);
     }
@@ -168,7 +181,11 @@ export function validateRequirements(
       return criterion;
     });
 
-    const removedReason = optionalString(raw.removedReason, `${id}.removedReason`, source);
+    const removedReason = optionalString(
+      raw.removedReason,
+      `${id}.removedReason`,
+      source,
+    );
     const coverage = optionalString(raw.coverage, `${id}.coverage`, source);
     if (status === "removed" && removedReason === undefined) {
       fail(source, `${id} removed requirement requires removedReason.`);
@@ -186,9 +203,16 @@ export function validateRequirements(
       ...(optionalString(raw.notes, `${id}.notes`, source) === undefined
         ? {}
         : { notes: optionalString(raw.notes, `${id}.notes`, source) }),
-      ...(optionalString(raw.replacedBy, `${id}.replacedBy`, source) === undefined
+      ...(optionalString(raw.replacedBy, `${id}.replacedBy`, source) ===
+      undefined
         ? {}
-        : { replacedBy: optionalString(raw.replacedBy, `${id}.replacedBy`, source) }),
+        : {
+            replacedBy: optionalString(
+              raw.replacedBy,
+              `${id}.replacedBy`,
+              source,
+            ),
+          }),
       ...(removedReason === undefined ? {} : { removedReason }),
       ...(coverage === undefined ? {} : { coverage }),
     };

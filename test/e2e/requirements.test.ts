@@ -2,8 +2,8 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   loadRequirements,
-  validateRequirements,
   type RawRequirement,
+  validateRequirements,
 } from "./requirements";
 
 const validRequirement: RawRequirement = {
@@ -28,10 +28,9 @@ describe("validateRequirements", () => {
 
   it("rejects invalid requirement ids", () => {
     expect(() =>
-      validateRequirements(
-        [{ ...validRequirement, id: "FR-CLI-RUN-001" }],
-        { filePath: "requirements/functional-requirements.yml" },
-      ),
+      validateRequirements([{ ...validRequirement, id: "FR-CLI-RUN-001" }], {
+        filePath: "requirements/functional-requirements.yml",
+      }),
     ).toThrow(/invalid requirement id FR-CLI-RUN-001/);
   });
 
@@ -54,19 +53,17 @@ describe("validateRequirements", () => {
 
   it("requires removed requirements to explain removal", () => {
     expect(() =>
-      validateRequirements(
-        [{ ...validRequirement, status: "removed" }],
-        { filePath: "requirements/functional-requirements.yml" },
-      ),
+      validateRequirements([{ ...validRequirement, status: "removed" }], {
+        filePath: "requirements/functional-requirements.yml",
+      }),
     ).toThrow(/removed requirement requires removedReason/);
   });
 
   it("requires deferred requirements to explain coverage", () => {
     expect(() =>
-      validateRequirements(
-        [{ ...validRequirement, status: "deferred" }],
-        { filePath: "requirements/functional-requirements.yml" },
-      ),
+      validateRequirements([{ ...validRequirement, status: "deferred" }], {
+        filePath: "requirements/functional-requirements.yml",
+      }),
     ).toThrow(/deferred requirement requires coverage/);
   });
 
