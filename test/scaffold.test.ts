@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createTempProject } from "./helpers";
+import { createTempProject } from "./support/helpers";
 
 describe("test harness", () => {
   it("creates an isolated project root with .skillrouter", async () => {

@@ -3,7 +3,7 @@ import {
   renderSkillTemplate,
   validateSkillTemplate,
 } from "../src/compiler/render";
-import { createTempProject, writeProjectFile } from "./helpers";
+import { createTempProject, writeProjectFile } from "./support/helpers";
 
 describe("render pipeline", () => {
   it("renders selected branches includes raw includes and interpolation byte-for-byte", async () => {

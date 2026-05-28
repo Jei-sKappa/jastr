@@ -6,7 +6,7 @@ import {
   resolveSkillTemplatePath,
   validateSkillName,
 } from "../src/skills/skill";
-import { createTempProject, writeProjectFile } from "./helpers";
+import { createTempProject, writeProjectFile } from "./support/helpers";
 
 describe("project root discovery and skill resolution", () => {
   it("finds the nearest ancestor containing .skillrouter", async () => {

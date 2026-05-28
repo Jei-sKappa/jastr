@@ -5,7 +5,7 @@ import {
   buildRouterSkillContent,
   writeRouterSkill,
 } from "../src/generate/router-skill";
-import { createTempProject, readProjectFile } from "./helpers";
+import { createTempProject, readProjectFile } from "./support/helpers";
 
 describe("router skill generation", () => {
   it("builds minimal router skill content", () => {

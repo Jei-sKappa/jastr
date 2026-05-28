@@ -4,7 +4,7 @@ import {
   loadRequirements,
   type RawRequirement,
   validateRequirements,
-} from "./requirements";
+} from "../harness/requirements";
 
 const validRequirement: RawRequirement = {
   id: "RUN-FR-0001",
@@ -143,7 +143,7 @@ describe("validateRequirements", () => {
   });
 });
 
-const repoRoot = path.resolve(import.meta.dirname, "../..");
+const repoRoot = path.resolve(import.meta.dirname, "../../..");
 
 describe("loadRequirements", () => {
   it("loads the real requirements registry", async () => {

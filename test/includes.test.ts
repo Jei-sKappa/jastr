@@ -6,7 +6,7 @@ import {
   readIncludeFile,
   resolveIncludePath,
 } from "../src/compiler/includes";
-import { createTempProject, writeProjectFile } from "./helpers";
+import { createTempProject, writeProjectFile } from "./support/helpers";
 
 describe("include resolution", () => {
   it("resolves file-relative paths and allows normalized ../ inside the project", async () => {

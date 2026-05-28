@@ -1,10 +1,10 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { type CaseManifest, loadCases } from "./case-manifest";
-import { loadRequirements, type Requirement } from "./requirements";
-import { validateTraceability } from "./traceability";
+import { type CaseManifest, loadCases } from "../harness/case-manifest";
+import { loadRequirements, type Requirement } from "../harness/requirements";
+import { validateTraceability } from "../harness/traceability";
 
-const repoRoot = path.resolve(import.meta.dirname, "../..");
+const repoRoot = path.resolve(import.meta.dirname, "../../..");
 
 const baseRequirement: Requirement = {
   id: "RUN-FR-0001",

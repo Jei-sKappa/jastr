@@ -6,9 +6,9 @@ import {
   loadCases,
   type RawCaseManifest,
   validateCaseManifest,
-} from "./case-manifest";
+} from "../harness/case-manifest";
 
-const repoRoot = path.resolve(import.meta.dirname, "../..");
+const repoRoot = path.resolve(import.meta.dirname, "../../..");
 
 const validCase: RawCaseManifest = {
   id: "basic-run",

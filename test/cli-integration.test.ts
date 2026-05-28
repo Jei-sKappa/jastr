@@ -6,7 +6,7 @@ import {
   readProjectFile,
   runCli,
   writeProjectFile,
-} from "./helpers";
+} from "./support/helpers";
 
 describe("skillrouter cli", () => {
   it("runs a skill from a nested cwd and prints rendered markdown only", async () => {

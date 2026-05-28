@@ -35,7 +35,11 @@ export async function readProjectFile(
 }
 
 export async function runCli(args: string[], cwd: string) {
-  const cliPath = path.resolve(import.meta.dirname, "..", "src/cli/index.ts");
+  const cliPath = path.resolve(
+    import.meta.dirname,
+    "../..",
+    "src/cli/index.ts",
+  );
   return execa("bun", [cliPath, ...args], {
     cwd,
     reject: false,

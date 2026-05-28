@@ -1,9 +1,9 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadCases } from "./case-manifest";
-import { runCase } from "./case-runner";
-import { loadRequirements } from "./requirements";
-import { validateTraceability } from "./traceability";
+import { loadCases } from "./harness/case-manifest";
+import { runCase } from "./harness/case-runner";
+import { loadRequirements } from "./harness/requirements";
+import { validateTraceability } from "./harness/traceability";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
 

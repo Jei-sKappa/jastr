@@ -185,8 +185,8 @@ because it's gitignored.
 - Tests are vitest specs named `test/<area>.test.ts` (for example
   `test/includes.test.ts`, `test/cli-integration.test.ts`). Run the whole suite
   with `bun run test` (which invokes `vitest run`).
-- Shared test helpers and fixtures live in `test/helpers.ts` and alongside the
-  specs that use them.
+- Shared test helpers live in `test/support/`; spec-specific fixtures live
+  alongside the specs that use them.
 - Keep `tsconfig.json` source-only unless there is a specific reason to include
   tests in the TypeScript project.
 - Functional requirements live in `requirements/functional-requirements.yml`.
@@ -200,6 +200,9 @@ because it's gitignored.
   case name. Traceability validation fails when an active acceptance criterion
   is uncovered or when a case references a missing or removed requirement or
   acceptance criterion.
+- E2E harness code lives under `test/e2e/harness/`; tests for that harness live
+  under `test/e2e/harness.test/`. Keep case folders declarative fixtures rather
+  than helper-code locations.
 - There is currently no docs site or VitePress layer. Do not add docs-site
   fields such as `render` or `hidden` to e2e case manifests.
 
