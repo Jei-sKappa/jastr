@@ -187,8 +187,9 @@ because it's gitignored.
   with `bun run test` (which invokes `vitest run`).
 - Shared test helpers live in `test/support/`; spec-specific fixtures live
   alongside the specs that use them.
-- Keep `tsconfig.json` source-only unless there is a specific reason to include
-  tests in the TypeScript project.
+- `tsconfig.json` `include` covers `src/`, `test/`, and `scripts/` so the
+  source, tests, and the docs generator are all typechecked. Do not broaden it
+  further without a specific reason.
 - Functional requirements live in area files under `requirements/functional/`.
   Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`), and each
   requirement owns acceptance criteria with `AC-NNNN` IDs scoped to that
@@ -203,6 +204,14 @@ because it's gitignored.
 - E2E harness code lives under `test/e2e/harness/`; tests for that harness live
   under `test/e2e/harness.test/`. Keep case folders declarative fixtures rather
   than helper-code locations.
+- `bun run docs:living` generates `docs/BEHAVIOR.md`, a living behavior
+  reference, by joining `requirements/functional/` with the e2e cases on their
+  `covers` refs. The generator is `scripts/living-docs.ts` (pure
+  `renderDocument` + loaders, unit-tested in `test/living-docs.test.ts`) behind
+  the thin `scripts/generate-living-docs.ts` entry, and it reuses the harness
+  loaders so the schemas stay single-sourced. `docs/BEHAVIOR.md` is committed
+  and must stay current; `bun run docs:living --check` re-renders in memory and
+  exits 1 if it differs. It is a single generated Markdown file.
 - There is currently no docs site or VitePress layer. Do not add docs-site
   fields such as `render` or `hidden` to e2e case manifests.
 
@@ -216,6 +225,8 @@ To check that the project has no known local issues, run all of:
 - `bun run typecheck` for TypeScript compiler errors.
 - `bun run test` for the automated test suite.
 - `bun run test:e2e` for focused functional-requirement e2e case validation.
+- `bun run docs:living --check` to confirm `docs/BEHAVIOR.md` is regenerated
+  from the current requirements and cases.
 
 All of the above commands should exit with code 0 before considering the
 codebase clean.

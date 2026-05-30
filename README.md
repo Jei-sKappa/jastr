@@ -81,6 +81,7 @@ bun run check
 bun run typecheck
 bun run test
 bun run test:e2e
+bun run docs:living
 ```
 
 Functional requirements live in area files under `requirements/functional/`.
@@ -90,3 +91,9 @@ requirement owns acceptance criteria with `AC-NNNN` IDs, referenced as
 exercise those criteria via `covers: [<FR-ID>.AC-NNNN, ...]` and are executed by
 the Vitest suite under `test/e2e/`. Run `bun run test:e2e` for focused
 functional-requirement validation and traceability checks.
+
+`bun run docs:living` regenerates `docs/BEHAVIOR.md`, a living behavior
+reference built by joining those requirements with the e2e cases on their
+`covers` refs. Every example in it is the exact output the e2e suite asserts, so
+a passing `bun run test:e2e` doubles as proof the document is accurate. Run
+`bun run docs:living --check` to fail (exit 1) when the committed file is stale.

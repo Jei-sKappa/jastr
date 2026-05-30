@@ -1,0 +1,261 @@
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import YAML from "yaml";
+import { loadCases } from "../test/e2e/harness/case-manifest";
+import {
+  acceptanceRef,
+  type Requirement,
+  validateRequirements,
+} from "../test/e2e/harness/requirements";
+
+export const OUTPUT_PATH = "docs/BEHAVIOR.md";
+
+export type Area = {
+  title: string;
+  requirements: Requirement[];
+};
+
+/** A case flattened to exactly what the document renders. */
+export type RenderCase = {
+  id: string;
+  title: string;
+  description: string;
+  command: string[];
+  covers: string[];
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+};
+
+/** Turn `01-run.yml` into a chapter title like `Run`. */
+function areaTitle(fileName: string): string {
+  return fileName
+    .replace(/\.yml$/, "")
+    .replace(/^\d+-/, "")
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+/**
+ * Load requirements grouped by their source file so the generated document
+ * keeps the curated `01..10` chapter order. Reuses the harness validator so
+ * the schema stays single-sourced.
+ */
+export async function loadAreas(root: string): Promise<Area[]> {
+  const dirPath = "requirements/functional";
+  const absoluteDir = path.join(root, dirPath);
+  const entries = await readdir(absoluteDir, { withFileTypes: true });
+  const files = entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".yml"))
+    .map((entry) => entry.name)
+    .sort();
+
+  const areas: Area[] = [];
+  for (const name of files) {
+    const filePath = `${dirPath}/${name}`;
+    const source = await readFile(path.join(absoluteDir, name), "utf8");
+    const requirements = validateRequirements(YAML.parse(source), { filePath });
+    areas.push({ title: areaTitle(name), requirements });
+  }
+  return areas;
+}
+
+/** Read whichever stream a case stored inline or in a sidecar file. */
+async function readStream(
+  inline: string | undefined,
+  file: string | undefined,
+  dirPath: string,
+): Promise<string> {
+  if (inline !== undefined) return inline;
+  if (file !== undefined) return readFile(path.join(dirPath, file), "utf8");
+  return "";
+}
+
+/**
+ * Load cases and resolve their expected streams to strings so the renderer can
+ * stay pure (and therefore unit-testable without touching the filesystem).
+ */
+export async function loadRenderCases(root: string): Promise<RenderCase[]> {
+  const cases = await loadCases(root);
+  return Promise.all(
+    cases.map(async ({ manifest, dirPath }) => ({
+      id: manifest.id,
+      title: manifest.title,
+      description: manifest.description,
+      command: manifest.command,
+      covers: manifest.covers,
+      exitCode: manifest.expect.exitCode,
+      stdout: await readStream(
+        manifest.expect.stdout,
+        manifest.expect.stdoutFile,
+        dirPath,
+      ),
+      stderr: await readStream(
+        manifest.expect.stderr,
+        manifest.expect.stderrFile,
+        dirPath,
+      ),
+    })),
+  );
+}
+
+function formatCommand(command: string[]): string {
+  const args = command.map((arg) =>
+    arg.length === 0 || /\s/.test(arg) ? `"${arg}"` : arg,
+  );
+  return ["skillrouter", ...args].join(" ");
+}
+
+function trimOneTrailingNewline(value: string): string {
+  return value.endsWith("\n") ? value.slice(0, -1) : value;
+}
+
+/** Render a case as a console transcript: command, output, exit code. */
+function renderTranscript(entry: RenderCase): string {
+  const lines = [`$ ${formatCommand(entry.command)}`];
+  if (entry.stdout.length > 0) lines.push(trimOneTrailingNewline(entry.stdout));
+  if (entry.stderr.length > 0) lines.push(trimOneTrailingNewline(entry.stderr));
+  lines.push(`# exit ${entry.exitCode}`);
+  return ["```console", ...lines, "```"].join("\n");
+}
+
+/** Active, non-removed criteria — the ones the contract still asserts. */
+function liveAcceptance(requirement: Requirement) {
+  return requirement.acceptance.filter((ac) => ac.status !== "removed");
+}
+
+function renderAcceptanceTable(
+  requirement: Requirement,
+  byRef: Map<string, RenderCase[]>,
+): string {
+  const rows = liveAcceptance(requirement).map((ac) => {
+    const cases = byRef.get(acceptanceRef(requirement.id, ac.id)) ?? [];
+    const coverage =
+      cases.length === 0
+        ? "❌ uncovered"
+        : `✅ ${cases.map((c) => `\`${c.id}\``).join(", ")}`;
+    return `| ${ac.id} | ${ac.statement} | ${coverage} |`;
+  });
+  return [
+    "| Criterion | Statement | Coverage |",
+    "| --- | --- | --- |",
+    ...rows,
+  ].join("\n");
+}
+
+/** Distinct covering cases for a requirement, in stable case-id order. */
+function coveringCases(
+  requirement: Requirement,
+  byRef: Map<string, RenderCase[]>,
+): RenderCase[] {
+  const seen = new Map<string, RenderCase>();
+  for (const ac of liveAcceptance(requirement)) {
+    for (const entry of byRef.get(acceptanceRef(requirement.id, ac.id)) ?? []) {
+      seen.set(entry.id, entry);
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** Which of this requirement's criteria a given case demonstrates. */
+function demonstratedRefs(requirement: Requirement, entry: RenderCase): string[] {
+  const live = new Set(
+    liveAcceptance(requirement).map((ac) =>
+      acceptanceRef(requirement.id, ac.id),
+    ),
+  );
+  return entry.covers.filter((ref) => live.has(ref));
+}
+
+function renderRequirement(
+  requirement: Requirement,
+  byRef: Map<string, RenderCase[]>,
+): string {
+  const badge =
+    requirement.status === "active" ? "" : ` _(${requirement.status})_`;
+  const blocks = [
+    `### ${requirement.id} — ${requirement.title}${badge}`,
+    "",
+    requirement.description.trim(),
+    "",
+    renderAcceptanceTable(requirement, byRef),
+  ];
+
+  if (requirement.status === "deferred" && requirement.coverage !== undefined) {
+    blocks.push("", `> Deferred: ${requirement.coverage.trim()}`);
+  }
+
+  for (const entry of coveringCases(requirement, byRef)) {
+    const refs = demonstratedRefs(requirement, entry);
+    blocks.push(
+      "",
+      `**${entry.title}** — demonstrates ${refs.join(", ")}`,
+      "",
+      `> ${entry.description.trim()}`,
+      "",
+      renderTranscript(entry),
+    );
+  }
+
+  return blocks.join("\n");
+}
+
+/** Map every acceptance-criterion ref to the cases that cover it. */
+function indexCasesByRef(cases: RenderCase[]): Map<string, RenderCase[]> {
+  const byRef = new Map<string, RenderCase[]>();
+  for (const entry of cases) {
+    for (const ref of entry.covers) {
+      const existing = byRef.get(ref);
+      if (existing === undefined) byRef.set(ref, [entry]);
+      else existing.push(entry);
+    }
+  }
+  return byRef;
+}
+
+/** Render the full behavior reference. Pure: same inputs always yield the
+ * same Markdown, so a committed copy can be drift-checked with `--check`. */
+export function renderDocument(areas: Area[], cases: RenderCase[]): string {
+  const byRef = indexCasesByRef(cases);
+
+  const visibleAreas = areas
+    .map((area) => ({
+      ...area,
+      requirements: area.requirements.filter((r) => r.status !== "removed"),
+    }))
+    .filter((area) => area.requirements.length > 0);
+
+  const requirementCount = visibleAreas.reduce(
+    (sum, area) => sum + area.requirements.length,
+    0,
+  );
+  const acceptanceCount = visibleAreas.reduce(
+    (sum, area) =>
+      sum + area.requirements.reduce((n, r) => n + liveAcceptance(r).length, 0),
+    0,
+  );
+
+  const sections: string[] = [
+    "<!-- Generated by `bun run docs:living`. Do not edit by hand. -->",
+    "",
+    "# Behavior reference",
+    "",
+    "Living documentation generated from the functional requirements in",
+    "`requirements/functional/` and the end-to-end cases in `test/e2e/cases/`.",
+    "Every example below is the expected output asserted by the e2e suite, so a",
+    "passing `bun run test:e2e` is also proof this document is accurate.",
+    "",
+    `**${requirementCount}** requirements · **${acceptanceCount}** acceptance ` +
+      `criteria · **${cases.length}** end-to-end cases.`,
+  ];
+
+  for (const area of visibleAreas) {
+    sections.push("", `## ${area.title}`);
+    for (const requirement of area.requirements) {
+      sections.push("", renderRequirement(requirement, byRef));
+    }
+  }
+
+  return `${sections.join("\n")}\n`;
+}
