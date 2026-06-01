@@ -134,13 +134,12 @@ Use these instructions for the task.
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 # Demo
 
 Use these instructions for the task.
-# exit 0
 ```
 
 </details>
@@ -173,11 +172,10 @@ _Empty — no `.skillrouter/` directory present (command ran from `project/`)._
 $ skillrouter invalid-command
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Expected command shape: skillrouter run <skill> [input flags...] or skillrouter generate <skill> --out <path> [--force].
-# exit 1
 ```
 
 </details>
@@ -224,11 +222,10 @@ description: Demo skill
 $ skillrouter run INVALID
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Invalid skill name INVALID.
-# exit 1
 ```
 
 </details>
@@ -261,11 +258,10 @@ _Empty — no `.skillrouter/` directory present (command ran from the project ro
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: No .skillrouter directory found from the current directory.
-# exit 1
 ```
 
 </details>
@@ -312,11 +308,10 @@ description: Demo skill
 $ skillrouter run no-such-skill
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.template.md.
-# exit 1
 ```
 
 </details>
@@ -369,11 +364,10 @@ Analyze `{{target-file}}`.
 $ skillrouter run demo --target-file=src/index.ts
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Analyze `src/index.ts`.
-# exit 0
 ```
 
 </details>
@@ -425,11 +419,10 @@ Analyze {{target-file}}.
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Input target-file is optional and was not provided for interpolation.
-# exit 1
 ```
 
 </details>
@@ -482,11 +475,10 @@ Selected language: {{language}}
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Missing required input --language.
-# exit 1
 ```
 
 </details>
@@ -539,11 +531,10 @@ Selected language: {{language}}
 $ skillrouter run demo --language=ruby
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Invalid value ruby for --language. Expected one of: typescript, python.
-# exit 1
 ```
 
 </details>
@@ -598,11 +589,10 @@ dry-run={{dry-run}}
 $ skillrouter run demo --dry-run
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 dry-run=true
-# exit 0
 ```
 
 </details>
@@ -645,11 +635,10 @@ dry-run={{dry-run}}
 $ skillrouter run demo --dry-run=false
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 dry-run=false
-# exit 0
 ```
 
 </details>
@@ -692,11 +681,10 @@ dry-run={{dry-run}}
 $ skillrouter run demo --dry-run=true
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 dry-run=true
-# exit 0
 ```
 
 </details>
@@ -749,11 +737,10 @@ Selected language: {{language}}
 $ skillrouter run demo --language=typescript --unknown=x
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Unknown input flag --unknown.
-# exit 1
 ```
 
 </details>
@@ -806,11 +793,10 @@ Selected language: {{language}}
 $ skillrouter run demo --language=typescript --language=python
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Duplicate flag --language.
-# exit 1
 ```
 
 </details>
@@ -859,11 +845,10 @@ description: Demo skill
 $ skillrouter run demo bareword
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Invalid flag syntax bareword.
-# exit 1
 ```
 
 </details>
@@ -901,11 +886,10 @@ description: Demo skill
 $ skillrouter run demo --no-dry-run
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Boolean negation form --no-dry-run is not supported in v1.
-# exit 1
 ```
 
 </details>
@@ -957,11 +941,10 @@ ok
 $ skillrouter run demo --target-file=
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Input --target-file cannot be empty.
-# exit 1
 ```
 
 </details>
@@ -1013,11 +996,10 @@ ok
 $ skillrouter run demo --target-file
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Input --target-file requires --target-file=value.
-# exit 1
 ```
 
 </details>
@@ -1069,11 +1051,10 @@ ok
 $ skillrouter run demo --dry-run=yes
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Boolean input --dry-run must be true, false, or a bare flag.
-# exit 1
 ```
 
 </details>
@@ -1132,11 +1113,10 @@ Use the Python checklist.
 $ skillrouter run demo --language=typescript
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Use the TypeScript checklist.
-# exit 0
 ```
 
 </details>
@@ -1192,11 +1172,10 @@ No target file.
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 No target file.
-# exit 0
 ```
 
 </details>
@@ -1253,11 +1232,10 @@ Not a dry run.
 $ skillrouter run demo --dry-run
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Dry run enabled.
-# exit 0
 ```
 
 </details>
@@ -1305,11 +1283,10 @@ Not a dry run.
 $ skillrouter run demo --dry-run=false
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Not a dry run.
-# exit 0
 ```
 
 </details>
@@ -1363,11 +1340,10 @@ TypeScript selected.
 $ skillrouter run demo --language=typescript
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 TypeScript selected.
-# exit 0
 ```
 
 </details>
@@ -1415,11 +1391,10 @@ Python.
 $ skillrouter run demo --language=typescript
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Not Python.
-# exit 0
 ```
 
 </details>
@@ -1487,11 +1462,10 @@ NOT true
 $ skillrouter run demo --flag-a --flag-b
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 AND true
-# exit 0
 ```
 
 </details>
@@ -1548,11 +1522,10 @@ NOT true
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 NOT true
-# exit 0
 ```
 
 </details>
@@ -1609,11 +1582,10 @@ NOT true
 $ skillrouter run demo --flag-a
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 OR true
-# exit 0
 ```
 
 </details>
@@ -1661,11 +1633,10 @@ Enabled.
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Not enabled.
-# exit 0
 ```
 
 </details>
@@ -1716,11 +1687,10 @@ Not grouped.
 $ skillrouter run demo --flag-a
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Grouped.
-# exit 0
 ```
 
 </details>
@@ -1777,12 +1747,11 @@ inner
 $ skillrouter run demo --mode=full
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 outer
 inner
-# exit 0
 ```
 
 </details>
@@ -1838,11 +1807,10 @@ Typed not equal.
 $ skillrouter run demo --dry-run=true
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Typed not equal.
-# exit 0
 ```
 
 </details>
@@ -1904,12 +1872,11 @@ Template
 $ skillrouter run demo --language=typescript
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Template
 Fragment for typescript
-# exit 0
 ```
 
 </details>
@@ -1964,12 +1931,11 @@ description: Demo skill
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Raw {{language}}
 ::include{path="ignored.md"}
-# exit 0
 ```
 
 </details>
@@ -2019,11 +1985,10 @@ description: Demo skill
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include path /etc/hosts must be relative.
-# exit 1
 ```
 
 </details>
@@ -2062,11 +2027,10 @@ description: Demo skill
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include path .env is rejected.
-# exit 1
 ```
 
 </details>
@@ -2105,11 +2069,10 @@ description: Demo skill
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include path ../../../../outside.md escapes the project root.
-# exit 1
 ```
 
 </details>
@@ -2148,11 +2111,10 @@ description: Demo skill
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include path ~/secret.md must be relative.
-# exit 1
 ```
 
 </details>
@@ -2217,11 +2179,10 @@ Root
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include cycle detected: a.md -> b.md -> a.md.
-# exit 1
 ```
 
 </details>
@@ -2270,11 +2231,10 @@ Root
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include file missing.md was not found.
-# exit 1
 ```
 
 </details>
@@ -2330,11 +2290,10 @@ placeholder so the directory exists in git
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Include file subdir could not be read: EISDIR.
-# exit 1
 ```
 
 </details>
@@ -2405,11 +2364,10 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
 </details>
@@ -2457,11 +2415,10 @@ Hello
 $ skillrouter generate demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Missing required --out <path>.
-# exit 1
 ```
 
 </details>
@@ -2525,11 +2482,10 @@ $ skillrouter generate demo --out=out/SKILL.md
 existing
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Output file out/SKILL.md already exists. Use --force to overwrite it.
-# exit 1
 ```
 
 </details>
@@ -2604,11 +2560,10 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
 </details>
@@ -2658,11 +2613,10 @@ text
 $ skillrouter generate demo --out=out/SKILL.md
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: else directive must immediately follow an if or else-if branch.
-# exit 1
 ```
 
 </details>
@@ -2709,11 +2663,10 @@ description: Demo skill with mismatched name
 $ skillrouter generate demo --out=out/SKILL.md
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Generated skill name wrong-name must match skill demo.
-# exit 1
 ```
 
 </details>
@@ -2792,11 +2745,10 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
 </details>
@@ -2845,11 +2797,10 @@ Hello
 $ skillrouter generate demo --out=out/SKILL.md
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Generated skill frontmatter field BadField must be kebab-case.
-# exit 1
 ```
 
 </details>
@@ -2897,11 +2848,10 @@ Hello
 $ skillrouter generate demo --out=out/SKILL.md
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Generated skill description must be 1-1024 characters.
-# exit 1
 ```
 
 </details>
@@ -2951,7 +2901,7 @@ description: Demo skill
 $ skillrouter generate --help
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Usage: skillrouter generate [options] <skill>
@@ -2965,7 +2915,6 @@ Options:
   --out <path>  Output path for the generated router skill
   --force       Overwrite an existing output file
   -h, --help    display help for command
-# exit 0
 ```
 
 </details>
@@ -3004,7 +2953,7 @@ Hello
 $ skillrouter --help
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Usage: skillrouter [options] [command]
@@ -3019,7 +2968,6 @@ Commands:
   run <skill> [inputs...]     Render a skill template to its final instructions
   generate [options] <skill>  Generate a minimal router skill from a template
   help [command]              display help for command
-# exit 0
 ```
 
 </details>
@@ -3058,7 +3006,7 @@ Hello
 $ skillrouter help run
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Usage: skillrouter run [options] <skill> [inputs...]
@@ -3071,7 +3019,6 @@ Arguments:
 
 Options:
   -h, --help  display help for command
-# exit 0
 ```
 
 </details>
@@ -3120,11 +3067,10 @@ Hello
 $ skillrouter --version
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 {{version}} (dev)
-# exit 0
 ```
 
 </details>
@@ -3176,7 +3122,7 @@ Hello
 $ skillrouter --help
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 Usage: skillrouter [options] [command]
@@ -3191,7 +3137,6 @@ Commands:
   run <skill> [inputs...]     Render a skill template to its final instructions
   generate [options] <skill>  Generate a minimal router skill from a template
   help [command]              display help for command
-# exit 0
 ```
 
 </details>
@@ -3229,11 +3174,10 @@ description: Demo skill
 $ skillrouter run no-such-skill
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.template.md.
-# exit 1
 ```
 
 </details>
@@ -3272,11 +3216,10 @@ Hello
 $ skillrouter --version
 ```
 
-**CLI output**
+**CLI output** — exit 0
 
 ```console
 {{version}} (dev)
-# exit 0
 ```
 
 </details>
@@ -3322,11 +3265,10 @@ This template has no frontmatter.
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Root template must start with YAML frontmatter.
-# exit 1
 ```
 
 </details>
@@ -3377,11 +3319,10 @@ Hello
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Input target-file must explicitly declare required: true or required: false.
-# exit 1
 ```
 
 </details>
@@ -3433,11 +3374,10 @@ Hello
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Input count uses unsupported type number.
-# exit 1
 ```
 
 </details>
@@ -3490,11 +3430,10 @@ Hello
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Enum input choice must declare at least one value.
-# exit 1
 ```
 
 </details>
@@ -3552,11 +3491,10 @@ inner
 $ skillrouter run demo --mode=full
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Nested conditional containers require a longer outer fence than inner fences.
-# exit 1
 ```
 
 </details>
@@ -3614,11 +3552,10 @@ b
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: else-if directive must immediately follow an if or else-if branch.
-# exit 1
 ```
 
 </details>
@@ -3668,11 +3605,10 @@ x
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Expected ${input-name} reference.
-# exit 1
 ```
 
 </details>
@@ -3722,11 +3658,10 @@ x
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Condition references undeclared input nope.
-# exit 1
 ```
 
 </details>
@@ -3774,11 +3709,10 @@ Hello {{nope}}
 $ skillrouter run demo
 ```
 
-**CLI output**
+**CLI output** — exit 1
 
 ```console
 Error: Interpolation references undeclared input nope.
-# exit 1
 ```
 
 </details>

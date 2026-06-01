@@ -229,7 +229,9 @@ because it's gitignored.
   sections in order: **Input project** (an ASCII directory tree plus fenced file
   blocks,
   with fences widened past any backticks inside), **Command**, **Output files**
-  (only when the case writes files), and **CLI output**. The document opens with
+  (only when the case writes files), and **CLI output** (stdout/stderr, with the
+  exit code in the section label rather than inside the code block so it is not
+  mistaken for printed output). The document opens with
   a requirement-level table of contents (case headings are intentionally
   excluded to keep it scannable). A missing or empty `project/` (for example
   `missing-project-root`) renders as an explicit "empty project" note, which

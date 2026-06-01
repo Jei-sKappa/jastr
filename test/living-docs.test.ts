@@ -55,11 +55,12 @@ describe("renderDocument", () => {
     // Covers lists AC ids only — the requirement id is in the ancestor heading.
     expect(doc).toContain("Covers: AC-0001");
     expect(doc).not.toContain("Covers: DEMO-FR-0001.AC-0001");
-    // The command and its output are split into labelled sections.
+    // The command and its output are split into labelled sections; the exit
+    // code lives in the CLI output label, not inside the code block.
     expect(doc).toContain("**Command**");
     expect(doc).toContain("$ skillrouter run demo");
-    expect(doc).toContain("**CLI output**");
-    expect(doc).toContain("# exit 0");
+    expect(doc).toContain("**CLI output** — exit 0");
+    expect(doc).not.toContain("# exit 0");
     // The whole case body is wrapped in one collapsible.
     expect(doc).toContain("<summary>Input, command & output</summary>");
     // Active requirements carry no status badge.

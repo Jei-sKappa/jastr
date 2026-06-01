@@ -192,13 +192,16 @@ function renderCommandSection(entry: RenderCase): string {
   ].join("\n");
 }
 
-/** Captured stdout/stderr plus the exit code, as its own console block. */
+/** Captured stdout/stderr as its own console block, with the exit code in the
+ * section label rather than inside the block — so it can't be mistaken for a
+ * line the command actually printed. */
 function renderCliOutputSection(entry: RenderCase): string {
-  const lines: string[] = [];
-  if (entry.stdout.length > 0) lines.push(trimOneTrailingNewline(entry.stdout));
-  if (entry.stderr.length > 0) lines.push(trimOneTrailingNewline(entry.stderr));
-  lines.push(`# exit ${entry.exitCode}`);
-  return ["**CLI output**", "", "```console", ...lines, "```"].join("\n");
+  const heading = `**CLI output** — exit ${entry.exitCode}`;
+  const streams: string[] = [];
+  if (entry.stdout.length > 0) streams.push(trimOneTrailingNewline(entry.stdout));
+  if (entry.stderr.length > 0) streams.push(trimOneTrailingNewline(entry.stderr));
+  if (streams.length === 0) return `${heading}\n\n_No stdout or stderr._`;
+  return [heading, "", "```console", ...streams, "```"].join("\n");
 }
 
 type TreeNode = {
