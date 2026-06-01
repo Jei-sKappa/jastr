@@ -209,9 +209,19 @@ because it's gitignored.
   `covers` refs. The generator is `scripts/living-docs.ts` (pure
   `renderDocument` + loaders, unit-tested in `test/living-docs.test.ts`) behind
   the thin `scripts/generate-living-docs.ts` entry, and it reuses the harness
-  loaders so the schemas stay single-sourced. `docs/BEHAVIOR.md` is committed
-  and must stay current; `bun run docs:living --check` re-renders in memory and
-  exits 1 if it differs. It is a single generated Markdown file.
+  loaders so the schemas stay single-sourced. Each case renders its full input
+  context, not just the transcript: the impure `loadRenderCases` reads the
+  case's entire `project/` fixture tree (every file's verbatim contents) and
+  resolves `expect.files` to the generated output contents, then `renderDocument`
+  embeds them as a collapsible directory tree plus fenced file blocks (file
+  fences widen past any backticks inside). The document opens with a
+  requirement-level table of contents. A missing or empty `project/` (for
+  example `missing-project-root`) renders as an explicit "empty project" note,
+  which also keeps generation deterministic regardless of the untracked empty
+  fixture dir. `docs/BEHAVIOR.md` is committed and must stay current;
+  `bun run docs:living --check` re-renders in memory and exits 1 if it differs.
+  It is a single generated Markdown file (collapsibility is GitHub-rendered
+  `<details>`, not a docs site).
 - There is currently no docs site or VitePress layer. Do not add docs-site
   fields such as `render` or `hidden` to e2e case manifests.
 

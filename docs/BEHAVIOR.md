@@ -9,6 +9,83 @@ passing `bun run test:e2e` is also proof this document is accurate.
 
 **50** requirements · **106** acceptance criteria · **63** end-to-end cases.
 
+Each example shows its full input project (the fixture the command ran
+against, including any templates and includes) and, for `generate`, the
+files it writes — collapsed by default; expand to verify the recorded
+output against its inputs.
+
+## Contents
+
+- [Run](#run)
+  - [RUN-FR-0001 — Run renders a skill template](#run-fr-0001--run-renders-a-skill-template)
+  - [RUN-FR-0002 — CLI rejects unknown commands](#run-fr-0002--cli-rejects-unknown-commands)
+  - [RUN-FR-0003 — CLI rejects invalid skill names](#run-fr-0003--cli-rejects-invalid-skill-names)
+  - [RUN-FR-0004 — CLI rejects missing project root](#run-fr-0004--cli-rejects-missing-project-root)
+  - [RUN-FR-0005 — CLI rejects missing skill templates](#run-fr-0005--cli-rejects-missing-skill-templates)
+
+- [Inputs](#inputs)
+  - [INPUT-FR-0001 — String inputs interpolate into rendered output](#input-fr-0001--string-inputs-interpolate-into-rendered-output)
+  - [INPUT-FR-0002 — Missing optional inputs are rejected in interpolation](#input-fr-0002--missing-optional-inputs-are-rejected-in-interpolation)
+  - [INPUT-FR-0003 — Missing required inputs are rejected](#input-fr-0003--missing-required-inputs-are-rejected)
+  - [INPUT-FR-0004 — Invalid enum values are rejected](#input-fr-0004--invalid-enum-values-are-rejected)
+
+- [Flags](#flags)
+  - [FLAGS-FR-0001 — Boolean inputs accept supported flag forms](#flags-fr-0001--boolean-inputs-accept-supported-flag-forms)
+  - [FLAGS-FR-0002 — Unknown flags are rejected](#flags-fr-0002--unknown-flags-are-rejected)
+  - [FLAGS-FR-0003 — Duplicate flags are rejected](#flags-fr-0003--duplicate-flags-are-rejected)
+  - [FLAGS-FR-0004 — Syntactically invalid flags are rejected](#flags-fr-0004--syntactically-invalid-flags-are-rejected)
+  - [FLAGS-FR-0005 — Empty input values are rejected](#flags-fr-0005--empty-input-values-are-rejected)
+  - [FLAGS-FR-0006 — String and enum inputs require a value](#flags-fr-0006--string-and-enum-inputs-require-a-value)
+  - [FLAGS-FR-0007 — Invalid boolean values are rejected](#flags-fr-0007--invalid-boolean-values-are-rejected)
+
+- [Conditions](#conditions)
+  - [COND-FR-0001 — Enum inputs select conditional branches](#cond-fr-0001--enum-inputs-select-conditional-branches)
+  - [COND-FR-0002 — Missing optional inputs are false in conditions](#cond-fr-0002--missing-optional-inputs-are-false-in-conditions)
+  - [COND-FR-0003 — Boolean inputs are truthy in conditions](#cond-fr-0003--boolean-inputs-are-truthy-in-conditions)
+  - [COND-FR-0004 — String comparison conditions select branches](#cond-fr-0004--string-comparison-conditions-select-branches)
+  - [COND-FR-0005 — Compound conditions select branches](#cond-fr-0005--compound-conditions-select-branches)
+  - [COND-FR-0006 — Conditional containers can be nested](#cond-fr-0006--conditional-containers-can-be-nested)
+  - [COND-FR-0007 — Equality uses typed semantics](#cond-fr-0007--equality-uses-typed-semantics)
+
+- [Includes](#includes)
+  - [INCLUDE-FR-0001 — Include renders Markdown fragments](#include-fr-0001--include-renders-markdown-fragments)
+  - [INCLUDE-FR-0002 — Include raw emits verbatim text](#include-fr-0002--include-raw-emits-verbatim-text)
+  - [INCLUDE-FR-0003 — Unsafe includes are rejected](#include-fr-0003--unsafe-includes-are-rejected)
+  - [INCLUDE-FR-0004 — Include cycles are detected and rejected](#include-fr-0004--include-cycles-are-detected-and-rejected)
+  - [INCLUDE-FR-0005 — Missing include files are rejected](#include-fr-0005--missing-include-files-are-rejected)
+  - [INCLUDE-FR-0006 — Include read errors are reported](#include-fr-0006--include-read-errors-are-reported)
+
+- [Generate](#generate)
+  - [GEN-FR-0001 — Generate writes a router skill](#gen-fr-0001--generate-writes-a-router-skill)
+  - [GEN-FR-0002 — Generate requires an output path](#gen-fr-0002--generate-requires-an-output-path)
+  - [GEN-FR-0003 — Generate refuses overwrite without force](#gen-fr-0003--generate-refuses-overwrite-without-force)
+  - [GEN-FR-0004 — Generate force overwrites existing output](#gen-fr-0004--generate-force-overwrites-existing-output)
+  - [GEN-FR-0005 — Generate validates the template before writing](#gen-fr-0005--generate-validates-the-template-before-writing)
+  - [GEN-FR-0006 — Generate rejects a router name that does not match the skill slug](#gen-fr-0006--generate-rejects-a-router-name-that-does-not-match-the-skill-slug)
+  - [GEN-FR-0007 — Generate passes through author frontmatter and omits owned fields](#gen-fr-0007--generate-passes-through-author-frontmatter-and-omits-owned-fields)
+  - [GEN-FR-0008 — Generate rejects unsupported router frontmatter fields](#gen-fr-0008--generate-rejects-unsupported-router-frontmatter-fields)
+  - [GEN-FR-0009 — Generate rejects an over-long router description](#gen-fr-0009--generate-rejects-an-over-long-router-description)
+
+- [Help](#help)
+  - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
+
+- [Version](#version)
+  - [VERSION-FR-0001 — Version prints package version and build SHA marker](#version-fr-0001--version-prints-package-version-and-build-sha-marker)
+
+- [Output](#output)
+  - [OUTPUT-FR-0001 — Uniform error and success output contract](#output-fr-0001--uniform-error-and-success-output-contract)
+
+- [Templates](#templates)
+  - [TEMPLATE-FR-0001 — Templates without valid frontmatter are rejected](#template-fr-0001--templates-without-valid-frontmatter-are-rejected)
+  - [TEMPLATE-FR-0002 — Inputs must declare requiredness explicitly](#template-fr-0002--inputs-must-declare-requiredness-explicitly)
+  - [TEMPLATE-FR-0003 — Unsupported input types are rejected](#template-fr-0003--unsupported-input-types-are-rejected)
+  - [TEMPLATE-FR-0004 — Enum inputs must declare values](#template-fr-0004--enum-inputs-must-declare-values)
+  - [TEMPLATE-FR-0005 — Equal-length nested fences are rejected](#template-fr-0005--equal-length-nested-fences-are-rejected)
+  - [TEMPLATE-FR-0006 — Branch directives must follow an open conditional group](#template-fr-0006--branch-directives-must-follow-an-open-conditional-group)
+  - [TEMPLATE-FR-0007 — Condition parse errors are rejected](#template-fr-0007--condition-parse-errors-are-rejected)
+  - [TEMPLATE-FR-0008 — Conditions referencing undeclared inputs are rejected](#template-fr-0008--conditions-referencing-undeclared-inputs-are-rejected)
+  - [TEMPLATE-FR-0009 — Interpolation referencing undeclared inputs is rejected](#template-fr-0009--interpolation-referencing-undeclared-inputs-is-rejected)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a skill template
@@ -24,6 +101,30 @@ The CLI renders `.skillrouter/<skill>/SKILL.template.md` when the user runs `ski
 **Run a basic skill** — demonstrates RUN-FR-0001.AC-0001, RUN-FR-0001.AC-0002, RUN-FR-0001.AC-0003
 
 > Render a minimal template with no inputs.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+# Demo
+
+Use these instructions for the task.
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -46,6 +147,8 @@ The CLI rejects commands other than `run`, `generate`, `help`, `--help`, `-h`, `
 
 > Shows how unknown commands are rejected before any project lookup.
 
+_Input project is empty — no `.skillrouter/` directory present (command ran from `project/`)._
+
 ```console
 $ skillrouter invalid-command
 Error: Expected command shape: skillrouter run <skill> [input flags...] or skillrouter generate <skill> --out <path> [--force].
@@ -64,6 +167,27 @@ Skill names must match `^[a-z0-9][a-z0-9-]*$`: they start with a lowercase lette
 **Reject invalid skill names** — demonstrates RUN-FR-0003.AC-0001, RUN-FR-0003.AC-0002
 
 > Shows how invalid skill names are rejected by the validator.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
 
 ```console
 $ skillrouter run INVALID
@@ -84,6 +208,8 @@ The CLI fails when no `.skillrouter/` directory is found ascending from the curr
 
 > Shows how run command fails when no .skillrouter directory exists.
 
+_Input project is empty — no `.skillrouter/` directory present (command ran from the project root)._
+
 ```console
 $ skillrouter run demo
 Error: No .skillrouter directory found from the current directory.
@@ -102,6 +228,27 @@ The CLI fails when the requested skill does not have a template file at `.skillr
 **Reject missing skill template** — demonstrates RUN-FR-0005.AC-0001, RUN-FR-0005.AC-0002
 
 > Shows how requesting a non-existent skill fails with a clear error.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
 
 ```console
 $ skillrouter run no-such-skill
@@ -123,6 +270,32 @@ A declared string input supplied through a CLI flag is available to template int
 
 > Shows how template placeholders expand declared string inputs.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+    required: false
+---
+Analyze `{{target-file}}`.
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --target-file=src/index.ts
 Analyze `src/index.ts`.
@@ -141,6 +314,32 @@ An optional input that is not supplied fails rendering when directly interpolate
 **Optional input in interpolation** — demonstrates INPUT-FR-0002.AC-0001, INPUT-FR-0002.AC-0002
 
 > Shows how interpolating a missing optional input fails at run time.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+    required: false
+---
+Analyze {{target-file}}.
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -161,6 +360,33 @@ A template-declared required input must be supplied by the caller.
 
 > Shows Skillrouter input validation errors.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Selected language: {{language}}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Missing required input --language.
@@ -179,6 +405,33 @@ Enum inputs accept only values declared in the template frontmatter.
 **Invalid Enum Value** — demonstrates INPUT-FR-0004.AC-0001, INPUT-FR-0004.AC-0002
 
 > Shows Skillrouter input validation errors.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Selected language: {{language}}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --language=ruby
@@ -202,6 +455,32 @@ Boolean inputs can be supplied as a bare flag, as `=true`, or as `=false`.
 
 > Shows how boolean inputs render in template output.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+dry-run={{dry-run}}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --dry-run
 dry-run=true
@@ -212,6 +491,32 @@ dry-run=true
 
 > Shows how boolean inputs render in template output.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+dry-run={{dry-run}}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --dry-run=false
 dry-run=false
@@ -221,6 +526,32 @@ dry-run=false
 **Boolean input (true)** — demonstrates FLAGS-FR-0001.AC-0002
 
 > Shows how boolean inputs render in template output.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+dry-run={{dry-run}}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --dry-run=true
@@ -241,6 +572,33 @@ The CLI rejects flags that are not declared by the selected template.
 
 > Shows Skillrouter input validation errors.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Selected language: {{language}}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --language=typescript --unknown=x
 Error: Unknown input flag --unknown.
@@ -259,6 +617,33 @@ The CLI rejects multiple values for the same input flag.
 **Duplicate Flag** — demonstrates FLAGS-FR-0003.AC-0001, FLAGS-FR-0003.AC-0002
 
 > Shows Skillrouter input validation errors.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Selected language: {{language}}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --language=typescript --language=python
@@ -281,6 +666,27 @@ The CLI rejects flag tokens that do not match the `--name` or `--name=value` for
 
 > Shows how positional arguments without -- are rejected during flag parsing.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
+
 ```console
 $ skillrouter run demo bareword
 Error: Invalid flag syntax bareword.
@@ -290,6 +696,27 @@ Error: Invalid flag syntax bareword.
 **Reject --no- negation flags** — demonstrates FLAGS-FR-0004.AC-0003, FLAGS-FR-0004.AC-0004
 
 > Shows how the --no- boolean negation form is rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --no-dry-run
@@ -310,6 +737,32 @@ String and enum inputs reject an empty value supplied as `--name=`.
 
 > Shows how an empty string input value is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+    required: false
+---
+ok
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --target-file=
 Error: Input --target-file cannot be empty.
@@ -329,6 +782,32 @@ String and enum inputs must be supplied as `--name=value`; a bare `--name` flag 
 
 > Shows how a string input supplied as a bare flag is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+    required: false
+---
+ok
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --target-file
 Error: Input --target-file requires --target-file=value.
@@ -347,6 +826,32 @@ A boolean input supplied with a value other than `true` or `false` is rejected.
 **Reject invalid boolean value** — demonstrates FLAGS-FR-0007.AC-0001, FLAGS-FR-0007.AC-0002
 
 > Shows how a boolean input with a non-boolean value is rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+ok
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --dry-run=yes
@@ -368,6 +873,38 @@ Template conditionals can branch on enum input values.
 
 > Shows how `run` renders only the branch selected by `--language`.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+::::if{condition="${language} == 'typescript'"}
+Use the TypeScript checklist.
+::::
+::::else-if{condition="${language} == 'python'"}
+Use the Python checklist.
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --language=typescript
 Use the TypeScript checklist.
@@ -385,6 +922,37 @@ An optional input that is not supplied evaluates false in conditional expression
 **Optional input in conditions** — demonstrates COND-FR-0002.AC-0001
 
 > Shows how missing optional inputs are falsey in branch conditions.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+    required: false
+---
+::::if{condition="${target-file}"}
+Has target
+::::
+::::else
+No target file.
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -405,6 +973,37 @@ A supplied boolean input evaluates to its truth value in conditional expressions
 
 > Shows how a supplied boolean input selects the true branch.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+::::if{condition="${dry-run}"}
+Dry run enabled.
+::::
+::::else
+Not a dry run.
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --dry-run
 Dry run enabled.
@@ -414,6 +1013,37 @@ Dry run enabled.
 **False boolean input in condition** — demonstrates COND-FR-0003.AC-0002
 
 > Shows how a false boolean input selects the else branch.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+::::if{condition="${dry-run}"}
+Dry run enabled.
+::::
+::::else
+Not a dry run.
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --dry-run=false
@@ -434,6 +1064,34 @@ String equality and inequality comparisons in condition expressions select the b
 
 > Shows how a string equality comparison selects the matching branch.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: string
+    required: true
+---
+::::if{condition="${language} == 'typescript'"}
+TypeScript selected.
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --language=typescript
 TypeScript selected.
@@ -443,6 +1101,37 @@ TypeScript selected.
 **String inequality in condition** — demonstrates COND-FR-0004.AC-0002
 
 > Shows how a string inequality (!=) comparison selects the matching branch.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: string
+    required: true
+---
+::::if{condition="${language} != 'python'"}
+Not Python.
+::::
+::::else
+Python.
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --language=typescript
@@ -465,6 +1154,46 @@ Conditional expressions support logical operators AND (&&), OR (||), and NOT (!)
 
 > Shows how AND (&&) selects the branch when both sides are true.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  flag-a:
+    type: boolean
+    required: false
+  flag-b:
+    type: boolean
+    required: false
+  flag-c:
+    type: boolean
+    required: false
+---
+::::if{condition="${flag-a} && ${flag-b}"}
+AND true
+::::
+::::else-if{condition="${flag-a} || ${flag-b}"}
+OR true
+::::
+::::else-if{condition="!${flag-c}"}
+NOT true
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --flag-a --flag-b
 AND true
@@ -474,6 +1203,46 @@ AND true
 **Compound condition with NOT** — demonstrates COND-FR-0005.AC-0003
 
 > Shows how NOT (!) inverts the condition result.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  flag-a:
+    type: boolean
+    required: false
+  flag-b:
+    type: boolean
+    required: false
+  flag-c:
+    type: boolean
+    required: false
+---
+::::if{condition="${flag-a} && ${flag-b}"}
+AND true
+::::
+::::else-if{condition="${flag-a} || ${flag-b}"}
+OR true
+::::
+::::else-if{condition="!${flag-c}"}
+NOT true
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -485,6 +1254,46 @@ NOT true
 
 > Shows how OR (||) selects the branch when at least one side is true.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  flag-a:
+    type: boolean
+    required: false
+  flag-b:
+    type: boolean
+    required: false
+  flag-c:
+    type: boolean
+    required: false
+---
+::::if{condition="${flag-a} && ${flag-b}"}
+AND true
+::::
+::::else-if{condition="${flag-a} || ${flag-b}"}
+OR true
+::::
+::::else-if{condition="!${flag-c}"}
+NOT true
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --flag-a
 OR true
@@ -495,6 +1304,37 @@ OR true
 
 > Isolates a NOT (!) expression selecting the branch when its operand is false.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  enabled:
+    type: boolean
+    required: false
+---
+::::if{condition="!${enabled}"}
+Not enabled.
+::::
+::::else
+Enabled.
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Not enabled.
@@ -504,6 +1344,40 @@ Not enabled.
 **Parentheses group a subexpression** — demonstrates COND-FR-0005.AC-0004
 
 > Shows how parentheses make the grouped subexpression evaluate before the prefix operator.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  flag-a:
+    type: boolean
+    required: false
+  flag-b:
+    type: boolean
+    required: false
+---
+::::if{condition="!(${flag-a} && ${flag-b})"}
+Grouped.
+::::
+::::else
+Not grouped.
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --flag-a
@@ -523,6 +1397,38 @@ Directives support nested conditional containers using longer outer fences.
 
 > Shows how nested conditional directives select the correct inner branch.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  mode:
+    type: enum
+    values: [full, quick]
+    required: true
+---
+::::if{condition="${mode} == 'full'"}
+outer
+:::if{condition="${mode} == 'full'"}
+inner
+:::
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --mode=full
 outer
@@ -541,6 +1447,37 @@ Condition equality compares both runtime type and value, so a boolean input is n
 **Typed equality semantics** — demonstrates COND-FR-0007.AC-0001
 
 > Shows how a boolean input is not equal to a string literal of the same text.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+---
+::::if{condition="${dry-run} == 'true'"}
+String equal.
+::::
+::::else
+Typed not equal.
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo --dry-run=true
@@ -562,6 +1499,41 @@ The include directive inserts a referenced Markdown fragment into rendered outpu
 
 > Shows how include resolves and processes nested template syntax.
 
+<details>
+<summary>Input project — 2 files, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      ├─ fragment.md
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/fragment.md`
+
+```md
+Fragment for {{language}}
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Template
+::include{path="fragment.md"}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --language=typescript
 Template
@@ -580,6 +1552,36 @@ The include-raw directive inserts referenced file content without processing it 
 **Include raw content** — demonstrates INCLUDE-FR-0002.AC-0001
 
 > Shows how include-raw copies file content without processing directives.
+
+<details>
+<summary>Input project — 2 files, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      ├─ raw.md
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/raw.md`
+
+```md
+Raw {{language}}
+::include{path="ignored.md"}
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include-raw{path="raw.md"}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -603,6 +1605,28 @@ Include directives cannot read files outside the project root, `.env` files, abs
 
 > Shows how absolute include paths are rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="/etc/hosts"}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Include path /etc/hosts must be relative.
@@ -612,6 +1636,28 @@ Error: Include path /etc/hosts must be relative.
 **Reject env includes** — demonstrates INCLUDE-FR-0003.AC-0002
 
 > Shows how include paths targeting .env files are rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path=".env"}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -623,6 +1669,28 @@ Error: Include path .env is rejected.
 
 > Shows how include paths that escape the project root are rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="../../../../outside.md"}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Include path ../../../../outside.md escapes the project root.
@@ -632,6 +1700,28 @@ Error: Include path ../../../../outside.md escapes the project root.
 **Reject home-relative includes** — demonstrates INCLUDE-FR-0003.AC-0004
 
 > Shows how ~ home-relative include paths are rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="~/secret.md"}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -652,6 +1742,45 @@ Circular includes are detected during template loading and rejected with a clear
 
 > Shows how circular includes are detected and rejected.
 
+<details>
+<summary>Input project — 3 files, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      ├─ a.md
+      ├─ b.md
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/a.md`
+
+```md
+A
+::include{path="b.md"}
+```
+
+`.skillrouter/demo/b.md`
+
+```md
+B
+::include{path="a.md"}
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Root
+::include{path="a.md"}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Include cycle detected: a.md -> b.md -> a.md.
@@ -671,6 +1800,29 @@ Include directives that reference a nonexistent file are rejected.
 
 > Shows how include references to nonexistent files are rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Root
+::include{path="missing.md"}
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Include file missing.md was not found.
@@ -689,6 +1841,36 @@ An include path that resolves inside the project root but cannot be read as a fi
 **Report include read errors** — demonstrates INCLUDE-FR-0006.AC-0001, INCLUDE-FR-0006.AC-0002
 
 > Shows how an include path pointing to a directory fails with a normalized cause.
+
+<details>
+<summary>Input project — 2 files, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      ├─ SKILL.template.md
+      └─ subdir/
+         └─ keep.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="subdir"}
+```
+
+`.skillrouter/demo/subdir/keep.md`
+
+```md
+placeholder so the directory exists in git
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -713,11 +1895,55 @@ The generate command writes a minimal router skill to an explicit output path.
 
 > Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
 
+<details>
+<summary>Input project — 1 file, command ran from the project root</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
+
 ```console
 $ skillrouter generate demo --out out/SKILL.md
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
 # exit 0
 ```
+
+<details>
+<summary>Output files asserted after the command — 1 file</summary>
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+skillrouter run demo $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+</details>
 
 ### GEN-FR-0002 — Generate requires an output path
 
@@ -731,6 +1957,28 @@ The generate command requires callers to provide `--out`.
 **Generate requires --out** — demonstrates GEN-FR-0002.AC-0001, GEN-FR-0002.AC-0002
 
 > Shows how generate fails when --out is missing.
+
+<details>
+<summary>Input project — 1 file, command ran from the project root</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter generate demo
@@ -751,11 +1999,52 @@ The generate command does not overwrite an existing destination unless `--force`
 
 > Shows how generate refuses to overwrite an existing output file.
 
+<details>
+<summary>Input project — 2 files, command ran from the project root</summary>
+
+```text
+project/
+├─ .skillrouter/
+│  └─ demo/
+│     └─ SKILL.template.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+`out/SKILL.md`
+
+```md
+existing
+```
+
+</details>
+
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
 Error: Output file out/SKILL.md already exists. Use --force to overwrite it.
 # exit 1
 ```
+
+<details>
+<summary>Output files asserted after the command — 1 file</summary>
+
+`out/SKILL.md`
+
+```md
+existing
+```
+
+</details>
 
 ### GEN-FR-0004 — Generate force overwrites existing output
 
@@ -770,11 +2059,63 @@ The generate command overwrites an existing destination when `--force` is suppli
 
 > Shows how --force overwrites an existing output file.
 
+<details>
+<summary>Input project — 2 files, command ran from the project root</summary>
+
+```text
+project/
+├─ .skillrouter/
+│  └─ demo/
+│     └─ SKILL.template.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+`out/SKILL.md`
+
+```md
+existing
+```
+
+</details>
+
 ```console
 $ skillrouter generate demo --out=out/SKILL.md --force
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
 # exit 0
 ```
+
+<details>
+<summary>Output files asserted after the command — 1 file</summary>
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+skillrouter run demo $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+</details>
 
 ### GEN-FR-0005 — Generate validates the template before writing
 
@@ -788,6 +2129,30 @@ The generate command validates the template schema, directives, and includes bef
 **Generate rejects invalid templates** — demonstrates GEN-FR-0005.AC-0001, GEN-FR-0005.AC-0002
 
 > Shows how generate validates the template before writing and rejects invalid directives.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+:::else
+text
+:::
+```
+
+</details>
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
@@ -807,6 +2172,27 @@ The generate command validates that the template frontmatter name matches the sk
 **Generate rejects name mismatch** — demonstrates GEN-FR-0006.AC-0001, GEN-FR-0006.AC-0002
 
 > Shows how generate validates that the template name matches the skill slug.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: wrong-name
+description: Demo skill with mismatched name
+---
+```
+
+</details>
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
@@ -828,11 +2214,66 @@ Generated router frontmatter preserves author-declared Agent Skills fields and a
 
 > Shows how generate preserves author frontmatter fields and omits Skillrouter-owned inputs.
 
+<details>
+<summary>Input project — 1 file, command ran from the project root</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: A demo skill
+license: MIT
+my-extension-field: custom-value
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+::::if{condition="${language} == 'typescript'"}
+TS
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
 Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
 # exit 0
 ```
+
+<details>
+<summary>Output files asserted after the command — 1 file</summary>
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: A demo skill
+license: MIT
+my-extension-field: custom-value
+---
+
+Run this command and follow its output exactly:
+
+```bash
+skillrouter run demo $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+</details>
 
 ### GEN-FR-0008 — Generate rejects unsupported router frontmatter fields
 
@@ -846,6 +2287,29 @@ Generated router frontmatter rejects an extension field that is not a kebab-case
 **Generate rejects non-kebab frontmatter fields** — demonstrates GEN-FR-0008.AC-0001, GEN-FR-0008.AC-0002
 
 > Shows how generate rejects an extension frontmatter field that is not kebab-case.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: A demo skill
+BadField: nope
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
@@ -865,6 +2329,28 @@ Generated router frontmatter rejects a description longer than 1024 characters.
 **Generate rejects over-long descriptions** — demonstrates GEN-FR-0009.AC-0001, GEN-FR-0009.AC-0002
 
 > Shows how generate rejects a router description longer than 1024 characters.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
@@ -888,6 +2374,27 @@ Skillrouter exposes help text for the root program and supported commands.
 
 > Shows the generate command help text.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
+
 ```console
 $ skillrouter generate --help
 Usage: skillrouter generate [options] <skill>
@@ -907,6 +2414,28 @@ Options:
 **Root help** — demonstrates HELP-FR-0001.AC-0001
 
 > Shows the root CLI help text.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter --help
@@ -928,6 +2457,28 @@ Commands:
 **Run help** — demonstrates HELP-FR-0001.AC-0002
 
 > Shows the run command help text.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter help run
@@ -958,6 +2509,28 @@ The version command prints the current package version and either a build SHA or
 
 > Shows the CLI version string.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
+
 ```console
 $ skillrouter --version
 {{version}} (dev)
@@ -981,6 +2554,28 @@ Every failure prints a single-line `Error: <message>` to stderr, exits with code
 
 > Shows the root CLI help text.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
+
 ```console
 $ skillrouter --help
 Usage: skillrouter [options] [command]
@@ -1002,6 +2597,27 @@ Commands:
 
 > Shows how requesting a non-existent skill fails with a clear error.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+</details>
+
 ```console
 $ skillrouter run no-such-skill
 Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.template.md.
@@ -1011,6 +2627,28 @@ Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.tem
 **Version output** — demonstrates OUTPUT-FR-0001.AC-0004
 
 > Shows the CLI version string.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter --version
@@ -1033,6 +2671,24 @@ A root template must begin with YAML frontmatter delimited by `---` lines.
 
 > Shows how a template that does not start with YAML frontmatter is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+This template has no frontmatter.
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Root template must start with YAML frontmatter.
@@ -1051,6 +2707,31 @@ Every declared input must set `required: true` or `required: false`; there is no
 **Reject inputs without explicit requiredness** — demonstrates TEMPLATE-FR-0002.AC-0001, TEMPLATE-FR-0002.AC-0002
 
 > Shows how an input that omits required is rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  target-file:
+    type: string
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -1071,6 +2752,32 @@ Input definitions accept only the `string`, `boolean`, and `enum` types.
 
 > Shows how an input with an unsupported type is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  count:
+    type: number
+    required: true
+---
+Hello
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Input count uses unsupported type number.
@@ -1089,6 +2796,33 @@ An enum input must provide a non-empty `values` array.
 **Reject enum inputs without values** — demonstrates TEMPLATE-FR-0004.AC-0001, TEMPLATE-FR-0004.AC-0002
 
 > Shows how an enum input with no values is rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  choice:
+    type: enum
+    values: []
+    required: true
+---
+Hello
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -1109,6 +2843,38 @@ A nested conditional container must use a shorter colon fence than its outer con
 
 > Shows how a nested conditional with an equal-length fence is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  mode:
+    type: enum
+    values: [full, quick]
+    required: true
+---
+:::if{condition="${mode} == 'full'"}
+outer
+:::if{condition="${mode} == 'full'"}
+inner
+:::
+:::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo --mode=full
 Error: Nested conditional containers require a longer outer fence than inner fences.
@@ -1127,6 +2893,38 @@ Non-blank content between branches ends the conditional group, so a later `else-
 **Reject branch directives after interrupting content** — demonstrates TEMPLATE-FR-0006.AC-0001, TEMPLATE-FR-0006.AC-0002
 
 > Shows how non-blank content between branches ends the group and makes a later else-if an error.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  x:
+    type: boolean
+    required: false
+---
+::::if{condition="${x}"}
+a
+::::
+interrupting text
+::::else-if{condition="${x}"}
+b
+::::
+```
+
+</details>
 
 ```console
 $ skillrouter run demo
@@ -1147,6 +2945,30 @@ A condition expression that is not valid Skillrouter condition syntax, such as a
 
 > Shows how a bare identifier instead of a ${input-name} reference is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::::if{condition="dryrun"}
+x
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Expected ${input-name} reference.
@@ -1166,6 +2988,30 @@ A condition may only reference inputs declared in the template frontmatter.
 
 > Shows how a condition that references an undeclared input is rejected.
 
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::::if{condition="${nope}"}
+x
+::::
+```
+
+</details>
+
 ```console
 $ skillrouter run demo
 Error: Condition references undeclared input nope.
@@ -1184,6 +3030,28 @@ A `{{input-name}}` placeholder may only reference inputs declared in the templat
 **Reject interpolation referencing undeclared inputs** — demonstrates TEMPLATE-FR-0009.AC-0001, TEMPLATE-FR-0009.AC-0002
 
 > Shows how a {{input}} placeholder referencing an undeclared input is rejected.
+
+<details>
+<summary>Input project — 1 file, command ran from `project/`</summary>
+
+```text
+project/
+└─ .skillrouter/
+   └─ demo/
+      └─ SKILL.template.md
+```
+
+`.skillrouter/demo/SKILL.template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello {{nope}}
+```
+
+</details>
 
 ```console
 $ skillrouter run demo

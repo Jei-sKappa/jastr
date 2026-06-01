@@ -1,3 +1,4 @@
+import type { Dirent } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
@@ -15,16 +16,28 @@ export type Area = {
   requirements: Requirement[];
 };
 
+/** One fixture file surfaced in the document: a project-relative POSIX path
+ * paired with its verbatim contents. */
+export type FixtureFile = {
+  path: string;
+  content: string;
+};
+
 /** A case flattened to exactly what the document renders. */
 export type RenderCase = {
   id: string;
   title: string;
   description: string;
+  cwd: string;
   command: string[];
   covers: string[];
   exitCode: number;
   stdout: string;
   stderr: string;
+  /** Every file under the case's `project/` fixture — the command's inputs. */
+  inputFiles: FixtureFile[];
+  /** Files the command is expected to produce, resolved from `expect.files`. */
+  outputFiles: FixtureFile[];
 };
 
 /** Turn `01-run.yml` into a chapter title like `Run`. */
@@ -73,6 +86,60 @@ async function readStream(
 }
 
 /**
+ * Recursively read every file under a case's `project/` fixture, returning
+ * project-relative POSIX paths with verbatim contents, sorted by path. A case
+ * with no `project/` directory (for example, `missing-project-root`) yields an
+ * empty list rather than throwing, so the renderer can state the project is
+ * empty — and so generation stays deterministic whether or not the untracked
+ * empty directory happens to exist locally.
+ */
+async function loadProjectFiles(projectDir: string): Promise<FixtureFile[]> {
+  const files: FixtureFile[] = [];
+  const walk = async (dir: string, relative: string): Promise<void> => {
+    let entries: Dirent[];
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+      throw error;
+    }
+    for (const entry of entries) {
+      const childRelative = relative
+        ? `${relative}/${entry.name}`
+        : entry.name;
+      const childPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(childPath, childRelative);
+      } else if (entry.isFile()) {
+        files.push({
+          path: childRelative,
+          content: await readFile(childPath, "utf8"),
+        });
+      }
+    }
+  };
+  await walk(projectDir, "");
+  files.sort((a, b) => a.path.localeCompare(b.path));
+  return files;
+}
+
+/** Resolve a case's `expect.files` map to the contents the command produces. */
+async function loadOutputFiles(
+  dirPath: string,
+  files: Record<string, string> | undefined,
+): Promise<FixtureFile[]> {
+  if (files === undefined) return [];
+  const resolved = await Promise.all(
+    Object.entries(files).map(async ([actualPath, fixturePath]) => ({
+      path: actualPath,
+      content: await readFile(path.join(dirPath, fixturePath), "utf8"),
+    })),
+  );
+  resolved.sort((a, b) => a.path.localeCompare(b.path));
+  return resolved;
+}
+
+/**
  * Load cases and resolve their expected streams to strings so the renderer can
  * stay pure (and therefore unit-testable without touching the filesystem).
  */
@@ -83,6 +150,7 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
       id: manifest.id,
       title: manifest.title,
       description: manifest.description,
+      cwd: manifest.cwd,
       command: manifest.command,
       covers: manifest.covers,
       exitCode: manifest.expect.exitCode,
@@ -96,6 +164,8 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
         manifest.expect.stderrFile,
         dirPath,
       ),
+      inputFiles: await loadProjectFiles(path.join(dirPath, "project")),
+      outputFiles: await loadOutputFiles(dirPath, manifest.expect.files),
     })),
   );
 }
@@ -118,6 +188,150 @@ function renderTranscript(entry: RenderCase): string {
   if (entry.stderr.length > 0) lines.push(trimOneTrailingNewline(entry.stderr));
   lines.push(`# exit ${entry.exitCode}`);
   return ["```console", ...lines, "```"].join("\n");
+}
+
+type TreeNode = {
+  name: string;
+  isFile: boolean;
+  children: Map<string, TreeNode>;
+};
+
+function appendTreeLines(
+  node: TreeNode,
+  prefix: string,
+  lines: string[],
+): void {
+  const children = [...node.children.values()].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+  children.forEach((child, index) => {
+    const isLast = index === children.length - 1;
+    const label = child.isFile ? child.name : `${child.name}/`;
+    lines.push(`${prefix}${isLast ? "└─ " : "├─ "}${label}`);
+    appendTreeLines(child, `${prefix}${isLast ? "   " : "│  "}`, lines);
+  });
+}
+
+/**
+ * Render a sorted list of project-relative file paths as an ASCII tree rooted
+ * at `project/`. Pure and deterministic: paths are folded into a node trie and
+ * each level is emitted in locale order.
+ */
+export function buildFileTree(paths: string[]): string {
+  const root: TreeNode = { name: "project", isFile: false, children: new Map() };
+  for (const filePath of paths) {
+    let node = root;
+    const segments = filePath.split("/");
+    segments.forEach((segment, index) => {
+      const isFile = index === segments.length - 1;
+      let child = node.children.get(segment);
+      if (child === undefined) {
+        child = { name: segment, isFile, children: new Map() };
+        node.children.set(segment, child);
+      }
+      node = child;
+    });
+  }
+  const lines = ["project/"];
+  appendTreeLines(root, "", lines);
+  return lines.join("\n");
+}
+
+/** Best-effort fenced-code language hint from a file extension. */
+function languageHint(filePath: string): string {
+  const dot = filePath.lastIndexOf(".");
+  const extension = dot === -1 ? "" : filePath.slice(dot + 1).toLowerCase();
+  if (extension === "md" || extension === "markdown") return "md";
+  if (extension === "yml" || extension === "yaml") return "yaml";
+  return "text";
+}
+
+/** Longest run of consecutive backticks anywhere in the content. */
+function longestBacktickRun(content: string): number {
+  let longest = 0;
+  let current = 0;
+  for (const char of content) {
+    if (char === "`") {
+      current += 1;
+      if (current > longest) longest = current;
+    } else {
+      current = 0;
+    }
+  }
+  return longest;
+}
+
+/** Wrap a fixture file in a path label plus a fence long enough to survive any
+ * backticks inside it (file contents themselves contain ``` fences). */
+function renderFileBlock(file: FixtureFile): string {
+  const ticks = "`".repeat(Math.max(3, longestBacktickRun(file.content) + 1));
+  return [
+    `\`${file.path}\``,
+    "",
+    `${ticks}${languageHint(file.path)}`,
+    trimOneTrailingNewline(file.content),
+    ticks,
+  ].join("\n");
+}
+
+/** Wrap a body in a GitHub-rendered collapsible `<details>` block. */
+function renderCollapsible(summary: string, body: string): string {
+  return [
+    "<details>",
+    `<summary>${summary}</summary>`,
+    "",
+    body,
+    "",
+    "</details>",
+  ].join("\n");
+}
+
+function describeCwd(cwd: string): string {
+  return cwd === "." ? "the project root" : `\`${cwd}/\``;
+}
+
+/** Render the input fixture: the project tree plus every file's contents. */
+function renderInputProject(entry: RenderCase): string {
+  if (entry.inputFiles.length === 0) {
+    return `_Input project is empty — no \`.skillrouter/\` directory present (command ran from ${describeCwd(entry.cwd)})._`;
+  }
+  const tree = [
+    "```text",
+    buildFileTree(entry.inputFiles.map((file) => file.path)),
+    "```",
+  ].join("\n");
+  const fileBlocks = entry.inputFiles.map(renderFileBlock).join("\n\n");
+  const count = entry.inputFiles.length;
+  const summary = `Input project — ${count} file${count === 1 ? "" : "s"}, command ran from ${describeCwd(entry.cwd)}`;
+  return renderCollapsible(summary, `${tree}\n\n${fileBlocks}`);
+}
+
+/** Render the files the command is expected to leave on disk, if any. */
+function renderOutputFiles(entry: RenderCase): string | null {
+  if (entry.outputFiles.length === 0) return null;
+  const fileBlocks = entry.outputFiles.map(renderFileBlock).join("\n\n");
+  const count = entry.outputFiles.length;
+  const summary = `Output files asserted after the command — ${count} file${count === 1 ? "" : "s"}`;
+  return renderCollapsible(summary, fileBlocks);
+}
+
+/** GitHub-compatible heading anchor for ASCII headings: lowercase, drop
+ * punctuation other than hyphens/underscores, spaces become hyphens. */
+function slugify(heading: string): string {
+  return heading
+    .toLowerCase()
+    .replace(/[^\w\- ]/g, "")
+    .replace(/ /g, "-");
+}
+
+function requirementBadge(requirement: Requirement): string {
+  return requirement.status === "active" ? "" : ` _(${requirement.status})_`;
+}
+
+/** The exact heading text used for a requirement; shared by the section
+ * heading and its table-of-contents anchor so the two never drift. */
+function requirementHeading(requirement: Requirement): string {
+  return `${requirement.id} — ${requirement.title}${requirementBadge(requirement)}`;
 }
 
 /** Active, non-removed criteria — the ones the contract still asserts. */
@@ -172,10 +386,8 @@ function renderRequirement(
   requirement: Requirement,
   byRef: Map<string, RenderCase[]>,
 ): string {
-  const badge =
-    requirement.status === "active" ? "" : ` _(${requirement.status})_`;
   const blocks = [
-    `### ${requirement.id} — ${requirement.title}${badge}`,
+    `### ${requirementHeading(requirement)}`,
     "",
     requirement.description.trim(),
     "",
@@ -194,8 +406,12 @@ function renderRequirement(
       "",
       `> ${entry.description.trim()}`,
       "",
+      renderInputProject(entry),
+      "",
       renderTranscript(entry),
     );
+    const outputs = renderOutputFiles(entry);
+    if (outputs !== null) blocks.push("", outputs);
   }
 
   return blocks.join("\n");
@@ -248,7 +464,22 @@ export function renderDocument(areas: Area[], cases: RenderCase[]): string {
     "",
     `**${requirementCount}** requirements · **${acceptanceCount}** acceptance ` +
       `criteria · **${cases.length}** end-to-end cases.`,
+    "",
+    "Each example shows its full input project (the fixture the command ran",
+    "against, including any templates and includes) and, for `generate`, the",
+    "files it writes — collapsed by default; expand to verify the recorded",
+    "output against its inputs.",
   ];
+
+  sections.push("", "## Contents");
+  for (const area of visibleAreas) {
+    sections.push("", `- [${area.title}](#${slugify(area.title)})`);
+    for (const requirement of area.requirements) {
+      sections.push(
+        `  - [${requirement.id} — ${requirement.title}](#${slugify(requirementHeading(requirement))})`,
+      );
+    }
+  }
 
   for (const area of visibleAreas) {
     sections.push("", `## ${area.title}`);

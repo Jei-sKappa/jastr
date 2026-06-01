@@ -94,6 +94,10 @@ functional-requirement validation and traceability checks.
 
 `bun run docs:living` regenerates `docs/BEHAVIOR.md`, a living behavior
 reference built by joining those requirements with the e2e cases on their
-`covers` refs. Every example in it is the exact output the e2e suite asserts, so
-a passing `bun run test:e2e` doubles as proof the document is accurate. Run
-`bun run docs:living --check` to fail (exit 1) when the committed file is stale.
+`covers` refs. Each example shows its full input project (the fixture tree and
+file contents the command ran against) and, for `generate`, the files it writes,
+alongside the command transcript — collapsed in `<details>` blocks behind a
+table of contents. Every example in it is the exact input and output the e2e
+suite asserts, so a passing `bun run test:e2e` doubles as proof the document is
+accurate. Run `bun run docs:living --check` to fail (exit 1) when the committed
+file is stale.

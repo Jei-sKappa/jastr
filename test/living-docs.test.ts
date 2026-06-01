@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   type Area,
+  buildFileTree,
   type RenderCase,
   renderDocument,
 } from "../scripts/living-docs";
@@ -10,11 +11,19 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
     id: "demo-case",
     title: "Demo case",
     description: "Demonstrates the demo behavior.",
+    cwd: "project",
     command: ["run", "demo"],
     covers: ["DEMO-FR-0001.AC-0001"],
     exitCode: 0,
     stdout: "ok\n",
     stderr: "",
+    inputFiles: [
+      {
+        path: ".skillrouter/demo/SKILL.template.md",
+        content: "---\nname: demo\n---\nHello {{target}}.\n",
+      },
+    ],
+    outputFiles: [],
     ...overrides,
   };
 }
@@ -133,5 +142,137 @@ describe("renderDocument", () => {
     const doc = renderDocument([area], []);
 
     expect(doc).not.toContain("## Empty");
+  });
+
+  it("renders a table of contents linking areas and requirements", () => {
+    const doc = renderDocument([activeArea()], [makeCase()]);
+
+    expect(doc).toContain("## Contents");
+    expect(doc).toContain("- [Demo](#demo)");
+    expect(doc).toContain(
+      "  - [DEMO-FR-0001 — Demo renders](#demo-fr-0001--demo-renders)",
+    );
+  });
+
+  it("embeds the input project tree and file contents for a case", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          inputFiles: [
+            {
+              path: ".skillrouter/demo/SKILL.template.md",
+              content: "---\nname: demo\n---\nAnalyze `{{target-file}}`.\n",
+            },
+            {
+              path: ".skillrouter/demo/fragment.md",
+              content: "Fragment for {{language}}\n",
+            },
+          ],
+        }),
+      ],
+    );
+
+    // The collapsible input section names how many files and where it ran.
+    expect(doc).toContain(
+      "<summary>Input project — 2 files, command ran from `project/`</summary>",
+    );
+    // A directory tree orients the reader to the fixture shape.
+    expect(doc).toContain("project/");
+    expect(doc).toContain("└─ .skillrouter/");
+    // Each input file is labelled and its contents embedded verbatim.
+    expect(doc).toContain("`.skillrouter/demo/SKILL.template.md`");
+    expect(doc).toContain("Analyze `{{target-file}}`.");
+    expect(doc).toContain("`.skillrouter/demo/fragment.md`");
+    expect(doc).toContain("Fragment for {{language}}");
+  });
+
+  it("states the project is empty when no fixture files exist", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [makeCase({ cwd: ".", inputFiles: [] })],
+    );
+
+    expect(doc).toContain(
+      "_Input project is empty — no `.skillrouter/` directory present (command ran from the project root)._",
+    );
+    expect(doc).not.toContain("<summary>Input project");
+  });
+
+  it("renders generated output files when a case declares them", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          command: ["generate", "demo", "--out", "out/SKILL.md"],
+          outputFiles: [
+            {
+              path: "out/SKILL.md",
+              content: "---\nname: demo\n---\nRouter.\n",
+            },
+          ],
+        }),
+      ],
+    );
+
+    expect(doc).toContain(
+      "<summary>Output files asserted after the command — 1 file</summary>",
+    );
+    expect(doc).toContain("`out/SKILL.md`");
+    expect(doc).toContain("Router.");
+  });
+
+  it("widens the fence when a file's contents contain a code fence", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          inputFiles: [
+            {
+              path: ".skillrouter/demo/SKILL.template.md",
+              content: "Run it:\n```bash\nskillrouter run demo\n```\n",
+            },
+          ],
+        }),
+      ],
+    );
+
+    // The inner ``` fence forces a four-backtick wrapper so it stays literal.
+    expect(doc).toContain("````md");
+    expect(doc).toContain("```bash");
+  });
+});
+
+describe("buildFileTree", () => {
+  it("renders nested paths as an ASCII tree rooted at project/", () => {
+    const tree = buildFileTree([
+      ".skillrouter/demo/SKILL.template.md",
+      ".skillrouter/demo/fragment.md",
+    ]);
+
+    expect(tree).toBe(
+      [
+        "project/",
+        "└─ .skillrouter/",
+        "   └─ demo/",
+        "      ├─ fragment.md",
+        "      └─ SKILL.template.md",
+      ].join("\n"),
+    );
+  });
+
+  it("branches sibling directories with the correct connectors", () => {
+    const tree = buildFileTree(["out/SKILL.md", ".skillrouter/demo/x.md"]);
+
+    expect(tree).toBe(
+      [
+        "project/",
+        "├─ .skillrouter/",
+        "│  └─ demo/",
+        "│     └─ x.md",
+        "└─ out/",
+        "   └─ SKILL.md",
+      ].join("\n"),
+    );
   });
 });
