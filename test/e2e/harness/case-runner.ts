@@ -47,12 +47,26 @@ async function createTempProject(): Promise<{
   };
 }
 
-async function copyProjectFixture(
-  testCase: LoadedCase,
+export async function copyProjectFixture(
+  caseDir: string,
   tempRoot: string,
 ): Promise<void> {
-  const source = path.join(testCase.dirPath, "project");
-  await cp(source, tempRoot, { recursive: true });
+  const source = path.join(caseDir, "project");
+  // A case's `project/` folder is the fixture workspace the CLI runs against.
+  // Some cases intentionally have an *empty* workspace — `missing-project-root`,
+  // for instance, asserts the "no .skillrouter/ directory" error and so must run
+  // somewhere that contains nothing. Git cannot track an empty directory, so on
+  // a fresh clone that case ships with no `project/` folder at all (only
+  // `case.yml`). Treat an absent fixture as an empty project: `tempRoot` was
+  // just created by `mkdtemp`, so an empty workspace is exactly what we want.
+  // Without this guard, `cp` throws ENOENT on a clean checkout and the case
+  // fails before the CLI is ever invoked. (An empty-but-present `project/` dir,
+  // as may linger locally, copies to the same empty result.)
+  try {
+    await cp(source, tempRoot, { recursive: true });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  }
 }
 
 async function resolveCwd(
@@ -77,7 +91,7 @@ export async function runCase(
 ): Promise<void> {
   const temp = await createTempProject();
   try {
-    await copyProjectFixture(testCase, temp.root);
+    await copyProjectFixture(testCase.dirPath, temp.root);
     const cwd = await resolveCwd(
       temp.root,
       testCase.manifest.cwd,

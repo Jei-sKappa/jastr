@@ -204,6 +204,14 @@ because it's gitignored.
 - E2E harness code lives under `test/e2e/harness/`; tests for that harness live
   under `test/e2e/harness.test/`. Keep case folders declarative fixtures rather
   than helper-code locations.
+- A case's `project/` folder is the fixture workspace the CLI runs against. A
+  case whose workspace is intentionally **empty** (no `.skillrouter/`, e.g.
+  `missing-project-root` and `unknown-command`) ships with **no `project/`
+  directory** — Git cannot track an empty directory, so committing one is
+  impossible and a stray local `project/` is just untracked cruft. The runner
+  (`copyProjectFixture`) and the living-docs loader (`loadProjectFiles`) both
+  treat an absent `project/` as an empty workspace. Do not "fix" this by adding
+  a `.gitkeep` or an unguarded `cp`: an absent fixture is the contract.
 - `bun run docs:living` generates `docs/BEHAVIOR.md`, a living behavior
   reference, by joining `requirements/functional/` with the e2e cases on their
   `covers` refs. The generator is `scripts/living-docs.ts` (pure
