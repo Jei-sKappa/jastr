@@ -98,12 +98,16 @@ The CLI renders `.skillrouter/<skill>/SKILL.template.md` when the user runs `ski
 | AC-0002 | Prints rendered Markdown to stdout. | ✅ `basic-run` |
 | AC-0003 | Prints nothing to stderr. | ✅ `basic-run` |
 
-**Run a basic skill** — demonstrates RUN-FR-0001.AC-0001, RUN-FR-0001.AC-0002, RUN-FR-0001.AC-0003
+#### Case: Run a basic skill
 
-> Render a minimal template with no inputs.
+Description: Render a minimal template with no inputs.
+
+Covers: AC-0001, AC-0002, AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -124,15 +128,22 @@ description: Demo skill
 Use these instructions for the task.
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 # Demo
 
 Use these instructions for the task.
 # exit 0
 ```
+
+</details>
 
 ### RUN-FR-0002 — CLI rejects unknown commands
 
@@ -143,17 +154,33 @@ The CLI rejects commands other than `run`, `generate`, `help`, `--help`, `-h`, `
 | AC-0001 | An unknown command exits with code 1. | ✅ `unknown-command` |
 | AC-0002 | An unknown command prints an Error-prefixed stderr message. | ✅ `unknown-command` |
 
-**Reject unknown commands** — demonstrates RUN-FR-0002.AC-0001, RUN-FR-0002.AC-0002
+#### Case: Reject unknown commands
 
-> Shows how unknown commands are rejected before any project lookup.
+Description: Shows how unknown commands are rejected before any project lookup.
 
-_Input project is empty — no `.skillrouter/` directory present (command ran from `project/`)._
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.skillrouter/` directory present (command ran from `project/`)._
+
+**Command**
 
 ```console
 $ skillrouter invalid-command
+```
+
+**CLI output**
+
+```console
 Error: Expected command shape: skillrouter run <skill> [input flags...] or skillrouter generate <skill> --out <path> [--force].
 # exit 1
 ```
+
+</details>
 
 ### RUN-FR-0003 — CLI rejects invalid skill names
 
@@ -164,12 +191,16 @@ Skill names must match `^[a-z0-9][a-z0-9-]*$`: they start with a lowercase lette
 | AC-0001 | An invalid skill name exits with code 1. | ✅ `invalid-skill-name` |
 | AC-0002 | An invalid skill name prints an Error-prefixed stderr message. | ✅ `invalid-skill-name` |
 
-**Reject invalid skill names** — demonstrates RUN-FR-0003.AC-0001, RUN-FR-0003.AC-0002
+#### Case: Reject invalid skill names
 
-> Shows how invalid skill names are rejected by the validator.
+Description: Shows how invalid skill names are rejected by the validator.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -187,13 +218,20 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run INVALID
+```
+
+**CLI output**
+
+```console
 Error: Invalid skill name INVALID.
 # exit 1
 ```
+
+</details>
 
 ### RUN-FR-0004 — CLI rejects missing project root
 
@@ -204,17 +242,33 @@ The CLI fails when no `.skillrouter/` directory is found ascending from the curr
 | AC-0001 | A missing project root exits with code 1. | ✅ `missing-project-root` |
 | AC-0002 | A missing project root prints an Error-prefixed stderr message. | ✅ `missing-project-root` |
 
-**Reject missing project root** — demonstrates RUN-FR-0004.AC-0001, RUN-FR-0004.AC-0002
+#### Case: Reject missing project root
 
-> Shows how run command fails when no .skillrouter directory exists.
+Description: Shows how run command fails when no .skillrouter directory exists.
 
-_Input project is empty — no `.skillrouter/` directory present (command ran from the project root)._
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.skillrouter/` directory present (command ran from the project root)._
+
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: No .skillrouter directory found from the current directory.
 # exit 1
 ```
+
+</details>
 
 ### RUN-FR-0005 — CLI rejects missing skill templates
 
@@ -225,12 +279,16 @@ The CLI fails when the requested skill does not have a template file at `.skillr
 | AC-0001 | A missing skill template exits with code 1. | ✅ `missing-skill` |
 | AC-0002 | A missing skill template prints an Error-prefixed stderr message. | ✅ `missing-skill` |
 
-**Reject missing skill template** — demonstrates RUN-FR-0005.AC-0001, RUN-FR-0005.AC-0002
+#### Case: Reject missing skill template
 
-> Shows how requesting a non-existent skill fails with a clear error.
+Description: Shows how requesting a non-existent skill fails with a clear error.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -248,13 +306,20 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run no-such-skill
+```
+
+**CLI output**
+
+```console
 Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.template.md.
 # exit 1
 ```
+
+</details>
 
 ## Inputs
 
@@ -266,12 +331,16 @@ A declared string input supplied through a CLI flag is available to template int
 | --- | --- | --- |
 | AC-0001 | A supplied string input replaces the matching interpolation placeholder. | ✅ `string-interpolation` |
 
-**Interpolate a string input** — demonstrates INPUT-FR-0001.AC-0001
+#### Case: Interpolate a string input
 
-> Shows how template placeholders expand declared string inputs.
+Description: Shows how template placeholders expand declared string inputs.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -294,13 +363,20 @@ inputs:
 Analyze `{{target-file}}`.
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --target-file=src/index.ts
+```
+
+**CLI output**
+
+```console
 Analyze `src/index.ts`.
 # exit 0
 ```
+
+</details>
 
 ### INPUT-FR-0002 — Missing optional inputs are rejected in interpolation
 
@@ -311,12 +387,16 @@ An optional input that is not supplied fails rendering when directly interpolate
 | AC-0001 | Missing optional input interpolation exits with code 1. | ✅ `missing-optional-interpolation` |
 | AC-0002 | Missing optional input interpolation prints an Error-prefixed stderr message. | ✅ `missing-optional-interpolation` |
 
-**Optional input in interpolation** — demonstrates INPUT-FR-0002.AC-0001, INPUT-FR-0002.AC-0002
+#### Case: Optional input in interpolation
 
-> Shows how interpolating a missing optional input fails at run time.
+Description: Shows how interpolating a missing optional input fails at run time.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -339,13 +419,20 @@ inputs:
 Analyze {{target-file}}.
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Input target-file is optional and was not provided for interpolation.
 # exit 1
 ```
+
+</details>
 
 ### INPUT-FR-0003 — Missing required inputs are rejected
 
@@ -356,12 +443,16 @@ A template-declared required input must be supplied by the caller.
 | AC-0001 | Missing required input exits with code 1. | ✅ `missing-required-input` |
 | AC-0002 | Missing required input prints an Error-prefixed stderr message. | ✅ `missing-required-input` |
 
-**Missing Required Input** — demonstrates INPUT-FR-0003.AC-0001, INPUT-FR-0003.AC-0002
+#### Case: Missing Required Input
 
-> Shows Skillrouter input validation errors.
+Description: Shows Skillrouter input validation errors.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -385,13 +476,20 @@ inputs:
 Selected language: {{language}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Missing required input --language.
 # exit 1
 ```
+
+</details>
 
 ### INPUT-FR-0004 — Invalid enum values are rejected
 
@@ -402,12 +500,16 @@ Enum inputs accept only values declared in the template frontmatter.
 | AC-0001 | A value outside the enum's allowed set exits with code 1. | ✅ `invalid-enum-value` |
 | AC-0002 | A value outside the enum's allowed set prints an Error-prefixed stderr message. | ✅ `invalid-enum-value` |
 
-**Invalid Enum Value** — demonstrates INPUT-FR-0004.AC-0001, INPUT-FR-0004.AC-0002
+#### Case: Invalid Enum Value
 
-> Shows Skillrouter input validation errors.
+Description: Shows Skillrouter input validation errors.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -431,13 +533,20 @@ inputs:
 Selected language: {{language}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=ruby
+```
+
+**CLI output**
+
+```console
 Error: Invalid value ruby for --language. Expected one of: typescript, python.
 # exit 1
 ```
+
+</details>
 
 ## Flags
 
@@ -451,12 +560,16 @@ Boolean inputs can be supplied as a bare flag, as `=true`, or as `=false`.
 | AC-0002 | A boolean flag with `=true` sets the input to true. | ✅ `boolean-true` |
 | AC-0003 | A boolean flag with `=false` sets the input to false. | ✅ `boolean-false` |
 
-**Boolean input (bare)** — demonstrates FLAGS-FR-0001.AC-0001
+#### Case: Boolean input (bare)
 
-> Shows how boolean inputs render in template output.
+Description: Shows how boolean inputs render in template output.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -479,20 +592,31 @@ inputs:
 dry-run={{dry-run}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run
+```
+
+**CLI output**
+
+```console
 dry-run=true
 # exit 0
 ```
 
-**Boolean input (false)** — demonstrates FLAGS-FR-0001.AC-0003
+</details>
 
-> Shows how boolean inputs render in template output.
+#### Case: Boolean input (false)
+
+Description: Shows how boolean inputs render in template output.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -515,20 +639,31 @@ inputs:
 dry-run={{dry-run}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run=false
+```
+
+**CLI output**
+
+```console
 dry-run=false
 # exit 0
 ```
 
-**Boolean input (true)** — demonstrates FLAGS-FR-0001.AC-0002
+</details>
 
-> Shows how boolean inputs render in template output.
+#### Case: Boolean input (true)
+
+Description: Shows how boolean inputs render in template output.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -551,13 +686,20 @@ inputs:
 dry-run={{dry-run}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run=true
+```
+
+**CLI output**
+
+```console
 dry-run=true
 # exit 0
 ```
+
+</details>
 
 ### FLAGS-FR-0002 — Unknown flags are rejected
 
@@ -568,12 +710,16 @@ The CLI rejects flags that are not declared by the selected template.
 | AC-0001 | An unknown input flag exits with code 1. | ✅ `unknown-flag` |
 | AC-0002 | An unknown input flag prints an Error-prefixed stderr message. | ✅ `unknown-flag` |
 
-**Unknown Flag** — demonstrates FLAGS-FR-0002.AC-0001, FLAGS-FR-0002.AC-0002
+#### Case: Unknown Flag
 
-> Shows Skillrouter input validation errors.
+Description: Shows Skillrouter input validation errors.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -597,13 +743,20 @@ inputs:
 Selected language: {{language}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript --unknown=x
+```
+
+**CLI output**
+
+```console
 Error: Unknown input flag --unknown.
 # exit 1
 ```
+
+</details>
 
 ### FLAGS-FR-0003 — Duplicate flags are rejected
 
@@ -614,12 +767,16 @@ The CLI rejects multiple values for the same input flag.
 | AC-0001 | A duplicate input flag exits with code 1. | ✅ `duplicate-flag` |
 | AC-0002 | A duplicate input flag prints an Error-prefixed stderr message. | ✅ `duplicate-flag` |
 
-**Duplicate Flag** — demonstrates FLAGS-FR-0003.AC-0001, FLAGS-FR-0003.AC-0002
+#### Case: Duplicate Flag
 
-> Shows Skillrouter input validation errors.
+Description: Shows Skillrouter input validation errors.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -643,13 +800,20 @@ inputs:
 Selected language: {{language}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript --language=python
+```
+
+**CLI output**
+
+```console
 Error: Duplicate flag --language.
 # exit 1
 ```
+
+</details>
 
 ### FLAGS-FR-0004 — Syntactically invalid flags are rejected
 
@@ -662,12 +826,16 @@ The CLI rejects flag tokens that do not match the `--name` or `--name=value` for
 | AC-0003 | A `--no-` negation flag exits with code 1. | ✅ `invalid-flag-no-negation` |
 | AC-0004 | A `--no-` negation flag prints an Error-prefixed stderr message. | ✅ `invalid-flag-no-negation` |
 
-**Reject bare words as flags** — demonstrates FLAGS-FR-0004.AC-0001, FLAGS-FR-0004.AC-0002
+#### Case: Reject bare words as flags
 
-> Shows how positional arguments without -- are rejected during flag parsing.
+Description: Shows how positional arguments without -- are rejected during flag parsing.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -685,20 +853,31 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo bareword
+```
+
+**CLI output**
+
+```console
 Error: Invalid flag syntax bareword.
 # exit 1
 ```
 
-**Reject --no- negation flags** — demonstrates FLAGS-FR-0004.AC-0003, FLAGS-FR-0004.AC-0004
+</details>
 
-> Shows how the --no- boolean negation form is rejected.
+#### Case: Reject --no- negation flags
+
+Description: Shows how the --no- boolean negation form is rejected.
+
+Covers: AC-0003, AC-0004
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -716,13 +895,20 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --no-dry-run
+```
+
+**CLI output**
+
+```console
 Error: Boolean negation form --no-dry-run is not supported in v1.
 # exit 1
 ```
+
+</details>
 
 ### FLAGS-FR-0005 — Empty input values are rejected
 
@@ -733,12 +919,16 @@ String and enum inputs reject an empty value supplied as `--name=`.
 | AC-0001 | An empty input value exits with code 1. | ✅ `flag-empty-value` |
 | AC-0002 | An empty input value prints an Error-prefixed stderr message. | ✅ `flag-empty-value` |
 
-**Reject empty input value** — demonstrates FLAGS-FR-0005.AC-0001, FLAGS-FR-0005.AC-0002
+#### Case: Reject empty input value
 
-> Shows how an empty string input value is rejected.
+Description: Shows how an empty string input value is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -761,13 +951,20 @@ inputs:
 ok
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --target-file=
+```
+
+**CLI output**
+
+```console
 Error: Input --target-file cannot be empty.
 # exit 1
 ```
+
+</details>
 
 ### FLAGS-FR-0006 — String and enum inputs require a value
 
@@ -778,12 +975,16 @@ String and enum inputs must be supplied as `--name=value`; a bare `--name` flag 
 | AC-0001 | A bare flag for a string or enum input exits with code 1. | ✅ `flag-requires-value` |
 | AC-0002 | A bare flag for a string or enum input prints an Error-prefixed stderr message. | ✅ `flag-requires-value` |
 
-**Reject bare flag for string input** — demonstrates FLAGS-FR-0006.AC-0001, FLAGS-FR-0006.AC-0002
+#### Case: Reject bare flag for string input
 
-> Shows how a string input supplied as a bare flag is rejected.
+Description: Shows how a string input supplied as a bare flag is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -806,13 +1007,20 @@ inputs:
 ok
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --target-file
+```
+
+**CLI output**
+
+```console
 Error: Input --target-file requires --target-file=value.
 # exit 1
 ```
+
+</details>
 
 ### FLAGS-FR-0007 — Invalid boolean values are rejected
 
@@ -823,12 +1031,16 @@ A boolean input supplied with a value other than `true` or `false` is rejected.
 | AC-0001 | A boolean flag with a non-boolean value exits with code 1. | ✅ `flag-invalid-boolean` |
 | AC-0002 | A boolean flag with a non-boolean value prints an Error-prefixed stderr message. | ✅ `flag-invalid-boolean` |
 
-**Reject invalid boolean value** — demonstrates FLAGS-FR-0007.AC-0001, FLAGS-FR-0007.AC-0002
+#### Case: Reject invalid boolean value
 
-> Shows how a boolean input with a non-boolean value is rejected.
+Description: Shows how a boolean input with a non-boolean value is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -851,13 +1063,20 @@ inputs:
 ok
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run=yes
+```
+
+**CLI output**
+
+```console
 Error: Boolean input --dry-run must be true, false, or a bare flag.
 # exit 1
 ```
+
+</details>
 
 ## Conditions
 
@@ -869,12 +1088,16 @@ Template conditionals can branch on enum input values.
 | --- | --- | --- |
 | AC-0001 | An enum input selects the matching if or else-if branch. | ✅ `enum-branch` |
 
-**Select a branch from an enum input** — demonstrates COND-FR-0001.AC-0001
+#### Case: Select a branch from an enum input
 
-> Shows how `run` renders only the branch selected by `--language`.
+Description: Shows how `run` renders only the branch selected by `--language`.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -903,13 +1126,20 @@ Use the Python checklist.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript
+```
+
+**CLI output**
+
+```console
 Use the TypeScript checklist.
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0002 — Missing optional inputs are false in conditions
 
@@ -919,12 +1149,16 @@ An optional input that is not supplied evaluates false in conditional expression
 | --- | --- | --- |
 | AC-0001 | A missing optional input takes the false branch. | ✅ `missing-optional-condition` |
 
-**Optional input in conditions** — demonstrates COND-FR-0002.AC-0001
+#### Case: Optional input in conditions
 
-> Shows how missing optional inputs are falsey in branch conditions.
+Description: Shows how missing optional inputs are falsey in branch conditions.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -952,13 +1186,20 @@ No target file.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 No target file.
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0003 — Boolean inputs are truthy in conditions
 
@@ -969,12 +1210,16 @@ A supplied boolean input evaluates to its truth value in conditional expressions
 | AC-0001 | A supplied boolean input selects the true branch. | ✅ `boolean-condition` |
 | AC-0002 | A false boolean input selects the else branch. | ✅ `boolean-condition-false` |
 
-**Boolean input in condition** — demonstrates COND-FR-0003.AC-0001
+#### Case: Boolean input in condition
 
-> Shows how a supplied boolean input selects the true branch.
+Description: Shows how a supplied boolean input selects the true branch.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1002,20 +1247,31 @@ Not a dry run.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run
+```
+
+**CLI output**
+
+```console
 Dry run enabled.
 # exit 0
 ```
 
-**False boolean input in condition** — demonstrates COND-FR-0003.AC-0002
+</details>
 
-> Shows how a false boolean input selects the else branch.
+#### Case: False boolean input in condition
+
+Description: Shows how a false boolean input selects the else branch.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1043,13 +1299,20 @@ Not a dry run.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run=false
+```
+
+**CLI output**
+
+```console
 Not a dry run.
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0004 — String comparison conditions select branches
 
@@ -1060,12 +1323,16 @@ String equality and inequality comparisons in condition expressions select the b
 | AC-0001 | A string equality (==) comparison selects the matching branch. | ✅ `string-condition` |
 | AC-0002 | A string inequality (!=) comparison selects the matching branch. | ✅ `string-inequality` |
 
-**String equality in condition** — demonstrates COND-FR-0004.AC-0001
+#### Case: String equality in condition
 
-> Shows how a string equality comparison selects the matching branch.
+Description: Shows how a string equality comparison selects the matching branch.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1090,20 +1357,31 @@ TypeScript selected.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript
+```
+
+**CLI output**
+
+```console
 TypeScript selected.
 # exit 0
 ```
 
-**String inequality in condition** — demonstrates COND-FR-0004.AC-0002
+</details>
 
-> Shows how a string inequality (!=) comparison selects the matching branch.
+#### Case: String inequality in condition
+
+Description: Shows how a string inequality (!=) comparison selects the matching branch.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1131,13 +1409,20 @@ Python.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript
+```
+
+**CLI output**
+
+```console
 Not Python.
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0005 — Compound conditions select branches
 
@@ -1150,12 +1435,16 @@ Conditional expressions support logical operators AND (&&), OR (||), and NOT (!)
 | AC-0003 | A NOT expression selects the branch when the operand is false. | ✅ `compound-condition-not`, `condition-not-standalone` |
 | AC-0004 | Parentheses group a subexpression so it evaluates before surrounding operators. | ✅ `condition-parentheses` |
 
-**Compound condition with AND** — demonstrates COND-FR-0005.AC-0001
+#### Case: Compound condition with AND
 
-> Shows how AND (&&) selects the branch when both sides are true.
+Description: Shows how AND (&&) selects the branch when both sides are true.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1192,20 +1481,31 @@ NOT true
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --flag-a --flag-b
+```
+
+**CLI output**
+
+```console
 AND true
 # exit 0
 ```
 
-**Compound condition with NOT** — demonstrates COND-FR-0005.AC-0003
+</details>
 
-> Shows how NOT (!) inverts the condition result.
+#### Case: Compound condition with NOT
+
+Description: Shows how NOT (!) inverts the condition result.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1242,20 +1542,31 @@ NOT true
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 NOT true
 # exit 0
 ```
 
-**Compound condition with OR** — demonstrates COND-FR-0005.AC-0002
+</details>
 
-> Shows how OR (||) selects the branch when at least one side is true.
+#### Case: Compound condition with OR
+
+Description: Shows how OR (||) selects the branch when at least one side is true.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1292,20 +1603,31 @@ NOT true
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --flag-a
+```
+
+**CLI output**
+
+```console
 OR true
 # exit 0
 ```
 
-**Standalone NOT expression** — demonstrates COND-FR-0005.AC-0003
+</details>
 
-> Isolates a NOT (!) expression selecting the branch when its operand is false.
+#### Case: Standalone NOT expression
+
+Description: Isolates a NOT (!) expression selecting the branch when its operand is false.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1333,20 +1655,31 @@ Enabled.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Not enabled.
 # exit 0
 ```
 
-**Parentheses group a subexpression** — demonstrates COND-FR-0005.AC-0004
+</details>
 
-> Shows how parentheses make the grouped subexpression evaluate before the prefix operator.
+#### Case: Parentheses group a subexpression
+
+Description: Shows how parentheses make the grouped subexpression evaluate before the prefix operator.
+
+Covers: AC-0004
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1377,13 +1710,20 @@ Not grouped.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --flag-a
+```
+
+**CLI output**
+
+```console
 Grouped.
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0006 — Conditional containers can be nested
 
@@ -1393,12 +1733,16 @@ Directives support nested conditional containers using longer outer fences.
 | --- | --- | --- |
 | AC-0001 | A nested conditional selects the correct inner branch. | ✅ `nested-conditions` |
 
-**Nested conditional containers** — demonstrates COND-FR-0006.AC-0001
+#### Case: Nested conditional containers
 
-> Shows how nested conditional directives select the correct inner branch.
+Description: Shows how nested conditional directives select the correct inner branch.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1427,14 +1771,21 @@ inner
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --mode=full
+```
+
+**CLI output**
+
+```console
 outer
 inner
 # exit 0
 ```
+
+</details>
 
 ### COND-FR-0007 — Equality uses typed semantics
 
@@ -1444,12 +1795,16 @@ Condition equality compares both runtime type and value, so a boolean input is n
 | --- | --- | --- |
 | AC-0001 | A boolean input does not equal a string literal of the same text. | ✅ `typed-equality` |
 
-**Typed equality semantics** — demonstrates COND-FR-0007.AC-0001
+#### Case: Typed equality semantics
 
-> Shows how a boolean input is not equal to a string literal of the same text.
+Description: Shows how a boolean input is not equal to a string literal of the same text.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1477,13 +1832,20 @@ Typed not equal.
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --dry-run=true
+```
+
+**CLI output**
+
+```console
 Typed not equal.
 # exit 0
 ```
+
+</details>
 
 ## Includes
 
@@ -1495,12 +1857,16 @@ The include directive inserts a referenced Markdown fragment into rendered outpu
 | --- | --- | --- |
 | AC-0001 | The include directive renders the referenced fragment content. | ✅ `include-fragment` |
 
-**Include a fragment** — demonstrates INCLUDE-FR-0001.AC-0001
+#### Case: Include a fragment
 
-> Shows how include resolves and processes nested template syntax.
+Description: Shows how include resolves and processes nested template syntax.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 2 files, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1532,14 +1898,21 @@ Template
 ::include{path="fragment.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --language=typescript
+```
+
+**CLI output**
+
+```console
 Template
 Fragment for typescript
 # exit 0
 ```
+
+</details>
 
 ### INCLUDE-FR-0002 — Include raw emits verbatim text
 
@@ -1549,12 +1922,16 @@ The include-raw directive inserts referenced file content without processing it 
 | --- | --- | --- |
 | AC-0001 | The include-raw directive preserves Skillrouter-looking syntax as text. | ✅ `include-raw` |
 
-**Include raw content** — demonstrates INCLUDE-FR-0002.AC-0001
+#### Case: Include raw content
 
-> Shows how include-raw copies file content without processing directives.
+Description: Shows how include-raw copies file content without processing directives.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 2 files, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1581,14 +1958,21 @@ description: Demo skill
 ::include-raw{path="raw.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Raw {{language}}
 ::include{path="ignored.md"}
 # exit 0
 ```
+
+</details>
 
 ### INCLUDE-FR-0003 — Unsafe includes are rejected
 
@@ -1601,12 +1985,16 @@ Include directives cannot read files outside the project root, `.env` files, abs
 | AC-0003 | Absolute include paths are rejected. | ✅ `include-absolute-rejected` |
 | AC-0004 | Home-relative (~) include paths are rejected. | ✅ `include-tilde-rejected` |
 
-**Reject absolute includes** — demonstrates INCLUDE-FR-0003.AC-0003
+#### Case: Reject absolute includes
 
-> Shows how absolute include paths are rejected.
+Description: Shows how absolute include paths are rejected.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1625,20 +2013,31 @@ description: Demo skill
 ::include{path="/etc/hosts"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include path /etc/hosts must be relative.
 # exit 1
 ```
 
-**Reject env includes** — demonstrates INCLUDE-FR-0003.AC-0002
+</details>
 
-> Shows how include paths targeting .env files are rejected.
+#### Case: Reject env includes
+
+Description: Shows how include paths targeting .env files are rejected.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1657,20 +2056,31 @@ description: Demo skill
 ::include{path=".env"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include path .env is rejected.
 # exit 1
 ```
 
-**Reject escaping includes** — demonstrates INCLUDE-FR-0003.AC-0001
+</details>
 
-> Shows how include paths that escape the project root are rejected.
+#### Case: Reject escaping includes
+
+Description: Shows how include paths that escape the project root are rejected.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1689,20 +2099,31 @@ description: Demo skill
 ::include{path="../../../../outside.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include path ../../../../outside.md escapes the project root.
 # exit 1
 ```
 
-**Reject home-relative includes** — demonstrates INCLUDE-FR-0003.AC-0004
+</details>
 
-> Shows how ~ home-relative include paths are rejected.
+#### Case: Reject home-relative includes
+
+Description: Shows how ~ home-relative include paths are rejected.
+
+Covers: AC-0004
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1721,13 +2142,20 @@ description: Demo skill
 ::include{path="~/secret.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include path ~/secret.md must be relative.
 # exit 1
 ```
+
+</details>
 
 ### INCLUDE-FR-0004 — Include cycles are detected and rejected
 
@@ -1738,12 +2166,16 @@ Circular includes are detected during template loading and rejected with a clear
 | AC-0001 | An include cycle exits with code 1. | ✅ `include-cycle` |
 | AC-0002 | An include cycle prints an Error-prefixed stderr message. | ✅ `include-cycle` |
 
-**Reject include cycles** — demonstrates INCLUDE-FR-0004.AC-0001, INCLUDE-FR-0004.AC-0002
+#### Case: Reject include cycles
 
-> Shows how circular includes are detected and rejected.
+Description: Shows how circular includes are detected and rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 3 files, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1779,13 +2211,20 @@ Root
 ::include{path="a.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include cycle detected: a.md -> b.md -> a.md.
 # exit 1
 ```
+
+</details>
 
 ### INCLUDE-FR-0005 — Missing include files are rejected
 
@@ -1796,12 +2235,16 @@ Include directives that reference a nonexistent file are rejected.
 | AC-0001 | A missing include file exits with code 1. | ✅ `include-not-found` |
 | AC-0002 | A missing include file prints an Error-prefixed stderr message. | ✅ `include-not-found` |
 
-**Reject missing include files** — demonstrates INCLUDE-FR-0005.AC-0001, INCLUDE-FR-0005.AC-0002
+#### Case: Reject missing include files
 
-> Shows how include references to nonexistent files are rejected.
+Description: Shows how include references to nonexistent files are rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1821,13 +2264,20 @@ Root
 ::include{path="missing.md"}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include file missing.md was not found.
 # exit 1
 ```
+
+</details>
 
 ### INCLUDE-FR-0006 — Include read errors are reported
 
@@ -1838,12 +2288,16 @@ An include path that resolves inside the project root but cannot be read as a fi
 | AC-0001 | An include path that points to a directory exits with code 1. | ✅ `include-read-error` |
 | AC-0002 | An include path that points to a directory prints an Error-prefixed stderr message naming the filesystem cause. | ✅ `include-read-error` |
 
-**Report include read errors** — demonstrates INCLUDE-FR-0006.AC-0001, INCLUDE-FR-0006.AC-0002
+#### Case: Report include read errors
 
-> Shows how an include path pointing to a directory fails with a normalized cause.
+Description: Shows how an include path pointing to a directory fails with a normalized cause.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 2 files, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -1870,13 +2324,20 @@ description: Demo skill
 placeholder so the directory exists in git
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Include file subdir could not be read: EISDIR.
 # exit 1
 ```
+
+</details>
 
 ## Generate
 
@@ -1891,12 +2352,16 @@ The generate command writes a minimal router skill to an explicit output path.
 | AC-0003 | Generate prints the generated path and source template path. | ✅ `generate-router` |
 | AC-0004 | Generate creates missing parent directories for the output path. | ✅ `generate-router` |
 
-**Generate a router skill** — demonstrates GEN-FR-0001.AC-0001, GEN-FR-0001.AC-0002, GEN-FR-0001.AC-0003, GEN-FR-0001.AC-0004
+#### Case: Generate a router skill
 
-> Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
+Description: Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
+
+Covers: AC-0001, AC-0002, AC-0003, AC-0004
 
 <details>
-<summary>Input project — 1 file, command ran from the project root</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
 
 ```text
 project/
@@ -1915,16 +2380,13 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out out/SKILL.md
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
-<details>
-<summary>Output files asserted after the command — 1 file</summary>
+**Output files**
 
 `out/SKILL.md`
 
@@ -1943,6 +2405,13 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
+**CLI output**
+
+```console
+Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
+# exit 0
+```
+
 </details>
 
 ### GEN-FR-0002 — Generate requires an output path
@@ -1954,12 +2423,16 @@ The generate command requires callers to provide `--out`.
 | AC-0001 | Missing `--out` exits with code 1. | ✅ `generate-missing-out` |
 | AC-0002 | Missing `--out` prints an Error-prefixed stderr message. | ✅ `generate-missing-out` |
 
-**Generate requires --out** — demonstrates GEN-FR-0002.AC-0001, GEN-FR-0002.AC-0002
+#### Case: Generate requires --out
 
-> Shows how generate fails when --out is missing.
+Description: Shows how generate fails when --out is missing.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from the project root</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
 
 ```text
 project/
@@ -1978,13 +2451,20 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo
+```
+
+**CLI output**
+
+```console
 Error: Missing required --out <path>.
 # exit 1
 ```
+
+</details>
 
 ### GEN-FR-0003 — Generate refuses overwrite without force
 
@@ -1995,12 +2475,16 @@ The generate command does not overwrite an existing destination unless `--force`
 | AC-0001 | Existing output without `--force` exits with code 1. | ✅ `generate-overwrite-refused` |
 | AC-0002 | Existing output without `--force` leaves the existing file unchanged. | ✅ `generate-overwrite-refused` |
 
-**Generate refuses overwrite** — demonstrates GEN-FR-0003.AC-0001, GEN-FR-0003.AC-0002
+#### Case: Generate refuses overwrite
 
-> Shows how generate refuses to overwrite an existing output file.
+Description: Shows how generate refuses to overwrite an existing output file.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 2 files, command ran from the project root</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
 
 ```text
 project/
@@ -2027,21 +2511,25 @@ Hello
 existing
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
-Error: Output file out/SKILL.md already exists. Use --force to overwrite it.
-# exit 1
 ```
 
-<details>
-<summary>Output files asserted after the command — 1 file</summary>
+**Output files**
 
 `out/SKILL.md`
 
 ```md
 existing
+```
+
+**CLI output**
+
+```console
+Error: Output file out/SKILL.md already exists. Use --force to overwrite it.
+# exit 1
 ```
 
 </details>
@@ -2055,12 +2543,16 @@ The generate command overwrites an existing destination when `--force` is suppli
 | AC-0001 | Existing output with `--force` exits with code 0. | ✅ `generate-force` |
 | AC-0002 | Existing output with `--force` writes the generated router skill. | ✅ `generate-force` |
 
-**Generate with --force** — demonstrates GEN-FR-0004.AC-0001, GEN-FR-0004.AC-0002
+#### Case: Generate with --force
 
-> Shows how --force overwrites an existing output file.
+Description: Shows how --force overwrites an existing output file.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 2 files, command ran from the project root</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
 
 ```text
 project/
@@ -2087,16 +2579,13 @@ Hello
 existing
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md --force
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
-<details>
-<summary>Output files asserted after the command — 1 file</summary>
+**Output files**
 
 `out/SKILL.md`
 
@@ -2115,6 +2604,13 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
+**CLI output**
+
+```console
+Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
+# exit 0
+```
+
 </details>
 
 ### GEN-FR-0005 — Generate validates the template before writing
@@ -2126,12 +2622,16 @@ The generate command validates the template schema, directives, and includes bef
 | AC-0001 | An invalid template exits with code 1. | ✅ `generate-invalid-template` |
 | AC-0002 | An invalid template prints an Error-prefixed stderr message. | ✅ `generate-invalid-template` |
 
-**Generate rejects invalid templates** — demonstrates GEN-FR-0005.AC-0001, GEN-FR-0005.AC-0002
+#### Case: Generate rejects invalid templates
 
-> Shows how generate validates the template before writing and rejects invalid directives.
+Description: Shows how generate validates the template before writing and rejects invalid directives.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2152,13 +2652,20 @@ text
 :::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
+```
+
+**CLI output**
+
+```console
 Error: else directive must immediately follow an if or else-if branch.
 # exit 1
 ```
+
+</details>
 
 ### GEN-FR-0006 — Generate rejects a router name that does not match the skill slug
 
@@ -2169,12 +2676,16 @@ The generate command validates that the template frontmatter name matches the sk
 | AC-0001 | A name mismatch exits with code 1. | ✅ `generate-invalid-name` |
 | AC-0002 | A name mismatch prints an Error-prefixed stderr message. | ✅ `generate-invalid-name` |
 
-**Generate rejects name mismatch** — demonstrates GEN-FR-0006.AC-0001, GEN-FR-0006.AC-0002
+#### Case: Generate rejects name mismatch
 
-> Shows how generate validates that the template name matches the skill slug.
+Description: Shows how generate validates that the template name matches the skill slug.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2192,13 +2703,20 @@ description: Demo skill with mismatched name
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
+```
+
+**CLI output**
+
+```console
 Error: Generated skill name wrong-name must match skill demo.
 # exit 1
 ```
+
+</details>
 
 ### GEN-FR-0007 — Generate passes through author frontmatter and omits owned fields
 
@@ -2210,12 +2728,16 @@ Generated router frontmatter preserves author-declared Agent Skills fields and a
 | AC-0002 | The generated router omits Skillrouter-owned fields such as inputs. | ✅ `generate-passthrough` |
 | AC-0003 | The generated router preserves known and extension frontmatter fields. | ✅ `generate-passthrough` |
 
-**Generate passes through frontmatter** — demonstrates GEN-FR-0007.AC-0001, GEN-FR-0007.AC-0002, GEN-FR-0007.AC-0003
+#### Case: Generate passes through frontmatter
 
-> Shows how generate preserves author frontmatter fields and omits Skillrouter-owned inputs.
+Description: Shows how generate preserves author frontmatter fields and omits Skillrouter-owned inputs.
+
+Covers: AC-0001, AC-0002, AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from the project root</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
 
 ```text
 project/
@@ -2243,16 +2765,13 @@ TS
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
-# exit 0
 ```
 
-<details>
-<summary>Output files asserted after the command — 1 file</summary>
+**Output files**
 
 `out/SKILL.md`
 
@@ -2273,6 +2792,13 @@ skillrouter run demo $ARGUMENTS
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
+**CLI output**
+
+```console
+Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.skillrouter/demo/SKILL.template.md`
+# exit 0
+```
+
 </details>
 
 ### GEN-FR-0008 — Generate rejects unsupported router frontmatter fields
@@ -2284,12 +2810,16 @@ Generated router frontmatter rejects an extension field that is not a kebab-case
 | AC-0001 | A non-kebab-case frontmatter field exits with code 1. | ✅ `generate-invalid-field` |
 | AC-0002 | A non-kebab-case frontmatter field prints an Error-prefixed stderr message. | ✅ `generate-invalid-field` |
 
-**Generate rejects non-kebab frontmatter fields** — demonstrates GEN-FR-0008.AC-0001, GEN-FR-0008.AC-0002
+#### Case: Generate rejects non-kebab frontmatter fields
 
-> Shows how generate rejects an extension frontmatter field that is not kebab-case.
+Description: Shows how generate rejects an extension frontmatter field that is not kebab-case.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2309,13 +2839,20 @@ BadField: nope
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
+```
+
+**CLI output**
+
+```console
 Error: Generated skill frontmatter field BadField must be kebab-case.
 # exit 1
 ```
+
+</details>
 
 ### GEN-FR-0009 — Generate rejects an over-long router description
 
@@ -2326,12 +2863,16 @@ Generated router frontmatter rejects a description longer than 1024 characters.
 | AC-0001 | An over-long description exits with code 1. | ✅ `generate-long-description` |
 | AC-0002 | An over-long description prints an Error-prefixed stderr message. | ✅ `generate-long-description` |
 
-**Generate rejects over-long descriptions** — demonstrates GEN-FR-0009.AC-0001, GEN-FR-0009.AC-0002
+#### Case: Generate rejects over-long descriptions
 
-> Shows how generate rejects a router description longer than 1024 characters.
+Description: Shows how generate rejects a router description longer than 1024 characters.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2350,13 +2891,20 @@ description: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate demo --out=out/SKILL.md
+```
+
+**CLI output**
+
+```console
 Error: Generated skill description must be 1-1024 characters.
 # exit 1
 ```
+
+</details>
 
 ## Help
 
@@ -2370,12 +2918,16 @@ Skillrouter exposes help text for the root program and supported commands.
 | AC-0002 | Run help exits with code 0 and prints usage text. | ✅ `help-run` |
 | AC-0003 | Generate help exits with code 0 and prints usage text. | ✅ `help-generate` |
 
-**Generate help** — demonstrates HELP-FR-0001.AC-0003
+#### Case: Generate help
 
-> Shows the generate command help text.
+Description: Shows the generate command help text.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2393,10 +2945,15 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter generate --help
+```
+
+**CLI output**
+
+```console
 Usage: skillrouter generate [options] <skill>
 
 Generate a minimal router skill from a template
@@ -2411,12 +2968,18 @@ Options:
 # exit 0
 ```
 
-**Root help** — demonstrates HELP-FR-0001.AC-0001
+</details>
 
-> Shows the root CLI help text.
+#### Case: Root help
+
+Description: Shows the root CLI help text.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2435,10 +2998,15 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter --help
+```
+
+**CLI output**
+
+```console
 Usage: skillrouter [options] [command]
 
 Deterministic AI-agent skill specialization
@@ -2454,12 +3022,18 @@ Commands:
 # exit 0
 ```
 
-**Run help** — demonstrates HELP-FR-0001.AC-0002
+</details>
 
-> Shows the run command help text.
+#### Case: Run help
+
+Description: Shows the run command help text.
+
+Covers: AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2478,10 +3052,15 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter help run
+```
+
+**CLI output**
+
+```console
 Usage: skillrouter run [options] <skill> [inputs...]
 
 Render a skill template to its final instructions
@@ -2495,6 +3074,8 @@ Options:
 # exit 0
 ```
 
+</details>
+
 ## Version
 
 ### VERSION-FR-0001 — Version prints package version and build SHA marker
@@ -2505,12 +3086,16 @@ The version command prints the current package version and either a build SHA or
 | --- | --- | --- |
 | AC-0001 | Source-run version output is exactly the package version followed by ` (dev)`. | ✅ `version` |
 
-**Version output** — demonstrates VERSION-FR-0001.AC-0001
+#### Case: Version output
 
-> Shows the CLI version string.
+Description: Shows the CLI version string.
+
+Covers: AC-0001
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2529,13 +3114,20 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter --version
+```
+
+**CLI output**
+
+```console
 {{version}} (dev)
 # exit 0
 ```
+
+</details>
 
 ## Output
 
@@ -2550,12 +3142,16 @@ Every failure prints a single-line `Error: <message>` to stderr, exits with code
 | AC-0003 | Help output exits with code 0. | ✅ `help-root` |
 | AC-0004 | Version output exits with code 0. | ✅ `version` |
 
-**Root help** — demonstrates OUTPUT-FR-0001.AC-0003
+#### Case: Root help
 
-> Shows the root CLI help text.
+Description: Shows the root CLI help text.
+
+Covers: AC-0003
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2574,10 +3170,15 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter --help
+```
+
+**CLI output**
+
+```console
 Usage: skillrouter [options] [command]
 
 Deterministic AI-agent skill specialization
@@ -2593,12 +3194,18 @@ Commands:
 # exit 0
 ```
 
-**Reject missing skill template** — demonstrates OUTPUT-FR-0001.AC-0001, OUTPUT-FR-0001.AC-0002
+</details>
 
-> Shows how requesting a non-existent skill fails with a clear error.
+#### Case: Reject missing skill template
+
+Description: Shows how requesting a non-existent skill fails with a clear error.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2616,20 +3223,31 @@ description: Demo skill
 ---
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run no-such-skill
+```
+
+**CLI output**
+
+```console
 Error: Skill no-such-skill was not found at .skillrouter/no-such-skill/SKILL.template.md.
 # exit 1
 ```
 
-**Version output** — demonstrates OUTPUT-FR-0001.AC-0004
+</details>
 
-> Shows the CLI version string.
+#### Case: Version output
+
+Description: Shows the CLI version string.
+
+Covers: AC-0004
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2648,13 +3266,20 @@ description: Demo skill
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter --version
+```
+
+**CLI output**
+
+```console
 {{version}} (dev)
 # exit 0
 ```
+
+</details>
 
 ## Templates
 
@@ -2667,12 +3292,16 @@ A root template must begin with YAML frontmatter delimited by `---` lines.
 | AC-0001 | A template without frontmatter exits with code 1. | ✅ `invalid-frontmatter` |
 | AC-0002 | A template without frontmatter prints an Error-prefixed stderr message. | ✅ `invalid-frontmatter` |
 
-**Reject templates without frontmatter** — demonstrates TEMPLATE-FR-0001.AC-0001, TEMPLATE-FR-0001.AC-0002
+#### Case: Reject templates without frontmatter
 
-> Shows how a template that does not start with YAML frontmatter is rejected.
+Description: Shows how a template that does not start with YAML frontmatter is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2687,13 +3316,20 @@ project/
 This template has no frontmatter.
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Root template must start with YAML frontmatter.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0002 — Inputs must declare requiredness explicitly
 
@@ -2704,12 +3340,16 @@ Every declared input must set `required: true` or `required: false`; there is no
 | AC-0001 | An input without an explicit required field exits with code 1. | ✅ `schema-missing-required` |
 | AC-0002 | An input without an explicit required field prints an Error-prefixed stderr message. | ✅ `schema-missing-required` |
 
-**Reject inputs without explicit requiredness** — demonstrates TEMPLATE-FR-0002.AC-0001, TEMPLATE-FR-0002.AC-0002
+#### Case: Reject inputs without explicit requiredness
 
-> Shows how an input that omits required is rejected.
+Description: Shows how an input that omits required is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2731,13 +3371,20 @@ inputs:
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Input target-file must explicitly declare required: true or required: false.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0003 — Unsupported input types are rejected
 
@@ -2748,12 +3395,16 @@ Input definitions accept only the `string`, `boolean`, and `enum` types.
 | AC-0001 | An input with an unsupported type exits with code 1. | ✅ `schema-unsupported-type` |
 | AC-0002 | An input with an unsupported type prints an Error-prefixed stderr message. | ✅ `schema-unsupported-type` |
 
-**Reject unsupported input types** — demonstrates TEMPLATE-FR-0003.AC-0001, TEMPLATE-FR-0003.AC-0002
+#### Case: Reject unsupported input types
 
-> Shows how an input with an unsupported type is rejected.
+Description: Shows how an input with an unsupported type is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2776,13 +3427,20 @@ inputs:
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Input count uses unsupported type number.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0004 — Enum inputs must declare values
 
@@ -2793,12 +3451,16 @@ An enum input must provide a non-empty `values` array.
 | AC-0001 | An enum input without values exits with code 1. | ✅ `schema-empty-enum` |
 | AC-0002 | An enum input without values prints an Error-prefixed stderr message. | ✅ `schema-empty-enum` |
 
-**Reject enum inputs without values** — demonstrates TEMPLATE-FR-0004.AC-0001, TEMPLATE-FR-0004.AC-0002
+#### Case: Reject enum inputs without values
 
-> Shows how an enum input with no values is rejected.
+Description: Shows how an enum input with no values is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2822,13 +3484,20 @@ inputs:
 Hello
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Enum input choice must declare at least one value.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0005 — Equal-length nested fences are rejected
 
@@ -2839,12 +3508,16 @@ A nested conditional container must use a shorter colon fence than its outer con
 | AC-0001 | An equal-length nested conditional fence exits with code 1. | ✅ `nesting-equal-fence` |
 | AC-0002 | An equal-length nested conditional fence prints an Error-prefixed stderr message. | ✅ `nesting-equal-fence` |
 
-**Reject equal-length nested fences** — demonstrates TEMPLATE-FR-0005.AC-0001, TEMPLATE-FR-0005.AC-0002
+#### Case: Reject equal-length nested fences
 
-> Shows how a nested conditional with an equal-length fence is rejected.
+Description: Shows how a nested conditional with an equal-length fence is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2873,13 +3546,20 @@ inner
 :::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo --mode=full
+```
+
+**CLI output**
+
+```console
 Error: Nested conditional containers require a longer outer fence than inner fences.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0006 — Branch directives must follow an open conditional group
 
@@ -2890,12 +3570,16 @@ Non-blank content between branches ends the conditional group, so a later `else-
 | AC-0001 | A branch directive after interrupting content exits with code 1. | ✅ `branch-adjacency` |
 | AC-0002 | A branch directive after interrupting content prints an Error-prefixed stderr message. | ✅ `branch-adjacency` |
 
-**Reject branch directives after interrupting content** — demonstrates TEMPLATE-FR-0006.AC-0001, TEMPLATE-FR-0006.AC-0002
+#### Case: Reject branch directives after interrupting content
 
-> Shows how non-blank content between branches ends the group and makes a later else-if an error.
+Description: Shows how non-blank content between branches ends the group and makes a later else-if an error.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2924,13 +3608,20 @@ b
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: else-if directive must immediately follow an if or else-if branch.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0007 — Condition parse errors are rejected
 
@@ -2941,12 +3632,16 @@ A condition expression that is not valid Skillrouter condition syntax, such as a
 | AC-0001 | A condition parse error exits with code 1. | ✅ `condition-parse-error` |
 | AC-0002 | A condition parse error prints an Error-prefixed stderr message. | ✅ `condition-parse-error` |
 
-**Reject condition parse errors** — demonstrates TEMPLATE-FR-0007.AC-0001, TEMPLATE-FR-0007.AC-0002
+#### Case: Reject condition parse errors
 
-> Shows how a bare identifier instead of a ${input-name} reference is rejected.
+Description: Shows how a bare identifier instead of a ${input-name} reference is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -2967,13 +3662,20 @@ x
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Expected ${input-name} reference.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0008 — Conditions referencing undeclared inputs are rejected
 
@@ -2984,12 +3686,16 @@ A condition may only reference inputs declared in the template frontmatter.
 | AC-0001 | A condition referencing an undeclared input exits with code 1. | ✅ `undeclared-condition-input` |
 | AC-0002 | A condition referencing an undeclared input prints an Error-prefixed stderr message. | ✅ `undeclared-condition-input` |
 
-**Reject conditions referencing undeclared inputs** — demonstrates TEMPLATE-FR-0008.AC-0001, TEMPLATE-FR-0008.AC-0002
+#### Case: Reject conditions referencing undeclared inputs
 
-> Shows how a condition that references an undeclared input is rejected.
+Description: Shows how a condition that references an undeclared input is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -3010,13 +3716,20 @@ x
 ::::
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Condition references undeclared input nope.
 # exit 1
 ```
+
+</details>
 
 ### TEMPLATE-FR-0009 — Interpolation referencing undeclared inputs is rejected
 
@@ -3027,12 +3740,16 @@ A `{{input-name}}` placeholder may only reference inputs declared in the templat
 | AC-0001 | An interpolation referencing an undeclared input exits with code 1. | ✅ `undeclared-interpolation` |
 | AC-0002 | An interpolation referencing an undeclared input prints an Error-prefixed stderr message. | ✅ `undeclared-interpolation` |
 
-**Reject interpolation referencing undeclared inputs** — demonstrates TEMPLATE-FR-0009.AC-0001, TEMPLATE-FR-0009.AC-0002
+#### Case: Reject interpolation referencing undeclared inputs
 
-> Shows how a {{input}} placeholder referencing an undeclared input is rejected.
+Description: Shows how a {{input}} placeholder referencing an undeclared input is rejected.
+
+Covers: AC-0001, AC-0002
 
 <details>
-<summary>Input project — 1 file, command ran from `project/`</summary>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from `project/`
 
 ```text
 project/
@@ -3051,10 +3768,17 @@ description: Demo skill
 Hello {{nope}}
 ```
 
-</details>
+**Command**
 
 ```console
 $ skillrouter run demo
+```
+
+**CLI output**
+
+```console
 Error: Interpolation references undeclared input nope.
 # exit 1
 ```
+
+</details>

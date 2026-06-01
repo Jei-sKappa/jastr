@@ -44,14 +44,24 @@ function activeArea(): Area {
 }
 
 describe("renderDocument", () => {
-  it("renders an active requirement with coverage and a console transcript", () => {
+  it("renders an active requirement with an h4 case header", () => {
     const doc = renderDocument([activeArea()], [makeCase()]);
 
     expect(doc).toContain("### DEMO-FR-0001 — Demo renders");
     expect(doc).toContain("| AC-0001 | It renders. | ✅ `demo-case` |");
-    expect(doc).toContain("**Demo case** — demonstrates DEMO-FR-0001.AC-0001");
+    // Each case is an h4 "Case: <title>" heading directly under the requirement.
+    expect(doc).toContain("#### Case: Demo case");
+    expect(doc).toContain("Description: Demonstrates the demo behavior.");
+    // Covers lists AC ids only — the requirement id is in the ancestor heading.
+    expect(doc).toContain("Covers: AC-0001");
+    expect(doc).not.toContain("Covers: DEMO-FR-0001.AC-0001");
+    // The command and its output are split into labelled sections.
+    expect(doc).toContain("**Command**");
     expect(doc).toContain("$ skillrouter run demo");
+    expect(doc).toContain("**CLI output**");
     expect(doc).toContain("# exit 0");
+    // The whole case body is wrapped in one collapsible.
+    expect(doc).toContain("<summary>Input, command & output</summary>");
     // Active requirements carry no status badge.
     expect(doc).not.toContain("_(active)_");
   });
@@ -173,10 +183,8 @@ describe("renderDocument", () => {
       ],
     );
 
-    // The collapsible input section names how many files and where it ran.
-    expect(doc).toContain(
-      "<summary>Input project — 2 files, command ran from `project/`</summary>",
-    );
+    // The input section is a bold label naming where the command ran.
+    expect(doc).toContain("**Input project** — ran from `project/`");
     // A directory tree orients the reader to the fixture shape.
     expect(doc).toContain("project/");
     expect(doc).toContain("└─ .skillrouter/");
@@ -193,10 +201,12 @@ describe("renderDocument", () => {
       [makeCase({ cwd: ".", inputFiles: [] })],
     );
 
+    expect(doc).toContain("**Input project**");
     expect(doc).toContain(
-      "_Input project is empty — no `.skillrouter/` directory present (command ran from the project root)._",
+      "_Empty — no `.skillrouter/` directory present (command ran from the project root)._",
     );
-    expect(doc).not.toContain("<summary>Input project");
+    // No directory tree is rendered for an empty fixture.
+    expect(doc).not.toContain("└─");
   });
 
   it("renders generated output files when a case declares them", () => {
@@ -215,9 +225,7 @@ describe("renderDocument", () => {
       ],
     );
 
-    expect(doc).toContain(
-      "<summary>Output files asserted after the command — 1 file</summary>",
-    );
+    expect(doc).toContain("**Output files**");
     expect(doc).toContain("`out/SKILL.md`");
     expect(doc).toContain("Router.");
   });

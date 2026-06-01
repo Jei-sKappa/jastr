@@ -221,12 +221,20 @@ because it's gitignored.
   context, not just the transcript: the impure `loadRenderCases` reads the
   case's entire `project/` fixture tree (every file's verbatim contents) and
   resolves `expect.files` to the generated output contents, then `renderDocument`
-  embeds them as a collapsible directory tree plus fenced file blocks (file
-  fences widen past any backticks inside). The document opens with a
-  requirement-level table of contents. A missing or empty `project/` (for
-  example `missing-project-root`) renders as an explicit "empty project" note,
-  which also keeps generation deterministic regardless of the untracked empty
-  fixture dir. `docs/BEHAVIOR.md` is committed and must stay current;
+  embeds them. Under each requirement, each covering case is a `#### Case:
+  <title>` heading (the first one also marks where the definition — description
+  + acceptance table — ends) followed by `Description:` and `Covers:` lines
+  (Covers lists AC ids only — the requirement id is already in the ancestor
+  heading), then a single collapsed `<details>` wrapping four bold-labelled
+  sections in order: **Input project** (an ASCII directory tree plus fenced file
+  blocks,
+  with fences widened past any backticks inside), **Command**, **Output files**
+  (only when the case writes files), and **CLI output**. The document opens with
+  a requirement-level table of contents (case headings are intentionally
+  excluded to keep it scannable). A missing or empty `project/` (for example
+  `missing-project-root`) renders as an explicit "empty project" note, which
+  also keeps generation deterministic regardless of the untracked empty fixture
+  dir. `docs/BEHAVIOR.md` is committed and must stay current;
   `bun run docs:living --check` re-renders in memory and exits 1 if it differs.
   It is a single generated Markdown file (collapsibility is GitHub-rendered
   `<details>`, not a docs site).

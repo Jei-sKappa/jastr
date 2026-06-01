@@ -181,13 +181,24 @@ function trimOneTrailingNewline(value: string): string {
   return value.endsWith("\n") ? value.slice(0, -1) : value;
 }
 
-/** Render a case as a console transcript: command, output, exit code. */
-function renderTranscript(entry: RenderCase): string {
-  const lines = [`$ ${formatCommand(entry.command)}`];
+/** The invoked command, as its own console block. */
+function renderCommandSection(entry: RenderCase): string {
+  return [
+    "**Command**",
+    "",
+    "```console",
+    `$ ${formatCommand(entry.command)}`,
+    "```",
+  ].join("\n");
+}
+
+/** Captured stdout/stderr plus the exit code, as its own console block. */
+function renderCliOutputSection(entry: RenderCase): string {
+  const lines: string[] = [];
   if (entry.stdout.length > 0) lines.push(trimOneTrailingNewline(entry.stdout));
   if (entry.stderr.length > 0) lines.push(trimOneTrailingNewline(entry.stderr));
   lines.push(`# exit ${entry.exitCode}`);
-  return ["```console", ...lines, "```"].join("\n");
+  return ["**CLI output**", "", "```console", ...lines, "```"].join("\n");
 }
 
 type TreeNode = {
@@ -290,10 +301,10 @@ function describeCwd(cwd: string): string {
   return cwd === "." ? "the project root" : `\`${cwd}/\``;
 }
 
-/** Render the input fixture: the project tree plus every file's contents. */
-function renderInputProject(entry: RenderCase): string {
+/** Input section: the project tree plus every fixture file's contents. */
+function renderInputSection(entry: RenderCase): string {
   if (entry.inputFiles.length === 0) {
-    return `_Input project is empty — no \`.skillrouter/\` directory present (command ran from ${describeCwd(entry.cwd)})._`;
+    return `**Input project**\n\n_Empty — no \`.skillrouter/\` directory present (command ran from ${describeCwd(entry.cwd)})._`;
   }
   const tree = [
     "```text",
@@ -301,18 +312,14 @@ function renderInputProject(entry: RenderCase): string {
     "```",
   ].join("\n");
   const fileBlocks = entry.inputFiles.map(renderFileBlock).join("\n\n");
-  const count = entry.inputFiles.length;
-  const summary = `Input project — ${count} file${count === 1 ? "" : "s"}, command ran from ${describeCwd(entry.cwd)}`;
-  return renderCollapsible(summary, `${tree}\n\n${fileBlocks}`);
+  return `**Input project** — ran from ${describeCwd(entry.cwd)}\n\n${tree}\n\n${fileBlocks}`;
 }
 
-/** Render the files the command is expected to leave on disk, if any. */
-function renderOutputFiles(entry: RenderCase): string | null {
+/** Output-files section: the files the command leaves on disk, if any. */
+function renderOutputFilesSection(entry: RenderCase): string | null {
   if (entry.outputFiles.length === 0) return null;
   const fileBlocks = entry.outputFiles.map(renderFileBlock).join("\n\n");
-  const count = entry.outputFiles.length;
-  const summary = `Output files asserted after the command — ${count} file${count === 1 ? "" : "s"}`;
-  return renderCollapsible(summary, fileBlocks);
+  return `**Output files**\n\n${fileBlocks}`;
 }
 
 /** GitHub-compatible heading anchor for ASCII headings: lowercase, drop
@@ -399,19 +406,25 @@ function renderRequirement(
   }
 
   for (const entry of coveringCases(requirement, byRef)) {
-    const refs = demonstratedRefs(requirement, entry);
+    const acIds = demonstratedRefs(requirement, entry).map((ref) =>
+      ref.slice(requirement.id.length + 1),
+    );
+    const sections = [
+      renderInputSection(entry),
+      renderCommandSection(entry),
+      renderOutputFilesSection(entry),
+      renderCliOutputSection(entry),
+    ].filter((section): section is string => section !== null);
     blocks.push(
       "",
-      `**${entry.title}** — demonstrates ${refs.join(", ")}`,
+      `#### Case: ${entry.title}`,
       "",
-      `> ${entry.description.trim()}`,
+      `Description: ${entry.description.trim()}`,
       "",
-      renderInputProject(entry),
+      `Covers: ${acIds.join(", ")}`,
       "",
-      renderTranscript(entry),
+      renderCollapsible("Input, command & output", sections.join("\n\n")),
     );
-    const outputs = renderOutputFiles(entry);
-    if (outputs !== null) blocks.push("", outputs);
   }
 
   return blocks.join("\n");
