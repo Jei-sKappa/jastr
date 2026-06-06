@@ -1,0 +1,127 @@
+- id: GEN-FR-0001
+  title: Generate agent-skill writes a wrapper skill
+  status: active
+  description: >
+    The `generate agent-skill` command writes a minimal Agent Skill wrapper to
+    an explicit output path from a template's `targets.skill` metadata.
+  acceptance:
+    - id: AC-0001
+      statement: Generate exits with code 0 for a valid template and output path.
+    - id: AC-0002
+      statement: Generate writes the expected Agent Skill wrapper file.
+    - id: AC-0003
+      statement: Generate prints the generated path and source template path.
+    - id: AC-0004
+      statement: Generate creates missing parent directories for the output path.
+
+- id: GEN-FR-0002
+  title: Generate requires an output path
+  status: active
+  description: >
+    The `generate agent-skill` command requires callers to provide `--out`.
+  acceptance:
+    - id: AC-0001
+      statement: Missing `--out` exits with code 1.
+    - id: AC-0002
+      statement: Missing `--out` prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0003
+  title: Generate refuses overwrite without force
+  status: active
+  description: >
+    The `generate agent-skill` command does not overwrite an existing
+    destination unless `--force` is supplied.
+  acceptance:
+    - id: AC-0001
+      statement: Existing output without `--force` exits with code 1.
+    - id: AC-0002
+      statement: Existing output without `--force` leaves the existing file unchanged.
+
+- id: GEN-FR-0004
+  title: Generate force overwrites existing output
+  status: active
+  description: >
+    The `generate agent-skill` command overwrites an existing destination when
+    `--force` is supplied.
+  acceptance:
+    - id: AC-0001
+      statement: Existing output with `--force` exits with code 0.
+    - id: AC-0002
+      statement: Existing output with `--force` writes the generated Agent Skill wrapper.
+
+- id: GEN-FR-0005
+  title: Generate validates the template before writing
+  status: active
+  description: >
+    The `generate agent-skill` command validates the template schema, directives,
+    and includes before generating the Agent Skill wrapper output.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid template exits with code 1.
+    - id: AC-0002
+      statement: An invalid template prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0006
+  title: Generate rejects an invalid Agent Skill name
+  status: active
+  description: >
+    The `generate agent-skill` command validates that `targets.skill.name` is a
+    valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no
+    leading, trailing, or consecutive hyphens) before writing the output.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid Agent Skill name exits with code 1.
+    - id: AC-0002
+      statement: An invalid Agent Skill name prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0007
+  title: Generate passes through target frontmatter and omits owned fields
+  status: active
+  description: >
+    The generated Agent Skill wrapper frontmatter renders `targets.skill.name`
+    and `targets.skill.description`, preserves any additional kebab-case
+    `targets.skill.frontmatter` fields, and omits Jastr-owned fields such as
+    `inputs`.
+  acceptance:
+    - id: AC-0001
+      statement: Generate writes the expected wrapper file for a template with extra frontmatter.
+    - id: AC-0002
+      statement: The generated wrapper omits Jastr-owned fields such as inputs.
+    - id: AC-0003
+      statement: The generated wrapper preserves the name, description, and extension frontmatter fields.
+
+- id: GEN-FR-0008
+  title: Generate rejects non-kebab target frontmatter fields
+  status: active
+  description: >
+    The generated Agent Skill wrapper rejects a `targets.skill.frontmatter`
+    field that is not a kebab-case top-level name.
+  acceptance:
+    - id: AC-0001
+      statement: A non-kebab-case frontmatter field exits with code 1.
+    - id: AC-0002
+      statement: A non-kebab-case frontmatter field prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0009
+  title: Generate rejects an over-long target description
+  status: active
+  description: >
+    The generated Agent Skill wrapper rejects a `targets.skill.description`
+    longer than 1024 characters.
+  acceptance:
+    - id: AC-0001
+      statement: An over-long description exits with code 1.
+    - id: AC-0002
+      statement: An over-long description prints an Error-prefixed stderr message.
+
+- id: GEN-FR-0010
+  title: Generate rejects unsupported targets
+  status: active
+  description: >
+    `agent-skill` is the only implemented generate target; other targets remain
+    unavailable until their own specs are implemented.
+  acceptance:
+    - id: AC-0001
+      statement: An unsupported generate target exits with code 1.
+    - id: AC-0002
+      statement: An unsupported generate target prints the stable Error-prefixed message.

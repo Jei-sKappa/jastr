@@ -1,0 +1,12 @@
+id: invalid-frontmatter
+covers:
+  - TEMPLATE-FR-0001.AC-0001
+  - TEMPLATE-FR-0001.AC-0002
+title: Reject malformed frontmatter
+description: Shows how a template whose frontmatter fence is never closed is rejected.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template frontmatter must close with --- on its own line.\n"

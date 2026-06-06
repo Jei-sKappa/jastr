@@ -1,0 +1,13 @@
+id: direct-file-run
+covers:
+  - RUN-FR-0006.AC-0001
+  - RUN-FR-0006.AC-0002
+  - RUN-FR-0006.AC-0003
+title: Run a direct file template
+description: Render a .md template path without requiring a .jastr project root.
+cwd: "."
+command: ["run", "templates/direct.md", "--language=typescript"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.md
+  stderr: ""

@@ -1,0 +1,16 @@
+- id: OUTPUT-FR-0001
+  title: Uniform error and success output contract
+  status: active
+  description: >
+    Every failure prints a single-line `Error: <message>` to stderr, exits with
+    code 1, and leaves stdout empty so callers can treat stdout as the
+    rendered instruction channel. Help and version output exit with code 0.
+  acceptance:
+    - id: AC-0001
+      statement: A failure prints a single-line Error-prefixed message to stderr.
+    - id: AC-0002
+      statement: A failure exits with code 1 and prints nothing to stdout.
+    - id: AC-0003
+      statement: Help output exits with code 0.
+    - id: AC-0004
+      statement: Version output exits with code 0.

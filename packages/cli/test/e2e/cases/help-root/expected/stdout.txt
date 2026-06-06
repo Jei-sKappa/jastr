@@ -1,0 +1,12 @@
+Usage: jastr [options] [command]
+
+Deterministic Markdown template rendering
+
+Options:
+  -V, --version                               output the version number
+  -h, --help                                  display help for command
+
+Commands:
+  run <template-ref> [inputs...]              Render a Jastr template to Markdown
+  generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
+  help [command]                              display help for command

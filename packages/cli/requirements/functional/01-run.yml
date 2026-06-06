@@ -1,0 +1,88 @@
+- id: RUN-FR-0001
+  title: Run renders a named template
+  status: active
+  description: >
+    The CLI renders `.jastr/<template-id>/template.md` when the user runs
+    `jastr run <template-ref>` from inside a project.
+  acceptance:
+    - id: AC-0001
+      statement: Exits with code 0 when the template exists and inputs are valid.
+    - id: AC-0002
+      statement: Prints rendered Markdown to stdout.
+    - id: AC-0003
+      statement: Prints nothing to stderr.
+
+- id: RUN-FR-0002
+  title: CLI rejects unknown commands
+  status: active
+  description: >
+    The CLI rejects commands other than `run`, `generate`, `help`, `--help`,
+    `-h`, `--version`, and `-V`, reporting the expected command shape.
+  acceptance:
+    - id: AC-0001
+      statement: An unknown command exits with code 1.
+    - id: AC-0002
+      statement: An unknown command prints the stable command-shape Error-prefixed stderr message.
+
+- id: RUN-FR-0003
+  title: CLI rejects invalid template references
+  status: active
+  description: >
+    A template reference must be syntactically either a template id matching
+    `^[a-z0-9][a-z0-9-]*$` or a `.md` file path; a reference that is neither is
+    rejected by the validator.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid template reference exits with code 1.
+    - id: AC-0002
+      statement: An invalid template reference prints an Error-prefixed stderr message.
+
+- id: RUN-FR-0004
+  title: CLI rejects missing project root
+  status: active
+  description: >
+    A named template reference fails when no `.jastr/` directory is found
+    ascending from the current directory.
+  acceptance:
+    - id: AC-0001
+      statement: A missing project root exits with code 1.
+    - id: AC-0002
+      statement: A missing project root prints an Error-prefixed stderr message.
+
+- id: RUN-FR-0005
+  title: CLI rejects missing templates
+  status: active
+  description: >
+    The CLI fails when the requested template id does not have a template file
+    at `.jastr/<template-id>/template.md`.
+  acceptance:
+    - id: AC-0001
+      statement: A missing template exits with code 1.
+    - id: AC-0002
+      statement: A missing template prints an Error-prefixed stderr message.
+
+- id: RUN-FR-0006
+  title: Run renders a direct file template
+  status: active
+  description: >
+    The CLI renders a direct `.md` template path without requiring a `.jastr/`
+    project root.
+  acceptance:
+    - id: AC-0001
+      statement: Direct-file run exits with code 0 when the template and inputs are valid.
+    - id: AC-0002
+      statement: Direct-file run prints rendered Markdown to stdout.
+    - id: AC-0003
+      statement: Direct-file run prints nothing to stderr.
+
+- id: RUN-FR-0007
+  title: CLI rejects invalid template references
+  status: active
+  description: >
+    A template reference must be syntactically either a template id or a `.md`
+    file path; the CLI does not use filesystem existence to disambiguate.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid template reference exits with code 1.
+    - id: AC-0002
+      statement: An invalid template reference prints the stable Error-prefixed message.

@@ -1,0 +1,12 @@
+id: missing-required-input
+covers:
+  - INPUT-FR-0003.AC-0001
+  - INPUT-FR-0003.AC-0002
+title: Missing Required Input
+description: Shows Jastr input validation errors.
+cwd: project
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Missing required input --language.\n"

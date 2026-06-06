@@ -1,0 +1,14 @@
+id: missing-skill
+covers:
+  - RUN-FR-0005.AC-0001
+  - RUN-FR-0005.AC-0002
+  - OUTPUT-FR-0001.AC-0001
+  - OUTPUT-FR-0001.AC-0002
+title: Reject missing template
+description: Shows how requesting a non-existent template fails with a clear error.
+cwd: project
+command: ["run", "no-such-skill"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template no-such-skill was not found at .jastr/no-such-skill/template.md.\n"
