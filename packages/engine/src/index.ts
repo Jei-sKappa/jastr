@@ -5,6 +5,7 @@ export type {
 export { JastrError } from "./errors";
 export type { ParsedTemplate } from "./frontmatter";
 export { parseTemplateSource } from "./frontmatter";
+export { validateTemplateInputs } from "./inputs";
 export type {
   Template,
   TemplateInputDefinition,
