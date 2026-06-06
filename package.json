@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "build": "bun run build:engine && bun run build:cli",
-    "build:engine": "bun --cwd packages/engine run build",
-    "build:cli": "bun --cwd packages/cli run build",
+    "build:engine": "cd packages/engine && bun run build",
+    "build:cli": "cd packages/cli && bun run build",
     "check": "biome check .",
     "docs:cli:living": "tsx packages/cli/scripts/generate-living-docs.ts",
     "format": "biome format --write .",
