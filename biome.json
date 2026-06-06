@@ -9,6 +9,7 @@
     "includes": [
       "src/**/*.ts",
       "test/**/*.ts",
+      "packages/**/*.ts",
       "*.json",
       "!dist",
       "!node_modules",

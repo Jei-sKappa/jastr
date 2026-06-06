@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "bun run build:engine && bun run build:cli",
     "build:engine": "bun --cwd packages/engine run build",
