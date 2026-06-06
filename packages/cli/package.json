@@ -1,0 +1,20 @@
+{
+  "name": "@jastr/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "jastr": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outdir=dist --banner='#!/usr/bin/env node' --define JASTR_GIT_SHA=\"\\\"$(git rev-parse --short HEAD)\\\"\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14",
+    "@jastr/engine": "workspace:*",
+    "commander": "^14",
+    "yaml": "^2.9.0"
+  }
+}

@@ -4,21 +4,36 @@
   "workspaces": {
     "": {
       "name": "skillrouter",
+      "devDependencies": {
+        "@biomejs/biome": "^2.4.15",
+        "@types/node": "^25.9.1",
+        "execa": "^9.6.1",
+        "tsx": "^4.22.3",
+        "typescript": "^6.0.3",
+        "vitest": "^4.1.7",
+      },
+    },
+    "packages/cli": {
+      "name": "@jastr/cli",
+      "version": "0.1.0",
+      "bin": {
+        "jastr": "./dist/index.js",
+      },
       "dependencies": {
         "@commander-js/extra-typings": "^14",
+        "@jastr/engine": "workspace:*",
         "commander": "^14",
-        "execa": "^9.6.1",
+        "yaml": "^2.9.0",
+      },
+    },
+    "packages/engine": {
+      "name": "@jastr/engine",
+      "version": "0.1.0",
+      "dependencies": {
         "remark-directive": "^4.0.0",
         "remark-parse": "^11.0.0",
         "unified": "^11.0.5",
         "yaml": "^2.9.0",
-      },
-      "devDependencies": {
-        "@biomejs/biome": "^2.4.15",
-        "@types/node": "^25.9.1",
-        "tsx": "^4.22.3",
-        "typescript": "^6.0.3",
-        "vitest": "^4.1.7",
       },
     },
   },
@@ -100,6 +115,10 @@
     "@esbuild/win32-ia32": ["@esbuild/win32-ia32@0.28.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-zF3ag/gfiCe6U2iczcRzSYJKH1DCI+ByzSENHlM2FcDbEeo5Zd2C86Aq0tKUYAJJ1obRP84ymxIAksZUcdztHA=="],
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.28.0", "", { "os": "win32", "cpu": "x64" }, "sha512-pEl1bO9mfAmIC+tW5btTmrKaujg3zGtUmWNdCw/xs70FBjwAL3o9OEKNHvNmnyylD6ubxUERiEhdsL0xBQ9efw=="],
+
+    "@jastr/cli": ["@jastr/cli@workspace:packages/cli"],
+
+    "@jastr/engine": ["@jastr/engine@workspace:packages/engine"],
 
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
 
