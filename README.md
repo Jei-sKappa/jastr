@@ -1,48 +1,47 @@
-# Skillrouter
+# Jastr
 
-> Deterministic skill routing for AI agents: write rich Markdown templates once,
-> then render only the instructions each task actually needs.
+Jastr is a deterministic Markdown template renderer for AI-agent workflows. It
+lets authors keep reusable templates in a conventional `.jastr/` catalog or in
+direct `.md` files, validate typed inputs, evaluate template directives, resolve
+safe includes, and print final Markdown to stdout.
 
-Skillrouter is a CLI for keeping agent-facing skills tiny while moving
-validation, branching, includes, and instruction rendering into a deterministic
-command-line workflow.
+Agent Skill generation is a CLI target. A generated `SKILL.md` remains a small
+wrapper that runs `jastr run` and tells the agent to follow the rendered output.
 
-Authors write project-local templates under `.skillrouter/<skill>/`, while
-visible agent skills only tell the agent to run `skillrouter run <skill>
-$ARGUMENTS` and follow the Markdown output.
+## Packages
+
+- `packages/engine` is `@jastr/engine`: pure template parsing, schema
+  validation, domain input validation, directive evaluation, interpolation, and
+  rendering from explicit source through injected include resolvers.
+- `packages/cli` is `@jastr/cli`: the `jastr` binary, Commander wiring,
+  filesystem template lookup, CLI flag parsing, include containment, Agent Skill
+  generation, output writing, error formatting, help, and version output.
 
 ## Commands
 
 ```bash
-skillrouter run <skill> [input flags...]
-skillrouter generate <skill> --out <path> [--force]
-skillrouter --help
-skillrouter help [command]
-skillrouter --version
+jastr run <template-ref> [input flags...]
+jastr generate agent-skill <template-ref> --out <path> [--force]
+jastr --help
+jastr help [command]
+jastr --version
 ```
 
-`--version` reports the package version together with the git commit it was
-built from, e.g. `0.1.0 (abc1234)` (or `0.1.0 (dev)` when run from source). The
-commit hash is baked in at build time.
+`<template-ref>` is syntactic:
 
-`run` discovers the nearest ancestor containing `.skillrouter/`, loads
-`.skillrouter/<skill>/SKILL.template.md`, validates declared inputs, evaluates
-Skillrouter directives, resolves includes, interpolates inputs, and prints
-Markdown to stdout.
+- A value ending in `.md` is a direct Markdown template file path.
+- A value matching `^[a-z0-9][a-z0-9-]*$` is a named template id and resolves to
+  `.jastr/<template-id>/template.md` under the nearest ancestor containing
+  `.jastr/`.
 
-`generate` writes a minimal router `SKILL.md` to an explicit destination. It
-validates Agent Skills `name` and `description` frontmatter, omits
-Skillrouter-owned fields such as `inputs`, and passes through additional
-kebab-case frontmatter fields for ecosystem-specific skill specs. On success it
-prints the generated path and source template path. It does not guess
-agent-specific skill folders.
+`--version` reports the `@jastr/cli` package version together with the git commit
+it was built from, for example `0.1.0 (abc1234)`, or `0.1.0 (dev)` when run from
+source.
 
 ## Template Example
 
 ```md
 ---
-name: analyze-code
-description: Analyze code for bugs, security issues, and quality issues
 inputs:
   language:
     type: enum
@@ -51,9 +50,12 @@ inputs:
   target-file:
     type: string
     required: false
-  dry-run:
-    type: boolean
-    required: false
+targets:
+  skill:
+    name: analyze-code
+    description: Analyze code with the rendered Jastr template output.
+    frontmatter:
+      allowed-tools: Read, Grep
 ---
 
 # Analyze {{language}}
@@ -72,6 +74,9 @@ Ask the user for a supported language.
 ::::
 ```
 
+Named templates live at `.jastr/<template-id>/template.md`. Direct file
+templates can live anywhere the caller can reference with a `.md` path.
+
 ## Development
 
 ```bash
@@ -80,24 +85,16 @@ bun run format
 bun run check
 bun run typecheck
 bun run test
-bun run test:e2e
-bun run docs:living
+bun run test:cli:e2e
+bun run docs:cli:living --check
+bun run build
 ```
 
-Functional requirements live in area files under `requirements/functional/`.
-Requirement IDs use `<AREA>-FR-<NNNN>` (for example `RUN-FR-0001`); each
-requirement owns acceptance criteria with `AC-NNNN` IDs, referenced as
-`<FR-ID>.AC-NNNN`. E2E cases under `test/e2e/cases/<case-id>/case.yml`
-exercise those criteria via `covers: [<FR-ID>.AC-NNNN, ...]` and are executed by
-the Vitest suite under `test/e2e/`. Run `bun run test:e2e` for focused
-functional-requirement validation and traceability checks.
+CLI functional requirements live under
+`packages/cli/requirements/functional/`. CLI e2e cases live under
+`packages/cli/test/e2e/cases/<case-id>/case.yml` and are executed by
+`bun run test:cli:e2e`.
 
-`bun run docs:living` regenerates `docs/BEHAVIOR.md`, a living behavior
-reference built by joining those requirements with the e2e cases on their
-`covers` refs. Under each requirement, each covering case is a `#### Case: …` heading showing
-its full input project (the fixture tree and file contents the command ran
-against), the command, any files it writes, and the CLI output — collapsed into
-a single `<details>` block, behind a requirement-level table of contents. Every example in it is the exact input and output the e2e suite
-asserts, so a passing `bun run test:e2e` doubles as proof the document is
-accurate. Run `bun run docs:living --check` to fail (exit 1) when the committed
-file is stale.
+`bun run docs:cli:living` regenerates `packages/cli/docs/BEHAVIOR.md` from the
+CLI requirements and e2e cases. Use `bun run docs:cli:living --check` to fail
+when the committed behavior reference is stale.
