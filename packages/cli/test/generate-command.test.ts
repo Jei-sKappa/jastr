@@ -1,0 +1,123 @@
+import { realpath } from "node:fs/promises";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  createEmptyTempProject,
+  createTempProject,
+  readProjectFile,
+  runCli,
+  writeProjectFile,
+} from "./support/helpers";
+
+describe("jastr generate agent-skill", () => {
+  it("generates an Agent Skill wrapper from a named template", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/review/template.md",
+        `---
+targets:
+  skill:
+    name: review-code
+    description: Review code with Jastr.
+    frontmatter:
+      allowed-tools: Read
+inputs:
+  language:
+    type: string
+    required: true
+---
+Review {{language}}
+`,
+      );
+
+      const result = await runCli(
+        ["generate", "agent-skill", "review", "--out", "out/SKILL.md"],
+        project.root,
+      );
+
+      const realProjectRoot = await realpath(project.root);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toBe(
+        `Generated \`${path.join(realProjectRoot, "out", "SKILL.md")}\` from template \`${path.join(realProjectRoot, ".jastr", "review", "template.md")}\``,
+      );
+      expect(result.stderr).toBe("");
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).resolves.toContain("jastr run review $ARGUMENTS");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("generates a wrapper using a direct file reference as supplied", async () => {
+    const project = await createEmptyTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        "templates/review.md",
+        `---
+targets:
+  skill:
+    name: review-code
+    description: Review code with Jastr.
+---
+Review
+`,
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "templates/review.md",
+          "--out=out/SKILL.md",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(0);
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).resolves.toContain("jastr run templates/review.md $ARGUMENTS");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects unsupported targets and protects existing output", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/review/template.md",
+        "---\n---\nBody\n",
+      );
+      await writeProjectFile(project.root, "out/SKILL.md", "existing");
+
+      const unsupported = await runCli(
+        ["generate", "typescript", "review", "--out", "out.ts"],
+        project.root,
+      );
+      expect(unsupported.exitCode).toBe(1);
+      expect(unsupported.stderr).toBe(
+        "Error: Unsupported generate target typescript.",
+      );
+
+      const blocked = await runCli(
+        ["generate", "agent-skill", "review", "--out=out/SKILL.md"],
+        project.root,
+      );
+      expect(blocked.exitCode).toBe(1);
+      expect(blocked.stderr).toBe(
+        "Error: Output file out/SKILL.md already exists. Use --force to overwrite it.",
+      );
+      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
+        "existing",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+});

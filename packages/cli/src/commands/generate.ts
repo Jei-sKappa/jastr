@@ -1,20 +1,23 @@
 import { Command } from "@commander-js/extra-typings";
+import { executeGenerate } from "../commands";
 
 export function makeGenerateCommand() {
-  const generate = new Command("generate")
+  return new Command("generate")
     .description("Generate an artifact target from a Jastr template")
-    .configureOutput({ outputError: () => {} })
-    .exitOverride();
-
-  generate
-    .command("agent-skill")
-    .description("Generate a minimal Agent Skill wrapper")
+    .argument("<target>", "Artifact target to generate (agent-skill)")
     .argument("<template-ref>", "Template id or .md file path")
-    .option("--out <path>", "Output path for the generated SKILL.md")
+    .option("--out <path>", "Output path for the generated artifact")
     .option("--force", "Overwrite an existing output file")
-    .action(() => {
-      throw new Error("generate agent-skill command is not wired yet");
+    .configureOutput({ outputError: () => {} })
+    .exitOverride()
+    .action(async (target, templateRef, options) => {
+      const output = await executeGenerate({
+        target,
+        templateRef,
+        out: options.out,
+        force: Boolean(options.force),
+        cwd: process.cwd(),
+      });
+      process.stdout.write(output);
     });
-
-  return generate;
 }
