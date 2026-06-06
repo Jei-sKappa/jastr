@@ -19,7 +19,7 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
     stderr: "",
     inputFiles: [
       {
-        path: ".skillrouter/demo/SKILL.template.md",
+        path: ".jastr/demo/template.md",
         content: "---\nname: demo\n---\nHello {{target}}.\n",
       },
     ],
@@ -58,7 +58,7 @@ describe("renderDocument", () => {
     // The command and its output are split into labelled sections; the exit
     // code lives in the CLI output label, not inside the code block.
     expect(doc).toContain("**Command**");
-    expect(doc).toContain("$ skillrouter run demo");
+    expect(doc).toContain("$ jastr run demo");
     expect(doc).toContain("**CLI output** — exit 0");
     expect(doc).not.toContain("# exit 0");
     // The whole case body is wrapped in one collapsible.
@@ -172,11 +172,11 @@ describe("renderDocument", () => {
         makeCase({
           inputFiles: [
             {
-              path: ".skillrouter/demo/SKILL.template.md",
+              path: ".jastr/demo/template.md",
               content: "---\nname: demo\n---\nAnalyze `{{target-file}}`.\n",
             },
             {
-              path: ".skillrouter/demo/fragment.md",
+              path: ".jastr/demo/fragment.md",
               content: "Fragment for {{language}}\n",
             },
           ],
@@ -188,11 +188,11 @@ describe("renderDocument", () => {
     expect(doc).toContain("**Input project** — ran from `project/`");
     // A directory tree orients the reader to the fixture shape.
     expect(doc).toContain("project/");
-    expect(doc).toContain("└─ .skillrouter/");
+    expect(doc).toContain("└─ .jastr/");
     // Each input file is labelled and its contents embedded verbatim.
-    expect(doc).toContain("`.skillrouter/demo/SKILL.template.md`");
+    expect(doc).toContain("`.jastr/demo/template.md`");
     expect(doc).toContain("Analyze `{{target-file}}`.");
-    expect(doc).toContain("`.skillrouter/demo/fragment.md`");
+    expect(doc).toContain("`.jastr/demo/fragment.md`");
     expect(doc).toContain("Fragment for {{language}}");
   });
 
@@ -204,7 +204,7 @@ describe("renderDocument", () => {
 
     expect(doc).toContain("**Input project**");
     expect(doc).toContain(
-      "_Empty — no `.skillrouter/` directory present (command ran from the project root)._",
+      "_Empty — no `.jastr/` directory present (command ran from the project root)._",
     );
     // No directory tree is rendered for an empty fixture.
     expect(doc).not.toContain("└─");
@@ -215,7 +215,7 @@ describe("renderDocument", () => {
       [activeArea()],
       [
         makeCase({
-          command: ["generate", "demo", "--out", "out/SKILL.md"],
+          command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"],
           outputFiles: [
             {
               path: "out/SKILL.md",
@@ -238,8 +238,8 @@ describe("renderDocument", () => {
         makeCase({
           inputFiles: [
             {
-              path: ".skillrouter/demo/SKILL.template.md",
-              content: "Run it:\n```bash\nskillrouter run demo\n```\n",
+              path: ".jastr/demo/template.md",
+              content: "Run it:\n```bash\njastr run demo\n```\n",
             },
           ],
         }),
@@ -255,28 +255,28 @@ describe("renderDocument", () => {
 describe("buildFileTree", () => {
   it("renders nested paths as an ASCII tree rooted at project/", () => {
     const tree = buildFileTree([
-      ".skillrouter/demo/SKILL.template.md",
-      ".skillrouter/demo/fragment.md",
+      ".jastr/demo/template.md",
+      ".jastr/demo/fragment.md",
     ]);
 
     expect(tree).toBe(
       [
         "project/",
-        "└─ .skillrouter/",
+        "└─ .jastr/",
         "   └─ demo/",
         "      ├─ fragment.md",
-        "      └─ SKILL.template.md",
+        "      └─ template.md",
       ].join("\n"),
     );
   });
 
   it("branches sibling directories with the correct connectors", () => {
-    const tree = buildFileTree(["out/SKILL.md", ".skillrouter/demo/x.md"]);
+    const tree = buildFileTree(["out/SKILL.md", ".jastr/demo/x.md"]);
 
     expect(tree).toBe(
       [
         "project/",
-        "├─ .skillrouter/",
+        "├─ .jastr/",
         "│  └─ demo/",
         "│     └─ x.md",
         "└─ out/",
