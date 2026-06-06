@@ -1,6 +1,5 @@
-import { SkillrouterError } from "../errors";
-import type { InputValues } from "./flags";
-import type { TemplateSchema } from "./schema";
+import { JastrError } from "./errors";
+import type { TemplateInputValues, TemplateSchema } from "./schema";
 import { validateInputName } from "./schema";
 
 export type ConditionAst =
@@ -38,7 +37,7 @@ export function validateConditionInputs(
   for (const name of collectInputNames(ast)) {
     validateInputName(name);
     if (!(name in schema.inputs)) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "undeclared_condition_input",
         `Condition references undeclared input ${name}.`,
       );
@@ -48,14 +47,14 @@ export function validateConditionInputs(
 
 export function evaluateCondition(
   ast: ConditionAst,
-  values: InputValues,
+  values: TemplateInputValues,
 ): boolean {
   return toTruthValue(evaluateValue(ast, values));
 }
 
 function evaluateValue(
   ast: ConditionAst,
-  values: InputValues,
+  values: TemplateInputValues,
 ): string | number | boolean | undefined {
   switch (ast.type) {
     case "literal":
@@ -350,6 +349,6 @@ function tokenValue(token: Token): string {
   return "end of input";
 }
 
-function conditionError(message: string): SkillrouterError {
-  return new SkillrouterError("condition_parse_error", message);
+function conditionError(message: string): JastrError {
+  return new JastrError("condition_parse_error", message);
 }

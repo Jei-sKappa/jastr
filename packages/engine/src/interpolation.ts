@@ -1,6 +1,5 @@
-import { SkillrouterError } from "../errors";
-import type { InputValues } from "./flags";
-import type { TemplateSchema } from "./schema";
+import { JastrError } from "./errors";
+import type { TemplateInputValues, TemplateSchema } from "./schema";
 import { INPUT_NAME_PATTERN } from "./schema";
 
 const INTERPOLATION_PATTERN = /\{\{([^}]+)\}\}/g;
@@ -11,7 +10,7 @@ export function validateInterpolationReferences(
 ): void {
   for (const reference of extractReferences(text)) {
     if (!(reference in schema.inputs)) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_interpolation",
         `Interpolation references undeclared input ${reference}.`,
       );
@@ -22,14 +21,14 @@ export function validateInterpolationReferences(
 export function interpolateText(
   text: string,
   schema: TemplateSchema,
-  values: InputValues,
+  values: TemplateInputValues,
 ): string {
   validateInterpolationReferences(text, schema);
 
   return text.replace(INTERPOLATION_PATTERN, (_, rawReference: string) => {
     const reference = rawReference.trim();
     if (!(reference in values)) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "absent_optional_interpolation",
         `Input ${reference} is optional and was not provided for interpolation.`,
       );
@@ -42,7 +41,7 @@ export function extractReferences(text: string): string[] {
   return [...text.matchAll(INTERPOLATION_PATTERN)].map((match) => {
     const rawReference = match[1];
     if (rawReference === undefined) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_interpolation",
         "Invalid interpolation syntax.",
       );
@@ -50,7 +49,7 @@ export function extractReferences(text: string): string[] {
 
     const reference = rawReference.trim();
     if (!INPUT_NAME_PATTERN.test(reference)) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_interpolation",
         `Invalid interpolation reference ${reference}.`,
       );

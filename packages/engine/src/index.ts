@@ -7,6 +7,14 @@ export type { ParsedTemplate } from "./frontmatter";
 export { parseTemplateSource } from "./frontmatter";
 export { validateTemplateInputs } from "./inputs";
 export type {
+  IncludeRequest,
+  IncludeResolution,
+  IncludeResolver,
+  RenderTemplateSourceOptions,
+  RenderTemplateSourceResult,
+} from "./render";
+export { renderTemplateSource } from "./render";
+export type {
   Template,
   TemplateInputDefinition,
   TemplateInputValues,

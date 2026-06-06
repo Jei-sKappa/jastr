@@ -1,12 +1,12 @@
 import remarkDirective from "remark-directive";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
-import { SkillrouterError } from "../errors";
 import {
   type ConditionAst,
   parseCondition,
   validateConditionInputs,
 } from "./conditions";
+import { JastrError } from "./errors";
 import type { TemplateSchema } from "./schema";
 
 export type TextNode = { type: "text"; value: string };
@@ -55,7 +55,7 @@ export function scanDirectives(body: string): TemplateDocument {
     if (closing) {
       const current = stack.pop();
       if (!current || current.fenceLength !== closing.fenceLength) {
-        throw new SkillrouterError(
+        throw new JastrError(
           "invalid_directive",
           "Nested conditional containers require a longer outer fence than inner fences.",
         );
@@ -76,7 +76,7 @@ export function scanDirectives(body: string): TemplateDocument {
       const attrs = parseAttributes(opening.attributes);
       const keys = Object.keys(attrs);
       if (keys.length !== 1 || !attrs.path) {
-        throw new SkillrouterError(
+        throw new JastrError(
           "invalid_directive",
           `${opening.name} directive accepts only path.`,
         );
@@ -89,13 +89,13 @@ export function scanDirectives(body: string): TemplateDocument {
     const attrs = parseAttributes(opening.attributes);
     if (opening.name === "if" || opening.name === "else-if") {
       if (Object.keys(attrs).length !== 1 || !attrs.condition) {
-        throw new SkillrouterError(
+        throw new JastrError(
           "invalid_directive",
           `${opening.name} directive requires condition.`,
         );
       }
     } else if (Object.keys(attrs).length !== 0) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         "else directive does not accept attributes.",
       );
@@ -103,7 +103,7 @@ export function scanDirectives(body: string): TemplateDocument {
 
     const parent = stack.at(-1);
     if (parent && opening.fenceLength >= parent.fenceLength) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         "Nested conditional containers require a longer outer fence than inner fences.",
       );
@@ -117,7 +117,7 @@ export function scanDirectives(body: string): TemplateDocument {
       (opening.name === "else-if" || opening.name === "else") &&
       !pendingGroups.has(targetNodes(stack, root))
     ) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         `${opening.name} directive must immediately follow an if or else-if branch.`,
       );
@@ -134,7 +134,7 @@ export function scanDirectives(body: string): TemplateDocument {
 
     const condition = attrs.condition;
     if (!condition) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         `${opening.name} directive requires condition.`,
       );
@@ -149,7 +149,7 @@ export function scanDirectives(body: string): TemplateDocument {
   }
 
   if (stack.length > 0) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       "Unclosed conditional directive.",
     );
@@ -202,7 +202,7 @@ function appendBranch(
 
   const group = pendingGroups.get(nodes);
   if (!group) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       `${container.name} directive must immediately follow an if or else-if branch.`,
     );
@@ -250,7 +250,7 @@ function parseDirectiveOpening(line: string):
   const rawName = match[2];
   const rawRest = match[3];
   if (!fence || !rawName || rawRest === undefined) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       `Invalid directive syntax ${line.trim()}.`,
     );
@@ -260,7 +260,7 @@ function parseDirectiveOpening(line: string):
   const name = rawName as "if" | "else-if" | "else" | "include" | "include-raw";
   const rest = rawRest.trim();
   if (rest !== "" && !(rest.startsWith("{") && rest.endsWith("}"))) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       `Invalid directive attributes ${rest}.`,
     );
@@ -268,13 +268,13 @@ function parseDirectiveOpening(line: string):
 
   const isLeaf = name === "include" || name === "include-raw";
   if (isLeaf && fenceLength !== 2) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       `${name} is a leaf directive and must start with exactly two colons (::${name}).`,
     );
   }
   if (!isLeaf && fenceLength < 3) {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       `${name} is a container directive and must start with three or more colons (:::${name}).`,
     );
@@ -300,7 +300,7 @@ function parseAttributes(source: string): Record<string, string> {
   while (remaining !== "") {
     const match = remaining.match(/^([a-z-]+)="((?:\\"|[^"])*)"\s*/);
     if (!match) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         `Invalid directive attributes ${source}.`,
       );
@@ -308,7 +308,7 @@ function parseAttributes(source: string): Record<string, string> {
     const key = match[1];
     const value = match[2];
     if (!key || value === undefined) {
-      throw new SkillrouterError(
+      throw new JastrError(
         "invalid_directive",
         `Invalid directive attributes ${source}.`,
       );
@@ -324,7 +324,7 @@ function validateRemarkDirectiveSyntax(body: string): void {
   try {
     unified().use(remarkParse).use(remarkDirective).parse(body);
   } catch {
-    throw new SkillrouterError(
+    throw new JastrError(
       "invalid_directive",
       "Markdown directive syntax is invalid.",
     );
