@@ -6,6 +6,7 @@ describe("engine public API", () => {
     expect(
       Object.keys(engine)
         .filter(
+          // biome-ignore lint/performance/noDynamicNamespaceImportAccess: introspecting the public export surface is the point of this test
           (key) => typeof engine[key as keyof typeof engine] === "function",
         )
         .sort(),
