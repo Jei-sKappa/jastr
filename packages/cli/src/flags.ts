@@ -1,0 +1,79 @@
+import {
+  JastrError,
+  type TemplateInputValues,
+  type TemplateSchema,
+} from "@jastr/engine";
+import type { RawFlag } from "./args";
+
+export function coerceRunFlags(
+  schema: TemplateSchema,
+  flags: RawFlag[],
+): TemplateInputValues {
+  const values: TemplateInputValues = {};
+
+  for (const flag of flags) {
+    const definition = schema.inputs[flag.name];
+    if (definition === undefined) {
+      throw new JastrError(
+        "unknown_input_flag",
+        `Unknown input flag --${flag.name}.`,
+        { inputName: flag.name },
+      );
+    }
+
+    if (definition.type === "boolean") {
+      values[flag.name] = coerceBoolean(flag);
+      continue;
+    }
+
+    if (flag.form !== "value") {
+      throw new JastrError(
+        "invalid_input_value",
+        `Input --${flag.name} requires --${flag.name}=value.`,
+        { inputName: flag.name },
+      );
+    }
+
+    if (flag.value === "") {
+      throw new JastrError(
+        "invalid_input_value",
+        `Input --${flag.name} cannot be empty.`,
+        { inputName: flag.name },
+      );
+    }
+
+    if (definition.type === "enum" && !definition.values.includes(flag.value)) {
+      throw new JastrError(
+        "invalid_input_value",
+        `Invalid value ${flag.value} for --${flag.name}. Expected one of: ${definition.values.join(", ")}.`,
+        { inputName: flag.name, values: definition.values },
+      );
+    }
+
+    values[flag.name] = flag.value;
+  }
+
+  for (const [inputName, definition] of Object.entries(schema.inputs)) {
+    if (definition.required && !(inputName in values)) {
+      throw new JastrError(
+        "missing_required_input",
+        `Missing required input --${inputName}.`,
+        { inputName },
+      );
+    }
+  }
+
+  return values;
+}
+
+function coerceBoolean(flag: RawFlag): boolean {
+  if (flag.form === "bare") return true;
+  if (flag.value === "true") return true;
+  if (flag.value === "false") return false;
+
+  throw new JastrError(
+    "invalid_input_value",
+    `Boolean input --${flag.name} must be true, false, or a bare flag.`,
+    { inputName: flag.name },
+  );
+}

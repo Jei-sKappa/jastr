@@ -1,4 +1,6 @@
 import { Command } from "@commander-js/extra-typings";
+import { parseRunFlags } from "../args";
+import { executeRun } from "../commands";
 
 export function makeRunCommand() {
   return new Command("run")
@@ -12,7 +14,13 @@ export function makeRunCommand() {
     .passThroughOptions()
     .configureOutput({ outputError: () => {} })
     .exitOverride()
-    .action(() => {
-      throw new Error("run command is not wired yet");
+    .action(async (templateRef, inputs) => {
+      const flags = parseRunFlags(inputs);
+      const output = await executeRun({
+        templateRef,
+        flags,
+        cwd: process.cwd(),
+      });
+      process.stdout.write(output);
     });
 }
