@@ -160,6 +160,7 @@ function validateMetadata(value: unknown): void {
 export function buildAgentSkillContent(options: {
   templateRef: string;
   target: AgentSkillTarget;
+  hasInputs: boolean;
 }): string {
   const frontmatter = {
     name: options.target.name,
@@ -167,6 +168,9 @@ export function buildAgentSkillContent(options: {
     ...options.target.frontmatter,
   };
   const frontmatterSource = YAML.stringify(frontmatter).trimEnd();
+  const command = options.hasInputs
+    ? `jastr run ${options.templateRef} $ARGUMENTS`
+    : `jastr run ${options.templateRef}`;
 
   return `---
 ${frontmatterSource}
@@ -175,7 +179,7 @@ ${frontmatterSource}
 Run this command and follow its output exactly:
 
 \`\`\`bash
-jastr run ${options.templateRef} $ARGUMENTS
+${command}
 \`\`\`
 
 If the command exits non-zero, report the exact error output to the user and stop.

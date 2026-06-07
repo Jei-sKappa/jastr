@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**54** requirements · **115** acceptance criteria · **67** end-to-end cases.
+**55** requirements · **117** acceptance criteria · **67** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -70,6 +70,7 @@ output against its inputs.
   - [GEN-FR-0008 — Generate rejects non-kebab target frontmatter fields](#gen-fr-0008--generate-rejects-non-kebab-target-frontmatter-fields)
   - [GEN-FR-0009 — Generate rejects an over-long target description](#gen-fr-0009--generate-rejects-an-over-long-target-description)
   - [GEN-FR-0010 — Generate rejects unsupported targets](#gen-fr-0010--generate-rejects-unsupported-targets)
+  - [GEN-FR-0011 — Generate forwards $ARGUMENTS only when the template declares inputs](#gen-fr-0011--generate-forwards-arguments-only-when-the-template-declares-inputs)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
@@ -2507,7 +2508,7 @@ description: Demo skill
 Run this command and follow its output exactly:
 
 ```bash
-jastr run demo $ARGUMENTS
+jastr run demo
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -2709,7 +2710,7 @@ description: Demo skill
 Run this command and follow its output exactly:
 
 ```bash
-jastr run demo $ARGUMENTS
+jastr run demo
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -3055,6 +3056,153 @@ $ jastr generate typescript demo --out=out.ts
 
 ```console
 Error: Unsupported generate target typescript.
+```
+
+</details>
+
+### GEN-FR-0011 — Generate forwards $ARGUMENTS only when the template declares inputs
+
+The generated Agent Skill wrapper's `jastr run` command forwards `$ARGUMENTS` only when the source template declares one or more inputs. When the template declares no inputs, the wrapper runs `jastr run <template-ref>` directly with no `$ARGUMENTS`, so the agent does not forward arguments a no-input template would reject.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A template that declares no inputs generates a wrapper whose command omits $ARGUMENTS. | ✅ `generate-router` |
+| AC-0002 | A template that declares one or more inputs generates a wrapper whose command forwards $ARGUMENTS. | ✅ `generate-passthrough` |
+
+#### Case: Generate passes through frontmatter
+
+Description: Shows how generate preserves author frontmatter fields and omits Jastr-owned inputs.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+targets:
+  agent-skill:
+    name: demo
+    description: A demo skill
+    frontmatter:
+      license: MIT
+      my-extension-field: custom-value
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+::::if{condition="${language} == 'typescript'"}
+TS
+::::
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: A demo skill
+license: MIT
+my-extension-field: custom-value
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+```
+
+</details>
+
+#### Case: Generate a router skill
+
+Description: Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+targets:
+  agent-skill:
+    name: demo
+    description: Demo skill
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/template.md`
 ```
 
 </details>

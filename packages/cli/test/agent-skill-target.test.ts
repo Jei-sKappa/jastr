@@ -20,6 +20,7 @@ describe("Agent Skill target metadata", () => {
       buildAgentSkillContent({
         templateRef: "review",
         target,
+        hasInputs: true,
       }),
     ).toBe(`---
 name: review-code
@@ -39,6 +40,22 @@ jastr run review $ARGUMENTS
 
 If the command exits non-zero, report the exact error output to the user and stop.
 `);
+  });
+
+  it("omits $ARGUMENTS when the template declares no inputs", () => {
+    const target = validateAgentSkillTarget({
+      name: "review-code",
+      description: "Review code with the rendered Jastr template output.",
+    });
+
+    const content = buildAgentSkillContent({
+      templateRef: "review",
+      target,
+      hasInputs: false,
+    });
+
+    expect(content).toContain("jastr run review\n");
+    expect(content).not.toContain("$ARGUMENTS");
   });
 
   it("rejects missing metadata, unknown targets.agent-skill fields, reserved frontmatter, and invalid metadata values", () => {

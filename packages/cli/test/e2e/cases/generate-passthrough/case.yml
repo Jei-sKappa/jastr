@@ -3,6 +3,7 @@ covers:
   - GEN-FR-0007.AC-0001
   - GEN-FR-0007.AC-0002
   - GEN-FR-0007.AC-0003
+  - GEN-FR-0011.AC-0002
 title: Generate passes through frontmatter
 description: Shows how generate preserves author frontmatter fields and omits Jastr-owned inputs.
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]

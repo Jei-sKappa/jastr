@@ -82,6 +82,7 @@ export async function executeGenerate(opts: {
   const content = buildAgentSkillContent({
     templateRef: opts.templateRef,
     target,
+    hasInputs: Object.keys(schema.inputs).length > 0,
   });
   const outputPath = await writeAgentSkill({
     cwd: opts.cwd,

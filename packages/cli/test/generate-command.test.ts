@@ -75,9 +75,9 @@ Review
       );
 
       expect(result.exitCode).toBe(0);
-      await expect(
-        readProjectFile(project.root, "out/SKILL.md"),
-      ).resolves.toContain("jastr run templates/review.md $ARGUMENTS");
+      const skill = await readProjectFile(project.root, "out/SKILL.md");
+      expect(skill).toContain("jastr run templates/review.md\n");
+      expect(skill).not.toContain("$ARGUMENTS");
     } finally {
       await project.cleanup();
     }

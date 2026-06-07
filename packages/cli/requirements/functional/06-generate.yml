@@ -125,3 +125,18 @@
       statement: An unsupported generate target exits with code 1.
     - id: AC-0002
       statement: An unsupported generate target prints the stable Error-prefixed message.
+
+- id: GEN-FR-0011
+  title: Generate forwards $ARGUMENTS only when the template declares inputs
+  status: active
+  description: >
+    The generated Agent Skill wrapper's `jastr run` command forwards
+    `$ARGUMENTS` only when the source template declares one or more inputs. When
+    the template declares no inputs, the wrapper runs `jastr run <template-ref>`
+    directly with no `$ARGUMENTS`, so the agent does not forward arguments a
+    no-input template would reject.
+  acceptance:
+    - id: AC-0001
+      statement: A template that declares no inputs generates a wrapper whose command omits $ARGUMENTS.
+    - id: AC-0002
+      statement: A template that declares one or more inputs generates a wrapper whose command forwards $ARGUMENTS.

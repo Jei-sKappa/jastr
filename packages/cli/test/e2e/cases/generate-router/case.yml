@@ -4,6 +4,7 @@ covers:
   - GEN-FR-0001.AC-0002
   - GEN-FR-0001.AC-0003
   - GEN-FR-0001.AC-0004
+  - GEN-FR-0011.AC-0001
 title: Generate a router skill
 description: Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
 command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"]
