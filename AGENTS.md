@@ -215,7 +215,11 @@ because it's gitignored.
 - A case's `project/` folder is the fixture workspace the CLI runs against. A
   case whose workspace is intentionally empty ships with no `project/`
   directory; the runner and living-doc loader treat an absent `project/` as an
-  empty workspace.
+  empty workspace. Do not add `.keep`/`.gitkeep` (or other git-tracking placeholder)
+  files to pin an empty `project/` — omit the directory entirely instead.
+  Placeholders are unnecessary (the runner recreates the `cwd` it needs) and
+  leak into `BEHAVIOR.md` as noise; an absent `project/` renders as a clean
+  "empty workspace" note.
 - `bun run docs:cli:living` generates `packages/cli/docs/BEHAVIOR.md`, a living
   CLI behavior reference, by joining `packages/cli/requirements/functional/`
   with the e2e cases on their `covers` refs. The committed behavior document

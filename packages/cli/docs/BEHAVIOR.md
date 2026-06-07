@@ -392,19 +392,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project**
 
-```text
-project/
-└─ .jastr/
-   └─ .keep
-```
-
-`.jastr/.keep`
-
-```text
-
-```
+_Empty — no `.jastr/` directory present (command ran from `project/`)._
 
 **Command**
 
@@ -3051,18 +3041,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project**
 
-```text
-project/
-└─ .keep
-```
-
-`.keep`
-
-```text
-
-```
+_Empty — no `.jastr/` directory present (command ran from `project/`)._
 
 **Command**
 
