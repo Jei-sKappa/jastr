@@ -3,7 +3,6 @@ covers:
   - INCLUDE-FR-0003.AC-0004
 title: Reject home-relative includes
 description: Shows how ~ home-relative include paths are rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

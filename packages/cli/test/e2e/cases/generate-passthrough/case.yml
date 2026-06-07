@@ -5,11 +5,10 @@ covers:
   - GEN-FR-0007.AC-0003
 title: Generate passes through frontmatter
 description: Shows how generate preserves author frontmatter fields and omits Jastr-owned inputs.
-cwd: .
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 0
-  stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

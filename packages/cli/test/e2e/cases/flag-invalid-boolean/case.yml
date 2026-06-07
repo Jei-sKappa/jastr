@@ -4,7 +4,6 @@ covers:
   - FLAGS-FR-0007.AC-0002
 title: Reject invalid boolean value
 description: Shows how a boolean input with a non-boolean value is rejected.
-cwd: project
 command: ["run", "demo", "--dry-run=yes"]
 expect:
   exitCode: 1

@@ -34,7 +34,7 @@ export type RenderCase = {
   exitCode: number;
   stdout: string;
   stderr: string;
-  /** Every file under the case's `project/` fixture — the command's inputs. */
+  /** Every file under the case's `fixture/` folder — the command's inputs. */
   inputFiles: FixtureFile[];
   /** Files the command is expected to produce, resolved from `expect.files`. */
   outputFiles: FixtureFile[];
@@ -86,14 +86,14 @@ async function readStream(
 }
 
 /**
- * Recursively read every file under a case's `project/` fixture, returning
- * project-relative POSIX paths with verbatim contents, sorted by path. A case
- * with no `project/` directory (for example, `missing-project-root`) yields an
- * empty list rather than throwing, so the renderer can state the project is
- * empty — and so generation stays deterministic whether or not the untracked
- * empty directory happens to exist locally.
+ * Recursively read every file under a case's `fixture/` folder, returning
+ * project-root-relative POSIX paths with verbatim contents, sorted by path. A
+ * case with no `fixture/` directory (for example, `missing-project-root`)
+ * yields an empty list rather than throwing, so the renderer can state the
+ * project is empty — and so generation stays deterministic whether or not the
+ * untracked empty directory happens to exist locally.
  */
-async function loadProjectFiles(projectDir: string): Promise<FixtureFile[]> {
+async function loadFixtureFiles(fixtureDir: string): Promise<FixtureFile[]> {
   const files: FixtureFile[] = [];
   const walk = async (dir: string, relative: string): Promise<void> => {
     let entries: Dirent[];
@@ -116,7 +116,7 @@ async function loadProjectFiles(projectDir: string): Promise<FixtureFile[]> {
       }
     }
   };
-  await walk(projectDir, "");
+  await walk(fixtureDir, "");
   files.sort((a, b) => a.path.localeCompare(b.path));
   return files;
 }
@@ -162,7 +162,7 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
         manifest.expect.stderrFile,
         dirPath,
       ),
-      inputFiles: await loadProjectFiles(path.join(dirPath, "project")),
+      inputFiles: await loadFixtureFiles(path.join(dirPath, "fixture")),
       outputFiles: await loadOutputFiles(dirPath, manifest.expect.files),
     })),
   );
@@ -227,13 +227,14 @@ function appendTreeLines(
 }
 
 /**
- * Render a sorted list of project-relative file paths as an ASCII tree rooted
- * at `project/`. Pure and deterministic: paths are folded into a node trie and
- * each level is emitted in locale order.
+ * Render a sorted list of project-root-relative file paths as an ASCII tree
+ * rooted at `./` (the project root the command runs in). Pure and
+ * deterministic: paths are folded into a node trie and each level is emitted in
+ * locale order.
  */
 export function buildFileTree(paths: string[]): string {
   const root: TreeNode = {
-    name: "project",
+    name: ".",
     isFile: false,
     children: new Map(),
   };
@@ -250,7 +251,7 @@ export function buildFileTree(paths: string[]): string {
       node = child;
     });
   }
-  const lines = ["project/"];
+  const lines = ["./"];
   appendTreeLines(root, "", lines);
   return lines.join("\n");
 }

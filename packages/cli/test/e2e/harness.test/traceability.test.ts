@@ -24,7 +24,7 @@ const baseCase: CaseManifest = {
   covers: ["RUN-FR-0001.AC-0001", "RUN-FR-0001.AC-0002"],
   title: "Basic run",
   description: "Runs a skill.",
-  cwd: "project",
+  cwd: ".",
   command: ["run", "demo"],
   expect: { exitCode: 0, stdout: "ok\n", stderr: "" },
 };

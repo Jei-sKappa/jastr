@@ -7,8 +7,6 @@ import type { CaseManifest, LoadedCase } from "./case-manifest";
 import { loadPackageVersion } from "./requirements";
 
 type PlaceholderValues = {
-  projectRoot: string;
-  cwd: string;
   version: string;
 };
 
@@ -30,10 +28,7 @@ function expandExpected(
   value: string,
   placeholders: PlaceholderValues,
 ): string {
-  return value
-    .replaceAll("{{projectRoot}}", placeholders.projectRoot)
-    .replaceAll("{{cwd}}", placeholders.cwd)
-    .replaceAll("{{version}}", placeholders.version);
+  return value.replaceAll("{{version}}", placeholders.version);
 }
 
 async function createTempProject(): Promise<{
@@ -47,21 +42,23 @@ async function createTempProject(): Promise<{
   };
 }
 
-export async function copyProjectFixture(
+export async function copyCaseFixture(
   caseDir: string,
   tempRoot: string,
 ): Promise<void> {
-  const source = path.join(caseDir, "project");
-  // A case's `project/` folder is the fixture workspace the CLI runs against.
-  // Some cases intentionally have an *empty* workspace — `missing-project-root`,
-  // for instance, asserts the "no .jastr/ directory" error and so must run
-  // somewhere that contains nothing. Git cannot track an empty directory, so on
-  // a fresh clone that case ships with no `project/` folder at all (only
-  // `case.yml`). Treat an absent fixture as an empty project: `tempRoot` was
-  // just created by `mkdtemp`, so an empty workspace is exactly what we want.
-  // Without this guard, `cp` throws ENOENT on a clean checkout and the case
-  // fails before the CLI is ever invoked. (An empty-but-present `project/` dir,
-  // as may linger locally, copies to the same empty result.)
+  const source = path.join(caseDir, "fixture");
+  // A case's `fixture/` folder holds the files that exist when the CLI runs;
+  // its *contents* are copied to `tempRoot`, so `tempRoot` becomes the project
+  // root the command sees. Some cases intentionally have an *empty* workspace —
+  // `missing-project-root`, for instance, asserts the "no .jastr/ directory"
+  // error and so must run somewhere that contains nothing. Git cannot track an
+  // empty directory, so on a fresh clone that case ships with no `fixture/`
+  // folder at all (only `case.yml`). Treat an absent fixture as an empty
+  // workspace: `tempRoot` was just created by `mkdtemp`, so an empty workspace
+  // is exactly what we want. Without this guard, `cp` throws ENOENT on a clean
+  // checkout and the case fails before the CLI is ever invoked. (An
+  // empty-but-present `fixture/` dir, as may linger locally, copies to the same
+  // empty result.)
   try {
     await cp(source, tempRoot, { recursive: true });
   } catch (error) {
@@ -91,7 +88,7 @@ export async function runCase(
 ): Promise<void> {
   const temp = await createTempProject();
   try {
-    await copyProjectFixture(testCase.dirPath, temp.root);
+    await copyCaseFixture(testCase.dirPath, temp.root);
     const cwd = await resolveCwd(
       temp.root,
       testCase.manifest.cwd,
@@ -99,7 +96,7 @@ export async function runCase(
     );
     const projectRoot = await realpath(temp.root);
     const version = await loadPackageVersion(repoRoot);
-    const placeholders = { projectRoot, cwd, version };
+    const placeholders = { version };
     const cliPath = path.resolve(repoRoot, "src/index.ts");
     const result = await execa("bun", [cliPath, ...testCase.manifest.command], {
       cwd,

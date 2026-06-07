@@ -4,7 +4,6 @@ covers:
   - RUN-FR-0002.AC-0002
 title: Reject unknown commands
 description: Shows how unknown commands are rejected before any project lookup.
-cwd: project
 command: ["invalid-command"]
 expect:
   exitCode: 1

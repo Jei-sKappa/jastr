@@ -15,7 +15,7 @@ const validCase: RawCaseManifest = {
   covers: ["RUN-FR-0001.AC-0001"],
   title: "Basic run",
   description: "Runs a minimal skill.",
-  cwd: "project",
+  cwd: "sub",
   command: ["run", "demo"],
   expect: {
     exitCode: 0,
@@ -31,6 +31,17 @@ describe("validateCaseManifest", () => {
         filePath: "test/e2e/cases/basic-run/case.yml",
       }),
     ).toEqual(validCase);
+  });
+
+  it("defaults an omitted cwd to the project root", () => {
+    const withoutCwd: Record<string, unknown> = { ...validCase };
+    delete withoutCwd.cwd;
+
+    const manifest = validateCaseManifest(withoutCwd, {
+      filePath: "test/e2e/cases/basic-run/case.yml",
+    });
+
+    expect(manifest.cwd).toBe(".");
   });
 
   it("rejects uppercase or requirement-shaped case ids", () => {
@@ -95,7 +106,7 @@ describe("validateCaseManifest", () => {
   it("rejects unsafe paths and backslashes", () => {
     expect(() =>
       validateCaseManifest(
-        { ...validCase, cwd: "../project" },
+        { ...validCase, cwd: "../escape" },
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(/cwd must not contain \.\. path segments/);

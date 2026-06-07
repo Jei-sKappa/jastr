@@ -4,7 +4,6 @@ covers:
   - RUN-FR-0007.AC-0002
 title: Reject an invalid template reference
 description: Template references must be syntactically either a template id or a .md file path.
-cwd: project
 command: ["run", "BadName"]
 expect:
   exitCode: 1

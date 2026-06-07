@@ -4,7 +4,6 @@ covers:
   - OUTPUT-FR-0001.AC-0003
 title: Root help
 description: Shows the root CLI help text.
-cwd: project
 command: ["--help"]
 expect:
   exitCode: 0

@@ -4,7 +4,6 @@ covers:
   - TEMPLATE-FR-0006.AC-0002
 title: Reject branch directives after interrupting content
 description: Shows how non-blank content between branches ends the group and makes a later else-if an error.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

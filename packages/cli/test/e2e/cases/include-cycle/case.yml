@@ -4,9 +4,8 @@ covers:
   - INCLUDE-FR-0004.AC-0002
 title: Reject include cycles
 description: Shows how circular includes are detected and rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include cycle detected: {{projectRoot}}/.jastr/demo/a.md -> {{projectRoot}}/.jastr/demo/b.md -> {{projectRoot}}/.jastr/demo/a.md.\n"
+  stderr: "Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.\n"

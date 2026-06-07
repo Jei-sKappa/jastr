@@ -4,7 +4,6 @@ covers:
   - TEMPLATE-FR-0001.AC-0002
 title: Reject malformed frontmatter
 description: Shows how a template whose frontmatter fence is never closed is rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

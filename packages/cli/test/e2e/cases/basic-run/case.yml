@@ -5,7 +5,6 @@ covers:
   - RUN-FR-0001.AC-0003
 title: Run a basic skill
 description: Render a minimal template with no inputs.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 0

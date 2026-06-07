@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   JastrError,
   parseTemplateSource,
@@ -33,7 +34,7 @@ export async function executeRun(opts: {
 
   const result = await renderTemplateSource({
     source: template.source,
-    sourceId: template.templatePath,
+    sourceId: path.relative(template.cwd, template.templatePath),
     inputs,
     includeResolver: createFileIncludeResolver(template),
   });
@@ -73,7 +74,7 @@ export async function executeGenerate(opts: {
 
   await renderTemplateSource({
     source: template.source,
-    sourceId: template.templatePath,
+    sourceId: path.relative(template.cwd, template.templatePath),
     inputs: sampleInputsForStaticRender(schema),
     includeResolver: createFileIncludeResolver(template),
   });
@@ -88,7 +89,7 @@ export async function executeGenerate(opts: {
     content,
   });
 
-  return `Generated \`${outputPath}\` from template \`${template.templatePath}\``;
+  return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${path.relative(template.cwd, template.templatePath)}\``;
 }
 
 function sampleInputsForStaticRender(

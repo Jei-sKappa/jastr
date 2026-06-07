@@ -4,7 +4,6 @@ covers:
   - INCLUDE-FR-0005.AC-0002
 title: Reject missing include files
 description: Shows how include references to nonexistent files are rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

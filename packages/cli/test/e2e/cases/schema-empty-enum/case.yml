@@ -4,7 +4,6 @@ covers:
   - TEMPLATE-FR-0004.AC-0002
 title: Reject enum inputs without values
 description: Shows how an enum input with no values is rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

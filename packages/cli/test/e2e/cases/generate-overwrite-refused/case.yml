@@ -4,7 +4,6 @@ covers:
   - GEN-FR-0003.AC-0002
 title: Generate refuses overwrite
 description: Shows how generate refuses to overwrite an existing output file.
-cwd: .
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1

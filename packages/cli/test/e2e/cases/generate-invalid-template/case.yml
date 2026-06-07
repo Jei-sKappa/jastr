@@ -4,7 +4,6 @@ covers:
   - GEN-FR-0005.AC-0002
 title: Generate rejects invalid templates
 description: Shows how generate validates the template before writing and rejects invalid directives.
-cwd: project
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1

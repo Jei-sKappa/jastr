@@ -3,7 +3,6 @@ covers:
   - INCLUDE-FR-0003.AC-0002
 title: Reject env includes
 description: Shows how include paths targeting .env files are rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

@@ -11,7 +11,7 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
     id: "demo-case",
     title: "Demo case",
     description: "Demonstrates the demo behavior.",
-    cwd: "project",
+    cwd: ".",
     command: ["run", "demo"],
     covers: ["DEMO-FR-0001.AC-0001"],
     exitCode: 0,
@@ -185,9 +185,9 @@ describe("renderDocument", () => {
     );
 
     // The input section is a bold label naming where the command ran.
-    expect(doc).toContain("**Input project** — ran from `project/`");
-    // A directory tree orients the reader to the fixture shape.
-    expect(doc).toContain("project/");
+    expect(doc).toContain("**Input project** — ran from the project root");
+    // A directory tree rooted at the project root orients the reader.
+    expect(doc).toContain("./");
     expect(doc).toContain("└─ .jastr/");
     // Each input file is labelled and its contents embedded verbatim.
     expect(doc).toContain("`.jastr/demo/template.md`");
@@ -208,6 +208,13 @@ describe("renderDocument", () => {
     );
     // No directory tree is rendered for an empty fixture.
     expect(doc).not.toContain("└─");
+  });
+
+  it("labels a subdirectory cwd as the escape hatch", () => {
+    const doc = renderDocument([activeArea()], [makeCase({ cwd: "nested" })]);
+
+    // The rare case that runs from a subdirectory says so explicitly.
+    expect(doc).toContain("**Input project** — ran from `nested/`");
   });
 
   it("renders generated output files when a case declares them", () => {
@@ -253,7 +260,7 @@ describe("renderDocument", () => {
 });
 
 describe("buildFileTree", () => {
-  it("renders nested paths as an ASCII tree rooted at project/", () => {
+  it("renders nested paths as an ASCII tree rooted at ./", () => {
     const tree = buildFileTree([
       ".jastr/demo/template.md",
       ".jastr/demo/fragment.md",
@@ -261,7 +268,7 @@ describe("buildFileTree", () => {
 
     expect(tree).toBe(
       [
-        "project/",
+        "./",
         "└─ .jastr/",
         "   └─ demo/",
         "      ├─ fragment.md",
@@ -275,7 +282,7 @@ describe("buildFileTree", () => {
 
     expect(tree).toBe(
       [
-        "project/",
+        "./",
         "├─ .jastr/",
         "│  └─ demo/",
         "│     └─ x.md",

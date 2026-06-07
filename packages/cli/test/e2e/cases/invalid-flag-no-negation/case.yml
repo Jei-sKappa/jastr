@@ -4,7 +4,6 @@ covers:
   - FLAGS-FR-0004.AC-0004
 title: Reject --no- negation flags
 description: Shows how the --no- boolean negation form is rejected.
-cwd: project
 command: ["run", "demo", "--no-dry-run"]
 expect:
   exitCode: 1

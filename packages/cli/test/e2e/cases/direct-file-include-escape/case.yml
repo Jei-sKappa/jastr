@@ -4,7 +4,6 @@ covers:
   - INCLUDE-FR-0007.AC-0002
 title: Reject a direct-file include escaping the template directory
 description: Direct-file includes are contained to the direct template file directory.
-cwd: "."
 command: ["run", "templates/direct.md"]
 expect:
   exitCode: 1

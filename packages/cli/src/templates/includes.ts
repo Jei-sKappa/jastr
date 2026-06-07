@@ -10,13 +10,14 @@ export function createFileIncludeResolver(
     const resolved = resolveIncludePath({
       includePath: request.path,
       from: request.from,
+      cwd: template.cwd,
       includeRoot: template.includeRoot,
       includeRootLabel: template.includeRootLabel,
     });
 
     try {
       return {
-        id: resolved,
+        id: path.relative(template.cwd, resolved),
         source: await readFile(resolved, "utf8"),
       };
     } catch (error) {
@@ -41,6 +42,7 @@ export function createFileIncludeResolver(
 function resolveIncludePath(options: {
   includePath: string;
   from: string;
+  cwd: string;
   includeRoot: string;
   includeRootLabel: "project root" | "template directory";
 }): string {
@@ -66,8 +68,9 @@ function resolveIncludePath(options: {
     );
   }
 
+  const fromAbsolute = path.resolve(options.cwd, options.from);
   const resolved = path.normalize(
-    path.resolve(path.dirname(options.from), includePath),
+    path.resolve(path.dirname(fromAbsolute), includePath),
   );
   const relativeToRoot = path.relative(options.includeRoot, resolved);
 

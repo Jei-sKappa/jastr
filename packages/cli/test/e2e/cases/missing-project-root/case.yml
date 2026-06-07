@@ -4,7 +4,6 @@ covers:
   - RUN-FR-0004.AC-0002
 title: Reject missing project root
 description: Shows how run command fails when no .jastr directory exists.
-cwd: "."
 command: ["run", "demo"]
 expect:
   exitCode: 1

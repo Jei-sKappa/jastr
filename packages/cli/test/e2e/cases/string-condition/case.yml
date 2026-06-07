@@ -3,7 +3,6 @@ covers:
   - COND-FR-0004.AC-0001
 title: String equality in condition
 description: Shows how a string equality comparison selects the matching branch.
-cwd: project
 command: ["run", "demo", "--language=typescript"]
 expect:
   exitCode: 0

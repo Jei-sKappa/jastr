@@ -112,10 +112,10 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -169,7 +169,7 @@ Covers: AC-0001, AC-0002
 
 **Input project**
 
-_Empty — no `.jastr/` directory present (command ran from `project/`)._
+_Empty — no `.jastr/` directory present (command ran from the project root)._
 
 **Command**
 
@@ -203,10 +203,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -289,10 +289,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -343,7 +343,7 @@ Covers: AC-0001, AC-0002, AC-0003
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ templates/
    └─ direct.md
 ```
@@ -394,7 +394,7 @@ Covers: AC-0001, AC-0002
 
 **Input project**
 
-_Empty — no `.jastr/` directory present (command ran from `project/`)._
+_Empty — no `.jastr/` directory present (command ran from the project root)._
 
 **Command**
 
@@ -429,10 +429,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -484,10 +484,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -539,10 +539,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -595,10 +595,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -654,10 +654,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -700,10 +700,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -746,10 +746,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -801,10 +801,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -857,10 +857,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -915,10 +915,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -956,10 +956,10 @@ Covers: AC-0003, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1006,10 +1006,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1061,10 +1061,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1116,10 +1116,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1172,10 +1172,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1232,10 +1232,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1292,10 +1292,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1343,10 +1343,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1403,10 +1403,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1451,10 +1451,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1513,10 +1513,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1573,10 +1573,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1633,10 +1633,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1693,10 +1693,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1744,10 +1744,10 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1806,10 +1806,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1867,10 +1867,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -1928,10 +1928,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       ├─ fragment.md
@@ -1992,10 +1992,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       ├─ raw.md
@@ -2054,10 +2054,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2096,10 +2096,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2138,10 +2138,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2180,10 +2180,10 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2231,10 +2231,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       ├─ a.md
@@ -2276,7 +2276,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: {{projectRoot}}/.jastr/demo/a.md -> {{projectRoot}}/.jastr/demo/b.md -> {{projectRoot}}/.jastr/demo/a.md.
+Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
 ```
 
 </details>
@@ -2299,10 +2299,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2351,10 +2351,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       ├─ subdir/
@@ -2413,7 +2413,7 @@ Covers: AC-0001, AC-0002
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 ├─ outside.md
 └─ templates/
    └─ direct.md
@@ -2470,7 +2470,7 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2516,7 +2516,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/template.md`
 ```
 
 </details>
@@ -2542,7 +2542,7 @@ Covers: AC-0001, AC-0002
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2595,7 +2595,7 @@ Covers: AC-0001, AC-0002
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 ├─ .jastr/
 │  └─ demo/
 │     └─ template.md
@@ -2664,7 +2664,7 @@ Covers: AC-0001, AC-0002
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 ├─ .jastr/
 │  └─ demo/
 │     └─ template.md
@@ -2718,7 +2718,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/template.md`
 ```
 
 </details>
@@ -2741,10 +2741,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2796,10 +2796,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2852,7 +2852,7 @@ Covers: AC-0001, AC-0002, AC-0003
 **Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2910,7 +2910,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/template.md`
 ```
 
 </details>
@@ -2933,10 +2933,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -2988,10 +2988,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3043,7 +3043,7 @@ Covers: AC-0001, AC-0002
 
 **Input project**
 
-_Empty — no `.jastr/` directory present (command ran from `project/`)._
+_Empty — no `.jastr/` directory present (command ran from the project root)._
 
 **Command**
 
@@ -3080,10 +3080,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3132,10 +3132,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3185,10 +3185,10 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3246,10 +3246,10 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3301,10 +3301,10 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3354,10 +3354,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3395,10 +3395,10 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3448,10 +3448,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3496,10 +3496,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3550,10 +3550,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3605,10 +3605,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3661,10 +3661,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3722,10 +3722,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3783,10 +3783,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3836,10 +3836,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md
@@ -3889,10 +3889,10 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from `project/`
+**Input project** — ran from the project root
 
 ```text
-project/
+./
 └─ .jastr/
    └─ demo/
       └─ template.md

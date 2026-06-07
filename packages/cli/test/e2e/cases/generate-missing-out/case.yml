@@ -4,7 +4,6 @@ covers:
   - GEN-FR-0002.AC-0002
 title: Generate requires --out
 description: Shows how generate fails when --out is missing.
-cwd: .
 command: ["generate", "agent-skill", "demo"]
 expect:
   exitCode: 1

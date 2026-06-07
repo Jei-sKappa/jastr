@@ -6,11 +6,10 @@ covers:
   - GEN-FR-0001.AC-0004
 title: Generate a router skill
 description: Shows how generate writes a minimal router skill from a template, creating the missing out/ parent directory.
-cwd: .
 command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"]
 expect:
   exitCode: 0
-  stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

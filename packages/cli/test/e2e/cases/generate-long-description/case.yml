@@ -4,7 +4,6 @@ covers:
   - GEN-FR-0009.AC-0002
 title: Generate rejects over-long descriptions
 description: Shows how generate agent-skill rejects a targets.skill.description longer than 1024 characters.
-cwd: project
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1

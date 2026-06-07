@@ -180,7 +180,13 @@ export function validateCaseManifest(
     `${id}.description`,
     source,
   );
-  const cwd = validateSafePath(`${id}.cwd`, value.cwd, source);
+  // `cwd` is optional: cases run from the project root by default (the 99%
+  // scenario a real user is in). The rare case that needs to exercise running
+  // from a subdirectory can still set it explicitly.
+  const cwd =
+    value.cwd === undefined
+      ? "."
+      : validateSafePath(`${id}.cwd`, value.cwd, source);
 
   if (!Array.isArray(value.command) || value.command.length === 0) {
     fail(source, `${id}.command must be a non-empty string array.`);

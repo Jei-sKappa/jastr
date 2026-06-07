@@ -4,7 +4,6 @@ covers:
   - FLAGS-FR-0002.AC-0002
 title: Unknown Flag
 description: Shows Jastr input validation errors.
-cwd: project
 command: ["run", "demo", "--language=typescript", "--unknown=x"]
 expect:
   exitCode: 1

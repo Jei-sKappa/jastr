@@ -3,7 +3,6 @@ covers:
   - COND-FR-0001.AC-0001
 title: Select a branch from an enum input
 description: Shows how `run` renders only the branch selected by `--language`.
-cwd: project
 command: ["run", "demo", "--language=typescript"]
 expect:
   exitCode: 0

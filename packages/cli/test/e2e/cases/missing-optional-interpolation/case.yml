@@ -4,7 +4,6 @@ covers:
   - INPUT-FR-0002.AC-0002
 title: Optional input in interpolation
 description: Shows how interpolating a missing optional input fails at run time.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

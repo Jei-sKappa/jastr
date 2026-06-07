@@ -3,7 +3,6 @@ covers:
   - COND-FR-0005.AC-0001
 title: Compound condition with AND
 description: Shows how AND (&&) selects the branch when both sides are true.
-cwd: project
 command: ["run", "demo", "--flag-a", "--flag-b"]
 expect:
   exitCode: 0

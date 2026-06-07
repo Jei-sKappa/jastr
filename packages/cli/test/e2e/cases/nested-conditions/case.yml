@@ -3,7 +3,6 @@ covers:
   - COND-FR-0006.AC-0001
 title: Nested conditional containers
 description: Shows how nested conditional directives select the correct inner branch.
-cwd: project
 command: ["run", "demo", "--mode=full"]
 expect:
   exitCode: 0

@@ -4,7 +4,6 @@ covers:
   - FLAGS-FR-0005.AC-0002
 title: Reject empty input value
 description: Shows how an empty string input value is rejected.
-cwd: project
 command: ["run", "demo", "--target-file="]
 expect:
   exitCode: 1

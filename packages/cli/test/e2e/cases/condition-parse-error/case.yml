@@ -4,7 +4,6 @@ covers:
   - TEMPLATE-FR-0007.AC-0002
 title: Reject condition parse errors
 description: Shows how a bare identifier instead of a ${input-name} reference is rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

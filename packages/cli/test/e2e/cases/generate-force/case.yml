@@ -4,11 +4,10 @@ covers:
   - GEN-FR-0004.AC-0002
 title: Generate with --force
 description: Shows how --force overwrites an existing output file.
-cwd: .
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--force"]
 expect:
   exitCode: 0
-  stdout: "Generated `{{projectRoot}}/out/SKILL.md` from template `{{projectRoot}}/.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

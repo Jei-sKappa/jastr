@@ -3,7 +3,6 @@ covers:
   - COND-FR-0003.AC-0001
 title: Boolean input in condition
 description: Shows how a supplied boolean input selects the true branch.
-cwd: project
 command: ["run", "demo", "--dry-run"]
 expect:
   exitCode: 0

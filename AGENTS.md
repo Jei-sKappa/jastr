@@ -212,14 +212,28 @@ because it's gitignored.
 - CLI e2e cases live under `packages/cli/test/e2e/cases/<case-id>/case.yml`.
   Case IDs are lowercase kebab-case slugs; traceability uses
   `covers: [<FR-ID>.AC-NNNN, ...]`.
-- A case's `project/` folder is the fixture workspace the CLI runs against. A
-  case whose workspace is intentionally empty ships with no `project/`
-  directory; the runner and living-doc loader treat an absent `project/` as an
+- A case's `fixture/` folder holds the files that exist on disk when the CLI
+  runs; its *contents* are copied to a temp dir that becomes the **project
+  root** the command sees (so `fixture/.jastr/...` lands at `<root>/.jastr/...`
+  — there is no `fixture/` directory at runtime). The folder is named `fixture/`
+  precisely so it does not collide with the CLI's own "project root" concept. A
+  case whose workspace is intentionally empty ships with no `fixture/`
+  directory; the runner and living-doc loader treat an absent `fixture/` as an
   empty workspace. Do not add `.keep`/`.gitkeep` (or other git-tracking placeholder)
-  files to pin an empty `project/` — omit the directory entirely instead.
+  files to pin an empty `fixture/` — omit the directory entirely instead.
   Placeholders are unnecessary (the runner recreates the `cwd` it needs) and
-  leak into `BEHAVIOR.md` as noise; an absent `project/` renders as a clean
+  leak into `BEHAVIOR.md` as noise; an absent `fixture/` renders as a clean
   "empty workspace" note.
+- Cases run from the **project root** by default, so `case.yml` omits `cwd` and
+  `BEHAVIOR.md` renders the input tree rooted at `./`. The default (`.`) means
+  "the directory that contains `.jastr/`" — the scenario 99% of users are in.
+  CLI messages render paths relative to this cwd, so the default keeps
+  `BEHAVIOR.md` matching what a user standing in their project root sees. `cwd`
+  is an optional escape hatch: set it to a relative subpath (e.g. `cwd: nested`)
+  for the rare case that must run from a subdirectory — for instance to exercise
+  upward `.jastr/` discovery. Such paths then display with a leading `../`,
+  which is correct but uncommon; reserve it for cases whose whole point is the
+  subdirectory.
 - `bun run docs:cli:living` generates `packages/cli/docs/BEHAVIOR.md`, a living
   CLI behavior reference, by joining `packages/cli/requirements/functional/`
   with the e2e cases on their `covers` refs. The committed behavior document

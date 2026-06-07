@@ -3,7 +3,6 @@ covers:
   - FLAGS-FR-0001.AC-0002
 title: Boolean input (true)
 description: Shows how boolean inputs render in template output.
-cwd: project
 command: ["run", "demo", "--dry-run=true"]
 expect:
   exitCode: 0

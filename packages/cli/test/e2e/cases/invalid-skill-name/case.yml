@@ -4,7 +4,6 @@ covers:
   - RUN-FR-0003.AC-0002
 title: Reject invalid template references
 description: Shows how a syntactically invalid template reference is rejected by the validator.
-cwd: project
 command: ["run", "INVALID"]
 expect:
   exitCode: 1

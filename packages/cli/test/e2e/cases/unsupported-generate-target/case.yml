@@ -4,7 +4,6 @@ covers:
   - GEN-FR-0010.AC-0002
 title: Reject an unsupported generate target
 description: The only implemented generate target is agent-skill.
-cwd: project
 command: ["generate", "typescript", "demo", "--out=out.ts"]
 expect:
   exitCode: 1

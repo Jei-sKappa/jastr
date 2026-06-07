@@ -4,7 +4,6 @@ covers:
   - TEMPLATE-FR-0003.AC-0002
 title: Reject unsupported input types
 description: Shows how an input with an unsupported type is rejected.
-cwd: project
 command: ["run", "demo"]
 expect:
   exitCode: 1

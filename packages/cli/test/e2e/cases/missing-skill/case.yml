@@ -6,7 +6,6 @@ covers:
   - OUTPUT-FR-0001.AC-0002
 title: Reject missing template
 description: Shows how requesting a non-existent template fails with a clear error.
-cwd: project
 command: ["run", "no-such-skill"]
 expect:
   exitCode: 1

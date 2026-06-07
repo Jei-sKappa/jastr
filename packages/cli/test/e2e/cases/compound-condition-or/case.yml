@@ -3,7 +3,6 @@ covers:
   - COND-FR-0005.AC-0002
 title: Compound condition with OR
 description: Shows how OR (||) selects the branch when at least one side is true.
-cwd: project
 command: ["run", "demo", "--flag-a"]
 expect:
   exitCode: 0

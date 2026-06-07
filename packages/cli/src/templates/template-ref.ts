@@ -9,6 +9,7 @@ export type LoadedTemplateReference = {
   mode: "named" | "direct";
   templateRef: string;
   templatePath: string;
+  cwd: string;
   includeRoot: string;
   includeRootLabel: "project root" | "template directory";
   source: string;
@@ -26,6 +27,7 @@ export async function loadTemplateReference(options: {
       mode: "direct",
       templateRef,
       templatePath,
+      cwd,
       includeRoot: path.dirname(templatePath),
       includeRootLabel: "template directory",
       source: await readFile(templatePath, "utf8"),
@@ -62,6 +64,7 @@ export async function loadTemplateReference(options: {
     mode: "named",
     templateRef,
     templatePath,
+    cwd,
     includeRoot: projectRoot,
     includeRootLabel: "project root",
     source: await readFile(templatePath, "utf8"),

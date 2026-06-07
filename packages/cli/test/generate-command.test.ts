@@ -1,5 +1,3 @@
-import { realpath } from "node:fs/promises";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   createEmptyTempProject,
@@ -37,10 +35,9 @@ Review {{language}}
         project.root,
       );
 
-      const realProjectRoot = await realpath(project.root);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toBe(
-        `Generated \`${path.join(realProjectRoot, "out", "SKILL.md")}\` from template \`${path.join(realProjectRoot, ".jastr", "review", "template.md")}\``,
+        "Generated `out/SKILL.md` from template `.jastr/review/template.md`",
       );
       expect(result.stderr).toBe("");
       await expect(

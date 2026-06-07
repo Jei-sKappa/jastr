@@ -4,7 +4,6 @@ covers:
   - INPUT-FR-0004.AC-0002
 title: Invalid Enum Value
 description: Shows Jastr input validation errors.
-cwd: project
 command: ["run", "demo", "--language=ruby"]
 expect:
   exitCode: 1
