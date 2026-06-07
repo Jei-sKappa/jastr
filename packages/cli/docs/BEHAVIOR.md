@@ -2483,8 +2483,9 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 Hello
 ```
@@ -2555,8 +2556,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 Hello
 ```
@@ -2610,8 +2612,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 Hello
 ```
@@ -2679,8 +2682,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 Hello
 ```
@@ -2757,8 +2761,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 :::else
 text
@@ -2781,7 +2786,7 @@ Error: else directive must immediately follow an if or else-if branch.
 
 ### GEN-FR-0006 — Generate rejects an invalid Agent Skill name
 
-The `generate agent-skill` command validates that `targets.agent-skill.name` is a valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens) before writing the output.
+The `generate agent-skill` command validates that `targets.agent-skill.frontmatter.name` is a valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens) before writing the output.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -2790,7 +2795,7 @@ The `generate agent-skill` command validates that `targets.agent-skill.name` is 
 
 #### Case: Generate rejects an invalid Agent Skill name
 
-Description: Shows how generate agent-skill rejects a targets.agent-skill.name that is not a valid Agent Skill name.
+Description: Shows how generate agent-skill rejects a targets.agent-skill.frontmatter.name that is not a valid Agent Skill name.
 
 Covers: AC-0001, AC-0002
 
@@ -2812,8 +2817,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: Bad-Name
-    description: Demo skill
+    frontmatter:
+      name: Bad-Name
+      description: Demo skill
 ---
 ```
 
@@ -2826,14 +2832,14 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.
+Error: targets.agent-skill.frontmatter.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.
 ```
 
 </details>
 
 ### GEN-FR-0007 — Generate passes through target frontmatter and omits owned fields
 
-The generated Agent Skill wrapper frontmatter renders `targets.agent-skill.name` and `targets.agent-skill.description`, preserves any additional kebab-case `targets.agent-skill.frontmatter` fields, and omits Jastr-owned fields such as `inputs`.
+The generated Agent Skill wrapper frontmatter renders the required `targets.agent-skill.frontmatter.name` and `targets.agent-skill.frontmatter.description`, preserves any additional kebab-case `targets.agent-skill.frontmatter` fields, and omits Jastr-owned fields such as `inputs`.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -2865,9 +2871,9 @@ Covers: AC-0001, AC-0002, AC-0003
 ---
 targets:
   agent-skill:
-    name: demo
-    description: A demo skill
     frontmatter:
+      name: demo
+      description: A demo skill
       license: MIT
       my-extension-field: custom-value
 inputs:
@@ -2949,9 +2955,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
     frontmatter:
+      name: demo
+      description: Demo skill
       customField: value
 ---
 Hello
@@ -2973,7 +2979,7 @@ Error: targets.agent-skill.frontmatter field customField must be kebab-case.
 
 ### GEN-FR-0009 — Generate rejects an over-long target description
 
-The generated Agent Skill wrapper rejects a `targets.agent-skill.description` longer than 1024 characters.
+The generated Agent Skill wrapper rejects a `targets.agent-skill.frontmatter.description` longer than 1024 characters.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -2982,7 +2988,7 @@ The generated Agent Skill wrapper rejects a `targets.agent-skill.description` lo
 
 #### Case: Generate rejects over-long descriptions
 
-Description: Shows how generate agent-skill rejects a targets.agent-skill.description longer than 1024 characters.
+Description: Shows how generate agent-skill rejects a targets.agent-skill.frontmatter.description longer than 1024 characters.
 
 Covers: AC-0001, AC-0002
 
@@ -3004,8 +3010,9 @@ Covers: AC-0001, AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    frontmatter:
+      name: demo
+      description: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ---
 Hello
 ```
@@ -3019,7 +3026,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.description must be 1-1024 characters.
+Error: targets.agent-skill.frontmatter.description must be 1-1024 characters.
 ```
 
 </details>
@@ -3093,9 +3100,9 @@ Covers: AC-0002
 ---
 targets:
   agent-skill:
-    name: demo
-    description: A demo skill
     frontmatter:
+      name: demo
+      description: A demo skill
       license: MIT
       my-extension-field: custom-value
 inputs:
@@ -3168,8 +3175,9 @@ Covers: AC-0001
 ---
 targets:
   agent-skill:
-    name: demo
-    description: Demo skill
+    frontmatter:
+      name: demo
+      description: Demo skill
 ---
 Hello
 ```

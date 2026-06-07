@@ -1,6 +1,7 @@
 ---
 targets:
   agent-skill:
-    name: Bad-Name
-    description: Demo skill
+    frontmatter:
+      name: Bad-Name
+      description: Demo skill
 ---

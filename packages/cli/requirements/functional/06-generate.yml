@@ -65,8 +65,8 @@
   title: Generate rejects an invalid Agent Skill name
   status: active
   description: >
-    The `generate agent-skill` command validates that `targets.agent-skill.name` is a
-    valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no
+    The `generate agent-skill` command validates that `targets.agent-skill.frontmatter.name`
+    is a valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no
     leading, trailing, or consecutive hyphens) before writing the output.
   acceptance:
     - id: AC-0001
@@ -78,10 +78,10 @@
   title: Generate passes through target frontmatter and omits owned fields
   status: active
   description: >
-    The generated Agent Skill wrapper frontmatter renders `targets.agent-skill.name`
-    and `targets.agent-skill.description`, preserves any additional kebab-case
-    `targets.agent-skill.frontmatter` fields, and omits Jastr-owned fields such as
-    `inputs`.
+    The generated Agent Skill wrapper frontmatter renders the required
+    `targets.agent-skill.frontmatter.name` and `targets.agent-skill.frontmatter.description`,
+    preserves any additional kebab-case `targets.agent-skill.frontmatter` fields, and
+    omits Jastr-owned fields such as `inputs`.
   acceptance:
     - id: AC-0001
       statement: Generate writes the expected wrapper file for a template with extra frontmatter.
@@ -106,7 +106,7 @@
   title: Generate rejects an over-long target description
   status: active
   description: >
-    The generated Agent Skill wrapper rejects a `targets.agent-skill.description`
+    The generated Agent Skill wrapper rejects a `targets.agent-skill.frontmatter.description`
     longer than 1024 characters.
   acceptance:
     - id: AC-0001

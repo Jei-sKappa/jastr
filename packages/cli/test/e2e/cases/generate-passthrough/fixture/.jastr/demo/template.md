@@ -1,9 +1,9 @@
 ---
 targets:
   agent-skill:
-    name: demo
-    description: A demo skill
     frontmatter:
+      name: demo
+      description: A demo skill
       license: MIT
       my-extension-field: custom-value
 inputs:

@@ -30,9 +30,9 @@ inputs:
     required: false
 targets:
   agent-skill:
-    name: review-code
-    description: Review code with Jastr.
     frontmatter:
+      name: review-code
+      description: Review code with Jastr.
       allowed-tools: Read, Grep
 custom: ignored
 ---
@@ -50,9 +50,9 @@ Hello {{language}}
       },
       targets: {
         "agent-skill": {
-          name: "review-code",
-          description: "Review code with Jastr.",
           frontmatter: {
+            name: "review-code",
+            description: "Review code with Jastr.",
             "allowed-tools": "Read, Grep",
           },
         },

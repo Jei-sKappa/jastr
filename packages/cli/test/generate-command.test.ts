@@ -17,9 +17,9 @@ describe("jastr generate agent-skill", () => {
         `---
 targets:
   agent-skill:
-    name: review-code
-    description: Review code with Jastr.
     frontmatter:
+      name: review-code
+      description: Review code with Jastr.
       allowed-tools: Read
 inputs:
   language:
@@ -57,8 +57,9 @@ Review {{language}}
         `---
 targets:
   agent-skill:
-    name: review-code
-    description: Review code with Jastr.
+    frontmatter:
+      name: review-code
+      description: Review code with Jastr.
 ---
 Review
 `,

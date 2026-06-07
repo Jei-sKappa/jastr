@@ -52,9 +52,9 @@ inputs:
     required: false
 targets:
   agent-skill:
-    name: analyze-code
-    description: Analyze code with the rendered Jastr template output.
     frontmatter:
+      name: analyze-code
+      description: Analyze code with the rendered Jastr template output.
       allowed-tools: Read, Grep
 ---
 
