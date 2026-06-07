@@ -5,7 +5,7 @@ import {
 } from "../src/targets/agent-skill";
 
 describe("Agent Skill target metadata", () => {
-  it("validates targets.skill and builds a minimal jastr wrapper", () => {
+  it("validates targets.agent-skill and builds a minimal jastr wrapper", () => {
     const target = validateAgentSkillTarget({
       name: "review-code",
       description: "Review code with the rendered Jastr template output.",
@@ -41,35 +41,35 @@ If the command exits non-zero, report the exact error output to the user and sto
 `);
   });
 
-  it("rejects missing metadata, unknown targets.skill fields, reserved frontmatter, and invalid metadata values", () => {
+  it("rejects missing metadata, unknown targets.agent-skill fields, reserved frontmatter, and invalid metadata values", () => {
     expect(() => validateAgentSkillTarget(undefined)).toThrow(
-      "Template must declare targets.skill metadata for generate agent-skill.",
+      "Template must declare targets.agent-skill metadata for generate agent-skill.",
     );
     expect(() => validateAgentSkillTarget([])).toThrow(
-      "targets.skill must be a mapping.",
+      "targets.agent-skill must be a mapping.",
     );
     expect(() =>
       validateAgentSkillTarget({ name: "bad--name", description: "Valid" }),
     ).toThrow(
-      "targets.skill.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.",
+      "targets.agent-skill.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.",
     );
     expect(() =>
       validateAgentSkillTarget({ name: "valid", description: "", extra: true }),
-    ).toThrow("targets.skill.description must be 1-1024 characters.");
+    ).toThrow("targets.agent-skill.description must be 1-1024 characters.");
     expect(() =>
       validateAgentSkillTarget({
         name: "valid",
         description: "Valid",
         extra: true,
       }),
-    ).toThrow("Unknown targets.skill field extra.");
+    ).toThrow("Unknown targets.agent-skill field extra.");
     expect(() =>
       validateAgentSkillTarget({
         name: "valid",
         description: "Valid",
         frontmatter: { name: "override" },
       }),
-    ).toThrow("targets.skill.frontmatter must not declare name.");
+    ).toThrow("targets.agent-skill.frontmatter must not declare name.");
     expect(() =>
       validateAgentSkillTarget({
         name: "valid",
@@ -77,7 +77,7 @@ If the command exits non-zero, report the exact error output to the user and sto
         frontmatter: { metadata: { owner: 42 } },
       }),
     ).toThrow(
-      "targets.skill.frontmatter.metadata field owner must be a string.",
+      "targets.agent-skill.frontmatter.metadata field owner must be a string.",
     );
   });
 });

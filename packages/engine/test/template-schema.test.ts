@@ -29,7 +29,7 @@ inputs:
     type: boolean
     required: false
 targets:
-  skill:
+  agent-skill:
     name: review-code
     description: Review code with Jastr.
     frontmatter:
@@ -49,7 +49,7 @@ Hello {{language}}
         "dry-run": { type: "boolean", required: false },
       },
       targets: {
-        skill: {
+        "agent-skill": {
           name: "review-code",
           description: "Review code with Jastr.",
           frontmatter: {

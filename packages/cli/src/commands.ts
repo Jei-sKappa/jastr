@@ -70,7 +70,7 @@ export async function executeGenerate(opts: {
   });
   const parsed = parseTemplateSource(template.source);
   const schema = validateTemplateSchema(parsed.frontmatter);
-  const target = validateAgentSkillTarget(schema.targets.skill);
+  const target = validateAgentSkillTarget(schema.targets["agent-skill"]);
 
   await renderTemplateSource({
     source: template.source,

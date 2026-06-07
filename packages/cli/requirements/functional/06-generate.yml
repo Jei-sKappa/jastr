@@ -3,7 +3,7 @@
   status: active
   description: >
     The `generate agent-skill` command writes a minimal Agent Skill wrapper to
-    an explicit output path from a template's `targets.skill` metadata.
+    an explicit output path from a template's `targets.agent-skill` metadata.
   acceptance:
     - id: AC-0001
       statement: Generate exits with code 0 for a valid template and output path.
@@ -65,7 +65,7 @@
   title: Generate rejects an invalid Agent Skill name
   status: active
   description: >
-    The `generate agent-skill` command validates that `targets.skill.name` is a
+    The `generate agent-skill` command validates that `targets.agent-skill.name` is a
     valid Agent Skill name (1-64 lowercase letters, numbers, and hyphens with no
     leading, trailing, or consecutive hyphens) before writing the output.
   acceptance:
@@ -78,9 +78,9 @@
   title: Generate passes through target frontmatter and omits owned fields
   status: active
   description: >
-    The generated Agent Skill wrapper frontmatter renders `targets.skill.name`
-    and `targets.skill.description`, preserves any additional kebab-case
-    `targets.skill.frontmatter` fields, and omits Jastr-owned fields such as
+    The generated Agent Skill wrapper frontmatter renders `targets.agent-skill.name`
+    and `targets.agent-skill.description`, preserves any additional kebab-case
+    `targets.agent-skill.frontmatter` fields, and omits Jastr-owned fields such as
     `inputs`.
   acceptance:
     - id: AC-0001
@@ -94,7 +94,7 @@
   title: Generate rejects non-kebab target frontmatter fields
   status: active
   description: >
-    The generated Agent Skill wrapper rejects a `targets.skill.frontmatter`
+    The generated Agent Skill wrapper rejects a `targets.agent-skill.frontmatter`
     field that is not a kebab-case top-level name.
   acceptance:
     - id: AC-0001
@@ -106,7 +106,7 @@
   title: Generate rejects an over-long target description
   status: active
   description: >
-    The generated Agent Skill wrapper rejects a `targets.skill.description`
+    The generated Agent Skill wrapper rejects a `targets.agent-skill.description`
     longer than 1024 characters.
   acceptance:
     - id: AC-0001

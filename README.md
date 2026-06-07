@@ -51,7 +51,7 @@ inputs:
     type: string
     required: false
 targets:
-  skill:
+  agent-skill:
     name: analyze-code
     description: Analyze code with the rendered Jastr template output.
     frontmatter:

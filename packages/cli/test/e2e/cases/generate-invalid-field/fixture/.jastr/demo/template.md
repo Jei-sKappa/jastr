@@ -1,6 +1,6 @@
 ---
 targets:
-  skill:
+  agent-skill:
     name: demo
     description: Demo skill
     frontmatter:

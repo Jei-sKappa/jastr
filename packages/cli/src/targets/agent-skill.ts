@@ -6,7 +6,11 @@ import YAML from "yaml";
 
 const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FRONTMATTER_FIELD_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-const TARGET_SKILL_FIELDS = new Set(["name", "description", "frontmatter"]);
+const AGENT_SKILL_TARGET_FIELDS = new Set([
+  "name",
+  "description",
+  "frontmatter",
+]);
 const RESERVED_FRONTMATTER_FIELDS = new Set(["name", "description", "inputs"]);
 
 export type AgentSkillTarget = {
@@ -19,20 +23,20 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
   if (value === undefined) {
     throw new JastrError(
       "missing_target_metadata",
-      "Template must declare targets.skill metadata for generate agent-skill.",
+      "Template must declare targets.agent-skill metadata for generate agent-skill.",
     );
   }
 
   if (!isRecord(value)) {
     throw new JastrError(
       "invalid_target_metadata",
-      "targets.skill must be a mapping.",
+      "targets.agent-skill must be a mapping.",
     );
   }
 
   const name = expectString(
     value.name,
-    "targets.skill.name is required and must be a string.",
+    "targets.agent-skill.name is required and must be a string.",
   );
   if (
     name.length < 1 ||
@@ -41,26 +45,26 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
   ) {
     throw new JastrError(
       "invalid_target_metadata",
-      "targets.skill.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.",
+      "targets.agent-skill.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.",
     );
   }
 
   const description = expectString(
     value.description,
-    "targets.skill.description is required and must be a string.",
+    "targets.agent-skill.description is required and must be a string.",
   );
   if (description.trim() === "" || description.length > 1024) {
     throw new JastrError(
       "invalid_target_metadata",
-      "targets.skill.description must be 1-1024 characters.",
+      "targets.agent-skill.description must be 1-1024 characters.",
     );
   }
 
   for (const field of Object.keys(value)) {
-    if (!TARGET_SKILL_FIELDS.has(field)) {
+    if (!AGENT_SKILL_TARGET_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_target_metadata",
-        `Unknown targets.skill field ${field}.`,
+        `Unknown targets.agent-skill field ${field}.`,
         { field },
       );
     }
@@ -78,7 +82,7 @@ function validateExtraFrontmatter(value: unknown): Record<string, unknown> {
   if (!isRecord(value)) {
     throw new JastrError(
       "invalid_target_metadata",
-      "targets.skill.frontmatter must be a mapping.",
+      "targets.agent-skill.frontmatter must be a mapping.",
     );
   }
 
@@ -87,7 +91,7 @@ function validateExtraFrontmatter(value: unknown): Record<string, unknown> {
     if (RESERVED_FRONTMATTER_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_target_metadata",
-        `targets.skill.frontmatter must not declare ${field}.`,
+        `targets.agent-skill.frontmatter must not declare ${field}.`,
         { field },
       );
     }
@@ -101,29 +105,32 @@ function validateFrontmatterField(field: string, value: unknown): void {
   if (!FRONTMATTER_FIELD_PATTERN.test(field)) {
     throw new JastrError(
       "invalid_target_metadata",
-      `targets.skill.frontmatter field ${field} must be kebab-case.`,
+      `targets.agent-skill.frontmatter field ${field} must be kebab-case.`,
       { field },
     );
   }
 
   if (field === "license") {
-    expectString(value, "targets.skill.frontmatter.license must be a string.");
+    expectString(
+      value,
+      "targets.agent-skill.frontmatter.license must be a string.",
+    );
   }
   if (field === "allowed-tools") {
     expectString(
       value,
-      "targets.skill.frontmatter.allowed-tools must be a string.",
+      "targets.agent-skill.frontmatter.allowed-tools must be a string.",
     );
   }
   if (field === "compatibility") {
     const compatibility = expectString(
       value,
-      "targets.skill.frontmatter.compatibility must be 1-500 characters.",
+      "targets.agent-skill.frontmatter.compatibility must be 1-500 characters.",
     );
     if (compatibility.trim() === "" || compatibility.length > 500) {
       throw new JastrError(
         "invalid_target_metadata",
-        "targets.skill.frontmatter.compatibility must be 1-500 characters.",
+        "targets.agent-skill.frontmatter.compatibility must be 1-500 characters.",
       );
     }
   }
@@ -136,14 +143,14 @@ function validateMetadata(value: unknown): void {
   if (!isRecord(value)) {
     throw new JastrError(
       "invalid_target_metadata",
-      "targets.skill.frontmatter.metadata must be a mapping.",
+      "targets.agent-skill.frontmatter.metadata must be a mapping.",
     );
   }
   for (const [field, metadataValue] of Object.entries(value)) {
     if (typeof metadataValue !== "string") {
       throw new JastrError(
         "invalid_target_metadata",
-        `targets.skill.frontmatter.metadata field ${field} must be a string.`,
+        `targets.agent-skill.frontmatter.metadata field ${field} must be a string.`,
         { field },
       );
     }

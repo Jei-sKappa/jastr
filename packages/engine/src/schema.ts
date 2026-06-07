@@ -8,7 +8,7 @@ export type TemplateInputDefinition =
 export type TemplateInputValues = Record<string, string | boolean>;
 
 export type TemplateTargets = {
-  skill?: unknown;
+  "agent-skill"?: unknown;
 };
 
 export type TemplateSchema = {
@@ -126,14 +126,14 @@ function validateTargets(value: unknown): TemplateTargets {
 
   const targets: TemplateTargets = {};
   for (const [target, metadata] of Object.entries(value)) {
-    if (target !== "skill") {
+    if (target !== "agent-skill") {
       throw new JastrError(
         "invalid_target_metadata",
         `Unsupported target metadata ${target}.`,
         { target },
       );
     }
-    targets.skill = metadata;
+    targets["agent-skill"] = metadata;
   }
   return targets;
 }

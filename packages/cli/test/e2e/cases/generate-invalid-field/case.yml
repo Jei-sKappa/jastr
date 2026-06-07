@@ -3,9 +3,9 @@ covers:
   - GEN-FR-0008.AC-0001
   - GEN-FR-0008.AC-0002
 title: Generate rejects non-kebab frontmatter fields
-description: Shows how generate agent-skill rejects a targets.skill.frontmatter field that is not kebab-case.
+description: Shows how generate agent-skill rejects a targets.agent-skill.frontmatter field that is not kebab-case.
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: targets.skill.frontmatter field customField must be kebab-case.\n"
+  stderr: "Error: targets.agent-skill.frontmatter field customField must be kebab-case.\n"

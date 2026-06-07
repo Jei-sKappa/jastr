@@ -16,7 +16,7 @@ describe("jastr generate agent-skill", () => {
         ".jastr/review/template.md",
         `---
 targets:
-  skill:
+  agent-skill:
     name: review-code
     description: Review code with Jastr.
     frontmatter:
@@ -56,7 +56,7 @@ Review {{language}}
         "templates/review.md",
         `---
 targets:
-  skill:
+  agent-skill:
     name: review-code
     description: Review code with Jastr.
 ---
