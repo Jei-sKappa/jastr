@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  type IncludeRequest,
   type IncludeResolver,
   JastrError,
   renderTemplateSource,
@@ -132,4 +133,80 @@ Raw {{language}}
       }),
     ).rejects.toThrow("Include cycle detected: main.md -> a.md -> main.md.");
   });
+});
+
+it("passes include root attributes through to the injected resolver", async () => {
+  const requests: Array<
+    Pick<IncludeRequest, "path" | "root" | "raw" | "from">
+  > = [];
+  const includeResolver: IncludeResolver = async (request) => {
+    requests.push({
+      path: request.path,
+      root: request.root,
+      raw: request.raw,
+      from: request.from,
+    });
+    return {
+      id: request.path,
+      source: request.raw ? "Raw text\n" : "Fragment text\n",
+    };
+  };
+
+  const result = await renderTemplateSource({
+    sourceId: "main.md",
+    source: [
+      '::include{root="file", path="fragment.md"}',
+      '::include-raw{root="group", path="raw.txt"}',
+      "",
+    ].join("\n"),
+    inputs: {},
+    includeResolver,
+  });
+
+  expect(result.markdown).toBe("Fragment text\nRaw text\n");
+  expect(requests).toEqual([
+    { path: "fragment.md", root: "file", raw: false, from: "main.md" },
+    { path: "raw.txt", root: "group", raw: true, from: "main.md" },
+    { path: "fragment.md", root: "file", raw: false, from: "main.md" },
+    { path: "raw.txt", root: "group", raw: true, from: "main.md" },
+  ]);
+});
+
+it("leaves omitted and unknown include roots for the resolver to interpret", async () => {
+  const requests: Array<string | undefined> = [];
+  const includeResolver: IncludeResolver = async (request) => {
+    requests.push(request.root);
+    return { id: `${request.path}-${requests.length}`, source: "" };
+  };
+
+  await renderTemplateSource({
+    sourceId: "main.md",
+    source: [
+      '::include{path="default.md"}',
+      '::include{root="workspace", path="unknown.md"}',
+      "",
+    ].join("\n"),
+    inputs: {},
+    includeResolver,
+  });
+
+  expect(requests).toEqual([undefined, "workspace", undefined, "workspace"]);
+});
+
+it("rejects include directives that omit path or declare unsupported attributes", async () => {
+  await expect(
+    renderTemplateSource({
+      sourceId: "main.md",
+      source: '::include{root="file"}\n',
+      inputs: {},
+    }),
+  ).rejects.toThrow("include directive accepts path and optional root.");
+
+  await expect(
+    renderTemplateSource({
+      sourceId: "main.md",
+      source: '::include-raw{path="raw.md" mode="text"}\n',
+      inputs: {},
+    }),
+  ).rejects.toThrow("include-raw directive accepts path and optional root.");
 });

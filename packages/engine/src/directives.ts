@@ -10,7 +10,11 @@ import { JastrError } from "./errors";
 import type { TemplateSchema } from "./schema";
 
 export type TextNode = { type: "text"; value: string };
-export type IncludeNode = { type: "include" | "include-raw"; path: string };
+export type IncludeNode = {
+  type: "include" | "include-raw";
+  path: string;
+  root?: string;
+};
 export type ConditionalBranch =
   | {
       kind: "if" | "else-if";
@@ -75,14 +79,21 @@ export function scanDirectives(body: string): TemplateDocument {
     if (opening.name === "include" || opening.name === "include-raw") {
       const attrs = parseAttributes(opening.attributes);
       const keys = Object.keys(attrs);
-      if (keys.length !== 1 || !attrs.path) {
+      const hasOnlySupportedKeys = keys.every(
+        (key) => key === "path" || key === "root",
+      );
+      if (!hasOnlySupportedKeys || !attrs.path) {
         throw new JastrError(
           "invalid_directive",
-          `${opening.name} directive accepts only path.`,
+          `${opening.name} directive accepts path and optional root.`,
         );
       }
       pendingGroups.delete(targetNodes(stack, root));
-      targetNodes(stack, root).push({ type: opening.name, path: attrs.path });
+      targetNodes(stack, root).push({
+        type: opening.name,
+        path: attrs.path,
+        root: attrs.root,
+      });
       continue;
     }
 
@@ -298,7 +309,7 @@ function parseAttributes(source: string): Record<string, string> {
   let remaining = source.trim();
 
   while (remaining !== "") {
-    const match = remaining.match(/^([a-z-]+)="((?:\\"|[^"])*)"\s*/);
+    const match = remaining.match(/^([a-z-]+)="((?:\\"|[^"])*)"\s*,?\s*/);
     if (!match) {
       throw new JastrError(
         "invalid_directive",

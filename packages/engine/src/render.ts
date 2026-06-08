@@ -17,6 +17,7 @@ import { validateTemplateSchema } from "./schema";
 
 export type IncludeRequest = {
   path: string;
+  root?: string;
   from: string;
   raw: boolean;
   stack: string[];
@@ -103,6 +104,7 @@ async function validateStaticIncludes(options: {
     if (node.type === "include" || node.type === "include-raw") {
       const include = await options.includeResolver({
         path: node.path,
+        root: node.root,
         from: options.sourceId,
         raw: node.type === "include-raw",
         stack: options.stack,
@@ -177,6 +179,7 @@ async function renderNode(
   if (node.type === "include" || node.type === "include-raw") {
     const include = await context.includeResolver({
       path: node.path,
+      root: node.root,
       from: sourceId,
       raw: node.type === "include-raw",
       stack,
