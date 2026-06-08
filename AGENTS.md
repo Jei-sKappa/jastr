@@ -60,6 +60,14 @@ The active package-split design thread is
 contract is
 `docs/threads/260605091319Z-core-cli-package-split/specs/260606182808Z-v2-spec.md`.
 
+The active include group containment design thread is
+`docs/threads/260607220555Z-include-group-containment/`. Its current emitted
+handoff spec is
+`docs/threads/260607220555Z-include-group-containment/specs/260608092033Z-v2-spec.md`.
+That spec supersedes the package-split v2 include-containment rules as a design
+contract, but the implementation remains unchanged until the include group
+containment work lands.
+
 Current v2 direction:
 
 - Canonical commands are `jastr run <template-ref> [input flags...]` and
