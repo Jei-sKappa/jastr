@@ -1,8 +1,19 @@
-import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { copyCaseFixture } from "../harness/case-runner";
+import {
+  copyCaseFixture,
+  expandFixturePlaceholders,
+} from "../harness/case-runner";
 
 describe("copyCaseFixture", () => {
   const tempDirs: string[] = [];
@@ -32,6 +43,31 @@ describe("copyCaseFixture", () => {
 
     const copied = await readdir(path.join(tempRoot, ".jastr", "demo"));
     expect(copied).toEqual(["template.md"]);
+  });
+
+  it("expands projectRoot placeholders in copied fixture text files without following symlinks", async () => {
+    const tempRoot = await makeTempDir();
+    const outsideRoot = await makeTempDir();
+    const fixtureDir = path.join(tempRoot, ".jastr", "demo");
+    await mkdir(fixtureDir, { recursive: true });
+    await writeFile(
+      path.join(fixtureDir, "template.md"),
+      '::include{path="{{projectRoot}}/.jastr/demo/fragment.md"}\n',
+    );
+    await writeFile(path.join(outsideRoot, "outside.md"), "{{projectRoot}}\n");
+    await symlink(
+      path.join(outsideRoot, "outside.md"),
+      path.join(fixtureDir, "leak.md"),
+    );
+
+    await expandFixturePlaceholders(tempRoot, { projectRoot: tempRoot });
+
+    await expect(
+      readFile(path.join(fixtureDir, "template.md"), "utf8"),
+    ).resolves.toBe(`::include{path="${tempRoot}/.jastr/demo/fragment.md"}\n`);
+    await expect(
+      readFile(path.join(fixtureDir, "leak.md"), "utf8"),
+    ).resolves.toBe("{{projectRoot}}\n");
   });
 
   it("treats an absent fixture/ folder as an empty workspace", async () => {

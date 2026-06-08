@@ -1,4 +1,13 @@
-import { cp, mkdir, mkdtemp, readFile, realpath, rm } from "node:fs/promises";
+import {
+  cp,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  realpath,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execa } from "execa";
@@ -66,6 +75,31 @@ export async function copyCaseFixture(
   }
 }
 
+export async function expandFixturePlaceholders(
+  root: string,
+  placeholders: { projectRoot: string },
+): Promise<void> {
+  const entries = await readdir(root, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const absolutePath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      await expandFixturePlaceholders(absolutePath, placeholders);
+      continue;
+    }
+    if (!entry.isFile()) continue;
+
+    const original = await readFile(absolutePath, "utf8");
+    const expanded = original.replaceAll(
+      "{{projectRoot}}",
+      placeholders.projectRoot,
+    );
+    if (expanded !== original) {
+      await writeFile(absolutePath, expanded, "utf8");
+    }
+  }
+}
+
 async function resolveCwd(
   projectRoot: string,
   cwd: string,
@@ -89,12 +123,13 @@ export async function runCase(
   const temp = await createTempProject();
   try {
     await copyCaseFixture(testCase.dirPath, temp.root);
+    const projectRoot = await realpath(temp.root);
+    await expandFixturePlaceholders(projectRoot, { projectRoot });
     const cwd = await resolveCwd(
-      temp.root,
+      projectRoot,
       testCase.manifest.cwd,
       testCase.manifest,
     );
-    const projectRoot = await realpath(temp.root);
     const version = await loadPackageVersion(repoRoot);
     const placeholders = { version };
     const cliPath = path.resolve(repoRoot, "src/index.ts");
