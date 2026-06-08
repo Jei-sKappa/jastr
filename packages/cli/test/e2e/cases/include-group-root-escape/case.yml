@@ -1,0 +1,10 @@
+id: include-group-root-escape
+covers:
+  - INCLUDE-FR-0003.AC-0002
+title: Reject group-root include escape
+description: root=group still uses the grouped boundary and cannot escape the group root.
+command: ["run", "team/demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path ../outside.md escapes the allowed include boundary.\n"

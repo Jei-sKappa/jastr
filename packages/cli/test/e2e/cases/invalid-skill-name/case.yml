@@ -8,4 +8,4 @@ command: ["run", "INVALID"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template reference INVALID must be a template id or a .md file path.\n"
+  stderr: "Error: Template reference INVALID must be a template id, a group/template id, or a .md file path.\n"

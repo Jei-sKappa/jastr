@@ -1,0 +1,11 @@
+id: include-invalid-root
+covers:
+  - INCLUDE-FR-0008.AC-0004
+  - INCLUDE-FR-0008.AC-0005
+title: Reject an unknown include root
+description: Include roots are limited to template, group, and file.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include root workspace must be template, group, or file.\n"

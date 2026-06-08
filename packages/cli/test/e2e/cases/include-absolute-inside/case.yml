@@ -1,0 +1,10 @@
+id: include-absolute-inside
+covers:
+  - INCLUDE-FR-0003.AC-0005
+title: Include an absolute path inside the boundary
+description: An absolute include path succeeds when its realpath remains inside the template boundary.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Inside absolute\n"
+  stderr: ""

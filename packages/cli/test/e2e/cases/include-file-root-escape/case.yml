@@ -1,0 +1,10 @@
+id: include-file-root-escape
+covers:
+  - INCLUDE-FR-0003.AC-0003
+title: Reject file-root include escape
+description: root=file resolves from the current file but still cannot escape the grouped boundary.
+command: ["run", "team/demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path ../../outside.md escapes the allowed include boundary.\n"

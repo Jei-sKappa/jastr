@@ -1,0 +1,11 @@
+id: include-group-root-standalone-rejected
+covers:
+  - INCLUDE-FR-0008.AC-0006
+  - INCLUDE-FR-0008.AC-0007
+title: Reject group root on a standalone direct template
+description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/template.md realpath shape.
+command: ["run", "solo/template.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include root group requires the template to be inside a .jastrgroup.\n"

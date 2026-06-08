@@ -1,0 +1,10 @@
+id: include-symlink-escape
+covers:
+  - INCLUDE-FR-0003.AC-0004
+title: Reject symlink include escape
+description: A symlink inside the boundary is rejected when its realpath points outside the boundary.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path leak.md escapes the allowed include boundary.\n"

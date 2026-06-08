@@ -1,0 +1,13 @@
+id: grouped-named-run
+covers:
+  - RUN-FR-0008.AC-0001
+  - RUN-FR-0008.AC-0002
+  - RUN-FR-0008.AC-0003
+  - INCLUDE-FR-0008.AC-0002
+title: Run a grouped named template
+description: A group/template id loads from the group's templates directory and can include from the group root.
+command: ["run", "team/demo"]
+expect:
+  exitCode: 0
+  stdout: "Grouped\nShared\n"
+  stderr: ""

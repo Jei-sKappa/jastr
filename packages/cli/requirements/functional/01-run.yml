@@ -29,8 +29,10 @@
   status: active
   description: >
     A template reference must be syntactically either a template id matching
-    `^[a-z0-9][a-z0-9-]*$` or a `.md` file path; a reference that is neither is
-    rejected by the validator.
+    `^[a-z0-9][a-z0-9-]*$`, a grouped template id shaped as
+    `<group>/<template-id>` where both segments match the same grammar, or a
+    `.md` file path; a reference that is none of those is rejected by the
+    validator.
   acceptance:
     - id: AC-0001
       statement: An invalid template reference exits with code 1.
@@ -79,10 +81,30 @@
   title: CLI rejects invalid template references
   status: active
   description: >
-    A template reference must be syntactically either a template id or a `.md`
-    file path; the CLI does not use filesystem existence to disambiguate.
+    A template reference must be syntactically either a template id, a
+    group/template id, or a `.md` file path; the CLI does not use filesystem
+    existence to disambiguate invalid reference shapes.
   acceptance:
     - id: AC-0001
       statement: An invalid template reference exits with code 1.
     - id: AC-0002
       statement: An invalid template reference prints the stable Error-prefixed message.
+
+- id: RUN-FR-0008
+  title: Run renders a grouped named template
+  status: active
+  description: >
+    A two-segment named template reference `<group>/<template-id>` resolves to
+    `<group>/templates/<template-id>/template.md` under the project root when
+    `<group>/.jastrgroup` exists as a file.
+  acceptance:
+    - id: AC-0001
+      statement: A grouped named template exits with code 0 when the marker and template file exist.
+    - id: AC-0002
+      statement: A grouped named template prints rendered Markdown to stdout.
+    - id: AC-0003
+      statement: A grouped named template prints nothing to stderr.
+    - id: AC-0004
+      statement: A grouped named template with a missing marker exits with code 1.
+    - id: AC-0005
+      statement: A grouped named template with a missing marker prints the stable grouped template-not-found message.

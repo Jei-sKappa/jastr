@@ -1,0 +1,10 @@
+id: include-dotdot-inside
+covers:
+  - INCLUDE-FR-0003.AC-0006
+title: Include a dotdot path inside the boundary
+description: Dotdot path segments are allowed when the final realpath stays inside the boundary.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Dotdot inside\n"
+  stderr: ""

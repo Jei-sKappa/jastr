@@ -3,7 +3,7 @@
   status: active
   description: >
     The include directive inserts a referenced Markdown fragment into rendered
-    output.
+    output. The default include root is the top-level template directory.
   acceptance:
     - id: AC-0001
       statement: The include directive renders the referenced fragment content.
@@ -19,20 +19,30 @@
       statement: The include-raw directive preserves Jastr-looking syntax as text.
 
 - id: INCLUDE-FR-0003
-  title: Unsafe includes are rejected
+  title: Includes stay inside the allowed realpath boundary
   status: active
   description: >
-    Include directives cannot read files outside the project root, `.env` files,
-    absolute paths, or `~` home-relative paths.
+    Include directives cannot read files whose resolved realpath escapes the
+    standalone template directory or grouped template root. There is no
+    standalone denylist for absolute paths, `~` paths, `.env` files, or `..`
+    segments when the resolved realpath remains inside the boundary.
   acceptance:
     - id: AC-0001
-      statement: Include paths escaping the project root are rejected.
+      statement: A default template-root include escaping a standalone named template boundary is rejected.
     - id: AC-0002
-      statement: Include paths targeting `.env` files are rejected.
+      statement: A group-root include escaping a grouped boundary is rejected.
     - id: AC-0003
-      statement: Absolute include paths are rejected.
+      statement: A file-root include escaping a grouped boundary is rejected.
     - id: AC-0004
-      statement: Home-relative (~) include paths are rejected.
+      statement: A symlink include whose realpath escapes the boundary is rejected.
+    - id: AC-0005
+      statement: An absolute include path whose realpath stays inside the boundary succeeds.
+    - id: AC-0006
+      statement: An include path containing `..` whose realpath stays inside the boundary succeeds.
+    - id: AC-0007
+      statement: A `.env` include whose realpath stays inside the boundary succeeds.
+    - id: AC-0008
+      statement: A `~` include path whose realpath stays inside the boundary succeeds as a literal path.
 
 - id: INCLUDE-FR-0004
   title: Include cycles are detected and rejected
@@ -61,8 +71,8 @@
   title: Include read errors are reported
   status: active
   description: >
-    An include path that resolves inside the project root but cannot be read as
-    a file (for example, it points to a directory) fails with a normalized
+    An include path that resolves inside the allowed boundary but cannot be read
+    as a file (for example, it points to a directory) fails with a normalized
     filesystem cause rather than the raw platform error.
   acceptance:
     - id: AC-0001
@@ -71,13 +81,37 @@
       statement: An include path that points to a directory prints an Error-prefixed stderr message naming the filesystem cause.
 
 - id: INCLUDE-FR-0007
-  title: Direct-file includes stay inside the template directory
+  title: Direct-file includes stay inside the direct template boundary
   status: active
   description: >
-    Direct-file template includes resolve relative to the including file and
-    cannot escape the initial direct template file directory.
+    A standalone direct-file template is contained to the top-level direct
+    template file directory.
   acceptance:
     - id: AC-0001
-      statement: A direct-file include escaping the template directory exits with code 1.
+      statement: A direct-file include escaping the direct template directory exits with code 1.
     - id: AC-0002
-      statement: A direct-file include escaping the template directory prints the stable Error-prefixed message.
+      statement: A direct-file include escaping the direct template directory prints the stable Error-prefixed message.
+
+- id: INCLUDE-FR-0008
+  title: Include root selects the resolution starting point
+  status: active
+  description: >
+    Include and include-raw directives accept an optional `root` attribute with
+    values `template`, `group`, or `file`. The selected root changes only the
+    resolution start directory; every include still uses the same allowed
+    boundary.
+  acceptance:
+    - id: AC-0001
+      statement: The default template root resolves includes from the top-level template directory.
+    - id: AC-0002
+      statement: The group root resolves includes from the group root for grouped templates.
+    - id: AC-0003
+      statement: The file root resolves includes from the directory of the file containing the directive.
+    - id: AC-0004
+      statement: An unknown include root exits with code 1.
+    - id: AC-0005
+      statement: An unknown include root prints the stable invalid-root message.
+    - id: AC-0006
+      statement: The group root on a standalone template exits with code 1.
+    - id: AC-0007
+      statement: The group root on a standalone template prints the stable group-missing message.

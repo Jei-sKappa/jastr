@@ -1,0 +1,10 @@
+id: include-root-file
+covers:
+  - INCLUDE-FR-0008.AC-0003
+title: Include relative to the current source file
+description: root=file resolves from the file containing the directive rather than from the top-level template directory.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Outer\nSibling\n"
+  stderr: ""

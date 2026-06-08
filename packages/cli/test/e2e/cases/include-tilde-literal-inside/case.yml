@@ -1,0 +1,10 @@
+id: include-tilde-literal-inside
+covers:
+  - INCLUDE-FR-0003.AC-0008
+title: Include a tilde-named literal path inside the boundary
+description: Shows that ~ is treated as a literal path segment and succeeds when the resolved realpath stays inside the boundary.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Tilde literal\n"
+  stderr: ""

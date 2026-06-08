@@ -1,0 +1,10 @@
+id: include-env-inside
+covers:
+  - INCLUDE-FR-0003.AC-0007
+title: Include an env-named file inside the boundary
+description: Shows that .env files inside the allowed boundary are includable by design.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "ENV=allowed\n"
+  stderr: ""

@@ -1,10 +1,10 @@
 id: include-absolute-rejected
 covers:
-  - INCLUDE-FR-0003.AC-0003
-title: Reject absolute includes
-description: Shows how absolute include paths are rejected.
+  - INCLUDE-FR-0003.AC-0001
+title: Reject absolute includes outside the boundary
+description: Shows how an absolute include path outside the boundary fails through containment rather than a standalone denylist.
 command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include path /etc/hosts must be relative.\n"
+  stderr: "Error: Include path /etc/hosts escapes the allowed include boundary.\n"

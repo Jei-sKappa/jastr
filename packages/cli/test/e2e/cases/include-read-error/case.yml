@@ -3,7 +3,7 @@ covers:
   - INCLUDE-FR-0006.AC-0001
   - INCLUDE-FR-0006.AC-0002
 title: Report include read errors
-description: Shows how an include path pointing to a directory fails with a normalized cause.
+description: Shows how an include path inside the allowed boundary that points to a directory fails with a normalized cause.
 command: ["run", "demo"]
 expect:
   exitCode: 1
