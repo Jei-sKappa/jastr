@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**55** requirements · **117** acceptance criteria · **67** end-to-end cases.
+**57** requirements · **133** acceptance criteria · **78** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -25,6 +25,7 @@ output against its inputs.
   - [RUN-FR-0005 — CLI rejects missing templates](#run-fr-0005--cli-rejects-missing-templates)
   - [RUN-FR-0006 — Run renders a direct file template](#run-fr-0006--run-renders-a-direct-file-template)
   - [RUN-FR-0007 — CLI rejects invalid template references](#run-fr-0007--cli-rejects-invalid-template-references)
+  - [RUN-FR-0008 — Run renders a grouped named template](#run-fr-0008--run-renders-a-grouped-named-template)
 
 - [Inputs](#inputs)
   - [INPUT-FR-0001 — String inputs interpolate into rendered output](#input-fr-0001--string-inputs-interpolate-into-rendered-output)
@@ -53,11 +54,12 @@ output against its inputs.
 - [Includes](#includes)
   - [INCLUDE-FR-0001 — Include renders Markdown fragments](#include-fr-0001--include-renders-markdown-fragments)
   - [INCLUDE-FR-0002 — Include raw emits verbatim text](#include-fr-0002--include-raw-emits-verbatim-text)
-  - [INCLUDE-FR-0003 — Unsafe includes are rejected](#include-fr-0003--unsafe-includes-are-rejected)
+  - [INCLUDE-FR-0003 — Includes stay inside the allowed realpath boundary](#include-fr-0003--includes-stay-inside-the-allowed-realpath-boundary)
   - [INCLUDE-FR-0004 — Include cycles are detected and rejected](#include-fr-0004--include-cycles-are-detected-and-rejected)
   - [INCLUDE-FR-0005 — Missing include files are rejected](#include-fr-0005--missing-include-files-are-rejected)
   - [INCLUDE-FR-0006 — Include read errors are reported](#include-fr-0006--include-read-errors-are-reported)
-  - [INCLUDE-FR-0007 — Direct-file includes stay inside the template directory](#include-fr-0007--direct-file-includes-stay-inside-the-template-directory)
+  - [INCLUDE-FR-0007 — Direct-file includes stay inside the direct template boundary](#include-fr-0007--direct-file-includes-stay-inside-the-direct-template-boundary)
+  - [INCLUDE-FR-0008 — Include root selects the resolution starting point](#include-fr-0008--include-root-selects-the-resolution-starting-point)
 
 - [Generate](#generate)
   - [GEN-FR-0001 — Generate agent-skill writes a wrapper skill](#gen-fr-0001--generate-agent-skill-writes-a-wrapper-skill)
@@ -188,7 +190,7 @@ Error: Expected command shape: jastr run <template-ref> [input flags...] or jast
 
 ### RUN-FR-0003 — CLI rejects invalid template references
 
-A template reference must be syntactically either a template id matching `^[a-z0-9][a-z0-9-]*$` or a `.md` file path; a reference that is neither is rejected by the validator.
+A template reference must be syntactically either a template id matching `^[a-z0-9][a-z0-9-]*$`, a grouped template id shaped as `<group>/<template-id>` where both segments match the same grammar, or a `.md` file path; a reference that is none of those is rejected by the validator.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -231,7 +233,7 @@ $ jastr run INVALID
 **CLI output** — exit 1
 
 ```console
-Error: Template reference INVALID must be a template id or a .md file path.
+Error: Template reference INVALID must be a template id, a group/template id, or a .md file path.
 ```
 
 </details>
@@ -377,7 +379,7 @@ Direct typescript
 
 ### RUN-FR-0007 — CLI rejects invalid template references
 
-A template reference must be syntactically either a template id or a `.md` file path; the CLI does not use filesystem existence to disambiguate.
+A template reference must be syntactically either a template id, a group/template id, or a `.md` file path; the CLI does not use filesystem existence to disambiguate invalid reference shapes.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -386,7 +388,7 @@ A template reference must be syntactically either a template id or a `.md` file 
 
 #### Case: Reject an invalid template reference
 
-Description: Template references must be syntactically either a template id or a .md file path.
+Description: Template references must be syntactically either a template id, a group/template id, or a .md file path.
 
 Covers: AC-0001, AC-0002
 
@@ -406,7 +408,148 @@ $ jastr run BadName
 **CLI output** — exit 1
 
 ```console
-Error: Template reference BadName must be a template id or a .md file path.
+Error: Template reference BadName must be a template id, a group/template id, or a .md file path.
+```
+
+</details>
+
+### RUN-FR-0008 — Run renders a grouped named template
+
+A two-segment named template reference `<group>/<template-id>` resolves to `<group>/templates/<template-id>/template.md` under the project root when `<group>/.jastrgroup` exists as a file.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A grouped named template exits with code 0 when the marker and template file exist. | ✅ `grouped-named-run` |
+| AC-0002 | A grouped named template prints rendered Markdown to stdout. | ✅ `grouped-named-run` |
+| AC-0003 | A grouped named template prints nothing to stderr. | ✅ `grouped-named-run` |
+| AC-0004 | A grouped named template with a missing marker exits with code 1. | ✅ `grouped-named-missing-marker` |
+| AC-0005 | A grouped named template with a missing marker prints the stable grouped template-not-found message. | ✅ `grouped-named-missing-marker` |
+
+#### Case: Reject a grouped named template without a marker
+
+Description: Grouped named access requires the exact group root to contain .jastrgroup and never falls back to standalone lookup.
+
+Covers: AC-0004, AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+└─ team/
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Fallback template that grouped access must not render
+---
+Wrong fallback
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Grouped
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template team/demo was not found at team/templates/demo/template.md.
+```
+
+</details>
+
+#### Case: Run a grouped named template
+
+Description: A group/template id loads from the group's templates directory and can include from the group root.
+
+Covers: AC-0001, AC-0002, AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+└─ team/
+   ├─ .jastrgroup
+   ├─ shared/
+   │  └─ preamble.md
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Fallback template that grouped access must not render
+---
+Wrong fallback
+```
+
+`team/.jastrgroup`
+
+```text
+non-empty marker contents are ignored
+```
+
+`team/shared/preamble.md`
+
+```md
+Shared
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Grouped
+::include{root="group", path="shared/preamble.md"}
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 0
+
+```console
+Grouped
+Shared
 ```
 
 </details>
@@ -1914,7 +2057,7 @@ Typed not equal.
 
 ### INCLUDE-FR-0001 — Include renders Markdown fragments
 
-The include directive inserts a referenced Markdown fragment into rendered output.
+The include directive inserts a referenced Markdown fragment into rendered output. The default include root is the top-level template directory.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -2035,22 +2178,75 @@ Raw {{language}}
 
 </details>
 
-### INCLUDE-FR-0003 — Unsafe includes are rejected
+### INCLUDE-FR-0003 — Includes stay inside the allowed realpath boundary
 
-Include directives cannot read files outside the project root, `.env` files, absolute paths, or `~` home-relative paths.
+Include directives cannot read files whose resolved realpath escapes the standalone template directory or grouped template root. There is no standalone denylist for absolute paths, `~` paths, `.env` files, or `..` segments when the resolved realpath remains inside the boundary.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | Include paths escaping the project root are rejected. | ✅ `include-escape-rejected` |
-| AC-0002 | Include paths targeting `.env` files are rejected. | ✅ `include-env-rejected` |
-| AC-0003 | Absolute include paths are rejected. | ✅ `include-absolute-rejected` |
-| AC-0004 | Home-relative (~) include paths are rejected. | ✅ `include-tilde-rejected` |
+| AC-0001 | A default template-root include escaping a standalone named template boundary is rejected. | ✅ `include-absolute-rejected`, `include-escape-rejected` |
+| AC-0002 | A group-root include escaping a grouped boundary is rejected. | ✅ `include-group-root-escape` |
+| AC-0003 | A file-root include escaping a grouped boundary is rejected. | ✅ `include-file-root-escape` |
+| AC-0004 | A symlink include whose realpath escapes the boundary is rejected. | ✅ `include-symlink-escape` |
+| AC-0005 | An absolute include path whose realpath stays inside the boundary succeeds. | ✅ `include-absolute-inside` |
+| AC-0006 | An include path containing `..` whose realpath stays inside the boundary succeeds. | ✅ `include-dotdot-inside` |
+| AC-0007 | A `.env` include whose realpath stays inside the boundary succeeds. | ✅ `include-env-inside` |
+| AC-0008 | A `~` include path whose realpath stays inside the boundary succeeds as a literal path. | ✅ `include-tilde-literal-inside` |
 
-#### Case: Reject absolute includes
+#### Case: Include an absolute path inside the boundary
 
-Description: Shows how absolute include paths are rejected.
+Description: An absolute include path succeeds when its realpath remains inside the template boundary.
 
-Covers: AC-0003
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ fragment.md
+      └─ template.md
+```
+
+`.jastr/demo/fragment.md`
+
+```md
+Inside absolute
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="{{projectRoot}}/.jastr/demo/fragment.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+Inside absolute
+```
+
+</details>
+
+#### Case: Reject absolute includes outside the boundary
+
+Description: Shows how an absolute include path outside the boundary fails through containment rather than a standalone denylist.
+
+Covers: AC-0001
 
 <details>
 <summary>Input, command & output</summary>
@@ -2083,16 +2279,16 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path /etc/hosts must be relative.
+Error: Include path /etc/hosts escapes the allowed include boundary.
 ```
 
 </details>
 
-#### Case: Reject env includes
+#### Case: Include a dotdot path inside the boundary
 
-Description: Shows how include paths targeting .env files are rejected.
+Description: Dotdot path segments are allowed when the final realpath stays inside the boundary.
 
-Covers: AC-0002
+Covers: AC-0006
 
 <details>
 <summary>Input, command & output</summary>
@@ -2103,7 +2299,63 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
+      ├─ fragment.md
       └─ template.md
+```
+
+`.jastr/demo/fragment.md`
+
+```md
+Dotdot inside
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="fragments/../fragment.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+Dotdot inside
+```
+
+</details>
+
+#### Case: Include an env-named file inside the boundary
+
+Description: Shows that .env files inside the allowed boundary are includable by design.
+
+Covers: AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ .env
+      └─ template.md
+```
+
+`.jastr/demo/.env`
+
+```text
+ENV=allowed
 ```
 
 `.jastr/demo/template.md`
@@ -2122,17 +2374,17 @@ description: Demo skill
 $ jastr run demo
 ```
 
-**CLI output** — exit 1
+**CLI output** — exit 0
 
 ```console
-Error: Include path .env is rejected.
+ENV=allowed
 ```
 
 </details>
 
 #### Case: Reject escaping includes
 
-Description: Shows how include paths that escape the project root are rejected.
+Description: Shows how include paths that escape the standalone named template boundary are rejected.
 
 Covers: AC-0001
 
@@ -2143,9 +2395,10 @@ Covers: AC-0001
 
 ```text
 ./
-└─ .jastr/
-   └─ demo/
-      └─ template.md
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+└─ outside.md
 ```
 
 `.jastr/demo/template.md`
@@ -2155,7 +2408,13 @@ Covers: AC-0001
 name: demo
 description: Demo skill
 ---
-::include{path="../../../../outside.md"}
+::include{path="../../outside.md"}
+```
+
+`outside.md`
+
+```md
+Outside
 ```
 
 **Command**
@@ -2167,14 +2426,162 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../../../../outside.md escapes the project root.
+Error: Include path ../../outside.md escapes the allowed include boundary.
 ```
 
 </details>
 
-#### Case: Reject home-relative includes
+#### Case: Reject file-root include escape
 
-Description: Shows how ~ home-relative include paths are rejected.
+Description: root=file resolves from the current file but still cannot escape the grouped boundary.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+├─ outside.md
+└─ team/
+   ├─ .jastrgroup
+   ├─ shared/
+   │  └─ fragment.md
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Fallback template that grouped access must not render
+---
+Wrong fallback
+```
+
+`outside.md`
+
+```md
+Outside
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/shared/fragment.md`
+
+```md
+::include{root="file", path="../../outside.md"}
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{root="group", path="shared/fragment.md"}
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include path ../../outside.md escapes the allowed include boundary.
+```
+
+</details>
+
+#### Case: Reject group-root include escape
+
+Description: root=group still uses the grouped boundary and cannot escape the group root.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+├─ outside.md
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Fallback template that grouped access must not render
+---
+Wrong fallback
+```
+
+`outside.md`
+
+```md
+Outside
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{root="group", path="../outside.md"}
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include path ../outside.md escapes the allowed include boundary.
+```
+
+</details>
+
+#### Case: Reject symlink include escape
+
+Description: A symlink inside the boundary is rejected when its realpath points outside the boundary.
 
 Covers: AC-0004
 
@@ -2185,9 +2592,66 @@ Covers: AC-0004
 
 ```text
 ./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+└─ outside.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="leak.md"}
+```
+
+`outside.md`
+
+```md
+Outside
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include path leak.md escapes the allowed include boundary.
+```
+
+</details>
+
+#### Case: Include a tilde-named literal path inside the boundary
+
+Description: Shows that ~ is treated as a literal path segment and succeeds when the resolved realpath stays inside the boundary.
+
+Covers: AC-0008
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
 └─ .jastr/
    └─ demo/
+      ├─ ~/
+      │  └─ secret.md
       └─ template.md
+```
+
+`.jastr/demo/~/secret.md`
+
+```md
+Tilde literal
 ```
 
 `.jastr/demo/template.md`
@@ -2206,10 +2670,10 @@ description: Demo skill
 $ jastr run demo
 ```
 
-**CLI output** — exit 1
+**CLI output** — exit 0
 
 ```console
-Error: Include path ~/secret.md must be relative.
+Tilde literal
 ```
 
 </details>
@@ -2336,7 +2800,7 @@ Error: Include file missing.md was not found.
 
 ### INCLUDE-FR-0006 — Include read errors are reported
 
-An include path that resolves inside the project root but cannot be read as a file (for example, it points to a directory) fails with a normalized filesystem cause rather than the raw platform error.
+An include path that resolves inside the allowed boundary but cannot be read as a file (for example, it points to a directory) fails with a normalized filesystem cause rather than the raw platform error.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -2345,7 +2809,7 @@ An include path that resolves inside the project root but cannot be read as a fi
 
 #### Case: Report include read errors
 
-Description: Shows how an include path pointing to a directory fails with a normalized cause.
+Description: Shows how an include path inside the allowed boundary that points to a directory fails with a normalized cause.
 
 Covers: AC-0001, AC-0002
 
@@ -2393,18 +2857,18 @@ Error: Include file subdir could not be read: EISDIR.
 
 </details>
 
-### INCLUDE-FR-0007 — Direct-file includes stay inside the template directory
+### INCLUDE-FR-0007 — Direct-file includes stay inside the direct template boundary
 
-Direct-file template includes resolve relative to the including file and cannot escape the initial direct template file directory.
+A standalone direct-file template is contained to the top-level direct template file directory.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A direct-file include escaping the template directory exits with code 1. | ✅ `direct-file-include-escape` |
-| AC-0002 | A direct-file include escaping the template directory prints the stable Error-prefixed message. | ✅ `direct-file-include-escape` |
+| AC-0001 | A direct-file include escaping the direct template directory exits with code 1. | ✅ `direct-file-include-escape` |
+| AC-0002 | A direct-file include escaping the direct template directory prints the stable Error-prefixed message. | ✅ `direct-file-include-escape` |
 
 #### Case: Reject a direct-file include escaping the template directory
 
-Description: Direct-file includes are contained to the direct template file directory.
+Description: Direct-file includes are contained to the top-level direct template file directory.
 
 Covers: AC-0001, AC-0002
 
@@ -2441,7 +2905,359 @@ $ jastr run templates/direct.md
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../outside.md escapes the template directory.
+Error: Include path ../outside.md escapes the allowed include boundary.
+```
+
+</details>
+
+### INCLUDE-FR-0008 — Include root selects the resolution starting point
+
+Include and include-raw directives accept an optional `root` attribute with values `template`, `group`, or `file`. The selected root changes only the resolution start directory; every include still uses the same allowed boundary.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | The default template root resolves includes from the top-level template directory. | ✅ `include-fragment` |
+| AC-0002 | The group root resolves includes from the group root for grouped templates. | ✅ `direct-grouped-template-include`, `grouped-named-run` |
+| AC-0003 | The file root resolves includes from the directory of the file containing the directive. | ✅ `include-root-file` |
+| AC-0004 | An unknown include root exits with code 1. | ✅ `include-invalid-root` |
+| AC-0005 | An unknown include root prints the stable invalid-root message. | ✅ `include-invalid-root` |
+| AC-0006 | The group root on a standalone template exits with code 1. | ✅ `include-group-root-standalone-rejected` |
+| AC-0007 | The group root on a standalone template prints the stable group-missing message. | ✅ `include-group-root-standalone-rejected` |
+
+#### Case: Direct grouped template include
+
+Description: A direct template with the exact grouped realpath layout can include from the group root.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ team/
+   ├─ .jastrgroup
+   ├─ shared/
+   │  └─ preamble.md
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/shared/preamble.md`
+
+```md
+Shared
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Direct grouped
+::include{root="group", path="shared/preamble.md"}
+```
+
+**Command**
+
+```console
+$ jastr run team/templates/demo/template.md
+```
+
+**CLI output** — exit 0
+
+```console
+Direct grouped
+Shared
+```
+
+</details>
+
+#### Case: Run a grouped named template
+
+Description: A group/template id loads from the group's templates directory and can include from the group root.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ template.md
+└─ team/
+   ├─ .jastrgroup
+   ├─ shared/
+   │  └─ preamble.md
+   └─ templates/
+      └─ demo/
+         └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Fallback template that grouped access must not render
+---
+Wrong fallback
+```
+
+`team/.jastrgroup`
+
+```text
+non-empty marker contents are ignored
+```
+
+`team/shared/preamble.md`
+
+```md
+Shared
+```
+
+`team/templates/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Grouped
+::include{root="group", path="shared/preamble.md"}
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 0
+
+```console
+Grouped
+Shared
+```
+
+</details>
+
+#### Case: Include a fragment
+
+Description: Shows how include resolves and processes nested template syntax.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ fragment.md
+      └─ template.md
+```
+
+`.jastr/demo/fragment.md`
+
+```md
+Fragment for {{language}}
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+Template
+::include{path="fragment.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo --language=typescript
+```
+
+**CLI output** — exit 0
+
+```console
+Template
+Fragment for typescript
+```
+
+</details>
+
+#### Case: Reject group root on a standalone direct template
+
+Description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/template.md realpath shape.
+
+Covers: AC-0006, AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ solo/
+   ├─ .jastrgroup
+   └─ template.md
+```
+
+`solo/.jastrgroup`
+
+```text
+
+```
+
+`solo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{root="group", path="shared.md"}
+```
+
+**Command**
+
+```console
+$ jastr run solo/template.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include root group requires the template to be inside a .jastrgroup.
+```
+
+</details>
+
+#### Case: Reject an unknown include root
+
+Description: Include roots are limited to template, group, and file.
+
+Covers: AC-0004, AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ template.md
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{root="workspace", path="fragment.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include root workspace must be template, group, or file.
+```
+
+</details>
+
+#### Case: Include relative to the current source file
+
+Description: root=file resolves from the file containing the directive rather than from the top-level template directory.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ fragments/
+      │  ├─ outer.md
+      │  └─ sibling.md
+      └─ template.md
+```
+
+`.jastr/demo/fragments/outer.md`
+
+```md
+Outer
+::include{root="file", path="sibling.md"}
+```
+
+`.jastr/demo/fragments/sibling.md`
+
+```md
+Sibling
+```
+
+`.jastr/demo/template.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="fragments/outer.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+Outer
+Sibling
 ```
 
 </details>

@@ -33,6 +33,10 @@ jastr --version
 - A value matching `^[a-z0-9][a-z0-9-]*$` is a named template id and resolves to
   `.jastr/<template-id>/template.md` under the nearest ancestor containing
   `.jastr/`.
+- A value shaped as `<group>/<template-id>`, where both segments match
+  `^[a-z0-9][a-z0-9-]*$`, is a grouped named template and resolves to
+  `<group>/templates/<template-id>/template.md` when `<group>/.jastrgroup`
+  exists as a file.
 
 `--version` reports the `@jastr/cli` package version together with the git commit
 it was built from, for example `0.1.0 (abc1234)`, or `0.1.0 (dev)` when run from
@@ -74,8 +78,18 @@ Ask the user for a supported language.
 ::::
 ```
 
-Named templates live at `.jastr/<template-id>/template.md`. Direct file
-templates can live anywhere the caller can reference with a `.md` path.
+Named templates live at `.jastr/<template-id>/template.md`. Grouped templates
+live at `<group>/templates/<template-id>/template.md` with a `.jastrgroup`
+marker at `<group>`. Direct file templates can live anywhere the caller can
+reference with a `.md` path.
+
+Includes are contained by final resolved realpath. Standalone templates can
+include only inside the top-level template directory. Grouped templates can
+include only inside the group root. `::include{path="fragment.md"}` resolves
+from the top-level template directory,
+`::include{root="group", path="shared.md"}` resolves from the group root, and
+`::include{root="file", path="sibling.md"}` resolves from the file containing
+the directive.
 
 ## Development
 
