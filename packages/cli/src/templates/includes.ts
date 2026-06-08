@@ -1,18 +1,24 @@
-import { readFile } from "node:fs/promises";
+import { readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 import { type IncludeResolver, JastrError } from "@jastr/engine";
 import type { LoadedTemplateReference } from "./template-ref";
+
+type IncludeRoot = "template" | "group" | "file";
 
 export function createFileIncludeResolver(
   template: LoadedTemplateReference,
 ): IncludeResolver {
   return async (request) => {
-    const resolved = resolveIncludePath({
-      includePath: request.path,
+    const root = normalizeIncludeRoot(request.root);
+    const startDirectory = selectStartDirectory({
+      root,
       from: request.from,
-      cwd: template.cwd,
-      includeRoot: template.includeRoot,
-      includeRootLabel: template.includeRootLabel,
+      template,
+    });
+    const resolved = await resolveIncludePath({
+      includePath: request.path,
+      startDirectory,
+      boundary: template.includeContext.boundary,
     });
 
     try {
@@ -21,77 +27,100 @@ export function createFileIncludeResolver(
         source: await readFile(resolved, "utf8"),
       };
     } catch (error) {
-      const code = getFilesystemErrorCode(error);
-      if (code === "ENOENT") {
-        throw new JastrError(
-          "include_not_found",
-          `Include file ${request.path} was not found.`,
-          { includePath: request.path },
-        );
-      }
-
-      throw new JastrError(
-        "include_read_error",
-        `Include file ${request.path} could not be read: ${code ?? "unknown"}.`,
-        { includePath: request.path, cause: code ?? "unknown" },
-      );
+      throw includeReadFailure(request.path, error);
     }
   };
 }
 
-function resolveIncludePath(options: {
-  includePath: string;
-  from: string;
-  cwd: string;
-  includeRoot: string;
-  includeRootLabel: "project root" | "template directory";
-}): string {
-  const { includePath } = options;
+function normalizeIncludeRoot(root: string | undefined): IncludeRoot {
+  if (root === undefined || root === "template") return "template";
+  if (root === "group" || root === "file") return root;
 
-  if (path.isAbsolute(includePath) || includePath.startsWith("~")) {
-    throw new JastrError(
-      "include_path_rejected",
-      `Include path ${includePath} must be relative.`,
-      { includePath },
-    );
-  }
-
-  if (
-    includePath === "" ||
-    includePath === ".env" ||
-    includePath.startsWith(".env.")
-  ) {
-    throw new JastrError(
-      "include_path_rejected",
-      `Include path ${includePath} is rejected.`,
-      { includePath },
-    );
-  }
-
-  const fromAbsolute = path.resolve(options.cwd, options.from);
-  const resolved = path.normalize(
-    path.resolve(path.dirname(fromAbsolute), includePath),
+  throw new JastrError(
+    "invalid_include_root",
+    `Include root ${root} must be template, group, or file.`,
+    { root },
   );
-  const relativeToRoot = path.relative(options.includeRoot, resolved);
+}
 
-  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
+function selectStartDirectory(options: {
+  root: IncludeRoot;
+  from: string;
+  template: LoadedTemplateReference;
+}): string {
+  if (options.root === "template") {
+    return options.template.includeContext.templateRoot;
+  }
+
+  if (options.root === "group") {
+    if (options.template.includeContext.kind !== "grouped") {
+      throw new JastrError(
+        "include_group_missing",
+        "Include root group requires the template to be inside a .jastrgroup.",
+      );
+    }
+    return options.template.includeContext.groupRoot;
+  }
+
+  return path.dirname(
+    sourceIdToAbsolutePath(options.template.cwd, options.from),
+  );
+}
+
+async function resolveIncludePath(options: {
+  includePath: string;
+  startDirectory: string;
+  boundary: string;
+}): Promise<string> {
+  const candidate = path.resolve(options.startDirectory, options.includePath);
+  let resolved: string;
+
+  try {
+    resolved = await realpath(candidate);
+  } catch (error) {
+    throw includeReadFailure(options.includePath, error);
+  }
+
+  if (!isInsideBoundary(resolved, options.boundary)) {
     throw new JastrError(
       "include_outside_root",
-      `Include path ${includePath} escapes the ${options.includeRootLabel}.`,
-      { includePath },
-    );
-  }
-
-  const basename = path.basename(resolved);
-  if (basename === ".env" || basename.startsWith(".env.")) {
-    throw new JastrError(
-      "include_path_rejected",
-      `Include path ${includePath} is rejected.`,
-      { includePath },
+      `Include path ${options.includePath} escapes the allowed include boundary.`,
+      { includePath: options.includePath },
     );
   }
 
   return resolved;
+}
+
+function isInsideBoundary(candidate: string, boundary: string): boolean {
+  const relative = path.relative(boundary, candidate);
+  return (
+    relative === "" ||
+    (relative !== ".." &&
+      !relative.startsWith(`..${path.sep}`) &&
+      !path.isAbsolute(relative))
+  );
+}
+
+function sourceIdToAbsolutePath(cwd: string, sourceId: string): string {
+  return path.isAbsolute(sourceId) ? sourceId : path.resolve(cwd, sourceId);
+}
+
+function includeReadFailure(includePath: string, error: unknown): JastrError {
+  const code = getFilesystemErrorCode(error);
+  if (code === "ENOENT") {
+    return new JastrError(
+      "include_not_found",
+      `Include file ${includePath} was not found.`,
+      { includePath },
+    );
+  }
+
+  return new JastrError(
+    "include_read_error",
+    `Include file ${includePath} could not be read: ${code ?? "unknown"}.`,
+    { includePath, cause: code ?? "unknown" },
+  );
 }
 
 function getFilesystemErrorCode(error: unknown): string | undefined {
