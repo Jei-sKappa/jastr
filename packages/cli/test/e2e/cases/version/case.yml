@@ -5,7 +5,9 @@ covers:
 title: Version output
 description: Shows the CLI version string.
 command: ["--version"]
+substitute:
+  __VERSION__: jastrCliVersion
 expect:
   exitCode: 0
-  stdout: "{{version}} (dev)\n"
+  stdout: "__VERSION__ (dev)\n"
   stderr: ""

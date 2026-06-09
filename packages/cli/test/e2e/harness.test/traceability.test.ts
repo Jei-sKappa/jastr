@@ -26,6 +26,7 @@ const baseCase: CaseManifest = {
   description: "Runs a skill.",
   cwd: ".",
   command: ["run", "demo"],
+  substitute: {},
   expect: { exitCode: 0, stdout: "ok\n", stderr: "" },
 };
 

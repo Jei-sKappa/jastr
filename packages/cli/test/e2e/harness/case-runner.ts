@@ -12,11 +12,29 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { execa } from "execa";
 import { expect } from "vitest";
-import type { CaseManifest, LoadedCase } from "./case-manifest";
+import type {
+  CaseManifest,
+  LoadedCase,
+  SubstitutionValue,
+} from "./case-manifest";
 import { loadPackageVersion } from "./requirements";
 
-type PlaceholderValues = {
-  version: string;
+type Side = "fixture" | "expected";
+type ResolveCtx = { projectRoot: string; repoRoot: string };
+
+// The runner owns how each built-in substitution name resolves to a runtime
+// value and which side it applies to: `projectRoot` is injected into copied
+// fixture files; `jastrCliVersion` is injected into expected output. A case's
+// `substitute` map only binds author-chosen tokens to these names.
+const SUBSTITUTIONS: Record<
+  SubstitutionValue,
+  { side: Side; resolve: (ctx: ResolveCtx) => string | Promise<string> }
+> = {
+  projectRoot: { side: "fixture", resolve: (ctx) => ctx.projectRoot },
+  jastrCliVersion: {
+    side: "expected",
+    resolve: (ctx) => loadPackageVersion(ctx.repoRoot),
+  },
 };
 
 function context(testCase: CaseManifest, field: string): string {
@@ -35,9 +53,13 @@ async function readExpectedText(
 
 function expandExpected(
   value: string,
-  placeholders: PlaceholderValues,
+  replacements: ReadonlyMap<string, string>,
 ): string {
-  return value.replaceAll("{{version}}", placeholders.version);
+  let result = value;
+  for (const [token, replacement] of replacements) {
+    result = result.replaceAll(token, replacement);
+  }
+  return result;
 }
 
 async function createTempProject(): Promise<{
@@ -77,23 +99,23 @@ export async function copyCaseFixture(
 
 export async function expandFixturePlaceholders(
   root: string,
-  placeholders: { projectRoot: string },
+  replacements: ReadonlyMap<string, string>,
 ): Promise<void> {
   const entries = await readdir(root, { withFileTypes: true });
 
   for (const entry of entries) {
     const absolutePath = path.join(root, entry.name);
     if (entry.isDirectory()) {
-      await expandFixturePlaceholders(absolutePath, placeholders);
+      await expandFixturePlaceholders(absolutePath, replacements);
       continue;
     }
     if (!entry.isFile()) continue;
 
     const original = await readFile(absolutePath, "utf8");
-    const expanded = original.replaceAll(
-      "{{projectRoot}}",
-      placeholders.projectRoot,
-    );
+    let expanded = original;
+    for (const [token, replacement] of replacements) {
+      expanded = expanded.replaceAll(token, replacement);
+    }
     if (expanded !== original) {
       await writeFile(absolutePath, expanded, "utf8");
     }
@@ -124,14 +146,30 @@ export async function runCase(
   try {
     await copyCaseFixture(testCase.dirPath, temp.root);
     const projectRoot = await realpath(temp.root);
-    await expandFixturePlaceholders(projectRoot, { projectRoot });
+
+    // Resolve the case's declared substitutions, routing each to the side its
+    // built-in name applies to. Fixture-side tokens are rewritten in the copied
+    // files before the CLI runs; expected-side tokens are rewritten in the
+    // expected output before comparison.
+    const fixtureReplacements = new Map<string, string>();
+    const expectedReplacements = new Map<string, string>();
+    for (const [token, name] of Object.entries(testCase.manifest.substitute)) {
+      const spec = SUBSTITUTIONS[name];
+      const value = await spec.resolve({ projectRoot, repoRoot });
+      (spec.side === "fixture"
+        ? fixtureReplacements
+        : expectedReplacements
+      ).set(token, value);
+    }
+    if (fixtureReplacements.size > 0) {
+      await expandFixturePlaceholders(projectRoot, fixtureReplacements);
+    }
+
     const cwd = await resolveCwd(
       projectRoot,
       testCase.manifest.cwd,
       testCase.manifest,
     );
-    const version = await loadPackageVersion(repoRoot);
-    const placeholders = { version };
     const cliPath = path.resolve(repoRoot, "src/index.ts");
     const result = await execa("bun", [cliPath, ...testCase.manifest.command], {
       cwd,
@@ -154,10 +192,10 @@ export async function runCase(
       testCase.manifest.expect.exitCode,
     );
     expect(result.stdout, context(testCase.manifest, "stdout")).toBe(
-      expandExpected(stdout, placeholders),
+      expandExpected(stdout, expectedReplacements),
     );
     expect(result.stderr, context(testCase.manifest, "stderr")).toBe(
-      expandExpected(stderr, placeholders),
+      expandExpected(stderr, expectedReplacements),
     );
 
     if (testCase.manifest.expect.files !== undefined) {
@@ -173,7 +211,7 @@ export async function runCase(
           "utf8",
         );
         expect(actual, context(testCase.manifest, `files.${actualPath}`)).toBe(
-          expandExpected(expected, placeholders),
+          expandExpected(expected, expectedReplacements),
         );
       }
     }
@@ -188,7 +226,7 @@ export async function runCase(
         );
         for (const substring of substrings) {
           expect(
-            actual.includes(expandExpected(substring, placeholders)),
+            actual.includes(expandExpected(substring, expectedReplacements)),
             context(testCase.manifest, `fileContains.${actualPath}`),
           ).toBe(true);
         }
@@ -205,7 +243,7 @@ export async function runCase(
         );
         for (const substring of substrings) {
           expect(
-            actual.includes(expandExpected(substring, placeholders)),
+            actual.includes(expandExpected(substring, expectedReplacements)),
             context(testCase.manifest, `fileNotContains.${actualPath}`),
           ).toBe(false);
         }

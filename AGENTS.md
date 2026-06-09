@@ -275,6 +275,18 @@ your PATH.
   upward `.jastr/` discovery. Such paths then display with a leading `../`,
   which is correct but uncommon; reserve it for cases whose whole point is the
   subdirectory.
+- A case may declare a `substitute:` map to inject a runtime value that cannot
+  be hard-coded into a fixture. Each entry binds an author-chosen literal token
+  (house style `__SCREAMING_SNAKE__`) to one of a closed set of built-in values:
+  `projectRoot` (the temp project root realpath, rewritten in copied **fixture**
+  files before the CLI runs — used for absolute-path cases) and `jastrCliVersion`
+  (the CLI package version, rewritten in **expected** output before comparison).
+  Substitution is deliberately *not* Jastr interpolation: there is no `{{ }}`
+  delimiter, the binding is spelled out in `case.yml`, and a substitution runs
+  only for the case that declares it. The token→value resolution lives in
+  `test/e2e/harness/case-runner.ts`; the closed value set in
+  `test/e2e/harness/case-manifest.ts`. Unknown value names fail manifest
+  validation.
 - `bun run docs:cli:living` generates `packages/cli/docs/BEHAVIOR.md`, a living
   CLI behavior reference, by joining `packages/cli/requirements/functional/`
   with the e2e cases on their `covers` refs. The committed behavior document

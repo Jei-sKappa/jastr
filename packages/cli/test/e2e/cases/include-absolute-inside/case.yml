@@ -4,6 +4,8 @@ covers:
 title: Include an absolute path inside the boundary
 description: An absolute include path succeeds when its realpath remains inside the template boundary.
 command: ["run", "demo"]
+substitute:
+  __PROJECT_ROOT__: projectRoot
 expect:
   exitCode: 0
   stdout: "Inside absolute\n"

@@ -11,6 +11,7 @@ const CASE_FIELDS = new Set([
   "description",
   "cwd",
   "command",
+  "substitute",
   "expect",
 ]);
 const EXPECT_FIELDS = new Set([
@@ -23,6 +24,16 @@ const EXPECT_FIELDS = new Set([
   "fileContains",
   "fileNotContains",
 ]);
+
+// The closed set of built-in values a case may substitute into its fixtures or
+// expected output. The case `substitute` map binds author-chosen literal tokens
+// to one of these names; the runner owns the token→value resolution and which
+// side (fixture vs expected output) each name applies to.
+export const SUBSTITUTION_VALUES = ["projectRoot", "jastrCliVersion"] as const;
+export type SubstitutionValue = (typeof SUBSTITUTION_VALUES)[number];
+const SUBSTITUTION_VALUE_SET: ReadonlySet<string> = new Set(
+  SUBSTITUTION_VALUES,
+);
 
 export type CaseExpect = {
   exitCode: number;
@@ -42,6 +53,7 @@ export type CaseManifest = {
   description: string;
   cwd: string;
   command: string[];
+  substitute: Record<string, SubstitutionValue>;
   expect: CaseExpect;
 };
 
@@ -145,6 +157,26 @@ function validateSubstringMap(
   return result;
 }
 
+function validateSubstitute(
+  value: unknown,
+  field: string,
+  source: Source,
+): Record<string, SubstitutionValue> {
+  if (!isRecord(value)) fail(source, `${field} must be a mapping.`);
+  const result: Record<string, SubstitutionValue> = {};
+  for (const [key, raw] of Object.entries(value)) {
+    if (key.length === 0) fail(source, `${field} keys must be non-empty.`);
+    if (typeof raw !== "string" || !SUBSTITUTION_VALUE_SET.has(raw)) {
+      fail(
+        source,
+        `${field}["${key}"] must be one of ${SUBSTITUTION_VALUES.join(", ")}: ${String(raw)}`,
+      );
+    }
+    result[key] = raw as SubstitutionValue;
+  }
+  return result;
+}
+
 export function validateCaseManifest(
   value: unknown,
   source: Source,
@@ -196,6 +228,15 @@ export function validateCaseManifest(
       fail(source, `${id}.command[${index}] must be a string.`);
     return item;
   });
+
+  // `substitute` is optional: only cases that need a runtime value (the temp
+  // project root, the CLI version) injected into their fixtures or expected
+  // output declare it. Keys are author-chosen literal tokens; values name the
+  // built-in substitution to apply.
+  const substitute =
+    value.substitute === undefined
+      ? {}
+      : validateSubstitute(value.substitute, `${id}.substitute`, source);
 
   if (!isRecord(value.expect)) fail(source, `${id}.expect must be a mapping.`);
   rejectUnknownFields(value.expect, EXPECT_FIELDS, "expect", source);
@@ -268,7 +309,7 @@ export function validateCaseManifest(
     );
   }
 
-  return { id, covers, title, description, cwd, command, expect };
+  return { id, covers, title, description, cwd, command, substitute, expect };
 }
 
 async function findCaseManifestFiles(root: string): Promise<string[]> {

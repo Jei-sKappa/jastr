@@ -2225,7 +2225,7 @@ Inside absolute
 name: demo
 description: Demo skill
 ---
-::include{path="{{projectRoot}}/.jastr/demo/fragment.md"}
+::include{path="__PROJECT_ROOT__/.jastr/demo/fragment.md"}
 ```
 
 **Command**
@@ -4246,7 +4246,7 @@ $ jastr --version
 **CLI output** — exit 0
 
 ```console
-{{version}} (dev)
+__VERSION__ (dev)
 ```
 
 </details>
@@ -4395,7 +4395,7 @@ $ jastr --version
 **CLI output** — exit 0
 
 ```console
-{{version}} (dev)
+__VERSION__ (dev)
 ```
 
 </details>

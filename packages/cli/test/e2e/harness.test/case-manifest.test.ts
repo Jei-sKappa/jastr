@@ -17,6 +17,7 @@ const validCase: RawCaseManifest = {
   description: "Runs a minimal skill.",
   cwd: "sub",
   command: ["run", "demo"],
+  substitute: {},
   expect: {
     exitCode: 0,
     stdoutFile: "expected/stdout.md",
@@ -42,6 +43,48 @@ describe("validateCaseManifest", () => {
     });
 
     expect(manifest.cwd).toBe(".");
+  });
+
+  it("accepts a substitute map binding tokens to built-in values", () => {
+    const manifest = validateCaseManifest(
+      { ...validCase, substitute: { __VERSION__: "jastrCliVersion" } },
+      { filePath: "test/e2e/cases/version/case.yml" },
+    );
+
+    expect(manifest.substitute).toEqual({ __VERSION__: "jastrCliVersion" });
+  });
+
+  it("defaults an omitted substitute map to empty", () => {
+    const withoutSubstitute: Record<string, unknown> = { ...validCase };
+    delete withoutSubstitute.substitute;
+
+    const manifest = validateCaseManifest(withoutSubstitute, {
+      filePath: "test/e2e/cases/basic-run/case.yml",
+    });
+
+    expect(manifest.substitute).toEqual({});
+  });
+
+  it("rejects substitute values outside the built-in set", () => {
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, substitute: { __X__: "cwd" } },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(
+      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion/,
+    );
+  });
+
+  it("rejects non-string substitute values", () => {
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, substitute: { __X__: 1 } },
+        { filePath: "test/e2e/cases/basic-run/case.yml" },
+      ),
+    ).toThrow(
+      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion/,
+    );
   });
 
   it("rejects uppercase or requirement-shaped case ids", () => {

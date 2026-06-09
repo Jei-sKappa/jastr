@@ -45,29 +45,32 @@ describe("copyCaseFixture", () => {
     expect(copied).toEqual(["template.md"]);
   });
 
-  it("expands projectRoot placeholders in copied fixture text files without following symlinks", async () => {
+  it("expands substitution tokens in copied fixture text files without following symlinks", async () => {
     const tempRoot = await makeTempDir();
     const outsideRoot = await makeTempDir();
     const fixtureDir = path.join(tempRoot, ".jastr", "demo");
     await mkdir(fixtureDir, { recursive: true });
     await writeFile(
       path.join(fixtureDir, "template.md"),
-      '::include{path="{{projectRoot}}/.jastr/demo/fragment.md"}\n',
+      '::include{path="__PROJECT_ROOT__/.jastr/demo/fragment.md"}\n',
     );
-    await writeFile(path.join(outsideRoot, "outside.md"), "{{projectRoot}}\n");
+    await writeFile(path.join(outsideRoot, "outside.md"), "__PROJECT_ROOT__\n");
     await symlink(
       path.join(outsideRoot, "outside.md"),
       path.join(fixtureDir, "leak.md"),
     );
 
-    await expandFixturePlaceholders(tempRoot, { projectRoot: tempRoot });
+    await expandFixturePlaceholders(
+      tempRoot,
+      new Map([["__PROJECT_ROOT__", tempRoot]]),
+    );
 
     await expect(
       readFile(path.join(fixtureDir, "template.md"), "utf8"),
     ).resolves.toBe(`::include{path="${tempRoot}/.jastr/demo/fragment.md"}\n`);
     await expect(
       readFile(path.join(fixtureDir, "leak.md"), "utf8"),
-    ).resolves.toBe("{{projectRoot}}\n");
+    ).resolves.toBe("__PROJECT_ROOT__\n");
   });
 
   it("treats an absent fixture/ folder as an empty workspace", async () => {
