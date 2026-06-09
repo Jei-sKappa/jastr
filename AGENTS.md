@@ -205,6 +205,33 @@ The `playground` folder is for testing out ideas and concepts and, more
 importantly, to actually exercise jastr for real. Use it as you wish
 because it's gitignored.
 
+## Local development install
+
+Jastr is not published to npm (both packages are `private`), so there is no
+`npm install -g jastr`. To exercise the `jastr` command outside the repo during
+development, build the CLI bundle and put it on your PATH.
+
+`bun run build` bundles `@jastr/engine` into `packages/cli/dist/index.js`, so
+that file is self-contained (it imports only Node built-ins) and runs directly
+via its `#!/usr/bin/env node` shebang. Do **not** use `bun link` or
+`npm install -g .` for this: the CLI declares `@jastr/engine` as
+`workspace:*`, a protocol that only resolves inside the workspace, so a global
+link/install can fail trying to fetch the engine from the registry. A direct
+symlink to the bundle sidesteps that entirely.
+
+Recommended (dev-only command name, so it never collides with a future released
+`jastr`):
+
+```bash
+bun run build
+ln -sf "$PWD/packages/cli/dist/index.js" ~/.local/bin/jastr-dev
+```
+
+Because it is a symlink to `dist/index.js`, every later `bun run build`
+updates the installed command automatically — no reinstall. Uninstall with
+`rm ~/.local/bin/jastr-dev`. The symlink name is arbitrary; pick any name on
+your PATH.
+
 ## Test Layout
 
 - Jastr is a workspace. Engine source lives under `packages/engine/src/`, CLI
