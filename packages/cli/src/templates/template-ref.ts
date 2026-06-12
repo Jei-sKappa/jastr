@@ -5,6 +5,7 @@ import { findProjectRoot } from "../fs/project-root";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const GROUP_MARKER = ".jastrgroup";
+const GROUP_TEMPLATES_DIR = "templates";
 const TEMPLATE_FILE = "TEMPLATE.md";
 
 type StandaloneIncludeContext = {
@@ -110,7 +111,7 @@ async function loadStandaloneNamedTemplate(options: {
   if (!(await isFile(declaredPath))) {
     throw new JastrError(
       "template_not_found",
-      `Template ${options.templateId} was not found at .jastr/${options.templateId}/TEMPLATE.md.`,
+      `Template ${options.templateId} was not found at .jastr/${options.templateId}/${TEMPLATE_FILE}.`,
       { templateRef: options.templateId },
     );
   }
@@ -137,7 +138,7 @@ async function loadGroupedNamedTemplate(options: {
   const markerPath = path.join(groupRoot, GROUP_MARKER);
   const declaredPath = path.join(
     groupRoot,
-    "templates",
+    GROUP_TEMPLATES_DIR,
     options.templateId,
     TEMPLATE_FILE,
   );
@@ -145,7 +146,7 @@ async function loadGroupedNamedTemplate(options: {
   if (!(await isFile(markerPath)) || !(await isFile(declaredPath))) {
     throw new JastrError(
       "template_not_found",
-      `Template ${options.templateRef} was not found at ${options.group}/templates/${options.templateId}/TEMPLATE.md.`,
+      `Template ${options.templateRef} was not found at ${options.group}/${GROUP_TEMPLATES_DIR}/${options.templateId}/${TEMPLATE_FILE}.`,
       { templateRef: options.templateRef },
     );
   }
@@ -173,7 +174,7 @@ async function classifyDirectTemplate(
   const templateId = path.basename(templateRoot);
   const templatesDir = path.dirname(templateRoot);
   if (
-    path.basename(templatesDir) !== "templates" ||
+    path.basename(templatesDir) !== GROUP_TEMPLATES_DIR ||
     !isTemplateIdSegment(templateId)
   ) {
     return standaloneContext(templatePath);
