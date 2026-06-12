@@ -19,7 +19,7 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
     stderr: "",
     inputFiles: [
       {
-        path: ".jastr/demo/template.md",
+        path: ".jastr/demo/TEMPLATE.md",
         content: "---\nname: demo\n---\nHello {{target}}.\n",
       },
     ],
@@ -172,7 +172,7 @@ describe("renderDocument", () => {
         makeCase({
           inputFiles: [
             {
-              path: ".jastr/demo/template.md",
+              path: ".jastr/demo/TEMPLATE.md",
               content: "---\nname: demo\n---\nAnalyze `{{target-file}}`.\n",
             },
             {
@@ -190,7 +190,7 @@ describe("renderDocument", () => {
     expect(doc).toContain("./");
     expect(doc).toContain("└─ .jastr/");
     // Each input file is labelled and its contents embedded verbatim.
-    expect(doc).toContain("`.jastr/demo/template.md`");
+    expect(doc).toContain("`.jastr/demo/TEMPLATE.md`");
     expect(doc).toContain("Analyze `{{target-file}}`.");
     expect(doc).toContain("`.jastr/demo/fragment.md`");
     expect(doc).toContain("Fragment for {{language}}");
@@ -245,7 +245,7 @@ describe("renderDocument", () => {
         makeCase({
           inputFiles: [
             {
-              path: ".jastr/demo/template.md",
+              path: ".jastr/demo/TEMPLATE.md",
               content: "Run it:\n```bash\njastr run demo\n```\n",
             },
           ],
@@ -262,7 +262,7 @@ describe("renderDocument", () => {
 describe("buildFileTree", () => {
   it("renders nested paths as an ASCII tree rooted at ./", () => {
     const tree = buildFileTree([
-      ".jastr/demo/template.md",
+      ".jastr/demo/TEMPLATE.md",
       ".jastr/demo/fragment.md",
     ]);
 
@@ -272,7 +272,7 @@ describe("buildFileTree", () => {
         "└─ .jastr/",
         "   └─ demo/",
         "      ├─ fragment.md",
-        "      └─ template.md",
+        "      └─ TEMPLATE.md",
       ].join("\n"),
     );
   });

@@ -14,7 +14,7 @@ describe("template references", () => {
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/demo/template.md",
+        ".jastr/demo/TEMPLATE.md",
         "Hello\n",
       );
       await writeProjectFile(project.root, "nested/.keep", "");
@@ -40,13 +40,13 @@ describe("template references", () => {
     }
   });
 
-  it("loads a grouped named template from group/templates/<id>/template.md", async () => {
+  it("loads a grouped named template from group/templates/<id>/TEMPLATE.md", async () => {
     const project = await createTempProject();
     try {
       await writeProjectFile(project.root, "team/.jastrgroup", "ignored\n");
       await writeProjectFile(
         project.root,
-        "team/templates/demo/template.md",
+        "team/templates/demo/TEMPLATE.md",
         "Grouped\n",
       );
 
@@ -99,7 +99,7 @@ describe("template references", () => {
     try {
       await writeProjectFile(
         project.root,
-        "team/templates/demo/template.md",
+        "team/templates/demo/TEMPLATE.md",
         "Grouped\n",
       );
 
@@ -109,7 +109,7 @@ describe("template references", () => {
           templateRef: "team/demo",
         }),
       ).rejects.toThrow(
-        "Template team/demo was not found at team/templates/demo/template.md.",
+        "Template team/demo was not found at team/templates/demo/TEMPLATE.md.",
       );
     } finally {
       await project.cleanup();
@@ -122,12 +122,12 @@ describe("template references", () => {
       await writeProjectFile(project.root, "team/.jastrgroup", "");
       await writeProjectFile(
         project.root,
-        "team/templates/demo/template.md",
+        "team/templates/demo/TEMPLATE.md",
         "Grouped\n",
       );
       await mkdir(path.join(project.root, "links"), { recursive: true });
       await symlink(
-        "../team/templates/demo/template.md",
+        "../team/templates/demo/TEMPLATE.md",
         path.join(project.root, "links", "demo.md"),
       );
 
@@ -157,17 +157,17 @@ describe("template references", () => {
     const project = await createEmptyTempProject();
     try {
       await writeProjectFile(project.root, "team/.jastrgroup", "");
-      await writeProjectFile(project.root, "team/template.md", "Standalone\n");
+      await writeProjectFile(project.root, "team/TEMPLATE.md", "Standalone\n");
 
       const loaded = await loadTemplateReference({
         cwd: project.root,
-        templateRef: "team/template.md",
+        templateRef: "team/TEMPLATE.md",
       });
       const root = await realpath(project.root);
 
       expect(loaded).toMatchObject({
         mode: "direct",
-        templateRef: "team/template.md",
+        templateRef: "team/TEMPLATE.md",
         source: "Standalone\n",
         includeContext: {
           kind: "standalone",

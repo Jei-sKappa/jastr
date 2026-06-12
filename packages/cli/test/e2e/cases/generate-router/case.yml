@@ -10,7 +10,7 @@ description: Shows how generate writes a minimal router skill from a template, c
 command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"]
 expect:
   exitCode: 0
-  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

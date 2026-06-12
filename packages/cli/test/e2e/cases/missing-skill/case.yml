@@ -10,4 +10,4 @@ command: ["run", "no-such-skill"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template no-such-skill was not found at .jastr/no-such-skill/template.md.\n"
+  stderr: "Error: Template no-such-skill was not found at .jastr/no-such-skill/TEMPLATE.md.\n"

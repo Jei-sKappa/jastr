@@ -12,7 +12,7 @@ describe("jastr run", () => {
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/demo/template.md",
+        ".jastr/demo/TEMPLATE.md",
         `---
 inputs:
   language:
@@ -72,7 +72,7 @@ Direct dry-run={{dry-run}}
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/demo/template.md",
+        ".jastr/demo/TEMPLATE.md",
         `---
 inputs:
   language:

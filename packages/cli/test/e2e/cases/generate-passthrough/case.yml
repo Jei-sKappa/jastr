@@ -9,7 +9,7 @@ description: Shows how generate preserves author frontmatter fields and omits Ja
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 0
-  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

@@ -98,7 +98,7 @@ output against its inputs.
 
 ### RUN-FR-0001 — Run renders a named template
 
-The CLI renders `.jastr/<template-id>/template.md` when the user runs `jastr run <template-ref>` from inside a project.
+The CLI renders `.jastr/<template-id>/TEMPLATE.md` when the user runs `jastr run <template-ref>` from inside a project.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -121,10 +121,10 @@ Covers: AC-0001, AC-0002, AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -212,10 +212,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -276,7 +276,7 @@ Error: No .jastr directory found from the current directory.
 
 ### RUN-FR-0005 — CLI rejects missing templates
 
-The CLI fails when the requested template id does not have a template file at `.jastr/<template-id>/template.md`.
+The CLI fails when the requested template id does not have a template file at `.jastr/<template-id>/TEMPLATE.md`.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -298,10 +298,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -319,7 +319,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found at .jastr/no-such-skill/template.md.
+Error: Template no-such-skill was not found at .jastr/no-such-skill/TEMPLATE.md.
 ```
 
 </details>
@@ -415,7 +415,7 @@ Error: Template reference BadName must be a template id, a group/template id, or
 
 ### RUN-FR-0008 — Run renders a grouped named template
 
-A two-segment named template reference `<group>/<template-id>` resolves to `<group>/templates/<template-id>/template.md` under the project root when `<group>/.jastrgroup` exists as a file.
+A two-segment named template reference `<group>/<template-id>` resolves to `<group>/templates/<template-id>/TEMPLATE.md` under the project root when `<group>/.jastrgroup` exists as a file.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -440,14 +440,14 @@ Covers: AC-0004, AC-0005
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ team/
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -457,7 +457,7 @@ description: Fallback template that grouped access must not render
 Wrong fallback
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -476,7 +476,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found at team/templates/demo/template.md.
+Error: Template team/demo was not found at team/templates/demo/TEMPLATE.md.
 ```
 
 </details>
@@ -496,17 +496,17 @@ Covers: AC-0001, AC-0002, AC-0003
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ team/
    ├─ .jastrgroup
    ├─ shared/
    │  └─ preamble.md
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -528,7 +528,7 @@ non-empty marker contents are ignored
 Shared
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -579,10 +579,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -634,10 +634,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -689,10 +689,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -745,10 +745,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -804,10 +804,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -850,10 +850,10 @@ Covers: AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -896,10 +896,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -951,10 +951,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1007,10 +1007,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1065,10 +1065,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1106,10 +1106,10 @@ Covers: AC-0003, AC-0004
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1156,10 +1156,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1211,10 +1211,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1266,10 +1266,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1322,10 +1322,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1382,10 +1382,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1442,10 +1442,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1493,10 +1493,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1553,10 +1553,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1601,10 +1601,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1663,10 +1663,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1723,10 +1723,10 @@ Covers: AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1783,10 +1783,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1843,10 +1843,10 @@ Covers: AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1894,10 +1894,10 @@ Covers: AC-0004
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -1956,10 +1956,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2017,10 +2017,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2079,7 +2079,7 @@ Covers: AC-0001
 └─ .jastr/
    └─ demo/
       ├─ fragment.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/fragment.md`
@@ -2088,7 +2088,7 @@ Covers: AC-0001
 Fragment for {{language}}
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2143,7 +2143,7 @@ Covers: AC-0001
 └─ .jastr/
    └─ demo/
       ├─ raw.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/raw.md`
@@ -2153,7 +2153,7 @@ Raw {{language}}
 ::include{path="ignored.md"}
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2209,7 +2209,7 @@ Covers: AC-0005
 └─ .jastr/
    └─ demo/
       ├─ fragment.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/fragment.md`
@@ -2218,7 +2218,7 @@ Covers: AC-0005
 Inside absolute
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2257,10 +2257,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2300,7 +2300,7 @@ Covers: AC-0006
 └─ .jastr/
    └─ demo/
       ├─ fragment.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/fragment.md`
@@ -2309,7 +2309,7 @@ Covers: AC-0006
 Dotdot inside
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2349,7 +2349,7 @@ Covers: AC-0007
 └─ .jastr/
    └─ demo/
       ├─ .env
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/.env`
@@ -2358,7 +2358,7 @@ Covers: AC-0007
 ENV=allowed
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2397,11 +2397,11 @@ Covers: AC-0001
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ outside.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2446,7 +2446,7 @@ Covers: AC-0003
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 ├─ outside.md
 └─ team/
    ├─ .jastrgroup
@@ -2454,10 +2454,10 @@ Covers: AC-0003
    │  └─ fragment.md
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2485,7 +2485,7 @@ Outside
 ::include{root="file", path="../../outside.md"}
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2524,16 +2524,16 @@ Covers: AC-0002
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 ├─ outside.md
 └─ team/
    ├─ .jastrgroup
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2555,7 +2555,7 @@ Outside
 
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2594,11 +2594,11 @@ Covers: AC-0004
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ outside.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2645,7 +2645,7 @@ Covers: AC-0008
    └─ demo/
       ├─ ~/
       │  └─ secret.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/~/secret.md`
@@ -2654,7 +2654,7 @@ Covers: AC-0008
 Tilde literal
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2704,7 +2704,7 @@ Covers: AC-0001, AC-0002
    └─ demo/
       ├─ a.md
       ├─ b.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/a.md`
@@ -2721,7 +2721,7 @@ B
 ::include{path="a.md"}
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2770,10 +2770,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2824,7 +2824,7 @@ Covers: AC-0001, AC-0002
    └─ demo/
       ├─ subdir/
       │  └─ keep.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/subdir/keep.md`
@@ -2833,7 +2833,7 @@ Covers: AC-0001, AC-0002
 placeholder so the directory exists in git
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2943,7 +2943,7 @@ Covers: AC-0002
    │  └─ preamble.md
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
 `team/.jastrgroup`
@@ -2958,7 +2958,7 @@ Covers: AC-0002
 Shared
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2972,7 +2972,7 @@ Direct grouped
 **Command**
 
 ```console
-$ jastr run team/templates/demo/template.md
+$ jastr run team/templates/demo/TEMPLATE.md
 ```
 
 **CLI output** — exit 0
@@ -2999,17 +2999,17 @@ Covers: AC-0002
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ team/
    ├─ .jastrgroup
    ├─ shared/
    │  └─ preamble.md
    └─ templates/
       └─ demo/
-         └─ template.md
+         └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3031,7 +3031,7 @@ non-empty marker contents are ignored
 Shared
 ```
 
-`team/templates/demo/template.md`
+`team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3073,7 +3073,7 @@ Covers: AC-0001
 └─ .jastr/
    └─ demo/
       ├─ fragment.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/fragment.md`
@@ -3082,7 +3082,7 @@ Covers: AC-0001
 Fragment for {{language}}
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3115,7 +3115,7 @@ Fragment for typescript
 
 #### Case: Reject group root on a standalone direct template
 
-Description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/template.md realpath shape.
+Description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/TEMPLATE.md realpath shape.
 
 Covers: AC-0006, AC-0007
 
@@ -3128,7 +3128,7 @@ Covers: AC-0006, AC-0007
 ./
 └─ solo/
    ├─ .jastrgroup
-   └─ template.md
+   └─ TEMPLATE.md
 ```
 
 `solo/.jastrgroup`
@@ -3137,7 +3137,7 @@ Covers: AC-0006, AC-0007
 
 ```
 
-`solo/template.md`
+`solo/TEMPLATE.md`
 
 ```md
 ---
@@ -3150,7 +3150,7 @@ description: Demo skill
 **Command**
 
 ```console
-$ jastr run solo/template.md
+$ jastr run solo/TEMPLATE.md
 ```
 
 **CLI output** — exit 1
@@ -3176,10 +3176,10 @@ Covers: AC-0004, AC-0005
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3221,7 +3221,7 @@ Covers: AC-0003
       ├─ fragments/
       │  ├─ outer.md
       │  └─ sibling.md
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
 `.jastr/demo/fragments/outer.md`
@@ -3237,7 +3237,7 @@ Outer
 Sibling
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3290,10 +3290,10 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3334,7 +3334,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -3363,10 +3363,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3417,12 +3417,12 @@ Covers: AC-0001, AC-0002
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ out/
    └─ SKILL.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3487,12 +3487,12 @@ Covers: AC-0001, AC-0002
 ./
 ├─ .jastr/
 │  └─ demo/
-│     └─ template.md
+│     └─ TEMPLATE.md
 └─ out/
    └─ SKILL.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3539,7 +3539,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -3568,10 +3568,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3624,10 +3624,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3678,10 +3678,10 @@ Covers: AC-0001, AC-0002, AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3733,7 +3733,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -3762,10 +3762,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3817,10 +3817,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3907,10 +3907,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3962,7 +3962,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -3982,10 +3982,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4026,7 +4026,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/template.md`
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -4058,10 +4058,10 @@ Covers: AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4110,10 +4110,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4163,10 +4163,10 @@ Covers: AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4224,10 +4224,10 @@ Covers: AC-0001
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4279,10 +4279,10 @@ Covers: AC-0003
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4332,10 +4332,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4353,7 +4353,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found at .jastr/no-such-skill/template.md.
+Error: Template no-such-skill was not found at .jastr/no-such-skill/TEMPLATE.md.
 ```
 
 </details>
@@ -4373,10 +4373,10 @@ Covers: AC-0004
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4426,10 +4426,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4474,10 +4474,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4528,10 +4528,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4583,10 +4583,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4639,10 +4639,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4700,10 +4700,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4761,10 +4761,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4814,10 +4814,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -4867,10 +4867,10 @@ Covers: AC-0001, AC-0002
 ./
 └─ .jastr/
    └─ demo/
-      └─ template.md
+      └─ TEMPLATE.md
 ```
 
-`.jastr/demo/template.md`
+`.jastr/demo/TEMPLATE.md`
 
 ```md
 ---

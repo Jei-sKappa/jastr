@@ -16,7 +16,7 @@ describe("createFileIncludeResolver", () => {
       await writeProjectFile(project.root, "team/.jastrgroup", "");
       await writeProjectFile(
         project.root,
-        "team/templates/demo/template.md",
+        "team/templates/demo/TEMPLATE.md",
         "Template\n",
       );
       await writeProjectFile(
@@ -37,7 +37,7 @@ describe("createFileIncludeResolver", () => {
 
       const template = await loadTemplateReference({
         cwd: project.root,
-        templateRef: "team/templates/demo/template.md",
+        templateRef: "team/templates/demo/TEMPLATE.md",
       });
       const resolver = createFileIncludeResolver(template);
       const fromTemplate = path.relative(project.root, template.templatePath);
@@ -87,7 +87,7 @@ describe("createFileIncludeResolver", () => {
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/demo/template.md",
+        ".jastr/demo/TEMPLATE.md",
         "Template\n",
       );
 
@@ -133,7 +133,7 @@ describe("createFileIncludeResolver", () => {
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/demo/template.md",
+        ".jastr/demo/TEMPLATE.md",
         "Template\n",
       );
       await writeProjectFile(

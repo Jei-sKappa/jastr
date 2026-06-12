@@ -7,7 +7,7 @@ description: Shows how --force overwrites an existing output file.
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--force"]
 expect:
   exitCode: 0
-  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/template.md`"
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
   stderr: ""
   files:
     out/SKILL.md: expected/files/out/SKILL.md

@@ -13,7 +13,7 @@ describe("jastr generate agent-skill", () => {
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/review/template.md",
+        ".jastr/review/TEMPLATE.md",
         `---
 targets:
   agent-skill:
@@ -37,7 +37,7 @@ Review {{language}}
 
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toBe(
-        "Generated `out/SKILL.md` from template `.jastr/review/template.md`",
+        "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`",
       );
       expect(result.stderr).toBe("");
       await expect(
@@ -89,7 +89,7 @@ Review
     try {
       await writeProjectFile(
         project.root,
-        ".jastr/review/template.md",
+        ".jastr/review/TEMPLATE.md",
         "---\n---\nBody\n",
       );
       await writeProjectFile(project.root, "out/SKILL.md", "existing");

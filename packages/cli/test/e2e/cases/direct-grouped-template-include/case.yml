@@ -3,7 +3,7 @@ covers:
   - INCLUDE-FR-0008.AC-0002
 title: Direct grouped template include
 description: A direct template with the exact grouped realpath layout can include from the group root.
-command: ["run", "team/templates/demo/template.md"]
+command: ["run", "team/templates/demo/TEMPLATE.md"]
 expect:
   exitCode: 0
   stdout: "Direct grouped\nShared\n"

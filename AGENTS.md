@@ -45,7 +45,7 @@ The repository is a private workspace orchestrator. Product code lives in:
 
 The authoring surface is either:
 
-- named project-local Markdown templates at `.jastr/<template-id>/template.md`,
+- named project-local Markdown templates at `.jastr/<template-id>/TEMPLATE.md`,
   rendered with `jastr run <template-id> [input flags...]`; or
 - direct Markdown template files rendered with `jastr run <path>.md [input flags...]`.
 
@@ -91,7 +91,7 @@ Current v2 direction:
   `include-raw`.
 - Includes accept optional `root="template"`, `root="group"`, or `root="file"`.
   The default is `template`. `group` is valid only for templates classified as
-  grouped by the exact `<group>/templates/<template-id>/template.md` layout plus
+  grouped by the exact `<group>/templates/<template-id>/TEMPLATE.md` layout plus
   a `<group>/.jastrgroup` marker. Every include is checked by final resolved
   realpath against either the standalone template directory or grouped root.
 - `run`'s per-template input flags are deliberately not Commander options. They

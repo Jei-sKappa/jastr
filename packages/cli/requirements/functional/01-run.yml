@@ -2,7 +2,7 @@
   title: Run renders a named template
   status: active
   description: >
-    The CLI renders `.jastr/<template-id>/template.md` when the user runs
+    The CLI renders `.jastr/<template-id>/TEMPLATE.md` when the user runs
     `jastr run <template-ref>` from inside a project.
   acceptance:
     - id: AC-0001
@@ -56,7 +56,7 @@
   status: active
   description: >
     The CLI fails when the requested template id does not have a template file
-    at `.jastr/<template-id>/template.md`.
+    at `.jastr/<template-id>/TEMPLATE.md`.
   acceptance:
     - id: AC-0001
       statement: A missing template exits with code 1.
@@ -95,7 +95,7 @@
   status: active
   description: >
     A two-segment named template reference `<group>/<template-id>` resolves to
-    `<group>/templates/<template-id>/template.md` under the project root when
+    `<group>/templates/<template-id>/TEMPLATE.md` under the project root when
     `<group>/.jastrgroup` exists as a file.
   acceptance:
     - id: AC-0001

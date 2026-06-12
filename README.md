@@ -31,11 +31,11 @@ jastr --version
 
 - A value ending in `.md` is a direct Markdown template file path.
 - A value matching `^[a-z0-9][a-z0-9-]*$` is a named template id and resolves to
-  `.jastr/<template-id>/template.md` under the nearest ancestor containing
+  `.jastr/<template-id>/TEMPLATE.md` under the nearest ancestor containing
   `.jastr/`.
 - A value shaped as `<group>/<template-id>`, where both segments match
   `^[a-z0-9][a-z0-9-]*$`, is a grouped named template and resolves to
-  `<group>/templates/<template-id>/template.md` when `<group>/.jastrgroup`
+  `<group>/templates/<template-id>/TEMPLATE.md` when `<group>/.jastrgroup`
   exists as a file.
 
 `--version` reports the `@jastr/cli` package version together with the git commit
@@ -78,8 +78,8 @@ Ask the user for a supported language.
 ::::
 ```
 
-Named templates live at `.jastr/<template-id>/template.md`. Grouped templates
-live at `<group>/templates/<template-id>/template.md` with a `.jastrgroup`
+Named templates live at `.jastr/<template-id>/TEMPLATE.md`. Grouped templates
+live at `<group>/templates/<template-id>/TEMPLATE.md` with a `.jastrgroup`
 marker at `<group>`. Direct file templates can live anywhere the caller can
 reference with a `.md` path.
 

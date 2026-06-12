@@ -5,7 +5,7 @@ import { findProjectRoot } from "../fs/project-root";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const GROUP_MARKER = ".jastrgroup";
-const TEMPLATE_FILE = "template.md";
+const TEMPLATE_FILE = "TEMPLATE.md";
 
 type StandaloneIncludeContext = {
   kind: "standalone";
@@ -110,7 +110,7 @@ async function loadStandaloneNamedTemplate(options: {
   if (!(await isFile(declaredPath))) {
     throw new JastrError(
       "template_not_found",
-      `Template ${options.templateId} was not found at .jastr/${options.templateId}/template.md.`,
+      `Template ${options.templateId} was not found at .jastr/${options.templateId}/TEMPLATE.md.`,
       { templateRef: options.templateId },
     );
   }
@@ -145,7 +145,7 @@ async function loadGroupedNamedTemplate(options: {
   if (!(await isFile(markerPath)) || !(await isFile(declaredPath))) {
     throw new JastrError(
       "template_not_found",
-      `Template ${options.templateRef} was not found at ${options.group}/templates/${options.templateId}/template.md.`,
+      `Template ${options.templateRef} was not found at ${options.group}/templates/${options.templateId}/TEMPLATE.md.`,
       { templateRef: options.templateRef },
     );
   }

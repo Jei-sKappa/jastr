@@ -36,13 +36,13 @@ describe("copyCaseFixture", () => {
     const caseDir = await makeTempDir();
     const fixtureDir = path.join(caseDir, "fixture", ".jastr", "demo");
     await mkdir(fixtureDir, { recursive: true });
-    await writeFile(path.join(fixtureDir, "template.md"), "hi\n");
+    await writeFile(path.join(fixtureDir, "TEMPLATE.md"), "hi\n");
     const tempRoot = await makeTempDir();
 
     await copyCaseFixture(caseDir, tempRoot);
 
     const copied = await readdir(path.join(tempRoot, ".jastr", "demo"));
-    expect(copied).toEqual(["template.md"]);
+    expect(copied).toEqual(["TEMPLATE.md"]);
   });
 
   it("expands substitution tokens in copied fixture text files without following symlinks", async () => {
@@ -51,7 +51,7 @@ describe("copyCaseFixture", () => {
     const fixtureDir = path.join(tempRoot, ".jastr", "demo");
     await mkdir(fixtureDir, { recursive: true });
     await writeFile(
-      path.join(fixtureDir, "template.md"),
+      path.join(fixtureDir, "TEMPLATE.md"),
       '::include{path="__PROJECT_ROOT__/.jastr/demo/fragment.md"}\n',
     );
     await writeFile(path.join(outsideRoot, "outside.md"), "__PROJECT_ROOT__\n");
@@ -66,7 +66,7 @@ describe("copyCaseFixture", () => {
     );
 
     await expect(
-      readFile(path.join(fixtureDir, "template.md"), "utf8"),
+      readFile(path.join(fixtureDir, "TEMPLATE.md"), "utf8"),
     ).resolves.toBe(`::include{path="${tempRoot}/.jastr/demo/fragment.md"}\n`);
     await expect(
       readFile(path.join(fixtureDir, "leak.md"), "utf8"),
