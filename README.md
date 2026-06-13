@@ -27,6 +27,11 @@ jastr help [command]
 jastr --version
 ```
 
+Input values are resolved in this order: CLI input flags, then selected
+`.jastr/config.yml` values for named template runs, then template-author
+`default:` values in frontmatter. Direct `.md` template runs use only CLI input
+flags and frontmatter defaults; they do not read `.jastr/config.yml`.
+
 `<template-ref>` is syntactic:
 
 - A value ending in `.md` is a direct Markdown template file path.
@@ -54,6 +59,7 @@ inputs:
   target-file:
     type: string
     required: false
+    default: src/index.ts
 targets:
   agent-skill:
     frontmatter:
@@ -82,6 +88,22 @@ Named templates live at `.jastr/<template-id>/TEMPLATE.md`. Grouped templates
 live at `<group>/templates/<template-id>/TEMPLATE.md` with a `.jastrgroup`
 marker at `<group>`. Direct file templates can live anywhere the caller can
 reference with a `.md` path.
+
+Named template runs may use project-local config at `.jastr/config.yml`:
+
+```yaml
+inputs:
+  analyze:
+    language: typescript
+    target-file: src/index.ts
+  team/review:
+    depth: deep
+```
+
+Keys under `inputs` are exact named template refs. A one-segment template uses a
+key such as `analyze`; a grouped template uses a key such as `team/review`.
+Config values are strict YAML values, so boolean inputs use YAML booleans such
+as `true` rather than quoted strings.
 
 Includes are contained by final resolved realpath. Standalone templates can
 include only inside the top-level template directory. Grouped templates can

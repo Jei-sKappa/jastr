@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**57** requirements · **133** acceptance criteria · **78** end-to-end cases.
+**63** requirements · **154** acceptance criteria · **98** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -32,6 +32,7 @@ output against its inputs.
   - [INPUT-FR-0002 — Missing optional inputs are rejected in interpolation](#input-fr-0002--missing-optional-inputs-are-rejected-in-interpolation)
   - [INPUT-FR-0003 — Missing required inputs are rejected](#input-fr-0003--missing-required-inputs-are-rejected)
   - [INPUT-FR-0004 — Invalid enum values are rejected](#input-fr-0004--invalid-enum-values-are-rejected)
+  - [INPUT-FR-0005 — Template defaults supply omitted optional inputs](#input-fr-0005--template-defaults-supply-omitted-optional-inputs)
 
 - [Flags](#flags)
   - [FLAGS-FR-0001 — Boolean inputs accept supported flag forms](#flags-fr-0001--boolean-inputs-accept-supported-flag-forms)
@@ -93,6 +94,13 @@ output against its inputs.
   - [TEMPLATE-FR-0007 — Condition parse errors are rejected](#template-fr-0007--condition-parse-errors-are-rejected)
   - [TEMPLATE-FR-0008 — Conditions referencing undeclared inputs are rejected](#template-fr-0008--conditions-referencing-undeclared-inputs-are-rejected)
   - [TEMPLATE-FR-0009 — Interpolation referencing undeclared inputs is rejected](#template-fr-0009--interpolation-referencing-undeclared-inputs-is-rejected)
+  - [TEMPLATE-FR-0010 — Input defaults must match input definitions](#template-fr-0010--input-defaults-must-match-input-definitions)
+
+- [Config](#config)
+  - [CONFIG-FR-0001 — Named template runs use project config inputs](#config-fr-0001--named-template-runs-use-project-config-inputs)
+  - [CONFIG-FR-0002 — Direct file runs ignore project config](#config-fr-0002--direct-file-runs-ignore-project-config)
+  - [CONFIG-FR-0003 — Project config shape errors use stable messages](#config-fr-0003--project-config-shape-errors-use-stable-messages)
+  - [CONFIG-FR-0004 — Project config validates only effective selected values](#config-fr-0004--project-config-validates-only-effective-selected-values)
 
 ## Run
 
@@ -773,6 +781,164 @@ $ jastr run demo --language=ruby
 
 ```console
 Error: Input language must be one of: typescript, python.
+```
+
+</details>
+
+### INPUT-FR-0005 — Template defaults supply omitted optional inputs
+
+An optional input with a template-author `default:` value is available to interpolation and condition evaluation when the caller omits that input. Supplied values still take precedence over the template default.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Omitted optional inputs with defaults render using their default values. | ✅ `template-defaults-render` |
+| AC-0002 | A CLI flag overrides a template default for the same input. | ✅ `template-default-cli-override` |
+| AC-0003 | Direct-file template runs apply template defaults without requiring a project root. | ✅ `direct-file-template-default` |
+
+#### Case: Direct file template default
+
+Description: Shows how a direct .md run applies template-author defaults without project config.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ templates/
+   └─ direct.md
+```
+
+`templates/direct.md`
+
+```md
+---
+inputs:
+  target-file:
+    type: string
+    required: false
+    default: src/index.ts
+---
+target={{target-file}}
+```
+
+**Command**
+
+```console
+$ jastr run templates/direct.md
+```
+
+**CLI output** — exit 0
+
+```console
+target=src/index.ts
+```
+
+</details>
+
+#### Case: Override a template default
+
+Description: Shows how a CLI flag takes precedence over a template-author default.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: false
+    default: typescript
+---
+language={{language}}
+```
+
+**Command**
+
+```console
+$ jastr run demo --language=python
+```
+
+**CLI output** — exit 0
+
+```console
+language=python
+```
+
+</details>
+
+#### Case: Render template input defaults
+
+Description: Shows how omitted optional inputs render from template-author defaults.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: false
+    default: typescript
+  dry-run:
+    type: boolean
+    required: false
+    default: true
+  target-file:
+    type: string
+    required: false
+    default: src/index.ts
+---
+language={{language}} dry-run={{dry-run}} target={{target-file}}
+::::if{condition="${dry-run}"}
+Dry run branch
+::::
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+language=typescript dry-run=true target=src/index.ts
+Dry run branch
 ```
 
 </details>
@@ -4890,6 +5056,982 @@ $ jastr run demo
 
 ```console
 Error: Interpolation references undeclared input nope.
+```
+
+</details>
+
+### TEMPLATE-FR-0010 — Input defaults must match input definitions
+
+Template-author defaults are schema metadata. A default is valid only on `required: false` inputs and must match the input's domain type and enum value set.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A default on a required input exits with code 1. | ✅ `schema-default-required-rejected` |
+| AC-0002 | A malformed default value exits with code 1 and prints an Error-prefixed stderr message. | ✅ `schema-default-invalid-boolean` |
+
+#### Case: Reject malformed boolean default
+
+Description: Shows how a boolean input default must be a YAML boolean.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+    default: "true"
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Default for input dry-run must be a boolean.
+```
+
+</details>
+
+#### Case: Reject default on required input
+
+Description: Shows how a required input cannot declare a template-author default.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: string
+    required: true
+    default: typescript
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input language cannot declare default when required is true.
+```
+
+</details>
+
+## Config
+
+### CONFIG-FR-0001 — Named template runs use project config inputs
+
+A named template run reads `.jastr/config.yml` from the discovered project root when it exists, selects only `inputs.<template-ref>`, and treats that mapping as supplied input values.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Config values satisfy required inputs for a named template. | ✅ `config-named-inputs` |
+| AC-0002 | Effective precedence is CLI flags over config values over template defaults. | ✅ `config-precedence` |
+| AC-0003 | Grouped named templates select exact config keys such as `team/review`. | ✅ `config-grouped-template-key` |
+| AC-0004 | A whitespace-only config file behaves as no project config. | ✅ `config-whitespace-ignored` |
+
+#### Case: Use grouped template config key
+
+Description: Shows how grouped named templates select an exact group/template config key.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ review/
+         └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  review:
+    depth: quick
+  team/review:
+    depth: standard
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run team/review
+```
+
+**CLI output** — exit 0
+
+```console
+depth=standard
+```
+
+</details>
+
+#### Case: Use project config inputs
+
+Description: Shows how .jastr/config.yml values satisfy required inputs for a named template.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+    dry-run: true
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: true
+  dry-run:
+    type: boolean
+    required: false
+---
+depth={{depth}} dry-run={{dry-run}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep dry-run=true
+```
+
+</details>
+
+#### Case: Apply CLI config default precedence
+
+Description: Shows precedence of CLI flags over config values over template defaults.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: standard
+    output: config
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+---
+depth={{depth}} output={{output}}
+```
+
+**Command**
+
+```console
+$ jastr run demo --depth=deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=config
+```
+
+</details>
+
+#### Case: Ignore whitespace-only config
+
+Description: Shows how a whitespace-only .jastr/config.yml behaves as no project config.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+   
+
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  mode:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+mode={{mode}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+mode=quick
+```
+
+</details>
+
+### CONFIG-FR-0002 — Direct file runs ignore project config
+
+A direct `.md` template run does not search for, read, or apply `.jastr/config.yml`, even when the current directory is inside a Jastr project.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Direct-file runs use CLI flags and template defaults while ignoring matching-looking config entries. | ✅ `direct-file-ignores-config` |
+
+#### Case: Direct file ignores project config
+
+Description: Shows how a direct .md run ignores .jastr/config.yml and uses the template default.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ templates/
+   └─ direct.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  templates/direct.md:
+    depth: deep
+```
+
+`templates/direct.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run templates/direct.md
+```
+
+**CLI output** — exit 0
+
+```console
+depth=quick
+```
+
+</details>
+
+### CONFIG-FR-0003 — Project config shape errors use stable messages
+
+Invalid YAML and malformed recognized config structures fail with `invalid_config` and the stable Error-prefixed message for the malformed layer.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Invalid config YAML exits with code 1 and prints `.jastr/config.yml could not be parsed.` | ✅ `config-invalid-yaml` |
+| AC-0002 | A non-mapping top-level config exits with code 1 and prints `.jastr/config.yml must be a mapping.` | ✅ `config-top-level-nonmapping` |
+| AC-0003 | A non-mapping `inputs` section exits with code 1 and prints `.jastr/config.yml inputs must be a mapping.` | ✅ `config-inputs-nonmapping` |
+| AC-0004 | A non-mapping selected template entry exits with code 1 and names the selected template ref. | ✅ `config-selected-entry-nonmapping` |
+
+#### Case: Reject non-mapping config inputs
+
+Description: Shows the stable error when the recognized inputs section is not a mapping.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: true
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml inputs must be a mapping.
+```
+
+</details>
+
+#### Case: Reject invalid config YAML
+
+Description: Shows the stable parse error for malformed .jastr/config.yml.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: [
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml could not be parsed.
+```
+
+</details>
+
+#### Case: Reject non-mapping selected config entry
+
+Description: Shows the stable error when the selected template's config entry is not a mapping.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo: true
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml inputs.demo must be a mapping.
+```
+
+</details>
+
+#### Case: Reject non-mapping config
+
+Description: Shows the stable error for a config whose top-level value is not a mapping.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+- inputs
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml must be a mapping.
+```
+
+</details>
+
+### CONFIG-FR-0004 — Project config validates only effective selected values
+
+Unknown top-level config keys and non-selected template entries are ignored. The selected template entry is merged with CLI flags before the engine validates unknown input names, value types, enum membership, and requiredness.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Unknown top-level config keys are ignored. | ✅ `config-ignored-sections` |
+| AC-0002 | A malformed non-selected template entry under `inputs` does not affect the selected run. | ✅ `config-ignored-sections` |
+| AC-0003 | An unknown input name in the selected template entry exits with code 1. | ✅ `config-unknown-selected-input` |
+| AC-0004 | An invalid selected config value exits with code 1 when no CLI flag overrides it. | ✅ `config-invalid-winning-value` |
+| AC-0005 | An invalid selected config value does not fail when a CLI flag overrides the same input. | ✅ `config-invalid-overridden-value` |
+| AC-0006 | Quoted boolean strings in config are invalid for boolean inputs when they win precedence. | ✅ `config-quoted-boolean-invalid` |
+| AC-0007 | Quoted boolean strings in config do not fail when a CLI flag overrides the same boolean input. | ✅ `config-quoted-boolean-overridden` |
+
+#### Case: Ignore unknown config sections and non-selected entries
+
+Description: Shows how unknown top-level keys and malformed non-selected entries do not affect the selected run.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+unknown-top-level:
+  nested: true
+inputs:
+  other-template: true
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep
+```
+
+</details>
+
+#### Case: Override invalid config value
+
+Description: Shows how a CLI flag can override an invalid config enum value before final validation.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: typo
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo --depth=deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep
+```
+
+</details>
+
+#### Case: Reject invalid winning config value
+
+Description: Shows how an invalid config enum value fails when no CLI flag overrides it.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: typo
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input depth must be one of: quick, deep.
+```
+
+</details>
+
+#### Case: Reject quoted boolean config string
+
+Description: Shows how quoted boolean-like strings are invalid for boolean inputs when they win precedence.
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    dry-run: "true"
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  dry-run:
+    type: boolean
+    required: true
+---
+dry-run={{dry-run}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input dry-run must be a boolean.
+```
+
+</details>
+
+#### Case: Override quoted boolean config string
+
+Description: Shows how a CLI boolean flag overrides a quoted boolean-like config string before final validation.
+
+Covers: AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    dry-run: "true"
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  dry-run:
+    type: boolean
+    required: true
+---
+dry-run={{dry-run}}
+```
+
+**Command**
+
+```console
+$ jastr run demo --dry-run=false
+```
+
+**CLI output** — exit 0
+
+```console
+dry-run=false
+```
+
+</details>
+
+#### Case: Reject unknown selected config input
+
+Description: Shows how unknown input names in the selected config entry fail final engine validation.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+    extra: value
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input extra is not declared.
 ```
 
 </details>

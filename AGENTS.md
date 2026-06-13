@@ -55,6 +55,10 @@ tells the agent to run `jastr run <template-ref> $ARGUMENTS` — or just
 `jastr run <template-ref>` when the template declares no inputs — and follow the
 rendered Markdown output.
 
+Defaults and project config can make an input-bearing template runnable without
+flags, but generated Agent Skill wrappers still forward `$ARGUMENTS` whenever
+the template declares one or more inputs.
+
 The active package-split design thread is
 `docs/threads/260605091319Z-core-cli-package-split/`. The implemented v2
 contract is
@@ -67,6 +71,11 @@ contract is
 That spec supersedes the package-split v2 include-containment rules and is the
 active contract for include resolution, grouped template lookup, and include
 boundary errors.
+
+The active template input defaults and project config design thread is
+`docs/threads/260612215058Z-template-input-defaults/`. Its implemented v2
+contract is
+`docs/threads/260612215058Z-template-input-defaults/specs/260613125936Z-v2-spec.md`.
 
 Current v2 direction:
 
@@ -84,9 +93,15 @@ Current v2 direction:
   project discovery, direct file loading, Node filesystem include resolution,
   Agent Skill target validation/generation, stdout/stderr formatting, exit
   codes, and `jastr --version`.
+- Named `jastr run <template-ref>` loads `.jastr/config.yml` from the discovered
+  project root when present and selects only `inputs.<template-ref>`. The final
+  input precedence is CLI flags over selected project config values over
+  template-author defaults. Direct `.md` runs never read `.jastr/config.yml`.
 - Templates use Markdown with optional YAML frontmatter. Recognized root keys
   are `inputs` and `targets`; unknown root keys are ignored. Recognized
-  structures are strict.
+  structures are strict. Optional inputs may declare `default:` only when
+  `required: false`; defaults are validated by `@jastr/engine` and participate
+  in `validateTemplateInputs` / `renderTemplateSource` effective values.
 - The v2 directive set remains `if`, `else-if`, `else`, `include`, and
   `include-raw`.
 - Includes accept optional `root="template"`, `root="group"`, or `root="file"`.
