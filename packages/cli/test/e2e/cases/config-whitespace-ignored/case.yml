@@ -1,0 +1,10 @@
+id: config-whitespace-ignored
+covers:
+  - CONFIG-FR-0001.AC-0004
+title: Ignore whitespace-only config
+description: Shows how a whitespace-only .jastr/config.yml behaves as no project config.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "mode=quick\n"
+  stderr: ""

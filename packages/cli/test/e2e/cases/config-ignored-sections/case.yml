@@ -1,0 +1,11 @@
+id: config-ignored-sections
+covers:
+  - CONFIG-FR-0004.AC-0001
+  - CONFIG-FR-0004.AC-0002
+title: Ignore unknown config sections and non-selected entries
+description: Shows how unknown top-level keys and malformed non-selected entries do not affect the selected run.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep\n"
+  stderr: ""

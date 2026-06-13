@@ -1,0 +1,10 @@
+id: direct-file-ignores-config
+covers:
+  - CONFIG-FR-0002.AC-0001
+title: Direct file ignores project config
+description: Shows how a direct .md run ignores .jastr/config.yml and uses the template default.
+command: ["run", "templates/direct.md"]
+expect:
+  exitCode: 0
+  stdout: "depth=quick\n"
+  stderr: ""

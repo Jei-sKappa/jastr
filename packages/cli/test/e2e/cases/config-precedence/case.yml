@@ -1,0 +1,10 @@
+id: config-precedence
+covers:
+  - CONFIG-FR-0001.AC-0002
+title: Apply CLI config default precedence
+description: Shows precedence of CLI flags over config values over template defaults.
+command: ["run", "demo", "--depth=deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep output=config\n"
+  stderr: ""

@@ -1,0 +1,4 @@
+inputs:
+  demo:
+    depth: standard
+    output: config

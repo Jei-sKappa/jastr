@@ -1,0 +1,10 @@
+id: config-named-inputs
+covers:
+  - CONFIG-FR-0001.AC-0001
+title: Use project config inputs
+description: Shows how .jastr/config.yml values satisfy required inputs for a named template.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep dry-run=true\n"
+  stderr: ""

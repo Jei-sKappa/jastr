@@ -1,0 +1,3 @@
+inputs:
+  templates/direct.md:
+    depth: deep

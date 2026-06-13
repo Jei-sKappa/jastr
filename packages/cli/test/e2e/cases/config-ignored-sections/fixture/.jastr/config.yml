@@ -1,0 +1,6 @@
+unknown-top-level:
+  nested: true
+inputs:
+  other-template: true
+  demo:
+    depth: deep

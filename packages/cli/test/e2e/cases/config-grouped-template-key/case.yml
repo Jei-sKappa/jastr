@@ -1,0 +1,10 @@
+id: config-grouped-template-key
+covers:
+  - CONFIG-FR-0001.AC-0003
+title: Use grouped template config key
+description: Shows how grouped named templates select an exact group/template config key.
+command: ["run", "team/review"]
+expect:
+  exitCode: 0
+  stdout: "depth=standard\n"
+  stderr: ""

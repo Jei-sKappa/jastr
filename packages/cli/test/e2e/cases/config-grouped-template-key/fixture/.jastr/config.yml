@@ -1,0 +1,5 @@
+inputs:
+  review:
+    depth: quick
+  team/review:
+    depth: standard
