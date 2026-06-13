@@ -1,0 +1,10 @@
+id: config-quoted-boolean-invalid
+covers:
+  - CONFIG-FR-0004.AC-0006
+title: Reject quoted boolean config string
+description: Shows how quoted boolean-like strings are invalid for boolean inputs when they win precedence.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input dry-run must be a boolean.\n"

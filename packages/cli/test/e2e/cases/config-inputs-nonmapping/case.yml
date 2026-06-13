@@ -1,0 +1,10 @@
+id: config-inputs-nonmapping
+covers:
+  - CONFIG-FR-0003.AC-0003
+title: Reject non-mapping config inputs
+description: Shows the stable error when the recognized inputs section is not a mapping.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml inputs must be a mapping.\n"

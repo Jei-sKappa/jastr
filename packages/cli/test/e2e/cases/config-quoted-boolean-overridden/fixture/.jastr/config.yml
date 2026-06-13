@@ -1,0 +1,3 @@
+inputs:
+  demo:
+    dry-run: "true"

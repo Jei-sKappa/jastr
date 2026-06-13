@@ -1,0 +1,10 @@
+id: config-invalid-overridden-value
+covers:
+  - CONFIG-FR-0004.AC-0005
+title: Override invalid config value
+description: Shows how a CLI flag can override an invalid config enum value before final validation.
+command: ["run", "demo", "--depth=deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep\n"
+  stderr: ""

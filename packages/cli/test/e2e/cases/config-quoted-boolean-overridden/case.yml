@@ -1,0 +1,10 @@
+id: config-quoted-boolean-overridden
+covers:
+  - CONFIG-FR-0004.AC-0007
+title: Override quoted boolean config string
+description: Shows how a CLI boolean flag overrides a quoted boolean-like config string before final validation.
+command: ["run", "demo", "--dry-run=false"]
+expect:
+  exitCode: 0
+  stdout: "dry-run=false\n"
+  stderr: ""

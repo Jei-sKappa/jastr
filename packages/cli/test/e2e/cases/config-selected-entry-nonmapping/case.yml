@@ -1,0 +1,10 @@
+id: config-selected-entry-nonmapping
+covers:
+  - CONFIG-FR-0003.AC-0004
+title: Reject non-mapping selected config entry
+description: Shows the stable error when the selected template's config entry is not a mapping.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml inputs.demo must be a mapping.\n"

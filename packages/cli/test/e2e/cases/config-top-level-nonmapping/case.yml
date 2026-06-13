@@ -1,0 +1,10 @@
+id: config-top-level-nonmapping
+covers:
+  - CONFIG-FR-0003.AC-0002
+title: Reject non-mapping config
+description: Shows the stable error for a config whose top-level value is not a mapping.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml must be a mapping.\n"

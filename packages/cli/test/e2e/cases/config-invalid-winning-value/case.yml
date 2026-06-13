@@ -1,0 +1,10 @@
+id: config-invalid-winning-value
+covers:
+  - CONFIG-FR-0004.AC-0004
+title: Reject invalid winning config value
+description: Shows how an invalid config enum value fails when no CLI flag overrides it.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input depth must be one of: quick, deep.\n"
