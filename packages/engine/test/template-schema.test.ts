@@ -99,4 +99,108 @@ Hello {{language}}
       details: { target: "typescript" },
     });
   });
+
+  it("parses and preserves valid optional input defaults", () => {
+    const parsed = parseTemplateSource(`---
+inputs:
+  dry-run:
+    type: boolean
+    required: false
+    default: true
+  language:
+    type: enum
+    values: [typescript, python]
+    required: false
+    default: typescript
+  target-file:
+    type: string
+    required: false
+    default: src/index.ts
+---
+Hello
+`);
+
+    expect(validateTemplateSchema(parsed.frontmatter)).toEqual({
+      inputs: {
+        "dry-run": { type: "boolean", required: false, default: true },
+        language: {
+          type: "enum",
+          values: ["typescript", "python"],
+          required: false,
+          default: "typescript",
+        },
+        "target-file": {
+          type: "string",
+          required: false,
+          default: "src/index.ts",
+        },
+      },
+      targets: {},
+    });
+  });
+
+  it("rejects defaults on required inputs", () => {
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          language: {
+            type: "string",
+            required: true,
+            default: "typescript",
+          },
+        },
+      }),
+    ).toThrow("Input language cannot declare default when required is true.");
+  });
+
+  it("rejects default values that do not match input domain rules", () => {
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          "dry-run": {
+            type: "boolean",
+            required: false,
+            default: "true",
+          },
+        },
+      }),
+    ).toThrow("Default for input dry-run must be a boolean.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          "target-file": {
+            type: "string",
+            required: false,
+            default: true,
+          },
+        },
+      }),
+    ).toThrow("Default for input target-file must be a string.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          "target-file": {
+            type: "string",
+            required: false,
+            default: "",
+          },
+        },
+      }),
+    ).toThrow("Default for input target-file cannot be empty.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          language: {
+            type: "enum",
+            values: ["typescript", "python"],
+            required: false,
+            default: "ruby",
+          },
+        },
+      }),
+    ).toThrow("Default for input language must be one of: typescript, python.");
+  });
 });

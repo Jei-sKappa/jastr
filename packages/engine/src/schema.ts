@@ -1,9 +1,9 @@
 import { JastrError } from "./errors";
 
 export type TemplateInputDefinition =
-  | { type: "string"; required: boolean }
-  | { type: "boolean"; required: boolean }
-  | { type: "enum"; values: string[]; required: boolean };
+  | { type: "string"; required: boolean; default?: string }
+  | { type: "boolean"; required: boolean; default?: boolean }
+  | { type: "enum"; values: string[]; required: boolean; default?: string };
 
 export type TemplateInputValues = Record<string, string | boolean>;
 
@@ -85,8 +85,41 @@ function validateInputDefinition(
     );
   }
 
-  if (rawDefinition.type === "string" || rawDefinition.type === "boolean") {
-    return { type: rawDefinition.type, required: rawDefinition.required };
+  const hasDefault = hasOwn(rawDefinition, "default");
+  if (hasDefault && rawDefinition.required === true) {
+    throw new JastrError(
+      "malformed_schema",
+      `Input ${inputName} cannot declare default when required is true.`,
+      { inputName },
+    );
+  }
+
+  if (rawDefinition.type === "string") {
+    const definition: Extract<TemplateInputDefinition, { type: "string" }> = {
+      type: "string",
+      required: rawDefinition.required,
+    };
+    if (hasDefault) {
+      definition.default = validateStringDefault(
+        inputName,
+        rawDefinition.default,
+      );
+    }
+    return definition;
+  }
+
+  if (rawDefinition.type === "boolean") {
+    const definition: Extract<TemplateInputDefinition, { type: "boolean" }> = {
+      type: "boolean",
+      required: rawDefinition.required,
+    };
+    if (hasDefault) {
+      definition.default = validateBooleanDefault(
+        inputName,
+        rawDefinition.default,
+      );
+    }
+    return definition;
   }
 
   if (rawDefinition.type === "enum") {
@@ -101,11 +134,19 @@ function validateInputDefinition(
         { inputName },
       );
     }
-    return {
+    const definition: Extract<TemplateInputDefinition, { type: "enum" }> = {
       type: "enum",
       values: rawDefinition.values,
       required: rawDefinition.required,
     };
+    if (hasDefault) {
+      definition.default = validateEnumDefault(
+        inputName,
+        rawDefinition.default,
+        rawDefinition.values,
+      );
+    }
+    return definition;
   }
 
   throw new JastrError(
@@ -113,6 +154,55 @@ function validateInputDefinition(
     `Input ${inputName} uses unsupported type ${String(rawDefinition.type)}.`,
     { inputName },
   );
+}
+
+function validateBooleanDefault(inputName: string, value: unknown): boolean {
+  if (typeof value !== "boolean") {
+    throw new JastrError(
+      "malformed_schema",
+      `Default for input ${inputName} must be a boolean.`,
+      { inputName },
+    );
+  }
+  return value;
+}
+
+function validateStringDefault(inputName: string, value: unknown): string {
+  if (typeof value !== "string") {
+    throw new JastrError(
+      "malformed_schema",
+      `Default for input ${inputName} must be a string.`,
+      { inputName },
+    );
+  }
+  if (value === "") {
+    throw new JastrError(
+      "malformed_schema",
+      `Default for input ${inputName} cannot be empty.`,
+      { inputName },
+    );
+  }
+  return value;
+}
+
+function validateEnumDefault(
+  inputName: string,
+  value: unknown,
+  values: string[],
+): string {
+  const defaultValue = validateStringDefault(inputName, value);
+  if (!values.includes(defaultValue)) {
+    throw new JastrError(
+      "malformed_schema",
+      `Default for input ${inputName} must be one of: ${values.join(", ")}.`,
+      { inputName, values },
+    );
+  }
+  return defaultValue;
+}
+
+function hasOwn(value: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }
 
 function validateTargets(value: unknown): TemplateTargets {
