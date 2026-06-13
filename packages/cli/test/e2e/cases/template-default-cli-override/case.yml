@@ -1,0 +1,10 @@
+id: template-default-cli-override
+covers:
+  - INPUT-FR-0005.AC-0002
+title: Override a template default
+description: Shows how a CLI flag takes precedence over a template-author default.
+command: ["run", "demo", "--language=python"]
+expect:
+  exitCode: 0
+  stdout: "language=python\n"
+  stderr: ""

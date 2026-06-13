@@ -1,0 +1,10 @@
+id: template-defaults-render
+covers:
+  - INPUT-FR-0005.AC-0001
+title: Render template input defaults
+description: Shows how omitted optional inputs render from template-author defaults.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "language=typescript dry-run=true target=src/index.ts\nDry run branch\n"
+  stderr: ""

@@ -1,0 +1,10 @@
+id: schema-default-required-rejected
+covers:
+  - TEMPLATE-FR-0010.AC-0001
+title: Reject default on required input
+description: Shows how a required input cannot declare a template-author default.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input language cannot declare default when required is true.\n"

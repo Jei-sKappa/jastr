@@ -1,0 +1,10 @@
+id: schema-default-invalid-boolean
+covers:
+  - TEMPLATE-FR-0010.AC-0002
+title: Reject malformed boolean default
+description: Shows how a boolean input default must be a YAML boolean.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Default for input dry-run must be a boolean.\n"
