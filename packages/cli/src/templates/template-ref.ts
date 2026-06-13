@@ -23,14 +23,22 @@ type GroupedIncludeContext = {
 
 export type IncludeContext = StandaloneIncludeContext | GroupedIncludeContext;
 
-export type LoadedTemplateReference = {
-  mode: "named" | "direct";
+type LoadedTemplateReferenceBase = {
   templateRef: string;
   templatePath: string;
   cwd: string;
   includeContext: IncludeContext;
   source: string;
 };
+
+export type LoadedTemplateReference =
+  | (LoadedTemplateReferenceBase & {
+      mode: "named";
+      projectRoot: string;
+    })
+  | (LoadedTemplateReferenceBase & {
+      mode: "direct";
+    });
 
 type NamedTemplateRef =
   | { kind: "standalone"; templateId: string }
@@ -122,6 +130,7 @@ async function loadStandaloneNamedTemplate(options: {
     templateRef: options.templateRef,
     templatePath,
     cwd: options.cwd,
+    projectRoot: options.projectRoot,
     includeContext: standaloneContext(templatePath),
     source: await readFile(templatePath, "utf8"),
   };
@@ -158,6 +167,7 @@ async function loadGroupedNamedTemplate(options: {
     templateRef: options.templateRef,
     templatePath,
     cwd: options.cwd,
+    projectRoot: options.projectRoot,
     includeContext: groupedContext(templatePath, realGroupRoot),
     source: await readFile(templatePath, "utf8"),
   };

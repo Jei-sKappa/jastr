@@ -42,25 +42,7 @@ export function coerceRunFlags(
       );
     }
 
-    if (definition.type === "enum" && !definition.values.includes(flag.value)) {
-      throw new JastrError(
-        "invalid_input_value",
-        `Invalid value ${flag.value} for --${flag.name}. Expected one of: ${definition.values.join(", ")}.`,
-        { inputName: flag.name, values: definition.values },
-      );
-    }
-
     values[flag.name] = flag.value;
-  }
-
-  for (const [inputName, definition] of Object.entries(schema.inputs)) {
-    if (definition.required && !(inputName in values)) {
-      throw new JastrError(
-        "missing_required_input",
-        `Missing required input --${inputName}.`,
-        { inputName },
-      );
-    }
   }
 
   return values;

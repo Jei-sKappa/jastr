@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Missing required input --language.\n"
+  stderr: "Error: Required input language is missing.\n"

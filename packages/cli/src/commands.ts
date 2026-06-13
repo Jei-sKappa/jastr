@@ -9,6 +9,7 @@ import {
 } from "@jastr/engine";
 import type { RawFlag } from "./args";
 import { validateGenerateOut } from "./args";
+import { loadProjectConfigInputs } from "./config";
 import { coerceRunFlags } from "./flags";
 import {
   assertAgentSkillOutputAvailable,
@@ -30,7 +31,20 @@ export async function executeRun(opts: {
   });
   const parsed = parseTemplateSource(template.source);
   const schema = validateTemplateSchema(parsed.frontmatter);
-  const inputs = coerceRunFlags(schema, opts.flags);
+  const flagInputs = coerceRunFlags(schema, opts.flags);
+  const configInputs =
+    template.mode === "named"
+      ? await loadProjectConfigInputs({
+          projectRoot: template.projectRoot,
+          templateRef: template.templateRef,
+        })
+      : {};
+
+  // Config values are not prevalidated here: a CLI flag for the same input can
+  // intentionally override an invalid standing config value before the engine
+  // validates the final effective supplied map.
+  const inputs =
+    template.mode === "named" ? { ...configInputs, ...flagInputs } : flagInputs;
 
   const result = await renderTemplateSource({
     source: template.source,

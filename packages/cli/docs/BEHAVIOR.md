@@ -716,7 +716,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Missing required input --language.
+Error: Required input language is missing.
 ```
 
 </details>
@@ -772,7 +772,7 @@ $ jastr run demo --language=ruby
 **CLI output** — exit 1
 
 ```console
-Error: Invalid value ruby for --language. Expected one of: typescript, python.
+Error: Input language must be one of: typescript, python.
 ```
 
 </details>
