@@ -210,3 +210,42 @@ it("rejects include directives that omit path or declare unsupported attributes"
     }),
   ).rejects.toThrow("include-raw directive accepts path and optional root.");
 });
+
+it("applies template defaults during render", async () => {
+  await expect(
+    renderTemplateSource({
+      source: `---
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: false
+    default: typescript
+  dry-run:
+    type: boolean
+    required: false
+    default: true
+---
+Language {{language}}
+::::if{condition="\${dry-run}"}
+Dry run enabled
+::::
+`,
+      inputs: {},
+    }),
+  ).resolves.toEqual({
+    schema: {
+      inputs: {
+        language: {
+          type: "enum",
+          values: ["typescript", "python"],
+          required: false,
+          default: "typescript",
+        },
+        "dry-run": { type: "boolean", required: false, default: true },
+      },
+      targets: {},
+    },
+    markdown: "Language typescript\nDry run enabled\n",
+  });
+});

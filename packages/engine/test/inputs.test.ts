@@ -69,3 +69,54 @@ describe("domain input validation", () => {
     ).toThrow("Input extra is not declared.");
   });
 });
+
+const defaultSchema: TemplateSchema = {
+  inputs: {
+    language: {
+      type: "enum",
+      values: ["typescript", "python"],
+      required: false,
+      default: "typescript",
+    },
+    "target-file": {
+      type: "string",
+      required: false,
+      default: "src/index.ts",
+    },
+    "dry-run": { type: "boolean", required: false, default: false },
+    reviewer: { type: "string", required: true },
+    note: { type: "string", required: false },
+  },
+  targets: {},
+};
+
+it("returns effective values with template defaults applied", () => {
+  expect(validateTemplateInputs(defaultSchema, { reviewer: "agent" })).toEqual({
+    language: "typescript",
+    "target-file": "src/index.ts",
+    "dry-run": false,
+    reviewer: "agent",
+  });
+});
+
+it("lets supplied values override template defaults", () => {
+  expect(
+    validateTemplateInputs(defaultSchema, {
+      language: "python",
+      "target-file": "src/app.py",
+      "dry-run": true,
+      reviewer: "agent",
+    }),
+  ).toEqual({
+    language: "python",
+    "target-file": "src/app.py",
+    "dry-run": true,
+    reviewer: "agent",
+  });
+});
+
+it("keeps optional inputs without defaults absent", () => {
+  expect(
+    validateTemplateInputs(defaultSchema, { reviewer: "agent" }),
+  ).not.toHaveProperty("note");
+});

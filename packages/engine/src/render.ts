@@ -34,7 +34,7 @@ export type IncludeResolver = (
 
 export type RenderTemplateSourceOptions = {
   source: string;
-  inputs: TemplateInputValues;
+  inputs: Record<string, unknown>;
   sourceId?: string;
   includeResolver?: IncludeResolver;
 };
