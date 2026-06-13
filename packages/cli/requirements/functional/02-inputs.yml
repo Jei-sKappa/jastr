@@ -41,3 +41,18 @@
       statement: A value outside the enum's allowed set exits with code 1.
     - id: AC-0002
       statement: A value outside the enum's allowed set prints an Error-prefixed stderr message.
+
+- id: INPUT-FR-0005
+  title: Template defaults supply omitted optional inputs
+  status: active
+  description: >
+    An optional input with a template-author `default:` value is available to
+    interpolation and condition evaluation when the caller omits that input.
+    Supplied values still take precedence over the template default.
+  acceptance:
+    - id: AC-0001
+      statement: Omitted optional inputs with defaults render using their default values.
+    - id: AC-0002
+      statement: A CLI flag overrides a template default for the same input.
+    - id: AC-0003
+      statement: Direct-file template runs apply template defaults without requiring a project root.

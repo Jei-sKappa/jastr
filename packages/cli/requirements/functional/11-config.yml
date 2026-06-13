@@ -1,0 +1,68 @@
+- id: CONFIG-FR-0001
+  title: Named template runs use project config inputs
+  status: active
+  description: >
+    A named template run reads `.jastr/config.yml` from the discovered project
+    root when it exists, selects only `inputs.<template-ref>`, and treats that
+    mapping as supplied input values.
+  acceptance:
+    - id: AC-0001
+      statement: Config values satisfy required inputs for a named template.
+    - id: AC-0002
+      statement: Effective precedence is CLI flags over config values over template defaults.
+    - id: AC-0003
+      statement: Grouped named templates select exact config keys such as `team/review`.
+    - id: AC-0004
+      statement: A whitespace-only config file behaves as no project config.
+
+- id: CONFIG-FR-0002
+  title: Direct file runs ignore project config
+  status: active
+  description: >
+    A direct `.md` template run does not search for, read, or apply
+    `.jastr/config.yml`, even when the current directory is inside a Jastr
+    project.
+  acceptance:
+    - id: AC-0001
+      statement: Direct-file runs use CLI flags and template defaults while ignoring matching-looking config entries.
+
+- id: CONFIG-FR-0003
+  title: Project config shape errors use stable messages
+  status: active
+  description: >
+    Invalid YAML and malformed recognized config structures fail with
+    `invalid_config` and the stable Error-prefixed message for the malformed
+    layer.
+  acceptance:
+    - id: AC-0001
+      statement: Invalid config YAML exits with code 1 and prints `.jastr/config.yml could not be parsed.`
+    - id: AC-0002
+      statement: A non-mapping top-level config exits with code 1 and prints `.jastr/config.yml must be a mapping.`
+    - id: AC-0003
+      statement: A non-mapping `inputs` section exits with code 1 and prints `.jastr/config.yml inputs must be a mapping.`
+    - id: AC-0004
+      statement: A non-mapping selected template entry exits with code 1 and names the selected template ref.
+
+- id: CONFIG-FR-0004
+  title: Project config validates only effective selected values
+  status: active
+  description: >
+    Unknown top-level config keys and non-selected template entries are ignored.
+    The selected template entry is merged with CLI flags before the engine
+    validates unknown input names, value types, enum membership, and
+    requiredness.
+  acceptance:
+    - id: AC-0001
+      statement: Unknown top-level config keys are ignored.
+    - id: AC-0002
+      statement: A malformed non-selected template entry under `inputs` does not affect the selected run.
+    - id: AC-0003
+      statement: An unknown input name in the selected template entry exits with code 1.
+    - id: AC-0004
+      statement: An invalid selected config value exits with code 1 when no CLI flag overrides it.
+    - id: AC-0005
+      statement: An invalid selected config value does not fail when a CLI flag overrides the same input.
+    - id: AC-0006
+      statement: Quoted boolean strings in config are invalid for boolean inputs when they win precedence.
+    - id: AC-0007
+      statement: Quoted boolean strings in config do not fail when a CLI flag overrides the same boolean input.

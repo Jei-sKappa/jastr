@@ -104,3 +104,16 @@
       statement: An interpolation referencing an undeclared input exits with code 1.
     - id: AC-0002
       statement: An interpolation referencing an undeclared input prints an Error-prefixed stderr message.
+
+- id: TEMPLATE-FR-0010
+  title: Input defaults must match input definitions
+  status: active
+  description: >
+    Template-author defaults are schema metadata. A default is valid only on
+    `required: false` inputs and must match the input's domain type and enum
+    value set.
+  acceptance:
+    - id: AC-0001
+      statement: A default on a required input exits with code 1.
+    - id: AC-0002
+      statement: A malformed default value exits with code 1 and prints an Error-prefixed stderr message.
