@@ -1,5 +1,6 @@
 export type JastrErrorCode =
   | "invalid_command"
+  | "invalid_config"
   | "invalid_template_reference"
   | "missing_project_root"
   | "template_not_found"
