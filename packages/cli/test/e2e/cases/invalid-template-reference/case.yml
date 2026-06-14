@@ -3,9 +3,9 @@ covers:
   - RUN-FR-0007.AC-0001
   - RUN-FR-0007.AC-0002
 title: Reject an invalid template reference
-description: Template references must be syntactically either a template id, a group/template id, or a .md file path.
+description: Template references must be syntactically either a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 command: ["run", "BadName"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template reference BadName must be a template id, a group/template id, or a .md file path.\n"
+  stderr: "Error: Template reference BadName must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.\n"
