@@ -15,6 +15,13 @@ export type AgentSkillTarget = {
   frontmatter: Record<string, unknown>;
 };
 
+export function readOptionalAgentSkillFrontmatter(
+  value: unknown,
+): Record<string, unknown> {
+  if (value === undefined) return {};
+  return readAgentSkillFrontmatter(value);
+}
+
 export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
   if (value === undefined) {
     throw new JastrError(
@@ -23,6 +30,10 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
     );
   }
 
+  return validateAgentSkillFrontmatter(readAgentSkillFrontmatter(value));
+}
+
+function readAgentSkillFrontmatter(value: unknown): Record<string, unknown> {
   if (!isRecord(value)) {
     throw new JastrError(
       "invalid_target_metadata",
@@ -54,6 +65,12 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
     );
   }
 
+  return frontmatter;
+}
+
+export function validateAgentSkillFrontmatter(
+  frontmatter: Record<string, unknown>,
+): AgentSkillTarget {
   const name = expectString(
     frontmatter.name,
     "targets.agent-skill.frontmatter.name is required and must be a string.",

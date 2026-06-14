@@ -12,6 +12,8 @@ import { coerceRunFlags } from "./flags";
 import {
   assertAgentSkillOutputAvailable,
   buildAgentSkillContent,
+  readOptionalAgentSkillFrontmatter,
+  validateAgentSkillFrontmatter,
   validateAgentSkillTarget,
   writeAgentSkill,
 } from "./targets/agent-skill";
@@ -19,6 +21,7 @@ import { createFileIncludeResolver } from "./templates/includes";
 import { loadTemplateReference } from "./templates/template-ref";
 import {
   assertNoLockedInputFlags,
+  hasUnlockedTemplateInputs,
   mergeVariantInputs,
   sampleInputsForStaticRender,
 } from "./variants";
@@ -117,19 +120,38 @@ export async function executeGenerate(opts: {
   });
   const parsed = parseTemplateSource(template.source);
   const schema = validateTemplateSchema(parsed.frontmatter);
-  const target = validateAgentSkillTarget(schema.targets["agent-skill"]);
+
+  const selectedVariant =
+    template.mode === "named" && template.variantId !== undefined
+      ? await loadProjectConfigVariant({
+          projectRoot: template.projectRoot,
+          templateRef: template.templateRef,
+          variantId: template.variantId,
+        })
+      : undefined;
+
+  const target =
+    selectedVariant === undefined
+      ? validateAgentSkillTarget(schema.targets["agent-skill"])
+      : validateAgentSkillFrontmatter({
+          ...readOptionalAgentSkillFrontmatter(schema.targets["agent-skill"]),
+          ...(selectedVariant.agentSkillFrontmatter ?? {}),
+        });
 
   await renderTemplateSource({
     source: template.source,
     sourceId: path.relative(template.cwd, template.templatePath),
-    inputs: sampleInputsForStaticRender(schema),
+    inputs: sampleInputsForStaticRender(schema, selectedVariant?.lockedInputs),
     includeResolver: createFileIncludeResolver(template),
   });
 
   const content = buildAgentSkillContent({
-    templateRef: opts.templateRef,
+    templateRef: template.requestedTemplateRef,
     target,
-    hasInputs: Object.keys(schema.inputs).length > 0,
+    hasInputs:
+      selectedVariant === undefined
+        ? Object.keys(schema.inputs).length > 0
+        : hasUnlockedTemplateInputs(schema, selectedVariant.lockedInputs),
   });
   const outputPath = await writeAgentSkill({
     cwd: opts.cwd,
