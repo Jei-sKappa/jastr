@@ -77,6 +77,13 @@ The active template input defaults and project config design thread is
 contract is
 `docs/threads/260612215058Z-template-input-defaults/specs/260613125936Z-v2-spec.md`.
 
+The active generated skill variants design thread is
+`docs/threads/260614103530Z-generated-skill-variants/`. Its current v2 handoff
+spec is
+`docs/threads/260614103530Z-generated-skill-variants/specs/260614165823Z-v2-spec.md`.
+This feature is not implemented yet; until implementation updates this file,
+the current CLI behavior below does not support `#<variant-id>` refs.
+
 Current v2 direction:
 
 - Canonical commands are `jastr run <template-ref> [input flags...]` and
