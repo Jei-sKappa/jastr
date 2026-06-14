@@ -25,6 +25,8 @@ export type IncludeContext = StandaloneIncludeContext | GroupedIncludeContext;
 
 type LoadedTemplateReferenceBase = {
   templateRef: string;
+  requestedTemplateRef: string;
+  variantId?: string;
   templatePath: string;
   cwd: string;
   includeContext: IncludeContext;
@@ -44,17 +46,26 @@ type NamedTemplateRef =
   | { kind: "standalone"; templateId: string }
   | { kind: "grouped"; group: string; templateId: string };
 
+export type ParsedTemplateReference = {
+  baseTemplateRef: string;
+  variantId?: string;
+};
+
 export async function loadTemplateReference(options: {
   cwd: string;
   templateRef: string;
 }): Promise<LoadedTemplateReference> {
   const { cwd, templateRef } = options;
+  const parsedRef = parseTemplateReference(templateRef);
 
-  if (templateRef.endsWith(".md")) {
-    const templatePath = await realpath(path.resolve(cwd, templateRef));
+  if (parsedRef.baseTemplateRef.endsWith(".md")) {
+    const templatePath = await realpath(
+      path.resolve(cwd, parsedRef.baseTemplateRef),
+    );
     return {
       mode: "direct",
-      templateRef,
+      templateRef: parsedRef.baseTemplateRef,
+      requestedTemplateRef: templateRef,
       templatePath,
       cwd,
       includeContext: await classifyDirectTemplate(templatePath),
@@ -62,14 +73,16 @@ export async function loadTemplateReference(options: {
     };
   }
 
-  const namedRef = parseNamedTemplateRef(templateRef);
+  const namedRef = parseNamedTemplateRef(parsedRef.baseTemplateRef);
   const projectRoot = await findProjectRoot(cwd);
 
   if (namedRef.kind === "grouped") {
     return loadGroupedNamedTemplate({
       cwd,
       projectRoot,
-      templateRef,
+      templateRef: parsedRef.baseTemplateRef,
+      requestedTemplateRef: templateRef,
+      variantId: parsedRef.variantId,
       group: namedRef.group,
       templateId: namedRef.templateId,
     });
@@ -78,12 +91,38 @@ export async function loadTemplateReference(options: {
   return loadStandaloneNamedTemplate({
     cwd,
     projectRoot,
-    templateRef,
+    templateRef: parsedRef.baseTemplateRef,
+    requestedTemplateRef: templateRef,
+    variantId: parsedRef.variantId,
     templateId: namedRef.templateId,
   });
 }
 
-function parseNamedTemplateRef(templateRef: string): NamedTemplateRef {
+export function parseTemplateReference(
+  templateRef: string,
+): ParsedTemplateReference {
+  const hashIndex = templateRef.indexOf("#");
+  if (hashIndex === -1) return { baseTemplateRef: templateRef };
+
+  if (templateRef.indexOf("#", hashIndex + 1) !== -1) {
+    throwInvalidTemplateReference(templateRef);
+  }
+
+  const baseTemplateRef = templateRef.slice(0, hashIndex);
+  const variantId = templateRef.slice(hashIndex + 1);
+
+  if (baseTemplateRef.endsWith(".md") || !isTemplateIdSegment(variantId)) {
+    throwInvalidTemplateReference(templateRef);
+  }
+
+  parseNamedTemplateRef(baseTemplateRef, templateRef);
+  return { baseTemplateRef, variantId };
+}
+
+function parseNamedTemplateRef(
+  templateRef: string,
+  errorTemplateRef = templateRef,
+): NamedTemplateRef {
   const segments = templateRef.split("/");
 
   if (segments.length === 1) {
@@ -91,7 +130,7 @@ function parseNamedTemplateRef(templateRef: string): NamedTemplateRef {
     if (isTemplateIdSegment(templateId)) {
       return { kind: "standalone", templateId };
     }
-    throwInvalidTemplateReference(templateRef);
+    throwInvalidTemplateReference(errorTemplateRef);
   }
 
   if (segments.length === 2) {
@@ -101,13 +140,15 @@ function parseNamedTemplateRef(templateRef: string): NamedTemplateRef {
     }
   }
 
-  throwInvalidTemplateReference(templateRef);
+  throwInvalidTemplateReference(errorTemplateRef);
 }
 
 async function loadStandaloneNamedTemplate(options: {
   cwd: string;
   projectRoot: string;
   templateRef: string;
+  requestedTemplateRef: string;
+  variantId?: string;
   templateId: string;
 }): Promise<LoadedTemplateReference> {
   const declaredPath = path.join(
@@ -128,6 +169,8 @@ async function loadStandaloneNamedTemplate(options: {
   return {
     mode: "named",
     templateRef: options.templateRef,
+    requestedTemplateRef: options.requestedTemplateRef,
+    variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
     projectRoot: options.projectRoot,
@@ -140,6 +183,8 @@ async function loadGroupedNamedTemplate(options: {
   cwd: string;
   projectRoot: string;
   templateRef: string;
+  requestedTemplateRef: string;
+  variantId?: string;
   group: string;
   templateId: string;
 }): Promise<LoadedTemplateReference> {
@@ -165,6 +210,8 @@ async function loadGroupedNamedTemplate(options: {
   return {
     mode: "named",
     templateRef: options.templateRef,
+    requestedTemplateRef: options.requestedTemplateRef,
+    variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
     projectRoot: options.projectRoot,
@@ -234,7 +281,7 @@ async function isFile(filePath: string): Promise<boolean> {
 function throwInvalidTemplateReference(templateRef: string): never {
   throw new JastrError(
     "invalid_template_reference",
-    `Template reference ${templateRef} must be a template id, a group/template id, or a .md file path.`,
+    `Template reference ${templateRef} must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.`,
     { templateRef },
   );
 }
