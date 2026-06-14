@@ -18,6 +18,7 @@ const EXPECT_FIELDS = new Set([
   "exitCode",
   "stdout",
   "stdoutFile",
+  "stdoutContains",
   "stderr",
   "stderrFile",
   "files",
@@ -39,6 +40,7 @@ export type CaseExpect = {
   exitCode: number;
   stdout?: string;
   stdoutFile?: string;
+  stdoutContains?: string[];
   stderr?: string;
   stderrFile?: string;
   files?: Record<string, string>;
@@ -102,6 +104,21 @@ function optionalString(
 ): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== "string") fail(source, `${field} must be a string.`);
+  return value;
+}
+
+function optionalStringArray(
+  value: unknown,
+  field: string,
+  source: Source,
+): string[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length === 0) {
+    fail(source, `${field} must be a non-empty string array.`);
+  }
+  if (!value.every((item) => typeof item === "string")) {
+    fail(source, `${field} must contain only strings.`);
+  }
   return value;
 }
 
@@ -261,6 +278,11 @@ export function validateCaseManifest(
           value.expect.stdoutFile,
           source,
         );
+  const stdoutContains = optionalStringArray(
+    value.expect.stdoutContains,
+    `${id}.expect.stdoutContains`,
+    source,
+  );
   const stderrFile =
     value.expect.stderrFile === undefined
       ? undefined
@@ -269,8 +291,15 @@ export function validateCaseManifest(
           value.expect.stderrFile,
           source,
         );
-  if (stdout === undefined && stdoutFile === undefined) {
-    fail(source, `${id}.expect requires stdout or stdoutFile.`);
+  if (
+    stdout === undefined &&
+    stdoutFile === undefined &&
+    stdoutContains === undefined
+  ) {
+    fail(
+      source,
+      `${id}.expect requires stdout, stdoutFile, or stdoutContains.`,
+    );
   }
   if (stderr === undefined && stderrFile === undefined) {
     fail(source, `${id}.expect requires stderr or stderrFile.`);
@@ -285,6 +314,7 @@ export function validateCaseManifest(
   const expect: CaseExpect = { exitCode: value.expect.exitCode };
   if (stdout !== undefined) expect.stdout = stdout;
   if (stdoutFile !== undefined) expect.stdoutFile = stdoutFile;
+  if (stdoutContains !== undefined) expect.stdoutContains = stdoutContains;
   if (stderr !== undefined) expect.stderr = stderr;
   if (stderrFile !== undefined) expect.stderrFile = stderrFile;
   if (value.expect.files !== undefined) {

@@ -5,7 +5,10 @@ export function makeGenerateCommand() {
   return new Command("generate")
     .description("Generate an artifact target from a Jastr template")
     .argument("<target>", "Artifact target to generate (agent-skill)")
-    .argument("<template-ref>", "Template id or .md file path")
+    .argument(
+      "<template-ref>",
+      "Template id, template variant (<id>#<variant>), or .md file path",
+    )
     .option("--out <path>", "Output path for the generated artifact")
     .option("--force", "Overwrite an existing output file")
     .configureOutput({ outputError: () => {} })

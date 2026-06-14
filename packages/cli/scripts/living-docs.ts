@@ -33,6 +33,7 @@ export type RenderCase = {
   covers: string[];
   exitCode: number;
   stdout: string;
+  stdoutContains?: string[];
   stderr: string;
   /** Every file under the case's `fixture/` folder — the command's inputs. */
   inputFiles: FixtureFile[];
@@ -157,6 +158,7 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
         manifest.expect.stdoutFile,
         dirPath,
       ),
+      stdoutContains: manifest.expect.stdoutContains ?? [],
       stderr: await readStream(
         manifest.expect.stderr,
         manifest.expect.stderrFile,
@@ -200,8 +202,25 @@ function renderCliOutputSection(entry: RenderCase): string {
     streams.push(trimOneTrailingNewline(entry.stdout));
   if (entry.stderr.length > 0)
     streams.push(trimOneTrailingNewline(entry.stderr));
-  if (streams.length === 0) return `${heading}\n\n_No stdout or stderr._`;
-  return [heading, "", "```console", ...streams, "```"].join("\n");
+  const stdoutContains = entry.stdoutContains ?? [];
+
+  const blocks =
+    streams.length === 0
+      ? [`${heading}\n\n_No exact stdout or stderr asserted._`]
+      : [heading, "", "```console", ...streams, "```"];
+
+  if (stdoutContains.length > 0) {
+    blocks.push(
+      "",
+      "**Required stdout substrings**",
+      "",
+      "```text",
+      ...stdoutContains,
+      "```",
+    );
+  }
+
+  return blocks.join("\n");
 }
 
 type TreeNode = {

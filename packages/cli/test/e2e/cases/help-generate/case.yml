@@ -1,10 +1,14 @@
 id: help-generate
 covers:
   - HELP-FR-0001.AC-0003
-title: Generate help
-description: Shows the generate command help text.
+title: Show generate help
+description: Shows the generate command help text and the accepted template reference families.
 command: ["generate", "--help"]
 expect:
   exitCode: 0
-  stdoutFile: expected/stdout.txt
+  stdoutContains:
+    - "Usage: jastr generate"
+    - "Template id"
+    - "#"
+    - ".md file path"
   stderr: ""

@@ -191,9 +191,20 @@ export async function runCase(
     expect(result.exitCode, context(testCase.manifest, "exitCode")).toBe(
       testCase.manifest.expect.exitCode,
     );
-    expect(result.stdout, context(testCase.manifest, "stdout")).toBe(
-      expandExpected(stdout, expectedReplacements),
-    );
+    if (
+      testCase.manifest.expect.stdout !== undefined ||
+      testCase.manifest.expect.stdoutFile !== undefined
+    ) {
+      expect(result.stdout, context(testCase.manifest, "stdout")).toBe(
+        expandExpected(stdout, expectedReplacements),
+      );
+    }
+    for (const substring of testCase.manifest.expect.stdoutContains ?? []) {
+      expect(
+        result.stdout.includes(expandExpected(substring, expectedReplacements)),
+        context(testCase.manifest, `stdoutContains.${substring}`),
+      ).toBe(true);
+    }
     expect(result.stderr, context(testCase.manifest, "stderr")).toBe(
       expandExpected(stderr, expectedReplacements),
     );

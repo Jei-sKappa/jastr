@@ -30,6 +30,25 @@ describe("jastr cli shell", () => {
     }
   });
 
+  it("mentions named, variant, and direct file references in command help", async () => {
+    const project = await createEmptyTempProject();
+    try {
+      const runHelp = await runCli(["run", "--help"], project.root);
+      expect(runHelp.exitCode).toBe(0);
+      expect(runHelp.stdout).toContain("Template id");
+      expect(runHelp.stdout).toContain("#");
+      expect(runHelp.stdout).toContain(".md file path");
+
+      const generateHelp = await runCli(["generate", "--help"], project.root);
+      expect(generateHelp.exitCode).toBe(0);
+      expect(generateHelp.stdout).toContain("Template id");
+      expect(generateHelp.stdout).toContain("#");
+      expect(generateHelp.stdout).toContain(".md file path");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("reports no arguments as one Error-prefixed line", async () => {
     const project = await createEmptyTempProject();
     try {

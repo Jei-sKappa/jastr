@@ -208,7 +208,48 @@ describe("validateCaseManifest", () => {
     ).toThrow(/must not set both stderr and stderrFile/);
   });
 
-  it("requires stdout and stderr expectations", () => {
+  it("accepts stdoutContains as a non-empty string array", () => {
+    const manifest = validateCaseManifest(
+      {
+        ...validCase,
+        expect: {
+          exitCode: 0,
+          stdoutContains: ["Usage: jastr run", "Template id"],
+          stderr: "",
+        },
+      },
+      { filePath: "test/e2e/cases/help-run/case.yml" },
+    );
+
+    expect(manifest.expect.stdoutContains).toEqual([
+      "Usage: jastr run",
+      "Template id",
+    ]);
+  });
+
+  it("rejects an empty or non-string stdoutContains array", () => {
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: { exitCode: 0, stdoutContains: [], stderr: "" },
+        },
+        { filePath: "test/e2e/cases/help-run/case.yml" },
+      ),
+    ).toThrow(/stdoutContains must be a non-empty string array/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: { exitCode: 0, stdoutContains: [1], stderr: "" },
+        },
+        { filePath: "test/e2e/cases/help-run/case.yml" },
+      ),
+    ).toThrow(/stdoutContains must contain only strings/);
+  });
+
+  it("requires stdout, stdoutFile, or stdoutContains expectations", () => {
     expect(() =>
       validateCaseManifest(
         {
@@ -220,7 +261,21 @@ describe("validateCaseManifest", () => {
         },
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
-    ).toThrow(/expect requires stdout or stdoutFile/);
+    ).toThrow(/expect requires stdout, stdoutFile, or stdoutContains/);
+
+    expect(
+      validateCaseManifest(
+        {
+          ...validCase,
+          expect: {
+            exitCode: 0,
+            stdoutContains: ["ok"],
+            stderr: "",
+          },
+        },
+        { filePath: "test/e2e/cases/help-run/case.yml" },
+      ).expect.stdoutContains,
+    ).toEqual(["ok"]);
 
     expect(() =>
       validateCaseManifest(

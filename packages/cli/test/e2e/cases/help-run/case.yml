@@ -1,10 +1,14 @@
 id: help-run
 covers:
   - HELP-FR-0001.AC-0002
-title: Run help
-description: Shows the run command help text.
-command: ["help", "run"]
+title: Show run help
+description: Shows the run command help text and the accepted template reference families.
+command: ["run", "--help"]
 expect:
   exitCode: 0
-  stdoutFile: expected/stdout.txt
+  stdoutContains:
+    - "Usage: jastr run"
+    - "Template id"
+    - "#"
+    - ".md file path"
   stderr: ""

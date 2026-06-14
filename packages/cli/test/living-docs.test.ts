@@ -238,6 +238,23 @@ describe("renderDocument", () => {
     expect(doc).toContain("Router.");
   });
 
+  it("renders semantic stdout substring expectations", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          stdout: "",
+          stdoutContains: ["Template id", "#", ".md file path"],
+        }),
+      ],
+    );
+
+    expect(doc).toContain("Required stdout substrings");
+    expect(doc).toContain("Template id\n#\n.md file path");
+    // With no exact stdout/stderr asserted, the output block notes the absence.
+    expect(doc).toContain("_No exact stdout or stderr asserted._");
+  });
+
   it("widens the fence when a file's contents contain a code fence", () => {
     const doc = renderDocument(
       [activeArea()],
