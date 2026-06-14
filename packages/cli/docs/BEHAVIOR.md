@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**63** requirements · **154** acceptance criteria · **98** end-to-end cases.
+**73** requirements · **185** acceptance criteria · **118** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -74,9 +74,11 @@ output against its inputs.
   - [GEN-FR-0009 — Generate rejects an over-long target description](#gen-fr-0009--generate-rejects-an-over-long-target-description)
   - [GEN-FR-0010 — Generate rejects unsupported targets](#gen-fr-0010--generate-rejects-unsupported-targets)
   - [GEN-FR-0011 — Generate forwards $ARGUMENTS only when the template declares inputs](#gen-fr-0011--generate-forwards-arguments-only-when-the-template-declares-inputs)
+  - [GEN-FR-0012 — Generate agent-skill supports selected variants](#gen-fr-0012--generate-agent-skill-supports-selected-variants)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
+  - [HELP-FR-0002 — Command help describes accepted template reference families](#help-fr-0002--command-help-describes-accepted-template-reference-families)
 
 - [Version](#version)
   - [VERSION-FR-0001 — Version prints package version and build SHA marker](#version-fr-0001--version-prints-package-version-and-build-sha-marker)
@@ -101,6 +103,16 @@ output against its inputs.
   - [CONFIG-FR-0002 — Direct file runs ignore project config](#config-fr-0002--direct-file-runs-ignore-project-config)
   - [CONFIG-FR-0003 — Project config shape errors use stable messages](#config-fr-0003--project-config-shape-errors-use-stable-messages)
   - [CONFIG-FR-0004 — Project config validates only effective selected values](#config-fr-0004--project-config-validates-only-effective-selected-values)
+
+- [Variants](#variants)
+  - [VAR-FR-0001 — Variant runs apply locked inputs at highest precedence](#var-fr-0001--variant-runs-apply-locked-inputs-at-highest-precedence)
+  - [VAR-FR-0002 — Variant runs reject locked CLI flags](#var-fr-0002--variant-runs-reject-locked-cli-flags)
+  - [VAR-FR-0003 — Bare named runs do not select variants implicitly](#var-fr-0003--bare-named-runs-do-not-select-variants-implicitly)
+  - [VAR-FR-0004 — Grouped variant refs use exact grouped config keys](#var-fr-0004--grouped-variant-refs-use-exact-grouped-config-keys)
+  - [VAR-FR-0005 — Invalid variant references fail before template loading](#var-fr-0005--invalid-variant-references-fail-before-template-loading)
+  - [VAR-FR-0006 — Missing selected variants fail with a stable error](#var-fr-0006--missing-selected-variants-fail-with-a-stable-error)
+  - [VAR-FR-0007 — Selected variant config shape is strict and selected-only](#var-fr-0007--selected-variant-config-shape-is-strict-and-selected-only)
+  - [VAR-FR-0008 — Locked input values use engine validation](#var-fr-0008--locked-input-values-use-engine-validation)
 
 ## Run
 
@@ -241,7 +253,7 @@ $ jastr run INVALID
 **CLI output** — exit 1
 
 ```console
-Error: Template reference INVALID must be a template id, a group/template id, or a .md file path.
+Error: Template reference INVALID must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -396,7 +408,7 @@ A template reference must be syntactically either a template id, a group/templat
 
 #### Case: Reject an invalid template reference
 
-Description: Template references must be syntactically either a template id, a group/template id, or a .md file path.
+Description: Template references must be syntactically either a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 
 Covers: AC-0001, AC-0002
 
@@ -416,7 +428,7 @@ $ jastr run BadName
 **CLI output** — exit 1
 
 ```console
-Error: Template reference BadName must be a template id, a group/template id, or a .md file path.
+Error: Template reference BadName must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -4197,6 +4209,328 @@ Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 
 </details>
 
+### GEN-FR-0012 — Generate agent-skill supports selected variants
+
+`jastr generate agent-skill <template-ref>#<variant-id>` resolves and validates the selected variant, merges variant Agent Skill frontmatter over optional base target frontmatter, uses selected locked inputs during static render validation, and emits a wrapper command that points at the variant ref.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Variant generation writes a wrapper whose command uses `<template-ref>#<variant-id>`. | ✅ `generate-variant-all-locked`, `generate-variant-unlocked` |
+| AC-0002 | Variant frontmatter shallowly overrides base Agent Skill frontmatter. | ✅ `generate-variant-unlocked` |
+| AC-0003 | Variant generation can succeed without base `targets.agent-skill` when variant frontmatter supplies required metadata. | ✅ `generate-variant-frontmatter-only` |
+| AC-0004 | A variant wrapper forwards `$ARGUMENTS` when at least one declared input is not locked. | ✅ `generate-variant-unlocked` |
+| AC-0005 | A variant wrapper omits `$ARGUMENTS` when all declared inputs are locked. | ✅ `generate-variant-all-locked` |
+| AC-0006 | Static render validation uses selected locked input values. | ✅ `generate-variant-static-locked-value` |
+
+#### Case: Generate a variant wrapper with all inputs locked
+
+Description: When every declared input is locked, the wrapper command omits $ARGUMENTS.
+
+Covers: AC-0001, AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-base
+description: Review with the base policy.
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate a variant wrapper without base target frontmatter
+
+Description: Variant frontmatter alone supplies required Agent Skill metadata when the base template has no targets block.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate uses locked input values during static render validation
+
+Description: Static render validation fails when a selected locked input value is invalid.
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    bad:
+      locked-inputs:
+        depth: standard
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#bad --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input depth must be one of: quick, deep.
+```
+
+</details>
+
+#### Case: Generate a variant wrapper with an unlocked input
+
+Description: Variant frontmatter overrides base metadata and the wrapper forwards $ARGUMENTS when an input is unlocked.
+
+Covers: AC-0001, AC-0002, AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+      allowed-tools: Read
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+allowed-tools: Read
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
 ## Help
 
 ### HELP-FR-0001 — CLI prints help for the program and commands
@@ -4209,9 +4543,9 @@ Jastr exposes help text for the root program and supported commands.
 | AC-0002 | Run help exits with code 0 and prints usage text. | ✅ `help-run` |
 | AC-0003 | Generate help exits with code 0 and prints usage text. | ✅ `help-generate` |
 
-#### Case: Generate help
+#### Case: Show generate help
 
-Description: Shows the generate command help text.
+Description: Shows the generate command help text and the accepted template reference families.
 
 Covers: AC-0003
 
@@ -4244,19 +4578,15 @@ $ jastr generate --help
 
 **CLI output** — exit 0
 
-```console
-Usage: jastr generate [options] <target> <template-ref>
+_No exact stdout or stderr asserted._
 
-Generate an artifact target from a Jastr template
+**Required stdout substrings**
 
-Arguments:
-  target        Artifact target to generate (agent-skill)
-  template-ref  Template id or .md file path
-
-Options:
-  --out <path>  Output path for the generated artifact
-  --force       Overwrite an existing output file
-  -h, --help    display help for command
+```text
+Usage: jastr generate
+Template id
+#
+.md file path
 ```
 
 </details>
@@ -4314,9 +4644,9 @@ Commands:
 
 </details>
 
-#### Case: Run help
+#### Case: Show run help
 
-Description: Shows the run command help text.
+Description: Shows the run command help text and the accepted template reference families.
 
 Covers: AC-0002
 
@@ -4345,22 +4675,126 @@ Hello
 **Command**
 
 ```console
-$ jastr help run
+$ jastr run --help
 ```
 
 **CLI output** — exit 0
 
+_No exact stdout or stderr asserted._
+
+**Required stdout substrings**
+
+```text
+Usage: jastr run
+Template id
+#
+.md file path
+```
+
+</details>
+
+### HELP-FR-0002 — Command help describes accepted template reference families
+
+Run and generate help make template refs discoverable without pinning exact help copy: named template refs, named variant refs using `#`, and direct `.md` file paths are all mentioned.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Run help mentions named template refs, `#` variant syntax, and `.md` file paths. | ✅ `help-run` |
+| AC-0002 | Generate help mentions named template refs, `#` variant syntax, and `.md` file paths. | ✅ `help-generate` |
+
+#### Case: Show generate help
+
+Description: Shows the generate command help text and the accepted template reference families.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+```
+
+**Command**
+
 ```console
-Usage: jastr run [options] <template-ref> [inputs...]
+$ jastr generate --help
+```
 
-Render a Jastr template to Markdown
+**CLI output** — exit 0
 
-Arguments:
-  template-ref  Template id or .md file path
-  inputs        Template input flags (--name=value or --name for booleans)
+_No exact stdout or stderr asserted._
 
-Options:
-  -h, --help    display help for command
+**Required stdout substrings**
+
+```text
+Usage: jastr generate
+Template id
+#
+.md file path
+```
+
+</details>
+
+#### Case: Show run help
+
+Description: Shows the run command help text and the accepted template reference families.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr run --help
+```
+
+**CLI output** — exit 0
+
+_No exact stdout or stderr asserted._
+
+**Required stdout substrings**
+
+```text
+Usage: jastr run
+Template id
+#
+.md file path
 ```
 
 </details>
@@ -6032,6 +6466,890 @@ $ jastr run demo
 
 ```console
 Error: Input extra is not declared.
+```
+
+</details>
+
+## Variants
+
+### VAR-FR-0001 — Variant runs apply locked inputs at highest precedence
+
+A named template variant reference shaped as `<template-ref>#<variant-id>` resolves the base named template, selects `variants.<template-ref>.<variant-id>` from `.jastr/config.yml`, and applies selected `locked-inputs` over CLI flags, config inputs, and template defaults.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A variant run exits with code 0 when the selected variant exists and inputs are valid. | ✅ `variant-run-locked-precedence` |
+| AC-0002 | Selected locked inputs override duplicate `inputs.<template-ref>` config values. | ✅ `variant-run-locked-precedence` |
+| AC-0003 | Selected locked inputs override template-author defaults. | ✅ `variant-run-locked-precedence` |
+| AC-0004 | Non-locked CLI flags still override baseline config inputs. | ✅ `variant-run-locked-precedence` |
+
+#### Case: Run a variant with locked input precedence
+
+Description: Shows locked inputs overriding config/defaults while an unlocked CLI flag still wins.
+
+Covers: AC-0001, AC-0002, AC-0003, AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  review:
+    depth: standard
+    output: config
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+        mode: thorough
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  mode:
+    type: enum
+    values: [fast, thorough]
+    required: false
+    default: fast
+---
+depth={{depth}} output={{output}} mode={{mode}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep --output=cli
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=cli mode=thorough
+```
+
+</details>
+
+### VAR-FR-0002 — Variant runs reject locked CLI flags
+
+Invocation-time input flags whose names are locked by the selected variant fail before rendering instead of being silently overwritten.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A CLI flag for a locked input exits with code 1. | ✅ `variant-run-locked-conflict` |
+| AC-0002 | A CLI flag for a locked input prints the stable locked-input Error-prefixed message. | ✅ `variant-run-locked-conflict` |
+
+#### Case: Reject a CLI flag for a locked input
+
+Description: A CLI flag whose name is locked by the selected variant fails before rendering.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep --depth=quick
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input --depth is locked by variant review#deep.
+```
+
+</details>
+
+### VAR-FR-0003 — Bare named runs do not select variants implicitly
+
+`jastr run <template-ref>` keeps existing behavior and never selects a variant, including a configured variant named `default`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A bare named run ignores `variants.<template-ref>.default`. | ✅ `variant-run-default-not-implicit` |
+| AC-0002 | A selected empty variant behaves as an explicit alias over the base named template. | ✅ `variant-run-empty-alias` |
+
+#### Case: Bare named run ignores a default variant
+
+Description: A bare named run never selects a variant, even one named default.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    default:
+      locked-inputs:
+        depth: deep
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run review
+```
+
+**CLI output** — exit 0
+
+```console
+depth=quick
+```
+
+</details>
+
+#### Case: An empty variant acts as a base alias
+
+Description: A selected empty variant renders the base named template unchanged.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    alias: {}
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run review#alias
+```
+
+**CLI output** — exit 0
+
+```console
+depth=quick
+```
+
+</details>
+
+### VAR-FR-0004 — Grouped variant refs use exact grouped config keys
+
+A grouped variant ref such as `team/review#deep` resolves the grouped base template and selects `variants["team/review"].deep` from project config.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A grouped variant exits with code 0 when the grouped template and selected variant exist. | ✅ `variant-run-grouped` |
+| AC-0002 | A grouped variant prints rendered Markdown from the grouped template. | ✅ `variant-run-grouped` |
+
+#### Case: Run a grouped variant
+
+Description: A grouped variant ref resolves the grouped template and its exact grouped config key.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ review/
+         └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  team/review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run team/review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep
+```
+
+</details>
+
+### VAR-FR-0005 — Invalid variant references fail before template loading
+
+Variant syntax is allowed only for named template refs, and the variant id uses the same lowercase kebab-case segment grammar as template ids.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Malformed variant refs exit with code 1. | ✅ `variant-invalid-reference` |
+| AC-0002 | Malformed variant refs print the stable invalid-reference Error-prefixed message. | ✅ `variant-invalid-reference` |
+| AC-0003 | Direct `.md#variant` refs are rejected with the invalid-reference message. | ✅ `variant-direct-md-rejected` |
+
+#### Case: Reject a direct .md variant reference
+
+Description: Variant syntax is allowed only for named refs, never direct .md file paths.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run templates/review.md#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template reference templates/review.md#deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+```
+
+</details>
+
+#### Case: Reject a malformed variant reference
+
+Description: A variant id that is not lowercase kebab-case is rejected before template loading.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run review#Deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template reference review#Deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+```
+
+</details>
+
+### VAR-FR-0006 — Missing selected variants fail with a stable error
+
+A selected variant must be present in `.jastr/config.yml` at the exact `variants.<template-ref>.<variant-id>` path.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A missing selected variant exits with code 1. | ✅ `variant-missing` |
+| AC-0002 | A missing selected variant prints the stable variant-not-found Error-prefixed message. | ✅ `variant-missing` |
+
+#### Case: Missing selected variant fails
+
+Description: A selected variant absent from project config fails with a stable error.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    quick: {}
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Variant review#deep was not found in .jastr/config.yml.
+```
+
+</details>
+
+### VAR-FR-0007 — Selected variant config shape is strict and selected-only
+
+The selected variant config entry rejects malformed selected structures and unknown selected fields while ignoring malformed unrelated variant entries.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Non-mapping `variants` exits with code 1 and prints the stable message. | ✅ `variant-invalid-config-variants` |
+| AC-0002 | A non-mapping selected template variants entry exits with code 1 and prints the stable message. | ✅ `variant-invalid-config-template-entry` |
+| AC-0003 | A non-mapping selected variant exits with code 1 and prints the stable message. | ✅ `variant-invalid-config-selected-entry` |
+| AC-0004 | A non-mapping selected `locked-inputs` exits with code 1 and prints the stable message. | ✅ `variant-invalid-config-locked-inputs` |
+| AC-0005 | An unknown selected variant field exits with code 1 and prints the stable message. | ✅ `variant-invalid-config-selected` |
+| AC-0006 | A malformed unrelated variant entry does not affect a valid selected variant run. | ✅ `variant-unrelated-invalid-ignored` |
+
+#### Case: Reject a non-mapping locked-inputs
+
+Description: A non-mapping selected locked-inputs fails with a stable error.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs: true
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review.deep.locked-inputs must be a mapping.
+```
+
+</details>
+
+#### Case: Reject an unknown selected variant field
+
+Description: A selected variant entry with an unsupported field fails with a stable error.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-input: {}
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review.deep field locked-input is not supported.
+```
+
+</details>
+
+#### Case: Reject a non-mapping selected variant
+
+Description: A selected variant that is not a mapping fails with a stable error.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep: true
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review.deep must be a mapping.
+```
+
+</details>
+
+#### Case: Reject a non-mapping selected template variants entry
+
+Description: A non-mapping variants.<template-ref> entry fails with a stable error.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review: true
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review must be a mapping.
+```
+
+</details>
+
+#### Case: Reject a non-mapping variants section
+
+Description: A non-mapping top-level variants section fails with a stable error.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants: true
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants must be a mapping.
+```
+
+</details>
+
+#### Case: Unrelated malformed variant entries are ignored
+
+Description: A valid selected variant runs even when unrelated variant entries are malformed.
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  other: true
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+    broken:
+      locked-input: typo
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep
+```
+
+</details>
+
+### VAR-FR-0008 — Locked input values use engine validation
+
+Selected locked inputs are part of the final supplied input map, so unknown locked keys and invalid locked values fail through the engine's template input validation.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | An invalid locked enum value exits with code 1. | ✅ `variant-locked-invalid-value` |
+| AC-0002 | An unknown locked input key exits with code 1. | ✅ `variant-locked-unknown-key` |
+
+#### Case: Locked input value uses engine validation
+
+Description: A locked enum value outside the declared values fails through engine input validation.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    bad:
+      locked-inputs:
+        depth: standard
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run review#bad
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input depth must be one of: quick, deep.
+```
+
+</details>
+
+#### Case: Unknown locked input key uses engine validation
+
+Description: A locked input key the template does not declare fails through engine input validation.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    bad:
+      locked-inputs:
+        policy: strict
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+Review
+```
+
+**Command**
+
+```console
+$ jastr run review#bad
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input policy is not declared.
 ```
 
 </details>

@@ -1,0 +1,14 @@
+id: generate-variant-unlocked
+covers:
+  - GEN-FR-0012.AC-0001
+  - GEN-FR-0012.AC-0002
+  - GEN-FR-0012.AC-0004
+title: Generate a variant wrapper with an unlocked input
+description: Variant frontmatter overrides base metadata and the wrapper forwards $ARGUMENTS when an input is unlocked.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

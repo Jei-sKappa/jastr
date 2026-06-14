@@ -1,0 +1,11 @@
+id: variant-missing
+covers:
+  - VAR-FR-0006.AC-0001
+  - VAR-FR-0006.AC-0002
+title: Missing selected variant fails
+description: A selected variant absent from project config fails with a stable error.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Variant review#deep was not found in .jastr/config.yml.\n"

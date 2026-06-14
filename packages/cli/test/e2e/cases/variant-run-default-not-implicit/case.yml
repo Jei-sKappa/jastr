@@ -1,0 +1,10 @@
+id: variant-run-default-not-implicit
+covers:
+  - VAR-FR-0003.AC-0001
+title: Bare named run ignores a default variant
+description: A bare named run never selects a variant, even one named default.
+command: ["run", "review"]
+expect:
+  exitCode: 0
+  stdout: "depth=quick\n"
+  stderr: ""

@@ -1,0 +1,13 @@
+id: variant-run-locked-precedence
+covers:
+  - VAR-FR-0001.AC-0001
+  - VAR-FR-0001.AC-0002
+  - VAR-FR-0001.AC-0003
+  - VAR-FR-0001.AC-0004
+title: Run a variant with locked input precedence
+description: Shows locked inputs overriding config/defaults while an unlocked CLI flag still wins.
+command: ["run", "review#deep", "--output=cli"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep output=cli mode=thorough\n"
+  stderr: ""

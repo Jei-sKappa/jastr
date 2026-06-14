@@ -1,0 +1,11 @@
+id: variant-invalid-reference
+covers:
+  - VAR-FR-0005.AC-0001
+  - VAR-FR-0005.AC-0002
+title: Reject a malformed variant reference
+description: A variant id that is not lowercase kebab-case is rejected before template loading.
+command: ["run", "review#Deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template reference review#Deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.\n"

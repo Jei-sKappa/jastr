@@ -1,6 +1,7 @@
 id: help-generate
 covers:
   - HELP-FR-0001.AC-0003
+  - HELP-FR-0002.AC-0002
 title: Show generate help
 description: Shows the generate command help text and the accepted template reference families.
 command: ["generate", "--help"]

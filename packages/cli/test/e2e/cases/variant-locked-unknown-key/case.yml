@@ -1,0 +1,10 @@
+id: variant-locked-unknown-key
+covers:
+  - VAR-FR-0008.AC-0002
+title: Unknown locked input key uses engine validation
+description: A locked input key the template does not declare fails through engine input validation.
+command: ["run", "review#bad"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input policy is not declared.\n"

@@ -1,0 +1,10 @@
+id: variant-invalid-config-selected-entry
+covers:
+  - VAR-FR-0007.AC-0003
+title: Reject a non-mapping selected variant
+description: A selected variant that is not a mapping fails with a stable error.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml variants.review.deep must be a mapping.\n"

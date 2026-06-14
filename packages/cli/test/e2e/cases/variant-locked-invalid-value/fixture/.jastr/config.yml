@@ -1,0 +1,5 @@
+variants:
+  review:
+    bad:
+      locked-inputs:
+        depth: standard

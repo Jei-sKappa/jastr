@@ -1,0 +1,5 @@
+variants:
+  review:
+    default:
+      locked-inputs:
+        depth: deep

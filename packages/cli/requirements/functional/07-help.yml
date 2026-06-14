@@ -10,3 +10,16 @@
       statement: Run help exits with code 0 and prints usage text.
     - id: AC-0003
       statement: Generate help exits with code 0 and prints usage text.
+
+- id: HELP-FR-0002
+  title: Command help describes accepted template reference families
+  status: active
+  description: >
+    Run and generate help make template refs discoverable without pinning exact
+    help copy: named template refs, named variant refs using `#`, and direct
+    `.md` file paths are all mentioned.
+  acceptance:
+    - id: AC-0001
+      statement: Run help mentions named template refs, `#` variant syntax, and `.md` file paths.
+    - id: AC-0002
+      statement: Generate help mentions named template refs, `#` variant syntax, and `.md` file paths.

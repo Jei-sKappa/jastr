@@ -1,0 +1,10 @@
+id: variant-unrelated-invalid-ignored
+covers:
+  - VAR-FR-0007.AC-0006
+title: Unrelated malformed variant entries are ignored
+description: A valid selected variant runs even when unrelated variant entries are malformed.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep\n"
+  stderr: ""

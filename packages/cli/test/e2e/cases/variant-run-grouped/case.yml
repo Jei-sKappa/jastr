@@ -1,0 +1,11 @@
+id: variant-run-grouped
+covers:
+  - VAR-FR-0004.AC-0001
+  - VAR-FR-0004.AC-0002
+title: Run a grouped variant
+description: A grouped variant ref resolves the grouped template and its exact grouped config key.
+command: ["run", "team/review#deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep\n"
+  stderr: ""

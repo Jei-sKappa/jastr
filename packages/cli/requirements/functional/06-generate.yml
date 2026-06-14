@@ -140,3 +140,26 @@
       statement: A template that declares no inputs generates a wrapper whose command omits $ARGUMENTS.
     - id: AC-0002
       statement: A template that declares one or more inputs generates a wrapper whose command forwards $ARGUMENTS.
+
+- id: GEN-FR-0012
+  title: Generate agent-skill supports selected variants
+  status: active
+  description: >
+    `jastr generate agent-skill <template-ref>#<variant-id>` resolves and
+    validates the selected variant, merges variant Agent Skill frontmatter over
+    optional base target frontmatter, uses selected locked inputs during static
+    render validation, and emits a wrapper command that points at the variant
+    ref.
+  acceptance:
+    - id: AC-0001
+      statement: Variant generation writes a wrapper whose command uses `<template-ref>#<variant-id>`.
+    - id: AC-0002
+      statement: Variant frontmatter shallowly overrides base Agent Skill frontmatter.
+    - id: AC-0003
+      statement: Variant generation can succeed without base `targets.agent-skill` when variant frontmatter supplies required metadata.
+    - id: AC-0004
+      statement: A variant wrapper forwards `$ARGUMENTS` when at least one declared input is not locked.
+    - id: AC-0005
+      statement: A variant wrapper omits `$ARGUMENTS` when all declared inputs are locked.
+    - id: AC-0006
+      statement: Static render validation uses selected locked input values.

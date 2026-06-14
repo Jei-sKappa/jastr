@@ -1,0 +1,113 @@
+- id: VAR-FR-0001
+  title: Variant runs apply locked inputs at highest precedence
+  status: active
+  description: >
+    A named template variant reference shaped as `<template-ref>#<variant-id>`
+    resolves the base named template, selects
+    `variants.<template-ref>.<variant-id>` from `.jastr/config.yml`, and applies
+    selected `locked-inputs` over CLI flags, config inputs, and template
+    defaults.
+  acceptance:
+    - id: AC-0001
+      statement: A variant run exits with code 0 when the selected variant exists and inputs are valid.
+    - id: AC-0002
+      statement: Selected locked inputs override duplicate `inputs.<template-ref>` config values.
+    - id: AC-0003
+      statement: Selected locked inputs override template-author defaults.
+    - id: AC-0004
+      statement: Non-locked CLI flags still override baseline config inputs.
+
+- id: VAR-FR-0002
+  title: Variant runs reject locked CLI flags
+  status: active
+  description: >
+    Invocation-time input flags whose names are locked by the selected variant
+    fail before rendering instead of being silently overwritten.
+  acceptance:
+    - id: AC-0001
+      statement: A CLI flag for a locked input exits with code 1.
+    - id: AC-0002
+      statement: A CLI flag for a locked input prints the stable locked-input Error-prefixed message.
+
+- id: VAR-FR-0003
+  title: Bare named runs do not select variants implicitly
+  status: active
+  description: >
+    `jastr run <template-ref>` keeps existing behavior and never selects a
+    variant, including a configured variant named `default`.
+  acceptance:
+    - id: AC-0001
+      statement: A bare named run ignores `variants.<template-ref>.default`.
+    - id: AC-0002
+      statement: A selected empty variant behaves as an explicit alias over the base named template.
+
+- id: VAR-FR-0004
+  title: Grouped variant refs use exact grouped config keys
+  status: active
+  description: >
+    A grouped variant ref such as `team/review#deep` resolves the grouped base
+    template and selects `variants["team/review"].deep` from project config.
+  acceptance:
+    - id: AC-0001
+      statement: A grouped variant exits with code 0 when the grouped template and selected variant exist.
+    - id: AC-0002
+      statement: A grouped variant prints rendered Markdown from the grouped template.
+
+- id: VAR-FR-0005
+  title: Invalid variant references fail before template loading
+  status: active
+  description: >
+    Variant syntax is allowed only for named template refs, and the variant id
+    uses the same lowercase kebab-case segment grammar as template ids.
+  acceptance:
+    - id: AC-0001
+      statement: Malformed variant refs exit with code 1.
+    - id: AC-0002
+      statement: Malformed variant refs print the stable invalid-reference Error-prefixed message.
+    - id: AC-0003
+      statement: Direct `.md#variant` refs are rejected with the invalid-reference message.
+
+- id: VAR-FR-0006
+  title: Missing selected variants fail with a stable error
+  status: active
+  description: >
+    A selected variant must be present in `.jastr/config.yml` at the exact
+    `variants.<template-ref>.<variant-id>` path.
+  acceptance:
+    - id: AC-0001
+      statement: A missing selected variant exits with code 1.
+    - id: AC-0002
+      statement: A missing selected variant prints the stable variant-not-found Error-prefixed message.
+
+- id: VAR-FR-0007
+  title: Selected variant config shape is strict and selected-only
+  status: active
+  description: >
+    The selected variant config entry rejects malformed selected structures and
+    unknown selected fields while ignoring malformed unrelated variant entries.
+  acceptance:
+    - id: AC-0001
+      statement: Non-mapping `variants` exits with code 1 and prints the stable message.
+    - id: AC-0002
+      statement: A non-mapping selected template variants entry exits with code 1 and prints the stable message.
+    - id: AC-0003
+      statement: A non-mapping selected variant exits with code 1 and prints the stable message.
+    - id: AC-0004
+      statement: A non-mapping selected `locked-inputs` exits with code 1 and prints the stable message.
+    - id: AC-0005
+      statement: An unknown selected variant field exits with code 1 and prints the stable message.
+    - id: AC-0006
+      statement: A malformed unrelated variant entry does not affect a valid selected variant run.
+
+- id: VAR-FR-0008
+  title: Locked input values use engine validation
+  status: active
+  description: >
+    Selected locked inputs are part of the final supplied input map, so unknown
+    locked keys and invalid locked values fail through the engine's template
+    input validation.
+  acceptance:
+    - id: AC-0001
+      statement: An invalid locked enum value exits with code 1.
+    - id: AC-0002
+      statement: An unknown locked input key exits with code 1.

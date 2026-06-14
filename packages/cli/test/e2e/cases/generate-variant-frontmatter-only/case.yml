@@ -1,0 +1,12 @@
+id: generate-variant-frontmatter-only
+covers:
+  - GEN-FR-0012.AC-0003
+title: Generate a variant wrapper without base target frontmatter
+description: Variant frontmatter alone supplies required Agent Skill metadata when the base template has no targets block.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

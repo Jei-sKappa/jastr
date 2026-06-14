@@ -1,0 +1,10 @@
+id: variant-direct-md-rejected
+covers:
+  - VAR-FR-0005.AC-0003
+title: Reject a direct .md variant reference
+description: Variant syntax is allowed only for named refs, never direct .md file paths.
+command: ["run", "templates/review.md#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template reference templates/review.md#deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.\n"

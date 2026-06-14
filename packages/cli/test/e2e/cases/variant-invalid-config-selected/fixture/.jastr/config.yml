@@ -1,0 +1,4 @@
+variants:
+  review:
+    deep:
+      locked-input: {}

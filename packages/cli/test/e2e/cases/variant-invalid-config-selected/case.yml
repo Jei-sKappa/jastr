@@ -1,0 +1,10 @@
+id: variant-invalid-config-selected
+covers:
+  - VAR-FR-0007.AC-0005
+title: Reject an unknown selected variant field
+description: A selected variant entry with an unsupported field fails with a stable error.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml variants.review.deep field locked-input is not supported.\n"

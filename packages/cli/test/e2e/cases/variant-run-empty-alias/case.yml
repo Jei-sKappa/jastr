@@ -1,0 +1,10 @@
+id: variant-run-empty-alias
+covers:
+  - VAR-FR-0003.AC-0002
+title: An empty variant acts as a base alias
+description: A selected empty variant renders the base named template unchanged.
+command: ["run", "review#alias"]
+expect:
+  exitCode: 0
+  stdout: "depth=quick\n"
+  stderr: ""

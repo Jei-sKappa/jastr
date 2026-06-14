@@ -1,0 +1,16 @@
+id: generate-variant-all-locked
+covers:
+  - GEN-FR-0012.AC-0001
+  - GEN-FR-0012.AC-0005
+title: Generate a variant wrapper with all inputs locked
+description: When every declared input is locked, the wrapper command omits $ARGUMENTS.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"

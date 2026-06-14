@@ -1,0 +1,11 @@
+id: variant-run-locked-conflict
+covers:
+  - VAR-FR-0002.AC-0001
+  - VAR-FR-0002.AC-0002
+title: Reject a CLI flag for a locked input
+description: A CLI flag whose name is locked by the selected variant fails before rendering.
+command: ["run", "review#deep", "--depth=quick"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input --depth is locked by variant review#deep.\n"

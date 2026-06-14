@@ -1,0 +1,10 @@
+id: generate-variant-static-locked-value
+covers:
+  - GEN-FR-0012.AC-0006
+title: Generate uses locked input values during static render validation
+description: Static render validation fails when a selected locked input value is invalid.
+command: ["generate", "agent-skill", "review#bad", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input depth must be one of: quick, deep.\n"

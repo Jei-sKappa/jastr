@@ -1,0 +1,10 @@
+inputs:
+  review:
+    depth: standard
+    output: config
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+        mode: thorough
