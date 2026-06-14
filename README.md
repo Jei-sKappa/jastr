@@ -27,10 +27,14 @@ jastr help [command]
 jastr --version
 ```
 
-Input values are resolved in this order: CLI input flags, then selected
-`.jastr/config.yml` values for named template runs, then template-author
-`default:` values in frontmatter. Direct `.md` template runs use only CLI input
-flags and frontmatter defaults; they do not read `.jastr/config.yml`.
+Input values for bare named template runs are resolved in this order: CLI input
+flags, then selected `.jastr/config.yml` values for `inputs.<template-ref>`,
+then template-author `default:` values in frontmatter. Variant runs add a
+stronger selected lock layer: `variants.<template-ref>.<variant-id>.locked-inputs`
+overrides CLI flags, baseline config inputs, and template defaults. A CLI flag
+for a locked input is rejected instead of silently overwritten. Direct `.md`
+template runs use only CLI input flags and frontmatter defaults; they do not
+read `.jastr/config.yml` and cannot select variants.
 
 `<template-ref>` is syntactic:
 
@@ -42,6 +46,10 @@ flags and frontmatter defaults; they do not read `.jastr/config.yml`.
   `^[a-z0-9][a-z0-9-]*$`, is a grouped named template and resolves to
   `<group>/templates/<template-id>/TEMPLATE.md` when `<group>/.jastrgroup`
   exists as a file.
+- A named or grouped named template may add `#<variant-id>`, where
+  `<variant-id>` uses the same lowercase kebab-case segment grammar. For
+  example, `analyze#strict` selects `variants.analyze.strict`; `team/review#deep`
+  selects `variants["team/review"].deep`. Direct `.md#variant` refs are invalid.
 
 `--version` reports the `@jastr/cli` package version together with the git commit
 it was built from, for example `0.1.0 (abc1234)`, or `0.1.0 (dev)` when run from
@@ -100,10 +108,31 @@ inputs:
     depth: deep
 ```
 
-Keys under `inputs` are exact named template refs. A one-segment template uses a
-key such as `analyze`; a grouped template uses a key such as `team/review`.
-Config values are strict YAML values, so boolean inputs use YAML booleans such
-as `true` rather than quoted strings.
+Keys under `inputs` and `variants` are exact named template refs. A one-segment
+template uses a key such as `analyze`; a grouped template uses a key such as
+`team/review`. Config values are strict YAML values, so boolean inputs use YAML
+booleans such as `true` rather than quoted strings.
+
+Variants specialize a base template without copying it:
+
+```yaml
+variants:
+  analyze:
+    strict:
+      locked-inputs:
+        language: typescript
+      agent-skill:
+        frontmatter:
+          name: analyze-typescript
+          description: Analyze TypeScript using the strict policy.
+```
+
+`jastr run analyze#strict` renders the base `.jastr/analyze/TEMPLATE.md` with
+`language` locked to `typescript`. `jastr generate agent-skill analyze#strict
+--out path/to/SKILL.md` writes a wrapper whose command points back to
+`jastr run analyze#strict`. The wrapper forwards `$ARGUMENTS` only when the
+base template still has at least one declared input that the variant did not
+lock.
 
 Includes are contained by final resolved realpath. Standalone templates can
 include only inside the top-level template directory. Grouped templates can
