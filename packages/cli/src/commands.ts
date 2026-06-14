@@ -3,13 +3,11 @@ import {
   JastrError,
   parseTemplateSource,
   renderTemplateSource,
-  type TemplateInputValues,
-  type TemplateSchema,
   validateTemplateSchema,
 } from "@jastr/engine";
 import type { RawFlag } from "./args";
 import { validateGenerateOut } from "./args";
-import { loadProjectConfigInputs } from "./config";
+import { loadProjectConfigInputs, loadProjectConfigVariant } from "./config";
 import { coerceRunFlags } from "./flags";
 import {
   assertAgentSkillOutputAvailable,
@@ -19,6 +17,11 @@ import {
 } from "./targets/agent-skill";
 import { createFileIncludeResolver } from "./templates/includes";
 import { loadTemplateReference } from "./templates/template-ref";
+import {
+  assertNoLockedInputFlags,
+  mergeVariantInputs,
+  sampleInputsForStaticRender,
+} from "./variants";
 
 export async function executeRun(opts: {
   templateRef: string;
@@ -31,7 +34,7 @@ export async function executeRun(opts: {
   });
   const parsed = parseTemplateSource(template.source);
   const schema = validateTemplateSchema(parsed.frontmatter);
-  const flagInputs = coerceRunFlags(schema, opts.flags);
+
   const configInputs =
     template.mode === "named"
       ? await loadProjectConfigInputs({
@@ -40,11 +43,41 @@ export async function executeRun(opts: {
         })
       : {};
 
-  // Config values are not prevalidated here: a CLI flag for the same input can
-  // intentionally override an invalid standing config value before the engine
-  // validates the final effective supplied map.
+  const selectedVariant =
+    template.mode === "named" && template.variantId !== undefined
+      ? await loadProjectConfigVariant({
+          projectRoot: template.projectRoot,
+          templateRef: template.templateRef,
+          variantId: template.variantId,
+        })
+      : undefined;
+
+  // The locked-flag conflict check must run before coerceRunFlags so a
+  // collision is reported regardless of whether the flag value would coerce.
+  if (selectedVariant !== undefined && template.variantId !== undefined) {
+    assertNoLockedInputFlags({
+      flags: opts.flags,
+      lockedInputs: selectedVariant.lockedInputs,
+      templateRef: template.templateRef,
+      variantId: template.variantId,
+    });
+  }
+
+  const flagInputs = coerceRunFlags(schema, opts.flags);
+
+  // Config and locked values are not prevalidated here: CLI flags may
+  // intentionally override invalid standing config values, and the engine
+  // validates the final effective supplied map including selected locks.
   const inputs =
-    template.mode === "named" ? { ...configInputs, ...flagInputs } : flagInputs;
+    template.mode === "named"
+      ? selectedVariant === undefined
+        ? { ...configInputs, ...flagInputs }
+        : mergeVariantInputs({
+            configInputs,
+            flagInputs,
+            lockedInputs: selectedVariant.lockedInputs,
+          })
+      : flagInputs;
 
   const result = await renderTemplateSource({
     source: template.source,
@@ -105,20 +138,4 @@ export async function executeGenerate(opts: {
   });
 
   return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${path.relative(template.cwd, template.templatePath)}\``;
-}
-
-function sampleInputsForStaticRender(
-  schema: TemplateSchema,
-): TemplateInputValues {
-  const values: TemplateInputValues = {};
-  for (const [inputName, definition] of Object.entries(schema.inputs)) {
-    if (definition.type === "boolean") {
-      values[inputName] = false;
-    } else if (definition.type === "enum") {
-      values[inputName] = definition.values[0] ?? "";
-    } else {
-      values[inputName] = "sample";
-    }
-  }
-  return values;
 }
