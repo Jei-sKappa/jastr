@@ -47,8 +47,9 @@ The authoring surface is either:
 
 - named project-local Markdown templates at `.jastr/<template-id>/TEMPLATE.md`,
   rendered with `jastr run <template-id> [input flags...]`;
-- grouped named templates at `<group>/templates/<template-id>/TEMPLATE.md`
-  with `<group>/.jastrgroup`, rendered with
+- grouped named templates at
+  `.jastr/<group>/templates/<template-id>/TEMPLATE.md` with
+  `.jastr/<group>/.jastrgroup`, rendered with
   `jastr run <group>/<template-id> [input flags...]`;
 - project-config-defined variants over named or grouped templates, rendered
   with `jastr run <template-ref>#<variant-id> [input flags...]`; or
@@ -79,7 +80,9 @@ contract is
 `docs/threads/260607220555Z-include-group-containment/specs/260608092033Z-v2-spec.md`.
 That spec supersedes the package-split v2 include-containment rules and is the
 active contract for include resolution, grouped template lookup, and include
-boundary errors.
+boundary errors, except that its named-grouped-lookup *location* rule is
+superseded by the named group location thread below: a named group now resolves
+under `.jastr/<group>/` rather than `<project-root>/<group>/`.
 
 The active template input defaults and project config design thread is
 `docs/threads/260612215058Z-template-input-defaults/`. Its implemented v2
@@ -99,6 +102,16 @@ contract is
 The active validate command design thread is
 `docs/threads/260531193119Z-validate-command/`. Its implemented v1 contract is
 `docs/threads/260531193119Z-validate-command/specs/260620110306Z-v1-spec.md`.
+
+The active named group location design thread is
+`docs/threads/260620141000Z-named-group-location/`. Its implemented v1 contract
+is
+`docs/threads/260620141000Z-named-group-location/specs/260620141000Z-v1-spec.md`.
+It supersedes the named-grouped-lookup *location* rule of the
+include-group-containment v2 spec: a named group resolves under the project's
+`.jastr/` directory at `.jastr/<group>/templates/<template-id>/TEMPLATE.md` with
+`.jastr/<group>/.jastrgroup`. Direct `.md` grouped classification, the marker
+requirement, the include `root` selectors, and containment are unchanged.
 
 Current v2 direction:
 

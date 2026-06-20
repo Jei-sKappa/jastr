@@ -45,8 +45,8 @@ read `.jastr/config.yml` and cannot select variants.
   `.jastr/`.
 - A value shaped as `<group>/<template-id>`, where both segments match
   `^[a-z0-9][a-z0-9-]*$`, is a grouped named template and resolves to
-  `<group>/templates/<template-id>/TEMPLATE.md` when `<group>/.jastrgroup`
-  exists as a file.
+  `.jastr/<group>/templates/<template-id>/TEMPLATE.md` under the nearest ancestor
+  containing `.jastr/`, when `.jastr/<group>/.jastrgroup` exists as a file.
 - A named or grouped named template may add `#<variant-id>`, where
   `<variant-id>` uses the same lowercase kebab-case segment grammar. For
   example, `analyze#strict` selects `variants.analyze.strict`; `team/review#deep`
@@ -94,8 +94,9 @@ Ask the user for a supported language.
 ```
 
 Named templates live at `.jastr/<template-id>/TEMPLATE.md`. Grouped templates
-live at `<group>/templates/<template-id>/TEMPLATE.md` with a `.jastrgroup`
-marker at `<group>`. Direct file templates can live anywhere the caller can
+live alongside them under `.jastr/`, at
+`.jastr/<group>/templates/<template-id>/TEMPLATE.md` with a `.jastrgroup` marker
+at `.jastr/<group>`. Direct file templates can live anywhere the caller can
 reference with a `.md` path.
 
 Named template runs may use project-local config at `.jastr/config.yml`:
