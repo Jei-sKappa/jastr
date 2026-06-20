@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**79** requirements · **198** acceptance criteria · **124** end-to-end cases.
+**86** requirements · **213** acceptance criteria · **137** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -120,6 +120,15 @@ output against its inputs.
   - [VAR-FR-0007 — Selected variant config shape is strict and selected-only](#var-fr-0007--selected-variant-config-shape-is-strict-and-selected-only)
   - [VAR-FR-0008 — Locked input values use engine validation](#var-fr-0008--locked-input-values-use-engine-validation)
 
+- [Validate](#validate)
+  - [VALIDATE-FR-0001 — Validate confirms a well-formed template](#validate-fr-0001--validate-confirms-a-well-formed-template)
+  - [VALIDATE-FR-0002 — Validate accepts templates without agent-skill metadata](#validate-fr-0002--validate-accepts-templates-without-agent-skill-metadata)
+  - [VALIDATE-FR-0003 — Validate runs the full static pipeline](#validate-fr-0003--validate-runs-the-full-static-pipeline)
+  - [VALIDATE-FR-0004 — Validate checks declared agent-skill target metadata](#validate-fr-0004--validate-checks-declared-agent-skill-target-metadata)
+  - [VALIDATE-FR-0005 — Validate resolves and validates selected variants](#validate-fr-0005--validate-resolves-and-validates-selected-variants)
+  - [VALIDATE-FR-0006 — Validate accepts direct .md references](#validate-fr-0006--validate-accepts-direct-md-references)
+  - [VALIDATE-FR-0007 — Validate rejects malformed invocations](#validate-fr-0007--validate-rejects-malformed-invocations)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a named template
@@ -209,7 +218,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...] or jastr generate agent-skill <template-ref> --out <path> [--check] [--force].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], or jastr validate <template-ref>.
 ```
 
 </details>
@@ -5016,6 +5025,7 @@ Jastr exposes help text for the root program and supported commands.
 | AC-0001 | Root help exits with code 0 and prints usage text. | ✅ `help-root` |
 | AC-0002 | Run help exits with code 0 and prints usage text. | ✅ `help-run` |
 | AC-0003 | Generate help exits with code 0 and prints usage text. | ✅ `help-generate` |
+| AC-0004 | Validate help exits with code 0 and prints usage text. | ✅ `help-validate` |
 
 #### Case: Show generate help
 
@@ -5113,6 +5123,7 @@ Options:
 Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
+  validate <template-ref>                     Validate a Jastr template without rendering or writing output
   help [command]                              display help for command
 ```
 
@@ -5162,6 +5173,39 @@ _No exact stdout or stderr asserted._
 Usage: jastr run
 Template id
 #
+.md file path
+```
+
+</details>
+
+#### Case: Show validate help
+
+Description: Shows the validate command help text and the accepted template reference families.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr validate --help
+```
+
+**CLI output** — exit 0
+
+_No exact stdout or stderr asserted._
+
+**Required stdout substrings**
+
+```text
+Usage: jastr validate
+Template id
 .md file path
 ```
 
@@ -5386,6 +5430,7 @@ Options:
 Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
+  validate <template-ref>                     Validate a Jastr template without rendering or writing output
   help [command]                              display help for command
 ```
 
@@ -7824,6 +7869,596 @@ $ jastr run review#bad
 
 ```console
 Error: Input policy is not declared.
+```
+
+</details>
+
+## Validate
+
+### VALIDATE-FR-0001 — Validate confirms a well-formed template
+
+`jastr validate <template-ref>` runs the static-validation pipeline against a template and, on a clean pass, prints a single confirmation line to stdout, exits 0, and writes nothing.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A well-formed template exits with code 0. | ✅ `validate-valid-template` |
+| AC-0002 | A well-formed template prints `Template <template-ref> is valid.` to stdout. | ✅ `validate-valid-template` |
+| AC-0003 | validate writes no files. | ✅ `validate-valid-template` |
+
+#### Case: Validate a well-formed template
+
+Description: Shows how validate confirms a clean template, exits 0, and writes nothing.
+
+Covers: AC-0001, AC-0002, AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  language:
+    type: string
+    required: true
+---
+Selected: {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 0
+
+```console
+Template demo is valid.
+```
+
+</details>
+
+### VALIDATE-FR-0002 — Validate accepts templates without agent-skill metadata
+
+validate never requires `targets.agent-skill`. A template that is runnable via `jastr run` but declares no agent-skill metadata still passes validation.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A template with no targets.agent-skill exits with code 0. | ✅ `validate-no-agent-skill-target` |
+
+#### Case: Validate a template without agent-skill metadata
+
+Description: Shows how validate accepts a runnable template that declares no targets.agent-skill.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: string
+    required: true
+---
+Selected: {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 0
+
+```console
+Template demo is valid.
+```
+
+</details>
+
+### VALIDATE-FR-0003 — Validate runs the full static pipeline
+
+validate exercises the same schema, directive, condition, interpolation, and include checks as run and generate, failing with the identical message and code for the same defect.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A malformed schema exits with code 1 and the existing schema-error message. | ✅ `validate-invalid-schema` |
+| AC-0002 | A missing include exits with code 1 and the existing include_not_found message. | ✅ `validate-missing-include` |
+| AC-0003 | An include cycle exits with code 1 and the existing include_cycle message. | ✅ `validate-include-cycle` |
+
+#### Case: Reject an include cycle during validate
+
+Description: Shows how validate surfaces the same include_cycle error as run and generate.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ a.md
+      ├─ b.md
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/a.md`
+
+```md
+A
+::include{path="b.md"}
+```
+
+`.jastr/demo/b.md`
+
+```md
+B
+::include{path="a.md"}
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+Root
+::include{path="a.md"}
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
+```
+
+</details>
+
+#### Case: Reject a malformed schema during validate
+
+Description: Shows how validate surfaces the same schema error as run and generate.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: string
+---
+Selected: {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input language must explicitly declare required: true or required: false.
+```
+
+</details>
+
+#### Case: Reject a missing include during validate
+
+Description: Shows how validate surfaces the same include_not_found error as run and generate.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+Root
+::include{path="missing.md"}
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include file missing.md was not found.
+```
+
+</details>
+
+### VALIDATE-FR-0004 — Validate checks declared agent-skill target metadata
+
+When the resolved ref declares agent-skill target metadata, validate validates it with the same rules and code as generate.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Malformed targets.agent-skill metadata exits with code 1 and the existing invalid_target_metadata message. | ✅ `validate-bad-agent-skill-target` |
+
+#### Case: Reject malformed agent-skill target metadata during validate
+
+Description: Shows how validate checks declared targets.agent-skill metadata with the same rules as generate.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: Bad-Name
+      description: Demo skill
+---
+Body
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.frontmatter.name must be 1-64 lowercase letters, numbers, and hyphens with no leading, trailing, or consecutive hyphens.
+```
+
+</details>
+
+### VALIDATE-FR-0005 — Validate resolves and validates selected variants
+
+`jastr validate <ref>#<variant-id>` resolves the selected variant config, validates locked inputs and merged agent-skill frontmatter, and echoes the variant ref on success; an absent variant fails with variant_not_found.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A valid variant ref exits 0 and prints `Template <ref>#<variant-id> is valid.`. | ✅ `validate-variant` |
+| AC-0002 | A variant absent from config exits with code 1 and the variant_not_found message. | ✅ `validate-missing-variant` |
+
+#### Case: Reject an absent variant during validate
+
+Description: Shows how validate fails with variant_not_found when the selected variant is absent from config.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr validate review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Variant review#deep was not found in .jastr/config.yml.
+```
+
+</details>
+
+#### Case: Validate a selected variant ref
+
+Description: Shows how validate resolves a selected variant, validates it, and echoes the variant ref.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+      allowed-tools: Read
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+Template review#deep is valid.
+```
+
+</details>
+
+### VALIDATE-FR-0006 — Validate accepts direct .md references
+
+A direct `.md` ref validates against the file without reading `.jastr/config.yml`, consistent with every other command.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A direct .md ref exits with code 0. | ✅ `validate-direct-md` |
+
+#### Case: Validate a direct .md reference
+
+Description: Shows how validate accepts a direct .md path without reading .jastr/config.yml.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ templates/
+   └─ notes.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: not-a-mapping
+```
+
+`templates/notes.md`
+
+```md
+---
+inputs:
+  topic:
+    type: string
+    required: true
+---
+Notes about {{topic}}
+```
+
+**Command**
+
+```console
+$ jastr validate templates/notes.md
+```
+
+**CLI output** — exit 0
+
+```console
+Template templates/notes.md is valid.
+```
+
+</details>
+
+### VALIDATE-FR-0007 — Validate rejects malformed invocations
+
+validate takes exactly one positional template reference and no options. A missing ref, an unexpected option, or an extra positional is an invalid_command failure.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A missing template reference exits 1 with `Missing template reference for validate.`. | ✅ `validate-missing-ref` |
+| AC-0002 | An unexpected option exits 1 with `Unknown validate option <option>.`. | ✅ `validate-unknown-option` |
+| AC-0003 | An extra positional argument exits 1 with `Invalid validate argument <argument>.`. | ✅ `validate-extra-argument` |
+
+#### Case: Reject validate with an extra positional argument
+
+Description: Shows how validate rejects an extra positional argument before any project lookup.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr validate demo extra
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Invalid validate argument extra.
+```
+
+</details>
+
+#### Case: Reject validate with no template reference
+
+Description: Shows how validate rejects a missing template reference before any project lookup.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr validate
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Missing template reference for validate.
+```
+
+</details>
+
+#### Case: Reject validate with an unknown option
+
+Description: Shows how validate rejects an unexpected option before any project lookup.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr validate demo --force
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Unknown validate option --force.
 ```
 
 </details>
