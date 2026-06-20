@@ -495,4 +495,68 @@ Hello
       await project.cleanup();
     }
   });
+
+  it("compares against variant-specific content under --check", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/review/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+      allowed-tools: Read
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+`,
+      );
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+`,
+      );
+      await runCli(
+        ["generate", "agent-skill", "review#deep", "--out", "out/SKILL.md"],
+        project.root,
+      );
+
+      const checked = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "review#deep",
+          "--out",
+          "out/SKILL.md",
+          "--check",
+        ],
+        project.root,
+      );
+
+      expect(checked.exitCode).toBe(0);
+      expect(checked.stdout).toBe("agent-skill at out/SKILL.md is up to date.");
+      expect(checked.stderr).toBe("");
+    } finally {
+      await project.cleanup();
+    }
+  });
 });
