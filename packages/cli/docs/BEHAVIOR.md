@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**73** requirements · **185** acceptance criteria · **118** end-to-end cases.
+**79** requirements · **198** acceptance criteria · **124** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -75,6 +75,12 @@ output against its inputs.
   - [GEN-FR-0010 — Generate rejects unsupported targets](#gen-fr-0010--generate-rejects-unsupported-targets)
   - [GEN-FR-0011 — Generate forwards $ARGUMENTS only when the template declares inputs](#gen-fr-0011--generate-forwards-arguments-only-when-the-template-declares-inputs)
   - [GEN-FR-0012 — Generate agent-skill supports selected variants](#gen-fr-0012--generate-agent-skill-supports-selected-variants)
+  - [GEN-FR-0013 — Generate --check confirms an up-to-date agent-skill](#gen-fr-0013--generate---check-confirms-an-up-to-date-agent-skill)
+  - [GEN-FR-0014 — Generate --check reports a stale agent-skill](#gen-fr-0014--generate---check-reports-a-stale-agent-skill)
+  - [GEN-FR-0015 — Generate --check reports a missing agent-skill](#gen-fr-0015--generate---check-reports-a-missing-agent-skill)
+  - [GEN-FR-0016 — Generate --check rejects --force](#gen-fr-0016--generate---check-rejects---force)
+  - [GEN-FR-0017 — Generate --check surfaces template defects before freshness](#gen-fr-0017--generate---check-surfaces-template-defects-before-freshness)
+  - [GEN-FR-0018 — Generate --check compares variant-specific content](#gen-fr-0018--generate---check-compares-variant-specific-content)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
@@ -203,7 +209,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...] or jastr generate agent-skill <template-ref> --out <path> [--force].
+Error: Expected command shape: jastr run <template-ref> [input flags...] or jastr generate agent-skill <template-ref> --out <path> [--check] [--force].
 ```
 
 </details>
@@ -4527,6 +4533,474 @@ If the command exits non-zero, report the exact error output to the user and sto
 
 ```console
 Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0013 — Generate --check confirms an up-to-date agent-skill
+
+`generate agent-skill --check` rebuilds the wrapper in memory and byte-compares it against the committed file at `--out`, writing nothing. When the committed bytes match, the command exits 0 with a confirmation line.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A --check run against a byte-identical committed file exits with code 0. | ✅ `generate-check-up-to-date` |
+| AC-0002 | A --check run against a byte-identical committed file prints `agent-skill at <out> is up to date.` to stdout. | ✅ `generate-check-up-to-date` |
+| AC-0003 | A --check run leaves the committed file unchanged. | ✅ `generate-check-up-to-date` |
+
+#### Case: Check an up-to-date agent-skill
+
+Description: Shows how --check confirms a committed wrapper that matches freshly built content, writing nothing.
+
+Covers: AC-0001, AC-0002, AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --check
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+agent-skill at out/SKILL.md is up to date.
+```
+
+</details>
+
+### GEN-FR-0014 — Generate --check reports a stale agent-skill
+
+`generate agent-skill --check` reports a committed file whose bytes differ from freshly built content as stale, exiting 1 with the `output_stale` message and writing nothing. Comparison is exact bytes, so a difference only in trailing newline or line endings is still stale.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A --check run against a committed file whose bytes differ exits with code 1. | ✅ `generate-check-stale` |
+| AC-0002 | A --check run against a stale committed file prints the output_stale Error message to stderr. | ✅ `generate-check-stale` |
+| AC-0003 | A --check run leaves the stale committed file unchanged. | ✅ `generate-check-stale` |
+
+#### Case: Check a stale agent-skill
+
+Description: Shows how --check reports a committed wrapper whose bytes differ as stale, writing nothing.
+
+Covers: AC-0001, AC-0002, AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Stale skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md --check
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Stale skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 1
+
+```console
+Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.
+```
+
+</details>
+
+### GEN-FR-0015 — Generate --check reports a missing agent-skill
+
+`generate agent-skill --check` reports the absence of a file at `--out` as a check failure, exiting 1 with the `output_missing` message and writing nothing.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A --check run with no file at `--out` exits with code 1. | ✅ `generate-check-missing` |
+| AC-0002 | A --check run with no file at `--out` prints the output_missing Error message to stderr. | ✅ `generate-check-missing` |
+
+#### Case: Check a missing agent-skill
+
+Description: Shows how --check reports a check failure when no committed wrapper exists at --out.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --check
+```
+
+**CLI output** — exit 1
+
+```console
+Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md.
+```
+
+</details>
+
+### GEN-FR-0016 — Generate --check rejects --force
+
+`--check` never writes and `--force` governs overwriting, so combining them is incoherent. The argv pre-validator rejects the combination with the `invalid_command` code.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | --check combined with --force exits with code 1. | ✅ `generate-check-force-conflict` |
+| AC-0002 | --check combined with --force prints `Error: --check cannot be combined with --force.` to stderr. | ✅ `generate-check-force-conflict` |
+
+#### Case: Reject --check with --force
+
+Description: Shows how --check combined with --force is rejected before any project lookup.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md --check --force
+```
+
+**CLI output** — exit 1
+
+```console
+Error: --check cannot be combined with --force.
+```
+
+</details>
+
+### GEN-FR-0017 — Generate --check surfaces template defects before freshness
+
+`--check` performs full template validation and the static render before it compares, so an invalid template fails with its own existing error and code, not a stale or missing error.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A --check run against a template that lacks targets.agent-skill exits 1 with the existing missing-target metadata Error message, not a stale or missing error. | ✅ `generate-check-invalid-template` |
+
+#### Case: Check surfaces template defects before freshness
+
+Description: Shows how --check fails with the template's own validation error rather than a stale or missing error.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+Body
+```
+
+`out/SKILL.md`
+
+```md
+not even close
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --check
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template must declare targets.agent-skill metadata for generate agent-skill.
+```
+
+</details>
+
+### GEN-FR-0018 — Generate --check compares variant-specific content
+
+`generate agent-skill <ref>#<variant> --check` resolves the selected variant and compares against the variant-specific built content (merged frontmatter and the variant-aware wrapper command).
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A --check run on a variant ref against byte-identical variant content exits with code 0. | ✅ `generate-check-variant` |
+| AC-0002 | A --check run on a variant ref against byte-identical variant content prints the up-to-date confirmation line. | ✅ `generate-check-variant` |
+
+#### Case: Check a variant agent-skill
+
+Description: Shows how --check compares against the variant-specific wrapper (merged frontmatter and the variant-aware command).
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  ├─ config.yml
+│  └─ review/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+      allowed-tools: Read
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+allowed-tools: Read
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out out/SKILL.md --check
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+allowed-tools: Read
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep $ARGUMENTS
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+agent-skill at out/SKILL.md is up to date.
 ```
 
 </details>
