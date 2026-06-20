@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**86** requirements · **213** acceptance criteria · **137** end-to-end cases.
+**86** requirements · **213** acceptance criteria · **139** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -7881,9 +7881,69 @@ Error: Input policy is not declared.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A well-formed template exits with code 0. | ✅ `validate-valid-template` |
-| AC-0002 | A well-formed template prints `Template <template-ref> is valid.` to stdout. | ✅ `validate-valid-template` |
+| AC-0001 | A well-formed template exits with code 0. | ✅ `validate-grouped`, `validate-valid-template` |
+| AC-0002 | A well-formed template prints `Template <template-ref> is valid.` to stdout. | ✅ `validate-grouped`, `validate-valid-template` |
 | AC-0003 | validate writes no files. | ✅ `validate-valid-template` |
+
+#### Case: Validate a grouped named template
+
+Description: A group/template ref resolves from the group's templates directory and validates correctly.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ demo/
+         └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  language:
+    type: string
+    required: true
+---
+Grouped: {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate team/demo
+```
+
+**CLI output** — exit 0
+
+```console
+Template team/demo is valid.
+```
+
+</details>
 
 #### Case: Validate a well-formed template
 
@@ -8196,8 +8256,73 @@ Error: targets.agent-skill.frontmatter.name must be 1-64 lowercase letters, numb
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A valid variant ref exits 0 and prints `Template <ref>#<variant-id> is valid.`. | ✅ `validate-variant` |
+| AC-0001 | A valid variant ref exits 0 and prints `Template <ref>#<variant-id> is valid.`. | ✅ `validate-grouped-variant`, `validate-variant` |
 | AC-0002 | A variant absent from config exits with code 1 and the variant_not_found message. | ✅ `validate-missing-variant` |
+
+#### Case: Validate a grouped variant
+
+Description: A grouped variant ref (group/template#variant) resolves the grouped template and its grouped config key, and validates correctly.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ review/
+         └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  team/review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr validate team/review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+Template team/review#deep is valid.
+```
+
+</details>
 
 #### Case: Reject an absent variant during validate
 

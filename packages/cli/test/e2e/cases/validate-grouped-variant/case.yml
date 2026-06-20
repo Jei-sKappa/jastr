@@ -1,0 +1,10 @@
+id: validate-grouped-variant
+covers:
+  - VALIDATE-FR-0005.AC-0001
+title: Validate a grouped variant
+description: A grouped variant ref (group/template#variant) resolves the grouped template and its grouped config key, and validates correctly.
+command: ["validate", "team/review#deep"]
+expect:
+  exitCode: 0
+  stdout: "Template team/review#deep is valid."
+  stderr: ""

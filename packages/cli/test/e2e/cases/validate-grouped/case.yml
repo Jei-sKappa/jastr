@@ -1,0 +1,11 @@
+id: validate-grouped
+covers:
+  - VALIDATE-FR-0001.AC-0001
+  - VALIDATE-FR-0001.AC-0002
+title: Validate a grouped named template
+description: A group/template ref resolves from the group's templates directory and validates correctly.
+command: ["validate", "team/demo"]
+expect:
+  exitCode: 0
+  stdout: "Template team/demo is valid."
+  stderr: ""
