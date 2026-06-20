@@ -63,4 +63,48 @@ describe("jastr cli shell", () => {
       await project.cleanup();
     }
   });
+
+  it("rejects validate with no template reference", async () => {
+    const project = await createEmptyTempProject();
+    try {
+      const result = await runCli(["validate"], project.root);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: Missing template reference for validate.",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects an unknown validate option", async () => {
+    const project = await createEmptyTempProject();
+    try {
+      const result = await runCli(
+        ["validate", "demo", "--force"],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Unknown validate option --force.");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects an extra validate positional argument", async () => {
+    const project = await createEmptyTempProject();
+    try {
+      const result = await runCli(["validate", "demo", "extra"], project.root);
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Invalid validate argument extra.");
+    } finally {
+      await project.cleanup();
+    }
+  });
 });

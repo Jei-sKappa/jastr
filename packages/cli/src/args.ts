@@ -28,7 +28,7 @@ export function validateCliArgv(argv: string[]): void {
     return;
   }
 
-  if (command !== "run" && command !== "generate") {
+  if (command !== "run" && command !== "generate" && command !== "validate") {
     throw new JastrError("invalid_command", expectedCommandShape);
   }
 
@@ -39,6 +39,11 @@ export function validateCliArgv(argv: string[]): void {
         "Missing template reference for run.",
       );
     }
+    return;
+  }
+
+  if (command === "validate") {
+    validateValidateArgs(argv.slice(1));
     return;
   }
 
@@ -119,6 +124,32 @@ export function validateGenerateOut(out: string | undefined): string {
   }
 
   return out;
+}
+
+function validateValidateArgs(rest: string[]): void {
+  let sawRef = false;
+  for (const arg of rest) {
+    if (isHelpToken(arg)) return;
+    if (arg.startsWith("--")) {
+      throw new JastrError(
+        "invalid_command",
+        `Unknown validate option ${arg}.`,
+      );
+    }
+    if (sawRef) {
+      throw new JastrError(
+        "invalid_command",
+        `Invalid validate argument ${arg}.`,
+      );
+    }
+    sawRef = true;
+  }
+  if (!sawRef) {
+    throw new JastrError(
+      "invalid_command",
+      "Missing template reference for validate.",
+    );
+  }
 }
 
 function validateGenerateArgs(rest: string[]): void {
