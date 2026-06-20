@@ -203,4 +203,88 @@ Hello
       }),
     ).toThrow("Default for input language must be one of: typescript, python.");
   });
+
+  it("accepts an optional single-line description on every input type", () => {
+    const parsed = parseTemplateSource(`---
+inputs:
+  env:
+    type: enum
+    values: [dev, prod]
+    required: true
+    description: target environment
+  region:
+    type: string
+    required: false
+    default: us-east-1
+    description: deployment region
+  verbose:
+    type: boolean
+    required: false
+    description: enable verbose logging
+---
+Body
+`);
+
+    expect(validateTemplateSchema(parsed.frontmatter)).toEqual({
+      inputs: {
+        env: {
+          type: "enum",
+          values: ["dev", "prod"],
+          required: true,
+          description: "target environment",
+        },
+        region: {
+          type: "string",
+          required: false,
+          default: "us-east-1",
+          description: "deployment region",
+        },
+        verbose: {
+          type: "boolean",
+          required: false,
+          description: "enable verbose logging",
+        },
+      },
+      targets: {},
+    });
+  });
+
+  it("keeps an input valid when description is omitted", () => {
+    expect(
+      validateTemplateSchema({
+        inputs: { tag: { type: "string", required: true } },
+      }),
+    ).toEqual({
+      inputs: { tag: { type: "string", required: true } },
+      targets: {},
+    });
+  });
+
+  it("rejects a non-string, empty, whitespace-only, or multi-line description", () => {
+    expect(() =>
+      validateTemplateSchema({
+        inputs: { tag: { type: "string", required: true, description: 42 } },
+      }),
+    ).toThrow("Description for input tag must be a string.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: { tag: { type: "string", required: true, description: "" } },
+      }),
+    ).toThrow("Description for input tag cannot be empty.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: { tag: { type: "string", required: true, description: "   " } },
+      }),
+    ).toThrow("Description for input tag cannot be empty.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          tag: { type: "string", required: true, description: "line1\nline2" },
+        },
+      }),
+    ).toThrow("Description for input tag must be a single line.");
+  });
 });

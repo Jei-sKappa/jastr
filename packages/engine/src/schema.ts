@@ -1,9 +1,25 @@
 import { JastrError } from "./errors";
 
 export type TemplateInputDefinition =
-  | { type: "string"; required: boolean; default?: string }
-  | { type: "boolean"; required: boolean; default?: boolean }
-  | { type: "enum"; values: string[]; required: boolean; default?: string };
+  | {
+      type: "string";
+      required: boolean;
+      default?: string;
+      description?: string;
+    }
+  | {
+      type: "boolean";
+      required: boolean;
+      default?: boolean;
+      description?: string;
+    }
+  | {
+      type: "enum";
+      values: string[];
+      required: boolean;
+      default?: string;
+      description?: string;
+    };
 
 export type TemplateInputValues = Record<string, string | boolean>;
 
@@ -94,6 +110,8 @@ function validateInputDefinition(
     );
   }
 
+  const description = validateOptionalDescription(inputName, rawDefinition);
+
   if (rawDefinition.type === "string") {
     const definition: Extract<TemplateInputDefinition, { type: "string" }> = {
       type: "string",
@@ -105,6 +123,7 @@ function validateInputDefinition(
         rawDefinition.default,
       );
     }
+    if (description !== undefined) definition.description = description;
     return definition;
   }
 
@@ -119,6 +138,7 @@ function validateInputDefinition(
         rawDefinition.default,
       );
     }
+    if (description !== undefined) definition.description = description;
     return definition;
   }
 
@@ -146,6 +166,7 @@ function validateInputDefinition(
         rawDefinition.values,
       );
     }
+    if (description !== undefined) definition.description = description;
     return definition;
   }
 
@@ -199,6 +220,36 @@ function validateEnumDefault(
     );
   }
   return defaultValue;
+}
+
+function validateOptionalDescription(
+  inputName: string,
+  rawDefinition: Record<string, unknown>,
+): string | undefined {
+  if (!Object.hasOwn(rawDefinition, "description")) return undefined;
+  const value = rawDefinition.description;
+  if (typeof value !== "string") {
+    throw new JastrError(
+      "malformed_schema",
+      `Description for input ${inputName} must be a string.`,
+      { inputName },
+    );
+  }
+  if (value.trim() === "") {
+    throw new JastrError(
+      "malformed_schema",
+      `Description for input ${inputName} cannot be empty.`,
+      { inputName },
+    );
+  }
+  if (value.includes("\n") || value.includes("\r")) {
+    throw new JastrError(
+      "malformed_schema",
+      `Description for input ${inputName} must be a single line.`,
+      { inputName },
+    );
+  }
+  return value;
 }
 
 function hasOwn(value: Record<string, unknown>, key: string): boolean {
