@@ -40,9 +40,11 @@ Review {{language}}
         "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`",
       );
       expect(result.stderr).toBe("");
-      await expect(
-        readProjectFile(project.root, "out/SKILL.md"),
-      ).resolves.toContain("jastr run review $ARGUMENTS");
+      const skill = await readProjectFile(project.root, "out/SKILL.md");
+      expect(skill).toContain("## Inputs");
+      expect(skill).toContain("- `--language` (string, required)");
+      expect(skill).toContain("jastr run review\n");
+      expect(skill).not.toContain("$ARGUMENTS");
     } finally {
       await project.cleanup();
     }
@@ -173,7 +175,10 @@ Review {{depth}} {{language}}
       expect(skill).toContain("name: review-deep");
       expect(skill).toContain("description: Review with the deep policy.");
       expect(skill).toContain("allowed-tools: Read");
-      expect(skill).toContain("jastr run review#deep $ARGUMENTS");
+      expect(skill).toContain("## Inputs");
+      expect(skill).toContain("- `--language` (string, required)");
+      expect(skill).toContain("jastr run review#deep\n");
+      expect(skill).not.toContain("$ARGUMENTS");
     } finally {
       await project.cleanup();
     }

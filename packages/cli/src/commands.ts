@@ -27,7 +27,7 @@ import { createFileIncludeResolver } from "./templates/includes";
 import { loadTemplateReference } from "./templates/template-ref";
 import {
   assertNoLockedInputFlags,
-  hasUnlockedTemplateInputs,
+  listUnlockedTemplateInputs,
   mergeVariantInputs,
   sampleInputsForStaticRender,
 } from "./variants";
@@ -159,10 +159,10 @@ export async function executeGenerate(opts: {
   const content = buildAgentSkillContent({
     templateRef: template.requestedTemplateRef,
     target,
-    hasInputs:
-      selectedVariant === undefined
-        ? Object.keys(schema.inputs).length > 0
-        : hasUnlockedTemplateInputs(schema, selectedVariant.lockedInputs),
+    inputs: listUnlockedTemplateInputs(
+      schema,
+      selectedVariant?.lockedInputs ?? {},
+    ),
   });
 
   // --check rebuilds in memory and byte-compares against the committed file,

@@ -1,7 +1,7 @@
 import { constants } from "node:fs";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { JastrError } from "@jastr/engine";
+import { JastrError, type TemplateInputDefinition } from "@jastr/engine";
 import YAML from "yaml";
 
 const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -182,7 +182,7 @@ function validateMetadata(value: unknown): void {
 export function buildAgentSkillContent(options: {
   templateRef: string;
   target: AgentSkillTarget;
-  hasInputs: boolean;
+  inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>;
 }): string {
   const frontmatter = {
     name: options.target.name,
@@ -190,11 +190,10 @@ export function buildAgentSkillContent(options: {
     ...options.target.frontmatter,
   };
   const frontmatterSource = YAML.stringify(frontmatter).trimEnd();
-  const command = options.hasInputs
-    ? `jastr run ${options.templateRef} $ARGUMENTS`
-    : `jastr run ${options.templateRef}`;
+  const command = `jastr run ${options.templateRef}`;
 
-  return `---
+  if (options.inputs.length === 0) {
+    return `---
 ${frontmatterSource}
 ---
 
@@ -206,6 +205,46 @@ ${command}
 
 If the command exits non-zero, report the exact error output to the user and stop.
 `;
+  }
+
+  const bullets = options.inputs
+    .map(({ name, definition }) => renderInputBullet(name, definition))
+    .join("\n");
+
+  return `---
+${frontmatterSource}
+---
+
+## Inputs
+
+${bullets}
+
+Map the user's request to the inputs above and append them as \`--flag=value\` arguments, including every required input. Then run this command and follow its output exactly:
+
+\`\`\`bash
+${command}
+\`\`\`
+
+If the command exits non-zero, report the exact error output to the user and stop.
+`;
+}
+
+function renderInputBullet(
+  name: string,
+  definition: TemplateInputDefinition,
+): string {
+  const typeToken =
+    definition.type === "enum"
+      ? `enum: ${definition.values.join("|")}`
+      : definition.type;
+  const reqToken = definition.required ? "required" : "optional";
+  const defaultSeg =
+    !definition.required && definition.default !== undefined
+      ? `, default: ${String(definition.default)}`
+      : "";
+  const descSeg =
+    definition.description !== undefined ? ` — ${definition.description}` : "";
+  return `- \`--${name}\` (${typeToken}, ${reqToken}${defaultSeg})${descSeg}`;
 }
 
 function resolveOutputPath(cwd: string, out: string): string {

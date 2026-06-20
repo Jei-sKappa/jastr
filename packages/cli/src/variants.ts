@@ -1,5 +1,6 @@
 import {
   JastrError,
+  type TemplateInputDefinition,
   type TemplateInputValues,
   type TemplateSchema,
 } from "@jastr/engine";
@@ -57,11 +58,11 @@ export function sampleInputsForStaticRender(
   return values;
 }
 
-export function hasUnlockedTemplateInputs(
+export function listUnlockedTemplateInputs(
   schema: TemplateSchema,
   lockedInputs: Record<string, unknown>,
-): boolean {
-  return Object.keys(schema.inputs).some(
-    (inputName) => !Object.hasOwn(lockedInputs, inputName),
-  );
+): Array<{ name: string; definition: TemplateInputDefinition }> {
+  return Object.entries(schema.inputs)
+    .filter(([inputName]) => !Object.hasOwn(lockedInputs, inputName))
+    .map(([name, definition]) => ({ name, definition }));
 }
