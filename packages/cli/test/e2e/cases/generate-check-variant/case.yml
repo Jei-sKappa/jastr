@@ -1,0 +1,13 @@
+id: generate-check-variant
+covers:
+  - GEN-FR-0018.AC-0001
+  - GEN-FR-0018.AC-0002
+title: Check a variant agent-skill
+description: Shows how --check compares against the variant-specific wrapper (merged frontmatter and the variant-aware command).
+command: ["generate", "agent-skill", "review#deep", "--out", "out/SKILL.md", "--check"]
+expect:
+  exitCode: 0
+  stdout: "agent-skill at out/SKILL.md is up to date."
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

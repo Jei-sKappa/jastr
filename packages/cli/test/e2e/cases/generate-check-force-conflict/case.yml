@@ -1,0 +1,11 @@
+id: generate-check-force-conflict
+covers:
+  - GEN-FR-0016.AC-0001
+  - GEN-FR-0016.AC-0002
+title: Reject --check with --force
+description: Shows how --check combined with --force is rejected before any project lookup.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--check", "--force"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: --check cannot be combined with --force.\n"

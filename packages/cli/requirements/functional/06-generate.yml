@@ -163,3 +163,85 @@
       statement: A variant wrapper omits `$ARGUMENTS` when all declared inputs are locked.
     - id: AC-0006
       statement: Static render validation uses selected locked input values.
+
+- id: GEN-FR-0013
+  title: Generate --check confirms an up-to-date agent-skill
+  status: active
+  description: >
+    `generate agent-skill --check` rebuilds the wrapper in memory and
+    byte-compares it against the committed file at `--out`, writing nothing.
+    When the committed bytes match, the command exits 0 with a confirmation
+    line.
+  acceptance:
+    - id: AC-0001
+      statement: A --check run against a byte-identical committed file exits with code 0.
+    - id: AC-0002
+      statement: A --check run against a byte-identical committed file prints `agent-skill at <out> is up to date.` to stdout.
+    - id: AC-0003
+      statement: A --check run leaves the committed file unchanged.
+
+- id: GEN-FR-0014
+  title: Generate --check reports a stale agent-skill
+  status: active
+  description: >
+    `generate agent-skill --check` reports a committed file whose bytes differ
+    from freshly built content as stale, exiting 1 with the `output_stale`
+    message and writing nothing. Comparison is exact bytes, so a difference only
+    in trailing newline or line endings is still stale.
+  acceptance:
+    - id: AC-0001
+      statement: A --check run against a committed file whose bytes differ exits with code 1.
+    - id: AC-0002
+      statement: A --check run against a stale committed file prints the output_stale Error message to stderr.
+    - id: AC-0003
+      statement: A --check run leaves the stale committed file unchanged.
+
+- id: GEN-FR-0015
+  title: Generate --check reports a missing agent-skill
+  status: active
+  description: >
+    `generate agent-skill --check` reports the absence of a file at `--out` as a
+    check failure, exiting 1 with the `output_missing` message and writing
+    nothing.
+  acceptance:
+    - id: AC-0001
+      statement: A --check run with no file at `--out` exits with code 1.
+    - id: AC-0002
+      statement: A --check run with no file at `--out` prints the output_missing Error message to stderr.
+
+- id: GEN-FR-0016
+  title: Generate --check rejects --force
+  status: active
+  description: >
+    `--check` never writes and `--force` governs overwriting, so combining them
+    is incoherent. The argv pre-validator rejects the combination with the
+    `invalid_command` code.
+  acceptance:
+    - id: AC-0001
+      statement: --check combined with --force exits with code 1.
+    - id: AC-0002
+      statement: "--check combined with --force prints `Error: --check cannot be combined with --force.` to stderr."
+
+- id: GEN-FR-0017
+  title: Generate --check surfaces template defects before freshness
+  status: active
+  description: >
+    `--check` performs full template validation and the static render before it
+    compares, so an invalid template fails with its own existing error and code,
+    not a stale or missing error.
+  acceptance:
+    - id: AC-0001
+      statement: A --check run against a template that lacks targets.agent-skill exits 1 with the existing missing-target metadata Error message, not a stale or missing error.
+
+- id: GEN-FR-0018
+  title: Generate --check compares variant-specific content
+  status: active
+  description: >
+    `generate agent-skill <ref>#<variant> --check` resolves the selected variant
+    and compares against the variant-specific built content (merged frontmatter
+    and the variant-aware wrapper command).
+  acceptance:
+    - id: AC-0001
+      statement: A --check run on a variant ref against byte-identical variant content exits with code 0.
+    - id: AC-0002
+      statement: A --check run on a variant ref against byte-identical variant content prints the up-to-date confirmation line.
