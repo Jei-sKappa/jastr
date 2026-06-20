@@ -2,7 +2,6 @@ id: generate-check-up-to-date
 covers:
   - GEN-FR-0013.AC-0001
   - GEN-FR-0013.AC-0002
-  - GEN-FR-0013.AC-0003
 title: Check an up-to-date agent-skill
 description: Shows how --check confirms a committed wrapper that matches freshly built content, writing nothing.
 command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"]
@@ -10,5 +9,3 @@ expect:
   exitCode: 0
   stdout: "agent-skill at out/SKILL.md is up to date."
   stderr: ""
-  files:
-    out/SKILL.md: expected/files/out/SKILL.md

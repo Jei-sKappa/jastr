@@ -178,7 +178,15 @@
     - id: AC-0002
       statement: A --check run against a byte-identical committed file prints `agent-skill at <out> is up to date.` to stdout.
     - id: AC-0003
+      status: removed
       statement: A --check run leaves the committed file unchanged.
+      removedReason: >
+        On the up-to-date path the committed file is byte-identical to freshly
+        built content, so "leaves the file unchanged" is indistinguishable from
+        a wrongful identical-byte rewrite and cannot be falsified by content
+        comparison. The no-write guarantee is one code path, verified with teeth
+        on the stale path by GEN-FR-0014.AC-0003, where committed bytes differ
+        from fresh content.
 
 - id: GEN-FR-0014
   title: Generate --check reports a stale agent-skill

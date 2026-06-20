@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**86** requirements · **214** acceptance criteria · **140** end-to-end cases.
+**86** requirements · **213** acceptance criteria · **140** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -4553,13 +4553,12 @@ Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
 | --- | --- | --- |
 | AC-0001 | A --check run against a byte-identical committed file exits with code 0. | ✅ `generate-check-up-to-date` |
 | AC-0002 | A --check run against a byte-identical committed file prints `agent-skill at <out> is up to date.` to stdout. | ✅ `generate-check-up-to-date` |
-| AC-0003 | A --check run leaves the committed file unchanged. | ✅ `generate-check-up-to-date` |
 
 #### Case: Check an up-to-date agent-skill
 
 Description: Shows how --check confirms a committed wrapper that matches freshly built content, writing nothing.
 
-Covers: AC-0001, AC-0002, AC-0003
+Covers: AC-0001, AC-0002
 
 <details>
 <summary>Input, command & output</summary>
@@ -4610,25 +4609,6 @@ If the command exits non-zero, report the exact error output to the user and sto
 ```console
 $ jastr generate agent-skill demo --out out/SKILL.md --check
 ```
-
-**Output files**
-
-`out/SKILL.md`
-
-````md
----
-name: demo
-description: Demo skill
----
-
-Run this command and follow its output exactly:
-
-```bash
-jastr run demo
-```
-
-If the command exits non-zero, report the exact error output to the user and stop.
-````
 
 **CLI output** — exit 0
 
@@ -4984,26 +4964,6 @@ If the command exits non-zero, report the exact error output to the user and sto
 ```console
 $ jastr generate agent-skill review#deep --out out/SKILL.md --check
 ```
-
-**Output files**
-
-`out/SKILL.md`
-
-````md
----
-name: review-deep
-description: Review with the deep policy.
-allowed-tools: Read
----
-
-Run this command and follow its output exactly:
-
-```bash
-jastr run review#deep $ARGUMENTS
-```
-
-If the command exits non-zero, report the exact error output to the user and stop.
-````
 
 **CLI output** — exit 0
 

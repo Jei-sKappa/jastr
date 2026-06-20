@@ -9,5 +9,3 @@ expect:
   exitCode: 0
   stdout: "agent-skill at out/SKILL.md is up to date."
   stderr: ""
-  files:
-    out/SKILL.md: expected/files/out/SKILL.md
