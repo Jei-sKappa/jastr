@@ -3,9 +3,9 @@ covers:
   - RUN-FR-0008.AC-0004
   - RUN-FR-0008.AC-0005
 title: Reject a grouped named template without a marker
-description: Grouped named access requires the exact group root to contain .jastrgroup and never falls back to standalone lookup.
+description: Grouped named access requires .jastr/<group>/.jastrgroup and never falls back to standalone lookup.
 command: ["run", "team/demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template team/demo was not found at team/templates/demo/TEMPLATE.md.\n"
+  stderr: "Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.\n"

@@ -40,13 +40,17 @@ describe("template references", () => {
     }
   });
 
-  it("loads a grouped named template from group/templates/<id>/TEMPLATE.md", async () => {
+  it("loads a grouped named template from .jastr/<group>/templates/<id>/TEMPLATE.md", async () => {
     const project = await createTempProject();
     try {
-      await writeProjectFile(project.root, "team/.jastrgroup", "ignored\n");
       await writeProjectFile(
         project.root,
-        "team/templates/demo/TEMPLATE.md",
+        ".jastr/team/.jastrgroup",
+        "ignored\n",
+      );
+      await writeProjectFile(
+        project.root,
+        ".jastr/team/templates/demo/TEMPLATE.md",
         "Grouped\n",
       );
 
@@ -62,9 +66,9 @@ describe("template references", () => {
         source: "Grouped\n",
         includeContext: {
           kind: "grouped",
-          boundary: path.join(root, "team"),
-          groupRoot: path.join(root, "team"),
-          templateRoot: path.join(root, "team", "templates", "demo"),
+          boundary: path.join(root, ".jastr", "team"),
+          groupRoot: path.join(root, ".jastr", "team"),
+          templateRoot: path.join(root, ".jastr", "team", "templates", "demo"),
         },
       });
     } finally {
@@ -99,7 +103,7 @@ describe("template references", () => {
     try {
       await writeProjectFile(
         project.root,
-        "team/templates/demo/TEMPLATE.md",
+        ".jastr/team/templates/demo/TEMPLATE.md",
         "Grouped\n",
       );
 
@@ -109,7 +113,7 @@ describe("template references", () => {
           templateRef: "team/demo",
         }),
       ).rejects.toThrow(
-        "Template team/demo was not found at team/templates/demo/TEMPLATE.md.",
+        "Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.",
       );
     } finally {
       await project.cleanup();
@@ -161,10 +165,10 @@ describe("template references", () => {
         ".jastr/demo/TEMPLATE.md",
         "Variant base\n",
       );
-      await writeProjectFile(project.root, "team/.jastrgroup", "");
+      await writeProjectFile(project.root, ".jastr/team/.jastrgroup", "");
       await writeProjectFile(
         project.root,
-        "team/templates/review/TEMPLATE.md",
+        ".jastr/team/templates/review/TEMPLATE.md",
         "Grouped variant base\n",
       );
 

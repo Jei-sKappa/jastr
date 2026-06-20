@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**86** requirements · **213** acceptance criteria · **139** end-to-end cases.
+**86** requirements · **214** acceptance criteria · **140** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -450,7 +450,7 @@ Error: Template reference BadName must be a template id, a group/template id, a 
 
 ### RUN-FR-0008 — Run renders a grouped named template
 
-A two-segment named template reference `<group>/<template-id>` resolves to `<group>/templates/<template-id>/TEMPLATE.md` under the project root when `<group>/.jastrgroup` exists as a file.
+A two-segment named template reference `<group>/<template-id>` resolves to `.jastr/<group>/templates/<template-id>/TEMPLATE.md` under the project root when `.jastr/<group>/.jastrgroup` exists as a file. A group left at the old project-root location (`<group>/templates/...`, outside `.jastr/`) is no longer found.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -459,10 +459,11 @@ A two-segment named template reference `<group>/<template-id>` resolves to `<gro
 | AC-0003 | A grouped named template prints nothing to stderr. | ✅ `grouped-named-run` |
 | AC-0004 | A grouped named template with a missing marker exits with code 1. | ✅ `grouped-named-missing-marker` |
 | AC-0005 | A grouped named template with a missing marker prints the stable grouped template-not-found message. | ✅ `grouped-named-missing-marker` |
+| AC-0006 | A grouped named template at the old project-root location (outside .jastr/) is not found and prints the stable grouped template-not-found message. | ✅ `grouped-named-old-location-rejected` |
 
 #### Case: Reject a grouped named template without a marker
 
-Description: Grouped named access requires the exact group root to contain .jastrgroup and never falls back to standalone lookup.
+Description: Grouped named access requires .jastr/<group>/.jastrgroup and never falls back to standalone lookup.
 
 Covers: AC-0004, AC-0005
 
@@ -473,26 +474,14 @@ Covers: AC-0004, AC-0005
 
 ```text
 ./
-├─ .jastr/
-│  └─ demo/
-│     └─ TEMPLATE.md
-└─ team/
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   └─ team/
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
-
-```md
----
-name: demo
-description: Fallback template that grouped access must not render
----
-Wrong fallback
-```
-
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -511,7 +500,65 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found at team/templates/demo/TEMPLATE.md.
+Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.
+```
+
+</details>
+
+#### Case: Reject a grouped template left at the old project-root location
+
+Description: A fully valid group placed at the pre-relocation project-root location is not found; named grouped lookup only resolves under .jastr/.
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ team/
+   ├─ .jastrgroup
+   └─ templates/
+      └─ demo/
+         └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+
+```
+
+`team/.jastrgroup`
+
+```text
+
+```
+
+`team/templates/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: A valid group sitting at the old project-root location
+---
+Old location
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.
 ```
 
 </details>
@@ -529,41 +576,29 @@ Covers: AC-0001, AC-0002, AC-0003
 
 ```text
 ./
-├─ .jastr/
-│  └─ demo/
-│     └─ TEMPLATE.md
-└─ team/
-   ├─ .jastrgroup
-   ├─ shared/
-   │  └─ preamble.md
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   └─ team/
+      ├─ .jastrgroup
+      ├─ shared/
+      │  └─ preamble.md
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
-
-```md
----
-name: demo
-description: Fallback template that grouped access must not render
----
-Wrong fallback
-```
-
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 non-empty marker contents are ignored
 ```
 
-`team/shared/preamble.md`
+`.jastr/team/shared/preamble.md`
 
 ```md
 Shared
 ```
 
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2637,48 +2672,36 @@ Covers: AC-0003
 
 ```text
 ./
-├─ .jastr/
-│  └─ demo/
-│     └─ TEMPLATE.md
-├─ outside.md
-└─ team/
-   ├─ .jastrgroup
-   ├─ shared/
-   │  └─ fragment.md
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   ├─ outside.md
+   └─ team/
+      ├─ .jastrgroup
+      ├─ shared/
+      │  └─ fragment.md
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
-
-```md
----
-name: demo
-description: Fallback template that grouped access must not render
----
-Wrong fallback
-```
-
-`outside.md`
+`.jastr/outside.md`
 
 ```md
 Outside
 ```
 
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/shared/fragment.md`
+`.jastr/team/shared/fragment.md`
 
 ```md
 ::include{root="file", path="../../outside.md"}
 ```
 
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -2715,40 +2738,28 @@ Covers: AC-0002
 
 ```text
 ./
-├─ .jastr/
-│  └─ demo/
-│     └─ TEMPLATE.md
-├─ outside.md
-└─ team/
-   ├─ .jastrgroup
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   ├─ outside.md
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
-
-```md
----
-name: demo
-description: Fallback template that grouped access must not render
----
-Wrong fallback
-```
-
-`outside.md`
+`.jastr/outside.md`
 
 ```md
 Outside
 ```
 
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -3190,41 +3201,29 @@ Covers: AC-0002
 
 ```text
 ./
-├─ .jastr/
-│  └─ demo/
-│     └─ TEMPLATE.md
-└─ team/
-   ├─ .jastrgroup
-   ├─ shared/
-   │  └─ preamble.md
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   └─ team/
+      ├─ .jastrgroup
+      ├─ shared/
+      │  └─ preamble.md
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
-
-```md
----
-name: demo
-description: Fallback template that grouped access must not render
----
-Wrong fallback
-```
-
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 non-empty marker contents are ignored
 ```
 
-`team/shared/preamble.md`
+`.jastr/team/shared/preamble.md`
 
 ```md
 Shared
 ```
 
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -6138,13 +6137,13 @@ Covers: AC-0003
 
 ```text
 ./
-├─ .jastr/
-│  └─ config.yml
-└─ team/
-   ├─ .jastrgroup
-   └─ templates/
-      └─ review/
-         └─ TEMPLATE.md
+└─ .jastr/
+   ├─ config.yml
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ review/
+            └─ TEMPLATE.md
 ```
 
 `.jastr/config.yml`
@@ -6157,13 +6156,13 @@ inputs:
     depth: standard
 ```
 
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/templates/review/TEMPLATE.md`
+`.jastr/team/templates/review/TEMPLATE.md`
 
 ```md
 ---
@@ -7281,13 +7280,13 @@ Covers: AC-0001, AC-0002
 
 ```text
 ./
-├─ .jastr/
-│  └─ config.yml
-└─ team/
-   ├─ .jastrgroup
-   └─ templates/
-      └─ review/
-         └─ TEMPLATE.md
+└─ .jastr/
+   ├─ config.yml
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ review/
+            └─ TEMPLATE.md
 ```
 
 `.jastr/config.yml`
@@ -7300,13 +7299,13 @@ variants:
         depth: deep
 ```
 
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/templates/review/TEMPLATE.md`
+`.jastr/team/templates/review/TEMPLATE.md`
 
 ```md
 ---
@@ -7898,28 +7897,21 @@ Covers: AC-0001, AC-0002
 
 ```text
 ./
-├─ .jastr/
-│  └─ config.yml
-└─ team/
-   ├─ .jastrgroup
-   └─ templates/
-      └─ demo/
-         └─ TEMPLATE.md
+└─ .jastr/
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
 ```
 
-`.jastr/config.yml`
-
-```yaml
-
-```
-
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/templates/demo/TEMPLATE.md`
+`.jastr/team/templates/demo/TEMPLATE.md`
 
 ```md
 ---
@@ -8272,13 +8264,13 @@ Covers: AC-0001
 
 ```text
 ./
-├─ .jastr/
-│  └─ config.yml
-└─ team/
-   ├─ .jastrgroup
-   └─ templates/
-      └─ review/
-         └─ TEMPLATE.md
+└─ .jastr/
+   ├─ config.yml
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ review/
+            └─ TEMPLATE.md
 ```
 
 `.jastr/config.yml`
@@ -8291,13 +8283,13 @@ variants:
         depth: deep
 ```
 
-`team/.jastrgroup`
+`.jastr/team/.jastrgroup`
 
 ```text
 
 ```
 
-`team/templates/review/TEMPLATE.md`
+`.jastr/team/templates/review/TEMPLATE.md`
 
 ```md
 ---

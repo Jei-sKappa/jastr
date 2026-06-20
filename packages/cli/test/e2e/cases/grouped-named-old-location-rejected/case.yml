@@ -1,0 +1,10 @@
+id: grouped-named-old-location-rejected
+covers:
+  - RUN-FR-0008.AC-0006
+title: Reject a grouped template left at the old project-root location
+description: A fully valid group placed at the pre-relocation project-root location is not found; named grouped lookup only resolves under .jastr/.
+command: ["run", "team/demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.\n"

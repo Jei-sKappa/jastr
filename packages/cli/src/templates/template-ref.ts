@@ -188,7 +188,7 @@ async function loadGroupedNamedTemplate(options: {
   group: string;
   templateId: string;
 }): Promise<LoadedTemplateReference> {
-  const groupRoot = path.join(options.projectRoot, options.group);
+  const groupRoot = path.join(options.projectRoot, ".jastr", options.group);
   const markerPath = path.join(groupRoot, GROUP_MARKER);
   const declaredPath = path.join(
     groupRoot,
@@ -200,7 +200,7 @@ async function loadGroupedNamedTemplate(options: {
   if (!(await isFile(markerPath)) || !(await isFile(declaredPath))) {
     throw new JastrError(
       "template_not_found",
-      `Template ${options.templateRef} was not found at ${options.group}/${GROUP_TEMPLATES_DIR}/${options.templateId}/${TEMPLATE_FILE}.`,
+      `Template ${options.templateRef} was not found at .jastr/${options.group}/${GROUP_TEMPLATES_DIR}/${options.templateId}/${TEMPLATE_FILE}.`,
       { templateRef: options.templateRef },
     );
   }

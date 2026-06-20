@@ -95,8 +95,10 @@
   status: active
   description: >
     A two-segment named template reference `<group>/<template-id>` resolves to
-    `<group>/templates/<template-id>/TEMPLATE.md` under the project root when
-    `<group>/.jastrgroup` exists as a file.
+    `.jastr/<group>/templates/<template-id>/TEMPLATE.md` under the project root
+    when `.jastr/<group>/.jastrgroup` exists as a file. A group left at the old
+    project-root location (`<group>/templates/...`, outside `.jastr/`) is no
+    longer found.
   acceptance:
     - id: AC-0001
       statement: A grouped named template exits with code 0 when the marker and template file exist.
@@ -108,3 +110,5 @@
       statement: A grouped named template with a missing marker exits with code 1.
     - id: AC-0005
       statement: A grouped named template with a missing marker prints the stable grouped template-not-found message.
+    - id: AC-0006
+      statement: A grouped named template at the old project-root location (outside .jastr/) is not found and prints the stable grouped template-not-found message.

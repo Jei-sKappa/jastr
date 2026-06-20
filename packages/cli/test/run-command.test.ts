@@ -456,10 +456,10 @@ depth={{depth}}
   it("runs grouped variants using exact grouped config keys", async () => {
     const project = await createTempProject();
     try {
-      await writeProjectFile(project.root, "team/.jastrgroup", "");
+      await writeProjectFile(project.root, ".jastr/team/.jastrgroup", "");
       await writeProjectFile(
         project.root,
-        "team/templates/review/TEMPLATE.md",
+        ".jastr/team/templates/review/TEMPLATE.md",
         `---
 inputs:
   depth:
