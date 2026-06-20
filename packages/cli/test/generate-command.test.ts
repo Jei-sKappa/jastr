@@ -466,4 +466,33 @@ Hello
       await project.cleanup();
     }
   });
+
+  it("surfaces template defects before freshness under --check", async () => {
+    const project = await createTempProject();
+    try {
+      // Template lacks targets.agent-skill, so the build fails before any
+      // compare step is reached.
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nBody\n",
+      );
+      // A committed file that would otherwise be stale proves the template
+      // error takes precedence over the comparison.
+      await writeProjectFile(project.root, "out/SKILL.md", "not even close");
+
+      const result = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: Template must declare targets.agent-skill metadata for generate agent-skill.",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
 });
