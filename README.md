@@ -21,7 +21,7 @@ wrapper that runs `jastr run` and tells the agent to follow the rendered output.
 
 ```bash
 jastr run <template-ref> [input flags...]
-jastr generate agent-skill <template-ref> --out <path> [--force]
+jastr generate agent-skill <template-ref> --out <path> [--check] [--force]
 jastr --help
 jastr help [command]
 jastr --version
@@ -133,6 +133,16 @@ variants:
 `jastr run analyze#strict`. The wrapper forwards `$ARGUMENTS` only when the
 base template still has at least one declared input that the variant did not
 lock.
+
+`generate agent-skill --check` answers "is the committed wrapper still up to date
+with its template?" It rebuilds the wrapper in memory, byte-compares it against
+the file at `--out`, and writes nothing. It exits `0` with
+`agent-skill at <out> is up to date.` on an exact match, and exits `1` when the
+committed file is stale (its bytes differ) or missing. Comparison is exact bytes
+with no normalization, so even a line-ending or trailing-newline drift is
+reported as stale. Because `--check` runs the full template and variant
+validation first, an invalid template fails with its own error rather than a
+stale or missing report. `--check` cannot be combined with `--force`.
 
 Includes are contained by final resolved realpath. Standalone templates can
 include only inside the top-level template directory. Grouped templates can
