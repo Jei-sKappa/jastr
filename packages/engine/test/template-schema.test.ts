@@ -286,5 +286,13 @@ Body
         },
       }),
     ).toThrow("Description for input tag must be a single line.");
+
+    expect(() =>
+      validateTemplateSchema({
+        inputs: {
+          tag: { type: "string", required: true, description: "line1\rline2" },
+        },
+      }),
+    ).toThrow("Description for input tag must be a single line.");
   });
 });
