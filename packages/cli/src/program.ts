@@ -1,6 +1,7 @@
 import { Command } from "@commander-js/extra-typings";
 import { makeGenerateCommand } from "./commands/generate";
 import { makeRunCommand } from "./commands/run";
+import { makeValidateCommand } from "./commands/validate";
 import { JASTR_GIT_SHA_OR_DEV, JASTR_VERSION } from "./version";
 
 export function buildProgram(): Command {
@@ -12,5 +13,6 @@ export function buildProgram(): Command {
     .configureOutput({ outputError: () => {} })
     .exitOverride()
     .addCommand(makeRunCommand())
-    .addCommand(makeGenerateCommand());
+    .addCommand(makeGenerateCommand())
+    .addCommand(makeValidateCommand());
 }

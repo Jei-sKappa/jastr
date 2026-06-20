@@ -24,6 +24,7 @@ describe("jastr cli shell", () => {
       expect(result.stdout).toContain("Usage: jastr");
       expect(result.stdout).toContain("run");
       expect(result.stdout).toContain("generate");
+      expect(result.stdout).toContain("validate");
       expect(result.stderr).toBe("");
     } finally {
       await project.cleanup();

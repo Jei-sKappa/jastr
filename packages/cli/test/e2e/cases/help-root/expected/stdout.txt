@@ -9,4 +9,5 @@ Options:
 Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
+  validate <template-ref>                     Validate a Jastr template without rendering or writing output
   help [command]                              display help for command

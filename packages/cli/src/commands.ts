@@ -3,11 +3,16 @@ import {
   JastrError,
   parseTemplateSource,
   renderTemplateSource,
+  type TemplateSchema,
   validateTemplateSchema,
 } from "@jastr/engine";
 import type { RawFlag } from "./args";
 import { validateGenerateOut } from "./args";
-import { loadProjectConfigInputs, loadProjectConfigVariant } from "./config";
+import {
+  loadProjectConfigInputs,
+  loadProjectConfigVariant,
+  type ProjectConfigVariant,
+} from "./config";
 import { coerceRunFlags } from "./flags";
 import {
   assertAgentSkillOutputAvailable,
@@ -179,4 +184,67 @@ export async function executeGenerate(opts: {
   });
 
   return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${path.relative(template.cwd, template.templatePath)}\``;
+}
+
+export async function executeValidate(opts: {
+  templateRef: string;
+  cwd: string;
+}): Promise<string> {
+  const template = await loadTemplateReference({
+    cwd: opts.cwd,
+    templateRef: opts.templateRef,
+  });
+  const parsed = parseTemplateSource(template.source);
+  const schema = validateTemplateSchema(parsed.frontmatter);
+
+  const selectedVariant =
+    template.mode === "named" && template.variantId !== undefined
+      ? await loadProjectConfigVariant({
+          projectRoot: template.projectRoot,
+          templateRef: template.templateRef,
+          variantId: template.variantId,
+        })
+      : undefined;
+
+  // Static render exercises directives, conditions, interpolation references,
+  // include resolution/containment, missing-include and cycle detection, and
+  // engine input validation over sampled values (plus selected locked values).
+  await renderTemplateSource({
+    source: template.source,
+    sourceId: path.relative(template.cwd, template.templatePath),
+    inputs: sampleInputsForStaticRender(schema, selectedVariant?.lockedInputs),
+    includeResolver: createFileIncludeResolver(template),
+  });
+
+  // Agent-skill target metadata is validated only when the resolved ref
+  // declares it. validate never *requires* a target, so a ref with no
+  // agent-skill metadata anywhere is still valid.
+  validateDeclaredAgentSkillTarget(schema, selectedVariant);
+
+  return `Template ${opts.templateRef} is valid.`;
+}
+
+function validateDeclaredAgentSkillTarget(
+  schema: TemplateSchema,
+  selectedVariant: ProjectConfigVariant | undefined,
+): void {
+  const declaredTarget = schema.targets["agent-skill"];
+
+  if (selectedVariant === undefined) {
+    if (declaredTarget === undefined) return;
+    validateAgentSkillTarget(declaredTarget);
+    return;
+  }
+
+  if (
+    declaredTarget === undefined &&
+    selectedVariant.agentSkillFrontmatter === undefined
+  ) {
+    return;
+  }
+
+  validateAgentSkillFrontmatter({
+    ...readOptionalAgentSkillFrontmatter(declaredTarget),
+    ...(selectedVariant.agentSkillFrontmatter ?? {}),
+  });
 }
