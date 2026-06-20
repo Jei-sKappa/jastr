@@ -12,6 +12,7 @@ import { coerceRunFlags } from "./flags";
 import {
   assertAgentSkillOutputAvailable,
   buildAgentSkillContent,
+  checkAgentSkillOutput,
   readOptionalAgentSkillFrontmatter,
   validateAgentSkillFrontmatter,
   validateAgentSkillTarget,
@@ -97,6 +98,7 @@ export async function executeGenerate(opts: {
   templateRef: string;
   out?: string;
   force: boolean;
+  check: boolean;
   cwd: string;
 }): Promise<string> {
   if (opts.target !== "agent-skill") {
@@ -108,11 +110,15 @@ export async function executeGenerate(opts: {
   }
 
   const out = validateGenerateOut(opts.out);
-  await assertAgentSkillOutputAvailable({
-    cwd: opts.cwd,
-    out,
-    force: opts.force,
-  });
+  // In --check mode a pre-existing file at --out is the expected input to the
+  // check, not the output_exists error case, so skip the availability guard.
+  if (!opts.check) {
+    await assertAgentSkillOutputAvailable({
+      cwd: opts.cwd,
+      out,
+      force: opts.force,
+    });
+  }
 
   const template = await loadTemplateReference({
     cwd: opts.cwd,
@@ -153,6 +159,19 @@ export async function executeGenerate(opts: {
         ? Object.keys(schema.inputs).length > 0
         : hasUnlockedTemplateInputs(schema, selectedVariant.lockedInputs),
   });
+
+  // --check rebuilds in memory and byte-compares against the committed file,
+  // writing nothing. Reaching here means the template built successfully, so a
+  // mismatch is reported as stale/missing rather than a template defect.
+  if (opts.check) {
+    return checkAgentSkillOutput({
+      cwd: opts.cwd,
+      out,
+      templateRef: template.requestedTemplateRef,
+      content,
+    });
+  }
+
   const outputPath = await writeAgentSkill({
     cwd: opts.cwd,
     out,

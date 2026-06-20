@@ -348,4 +348,122 @@ Review {{depth}}
       await project.cleanup();
     }
   });
+
+  it("reports an up-to-date agent-skill under --check", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+`,
+      );
+
+      const generated = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"],
+        project.root,
+      );
+      expect(generated.exitCode).toBe(0);
+      const before = await readProjectFile(project.root, "out/SKILL.md");
+
+      const checked = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"],
+        project.root,
+      );
+
+      expect(checked.exitCode).toBe(0);
+      expect(checked.stdout).toBe("agent-skill at out/SKILL.md is up to date.");
+      expect(checked.stderr).toBe("");
+      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
+        before,
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports a stale agent-skill when the committed bytes differ under --check", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+`,
+      );
+      await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"],
+        project.root,
+      );
+      const fresh = await readProjectFile(project.root, "out/SKILL.md");
+      // A trailing-newline-only drift must still be stale: comparison is exact
+      // bytes with no normalization.
+      await writeProjectFile(project.root, "out/SKILL.md", `${fresh}\n`);
+
+      const checked = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"],
+        project.root,
+      );
+
+      expect(checked.exitCode).toBe(1);
+      expect(checked.stdout).toBe("");
+      expect(checked.stderr).toBe(
+        "Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.",
+      );
+      await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
+        `${fresh}\n`,
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("reports a missing agent-skill when no file exists under --check", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+`,
+      );
+
+      const checked = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"],
+        project.root,
+      );
+
+      expect(checked.exitCode).toBe(1);
+      expect(checked.stdout).toBe("");
+      expect(checked.stderr).toBe(
+        "Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md.",
+      );
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).rejects.toThrow();
+    } finally {
+      await project.cleanup();
+    }
+  });
 });

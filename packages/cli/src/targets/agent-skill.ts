@@ -1,5 +1,5 @@
 import { constants } from "node:fs";
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import YAML from "yaml";
@@ -236,6 +236,41 @@ export async function writeAgentSkill(options: {
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, options.content, "utf8");
   return outputPath;
+}
+
+export async function checkAgentSkillOutput(options: {
+  cwd: string;
+  out: string;
+  templateRef: string;
+  content: string;
+}): Promise<string> {
+  const outputPath = resolveOutputPath(options.cwd, options.out);
+
+  let existing: Buffer;
+  try {
+    // No encoding => Buffer, so the comparison is exact bytes with no EOL/BOM
+    // normalization. Generation is deterministic, so this never flaps.
+    existing = await readFile(outputPath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      throw new JastrError(
+        "output_missing",
+        `No agent-skill found at ${options.out} to check; generate it with jastr generate agent-skill ${options.templateRef} --out ${options.out}.`,
+        { out: options.out },
+      );
+    }
+    throw error;
+  }
+
+  if (!existing.equals(Buffer.from(options.content, "utf8"))) {
+    throw new JastrError(
+      "output_stale",
+      `Generated agent-skill at ${options.out} is stale; regenerate it with jastr generate agent-skill ${options.templateRef} --out ${options.out} --force.`,
+      { out: options.out },
+    );
+  }
+
+  return `agent-skill at ${options.out} is up to date.`;
 }
 
 function expectString(value: unknown, message: string): string {

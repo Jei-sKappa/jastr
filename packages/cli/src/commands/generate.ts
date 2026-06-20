@@ -10,6 +10,10 @@ export function makeGenerateCommand() {
       "Template id, template variant (<id>#<variant>), or .md file path",
     )
     .option("--out <path>", "Output path for the generated artifact")
+    .option(
+      "--check",
+      "Verify the committed output matches the template without writing",
+    )
     .option("--force", "Overwrite an existing output file")
     .configureOutput({ outputError: () => {} })
     .exitOverride()
@@ -19,6 +23,7 @@ export function makeGenerateCommand() {
         templateRef,
         out: options.out,
         force: Boolean(options.force),
+        check: Boolean(options.check),
         cwd: process.cwd(),
       });
       process.stdout.write(output);
