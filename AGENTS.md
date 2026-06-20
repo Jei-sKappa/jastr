@@ -96,12 +96,16 @@ The active generate freshness-check design thread is
 contract is
 `docs/threads/260531193119Z-generate-check-freshness/specs/260620090906Z-v1-spec.md`.
 
+The active validate command design thread is
+`docs/threads/260531193119Z-validate-command/`. Its implemented v1 contract is
+`docs/threads/260531193119Z-validate-command/specs/260620110306Z-v1-spec.md`.
+
 Current v2 direction:
 
-- Canonical commands are `jastr run <template-ref> [input flags...]` and
-  `jastr generate agent-skill <template-ref> --out <path> [--check] [--force]`, where
-  named template refs may include `#<variant-id>`, plus `--help`,
-  `help [command]`, and `--version`.
+- Canonical commands are `jastr run <template-ref> [input flags...]`,
+  `jastr generate agent-skill <template-ref> --out <path> [--check] [--force]`,
+  and `jastr validate <template-ref>`, where named template refs may include
+  `#<variant-id>`, plus `--help`, `help [command]`, and `--version`.
 - `jastr generate agent-skill <template-ref> --out <path> --check` rebuilds the
   wrapper in memory and byte-compares it against the committed file at `--out`,
   writing nothing. It exits 0 with `agent-skill at <out> is up to date.` on an
@@ -112,6 +116,20 @@ Current v2 direction:
   error. `--check` is rejected with `invalid_command` and the message `--check
   cannot be combined with --force.` when combined with `--force`; the comparison
   is exact UTF-8 bytes with no normalization.
+- `jastr validate <template-ref>` runs the static-validation pipeline against a
+  template and reports pass/fail, taking no input flags, requiring no `--out`,
+  and writing nothing. It loads the ref exactly as `run`/`generate` do, parses
+  frontmatter, validates the schema, resolves the selected variant for a
+  `#<variant-id>` ref, performs a static render with sampled inputs (plus
+  selected locked values), and validates agent-skill target metadata only when
+  the resolved ref declares it (base `targets.agent-skill` overlaid by any
+  selected variant `agent-skill.frontmatter`). It never requires
+  `targets.agent-skill`, so a ref with no agent-skill metadata still passes. On
+  success it prints `Template <template-ref> is valid.` to stdout and exits 0;
+  any defect fails with that defect's existing message and `JastrErrorCode` (no
+  new codes). Argv-shape errors are `invalid_command`: `Missing template
+  reference for validate.`, `Unknown validate option <option>.`, and `Invalid
+  validate argument <argument>.`.
 - `@jastr/engine` exposes only the top-level template API pinned in the v2 spec:
   `parseTemplateSource`, `validateTemplateSchema`, `validateTemplateInputs`,
   `renderTemplateSource`, `JastrError`, and the public template/render/error

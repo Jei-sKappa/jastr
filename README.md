@@ -22,6 +22,7 @@ wrapper that runs `jastr run` and tells the agent to follow the rendered output.
 ```bash
 jastr run <template-ref> [input flags...]
 jastr generate agent-skill <template-ref> --out <path> [--check] [--force]
+jastr validate <template-ref>
 jastr --help
 jastr help [command]
 jastr --version
@@ -143,6 +144,17 @@ with no normalization, so even a line-ending or trailing-newline drift is
 reported as stale. Because `--check` runs the full template and variant
 validation first, an invalid template fails with its own error rather than a
 stale or missing report. `--check` cannot be combined with `--force`.
+
+`jastr validate <template-ref>` answers "is this template well-formed enough to
+use at all?" It runs the same static-validation pipeline as `run` and `generate`
+— frontmatter and schema validation, variant resolution for a `#<variant-id>`
+ref, a static render that exercises directives, conditions, interpolation, and
+include resolution, and (when the ref declares it) agent-skill target metadata
+validation — without taking input flags, requiring an `--out`, or writing
+anything. On success it prints `Template <template-ref> is valid.` and exits `0`;
+on any defect it fails with the same `Error: <message>` and exit code that defect
+produces under `run`/`generate`. A template with no `targets.agent-skill` still
+passes, because it remains runnable via `jastr run`.
 
 Includes are contained by final resolved realpath. Standalone templates can
 include only inside the top-level template directory. Grouped templates can
