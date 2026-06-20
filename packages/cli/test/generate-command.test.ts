@@ -317,4 +317,35 @@ Review {{depth}}
       await project.cleanup();
     }
   });
+
+  it("rejects --check combined with --force", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nBody\n",
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "demo",
+          "--out=out/SKILL.md",
+          "--check",
+          "--force",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: --check cannot be combined with --force.",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
 });

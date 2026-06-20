@@ -122,6 +122,9 @@ export function validateGenerateOut(out: string | undefined): string {
 }
 
 function validateGenerateArgs(rest: string[]): void {
+  let sawCheck = false;
+  let sawForce = false;
+
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
     if (arg === undefined) continue;
@@ -131,6 +134,12 @@ function validateGenerateArgs(rest: string[]): void {
     }
 
     if (arg === "--force") {
+      sawForce = true;
+      continue;
+    }
+
+    if (arg === "--check") {
+      sawCheck = true;
       continue;
     }
 
@@ -155,6 +164,16 @@ function validateGenerateArgs(rest: string[]): void {
     throw new JastrError(
       "invalid_command",
       `Invalid generate argument ${arg}.`,
+    );
+  }
+
+  // --force governs overwriting and --check never writes, so the combination is
+  // incoherent rather than ignorable. Reject it here, alongside the other
+  // generate flag-shape diagnostics.
+  if (sawCheck && sawForce) {
+    throw new JastrError(
+      "invalid_command",
+      "--check cannot be combined with --force.",
     );
   }
 }
