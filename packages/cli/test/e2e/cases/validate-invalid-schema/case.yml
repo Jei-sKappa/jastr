@@ -1,0 +1,10 @@
+id: validate-invalid-schema
+covers:
+  - VALIDATE-FR-0003.AC-0001
+title: Reject a malformed schema during validate
+description: Shows how validate surfaces the same schema error as run and generate.
+command: ["validate", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input language must explicitly declare required: true or required: false.\n"

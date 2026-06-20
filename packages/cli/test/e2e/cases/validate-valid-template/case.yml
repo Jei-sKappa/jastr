@@ -1,0 +1,12 @@
+id: validate-valid-template
+covers:
+  - VALIDATE-FR-0001.AC-0001
+  - VALIDATE-FR-0001.AC-0002
+  - VALIDATE-FR-0001.AC-0003
+title: Validate a well-formed template
+description: Shows how validate confirms a clean template, exits 0, and writes nothing.
+command: ["validate", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Template demo is valid."
+  stderr: ""

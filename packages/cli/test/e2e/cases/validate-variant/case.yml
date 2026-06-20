@@ -1,0 +1,10 @@
+id: validate-variant
+covers:
+  - VALIDATE-FR-0005.AC-0001
+title: Validate a selected variant ref
+description: Shows how validate resolves a selected variant, validates it, and echoes the variant ref.
+command: ["validate", "review#deep"]
+expect:
+  exitCode: 0
+  stdout: "Template review#deep is valid."
+  stderr: ""

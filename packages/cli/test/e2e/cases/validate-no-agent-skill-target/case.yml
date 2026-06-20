@@ -1,0 +1,10 @@
+id: validate-no-agent-skill-target
+covers:
+  - VALIDATE-FR-0002.AC-0001
+title: Validate a template without agent-skill metadata
+description: Shows how validate accepts a runnable template that declares no targets.agent-skill.
+command: ["validate", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Template demo is valid."
+  stderr: ""

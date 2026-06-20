@@ -1,0 +1,10 @@
+id: validate-direct-md
+covers:
+  - VALIDATE-FR-0006.AC-0001
+title: Validate a direct .md reference
+description: Shows how validate accepts a direct .md path without reading .jastr/config.yml.
+command: ["validate", "templates/notes.md"]
+expect:
+  exitCode: 0
+  stdout: "Template templates/notes.md is valid."
+  stderr: ""

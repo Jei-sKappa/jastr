@@ -1,0 +1,13 @@
+id: help-validate
+covers:
+  - HELP-FR-0001.AC-0004
+title: Show validate help
+description: Shows the validate command help text and the accepted template reference families.
+command: ["validate", "--help"]
+expect:
+  exitCode: 0
+  stdoutContains:
+    - "Usage: jastr validate"
+    - "Template id"
+    - ".md file path"
+  stderr: ""

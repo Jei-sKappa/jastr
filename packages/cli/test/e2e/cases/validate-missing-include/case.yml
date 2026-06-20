@@ -1,0 +1,10 @@
+id: validate-missing-include
+covers:
+  - VALIDATE-FR-0003.AC-0002
+title: Reject a missing include during validate
+description: Shows how validate surfaces the same include_not_found error as run and generate.
+command: ["validate", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include file missing.md was not found.\n"

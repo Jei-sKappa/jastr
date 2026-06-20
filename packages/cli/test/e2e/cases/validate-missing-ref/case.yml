@@ -1,0 +1,10 @@
+id: validate-missing-ref
+covers:
+  - VALIDATE-FR-0007.AC-0001
+title: Reject validate with no template reference
+description: Shows how validate rejects a missing template reference before any project lookup.
+command: ["validate"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Missing template reference for validate.\n"

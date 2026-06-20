@@ -10,6 +10,8 @@
       statement: Run help exits with code 0 and prints usage text.
     - id: AC-0003
       statement: Generate help exits with code 0 and prints usage text.
+    - id: AC-0004
+      statement: Validate help exits with code 0 and prints usage text.
 
 - id: HELP-FR-0002
   title: Command help describes accepted template reference families

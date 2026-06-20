@@ -1,0 +1,87 @@
+- id: VALIDATE-FR-0001
+  title: Validate confirms a well-formed template
+  status: active
+  description: >
+    `jastr validate <template-ref>` runs the static-validation pipeline against a
+    template and, on a clean pass, prints a single confirmation line to stdout,
+    exits 0, and writes nothing.
+  acceptance:
+    - id: AC-0001
+      statement: A well-formed template exits with code 0.
+    - id: AC-0002
+      statement: A well-formed template prints `Template <template-ref> is valid.` to stdout.
+    - id: AC-0003
+      statement: validate writes no files.
+
+- id: VALIDATE-FR-0002
+  title: Validate accepts templates without agent-skill metadata
+  status: active
+  description: >
+    validate never requires `targets.agent-skill`. A template that is runnable via
+    `jastr run` but declares no agent-skill metadata still passes validation.
+  acceptance:
+    - id: AC-0001
+      statement: A template with no targets.agent-skill exits with code 0.
+
+- id: VALIDATE-FR-0003
+  title: Validate runs the full static pipeline
+  status: active
+  description: >
+    validate exercises the same schema, directive, condition, interpolation, and
+    include checks as run and generate, failing with the identical message and
+    code for the same defect.
+  acceptance:
+    - id: AC-0001
+      statement: A malformed schema exits with code 1 and the existing schema-error message.
+    - id: AC-0002
+      statement: A missing include exits with code 1 and the existing include_not_found message.
+    - id: AC-0003
+      statement: An include cycle exits with code 1 and the existing include_cycle message.
+
+- id: VALIDATE-FR-0004
+  title: Validate checks declared agent-skill target metadata
+  status: active
+  description: >
+    When the resolved ref declares agent-skill target metadata, validate validates
+    it with the same rules and code as generate.
+  acceptance:
+    - id: AC-0001
+      statement: Malformed targets.agent-skill metadata exits with code 1 and the existing invalid_target_metadata message.
+
+- id: VALIDATE-FR-0005
+  title: Validate resolves and validates selected variants
+  status: active
+  description: >
+    `jastr validate <ref>#<variant-id>` resolves the selected variant config,
+    validates locked inputs and merged agent-skill frontmatter, and echoes the
+    variant ref on success; an absent variant fails with variant_not_found.
+  acceptance:
+    - id: AC-0001
+      statement: A valid variant ref exits 0 and prints `Template <ref>#<variant-id> is valid.`.
+    - id: AC-0002
+      statement: A variant absent from config exits with code 1 and the variant_not_found message.
+
+- id: VALIDATE-FR-0006
+  title: Validate accepts direct .md references
+  status: active
+  description: >
+    A direct `.md` ref validates against the file without reading
+    `.jastr/config.yml`, consistent with every other command.
+  acceptance:
+    - id: AC-0001
+      statement: A direct .md ref exits with code 0.
+
+- id: VALIDATE-FR-0007
+  title: Validate rejects malformed invocations
+  status: active
+  description: >
+    validate takes exactly one positional template reference and no options. A
+    missing ref, an unexpected option, or an extra positional is an
+    invalid_command failure.
+  acceptance:
+    - id: AC-0001
+      statement: A missing template reference exits 1 with `Missing template reference for validate.`.
+    - id: AC-0002
+      statement: An unexpected option exits 1 with `Unknown validate option <option>.`.
+    - id: AC-0003
+      statement: An extra positional argument exits 1 with `Invalid validate argument <argument>.`.

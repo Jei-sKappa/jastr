@@ -1,0 +1,10 @@
+id: validate-unknown-option
+covers:
+  - VALIDATE-FR-0007.AC-0002
+title: Reject validate with an unknown option
+description: Shows how validate rejects an unexpected option before any project lookup.
+command: ["validate", "demo", "--force"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown validate option --force.\n"

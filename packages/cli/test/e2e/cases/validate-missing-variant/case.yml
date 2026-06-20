@@ -1,0 +1,10 @@
+id: validate-missing-variant
+covers:
+  - VALIDATE-FR-0005.AC-0002
+title: Reject an absent variant during validate
+description: Shows how validate fails with variant_not_found when the selected variant is absent from config.
+command: ["validate", "review#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Variant review#deep was not found in .jastr/config.yml.\n"
