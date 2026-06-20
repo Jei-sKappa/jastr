@@ -17,4 +17,21 @@ describe("JastrError", () => {
     expect(error.message).toBe("Required input language is missing.");
     expect(error.details).toEqual({ inputName: "language" });
   });
+
+  it("accepts the freshness-check codes output_stale and output_missing", () => {
+    const stale = new JastrError(
+      "output_stale",
+      "Generated agent-skill is stale.",
+      {
+        out: "out/SKILL.md",
+      },
+    );
+    const missing = new JastrError("output_missing", "No agent-skill found.", {
+      out: "out/SKILL.md",
+    });
+
+    expect(stale.code).toBe("output_stale");
+    expect(missing.code).toBe("output_missing");
+    expect(stale.details).toEqual({ out: "out/SKILL.md" });
+  });
 });

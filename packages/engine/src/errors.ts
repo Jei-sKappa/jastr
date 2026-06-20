@@ -29,7 +29,9 @@ export type JastrErrorCode =
   | "missing_target_metadata"
   | "invalid_target_metadata"
   | "locked_input_flag"
-  | "variant_not_found";
+  | "variant_not_found"
+  | "output_stale"
+  | "output_missing";
 
 export type JastrErrorDetails = Record<
   string,
