@@ -1,0 +1,13 @@
+id: validate-input-description-malformed
+covers:
+  - INPUT-FR-0006.AC-0002
+title: Reject a malformed input description during validate
+description: >
+  Shows validate surfacing the malformed_schema error for a non-string input
+  description, the same error run and generate raise through the shared schema
+  validator.
+command: ["validate", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Description for input language must be a string.\n"

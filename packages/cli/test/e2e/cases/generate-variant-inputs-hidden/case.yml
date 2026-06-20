@@ -1,0 +1,19 @@
+id: generate-variant-inputs-hidden
+covers:
+  - VAR-FR-0009.AC-0001
+  - VAR-FR-0009.AC-0002
+title: Variant wrapper lists unlocked inputs and hides locked ones
+description: >
+  A variant wrapper lists only the unlocked input, with its description, under
+  the Inputs section and never names the locked input or its values.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "depth"
+      - "quick"

@@ -56,3 +56,17 @@
       statement: A CLI flag overrides a template default for the same input.
     - id: AC-0003
       statement: Direct-file template runs apply template defaults without requiring a project root.
+
+- id: INPUT-FR-0006
+  title: Inputs accept an optional single-line description
+  status: active
+  description: >
+    Every input definition may declare an optional `description` string. When
+    present it must be a non-empty, single-line string; it is metadata-only and
+    does not affect input validation or rendering. It feeds the generated Agent
+    Skill `## Inputs` body.
+  acceptance:
+    - id: AC-0001
+      statement: A valid single-line description on an input is accepted and the template validates.
+    - id: AC-0002
+      statement: "A malformed description (non-string, empty/whitespace, or multi-line) is rejected with a malformed_schema Error and exit 1."

@@ -1,0 +1,22 @@
+id: generate-inputs-section
+covers:
+  - GEN-FR-0019.AC-0001
+  - GEN-FR-0019.AC-0002
+  - GEN-FR-0019.AC-0003
+  - GEN-FR-0019.AC-0004
+  - INPUT-FR-0006.AC-0001
+title: Generate renders the Inputs section with per-input bullets
+description: >
+  Shows the generated wrapper listing each declared input as a bullet with its
+  type, required/optional status, default, and description, plus the
+  construct-flags instruction and a bare command with no $ARGUMENTS.
+command: ["generate", "agent-skill", "deploy", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/deploy/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"

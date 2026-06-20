@@ -111,3 +111,19 @@
       statement: An invalid locked enum value exits with code 1.
     - id: AC-0002
       statement: An unknown locked input key exits with code 1.
+
+- id: VAR-FR-0009
+  title: Variant wrappers list only unlocked inputs
+  status: active
+  description: >
+    A generated variant wrapper's `## Inputs` section lists only the inputs the
+    selected variant did not lock, in declaration order, and never names a
+    locked input anywhere in the body. A variant that locks every declared input
+    renders the lean no-inputs wrapper shape.
+  acceptance:
+    - id: AC-0001
+      statement: "A variant wrapper lists an unlocked input, with its description, in the Inputs section."
+    - id: AC-0002
+      statement: "A variant wrapper never names a locked input anywhere in the body."
+    - id: AC-0003
+      statement: "A fully-locked variant generates a wrapper with no Inputs section."

@@ -2,6 +2,7 @@ id: generate-variant-all-locked
 covers:
   - GEN-FR-0012.AC-0001
   - GEN-FR-0012.AC-0005
+  - VAR-FR-0009.AC-0003
 title: Generate a variant wrapper with all inputs locked
 description: When every declared input is locked, the wrapper command omits $ARGUMENTS.
 command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]

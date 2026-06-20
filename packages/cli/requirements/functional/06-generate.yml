@@ -127,19 +127,19 @@
       statement: An unsupported generate target prints the stable Error-prefixed message.
 
 - id: GEN-FR-0011
-  title: Generate forwards $ARGUMENTS only when the template declares inputs
+  title: Generate renders an Inputs section only when the template declares inputs
   status: active
   description: >
-    The generated Agent Skill wrapper's `jastr run` command forwards
-    `$ARGUMENTS` only when the source template declares one or more inputs. When
-    the template declares no inputs, the wrapper runs `jastr run <template-ref>`
-    directly with no `$ARGUMENTS`, so the agent does not forward arguments a
-    no-input template would reject.
+    The generated Agent Skill wrapper's command line is always the bare
+    `jastr run <template-ref>` with no `$ARGUMENTS`. When the template declares
+    one or more inputs the body carries a `## Inputs` section plus a
+    construct-flags instruction; when it declares none the body stays lean with
+    no `## Inputs` section.
   acceptance:
     - id: AC-0001
-      statement: A template that declares no inputs generates a wrapper whose command omits $ARGUMENTS.
+      statement: "A template that declares no inputs generates a wrapper with no Inputs section and a bare jastr run command."
     - id: AC-0002
-      statement: A template that declares one or more inputs generates a wrapper whose command forwards $ARGUMENTS.
+      statement: "A template that declares one or more inputs generates a wrapper with an Inputs section and a bare jastr run command."
 
 - id: GEN-FR-0012
   title: Generate agent-skill supports selected variants
@@ -158,9 +158,9 @@
     - id: AC-0003
       statement: Variant generation can succeed without base `targets.agent-skill` when variant frontmatter supplies required metadata.
     - id: AC-0004
-      statement: A variant wrapper forwards `$ARGUMENTS` when at least one declared input is not locked.
+      statement: "A variant wrapper renders an Inputs section listing the unlocked inputs when at least one declared input is not locked."
     - id: AC-0005
-      statement: A variant wrapper omits `$ARGUMENTS` when all declared inputs are locked.
+      statement: "A variant wrapper omits the Inputs section when all declared inputs are locked."
     - id: AC-0006
       statement: Static render validation uses selected locked input values.
 
@@ -253,3 +253,23 @@
       statement: A --check run on a variant ref against byte-identical variant content exits with code 0.
     - id: AC-0002
       statement: A --check run on a variant ref against byte-identical variant content prints the up-to-date confirmation line.
+
+- id: GEN-FR-0019
+  title: Generate renders the Inputs section bullets
+  status: active
+  description: >
+    For an input-bearing template the wrapper body lists each rendered input as
+    one `## Inputs` bullet in template declaration order. Each bullet shows the
+    backticked `--flag`, the type token (with enum values joined by `|`), the
+    required/optional status, an optional `default:` segment for optional inputs
+    with a declared default, and an optional em-dash description. No generated
+    wrapper contains the literal token `$ARGUMENTS`.
+  acceptance:
+    - id: AC-0001
+      statement: "The Inputs section lists one bullet per rendered input in template declaration order."
+    - id: AC-0002
+      statement: "Each bullet renders its type token (enum values joined by a pipe), required/optional status, and optional default segment."
+    - id: AC-0003
+      statement: "An input declaring a description renders it verbatim after an em dash; an input without one renders no description segment."
+    - id: AC-0004
+      statement: "No generated wrapper contains the literal token $ARGUMENTS."
