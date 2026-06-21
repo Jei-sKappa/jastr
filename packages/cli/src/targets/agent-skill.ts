@@ -8,6 +8,8 @@ const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FRONTMATTER_FIELD_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const AGENT_SKILL_TARGET_FIELDS = new Set(["frontmatter"]);
 const RESERVED_FRONTMATTER_FIELDS = new Set(["inputs"]);
+const AGENT_SKILL_FAILURE_LINE =
+  "If the command exits non-zero, report the exact error output to the user and stop.";
 
 export type AgentSkillTarget = {
   name: string;
@@ -189,13 +191,12 @@ export function buildAgentSkillContent(options: {
     description: options.target.description,
     ...options.target.frontmatter,
   };
-  const frontmatterSource = YAML.stringify(frontmatter).trimEnd();
-  const command = `jastr run ${options.templateRef}`;
+  const header = `---\n${YAML.stringify(frontmatter).trimEnd()}\n---`;
+  const command = buildCommand(options.templateRef, options.inputs);
 
+  // Shape A — no rendered inputs.
   if (options.inputs.length === 0) {
-    return `---
-${frontmatterSource}
----
+    return `${header}
 
 Run this command and follow its output exactly:
 
@@ -203,17 +204,32 @@ Run this command and follow its output exactly:
 ${command}
 \`\`\`
 
-If the command exits non-zero, report the exact error output to the user and stop.
+${AGENT_SKILL_FAILURE_LINE}
 `;
   }
 
+  // Shapes B/C — exactly one rendered input. Destructuring + the truthiness
+  // guard narrows `single` to a defined value under noUncheckedIndexedAccess.
+  const [single, ...rest] = options.inputs;
+  if (single !== undefined && rest.length === 0) {
+    return `${header}
+
+${renderSingleInputSentence(single)}
+
+\`\`\`bash
+${command}
+\`\`\`
+
+${AGENT_SKILL_FAILURE_LINE}
+`;
+  }
+
+  // Shape D — two or more rendered inputs.
   const bullets = options.inputs
     .map(({ name, definition }) => renderInputBullet(name, definition))
     .join("\n");
 
-  return `---
-${frontmatterSource}
----
+  return `${header}
 
 ## Inputs
 
@@ -225,7 +241,7 @@ Map the user's request to the inputs above and append them as \`--flag=value\` a
 ${command}
 \`\`\`
 
-If the command exits non-zero, report the exact error output to the user and stop.
+${AGENT_SKILL_FAILURE_LINE}
 `;
 }
 
@@ -245,6 +261,29 @@ function inputDescriptor(definition: TemplateInputDefinition): {
   const descSeg =
     definition.description !== undefined ? ` — ${definition.description}` : "";
   return { typeToken, defaultSeg, descSeg };
+}
+
+function buildCommand(
+  templateRef: string,
+  inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>,
+): string {
+  let command = `jastr run ${templateRef}`;
+  for (const { name, definition } of inputs) {
+    if (definition.required) command += ` --${name}=<value>`;
+  }
+  return command;
+}
+
+function renderSingleInputSentence(input: {
+  name: string;
+  definition: TemplateInputDefinition;
+}): string {
+  const { name, definition } = input;
+  const { typeToken, defaultSeg, descSeg } = inputDescriptor(definition);
+  if (definition.required) {
+    return `This skill takes one input, \`--${name}\` (${typeToken})${descSeg}. Fill in \`--${name}=<value>\` from the user's request. Then run this command and follow its output exactly:`;
+  }
+  return `This skill takes one optional input, \`--${name}\` (${typeToken}${defaultSeg})${descSeg}. Add \`--${name}=<value>\` if the user's request calls for it; otherwise leave it out. Then run this command and follow its output exactly:`;
 }
 
 function renderInputBullet(
