@@ -206,7 +206,8 @@ Current v2 direction:
   in `validateTemplateInputs` / `renderTemplateSource` effective values. Every
   input may also declare an optional single-line `description:` string; it is
   metadata-only (validated by `@jastr/engine`, consumed only by the generated
-  Agent Skill `## Inputs` body) and never affects input validation or rendering.
+  Agent Skill input views — the `## Inputs` bullets and the single-input
+  sentence) and never affects input validation or rendering.
 - The v2 directive set remains `if`, `else-if`, `else`, `include`, and
   `include-raw`.
 - Includes accept optional `root="template"`, `root="group"`, or `root="file"`.
