@@ -5830,7 +5830,7 @@ A multi-input wrapper whose rendered inputs are all optional renders the `## Inp
 
 #### Case: Generate keeps the command bare when all inputs are optional
 
-Description: A template with two optional inputs renders the Inputs section but keeps the command bare, byte-identical to the pre-inlining two-shape Shape 2, because no required input exists to inline.
+Description: A template with two optional inputs renders the Inputs section but keeps the command bare, because no required input exists to inline.
 
 Covers: AC-0001
 
