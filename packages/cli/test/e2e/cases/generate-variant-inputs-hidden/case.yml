@@ -2,6 +2,7 @@ id: generate-variant-inputs-hidden
 covers:
   - VAR-FR-0009.AC-0001
   - VAR-FR-0009.AC-0002
+  - GEN-FR-0012.AC-0004
 title: Variant wrapper lists unlocked inputs and hides locked ones
 description: >
   A variant wrapper lists only the unlocked input, with its description, under

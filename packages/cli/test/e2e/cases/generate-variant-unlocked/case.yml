@@ -2,7 +2,7 @@ id: generate-variant-unlocked
 covers:
   - GEN-FR-0012.AC-0001
   - GEN-FR-0012.AC-0002
-  - GEN-FR-0012.AC-0004
+  - VAR-FR-0010.AC-0001
 title: Generate a variant wrapper with an unlocked input
 description: Variant frontmatter overrides base metadata and the wrapper lists the unlocked input under an Inputs section.
 command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]

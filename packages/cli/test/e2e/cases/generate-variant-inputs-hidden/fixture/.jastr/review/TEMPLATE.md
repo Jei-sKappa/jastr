@@ -13,5 +13,8 @@ inputs:
     type: string
     required: true
     description: review mode
+  language:
+    type: string
+    required: true
 ---
 Review {{depth}} in {{mode}} mode
