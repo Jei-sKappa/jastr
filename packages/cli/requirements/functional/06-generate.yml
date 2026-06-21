@@ -127,19 +127,18 @@
       statement: An unsupported generate target prints the stable Error-prefixed message.
 
 - id: GEN-FR-0011
-  title: Generate renders an Inputs section only when the template declares inputs
+  title: Generate renders an Inputs section only for multi-input wrappers
   status: active
   description: >
-    The generated Agent Skill wrapper's command line is always the bare
-    `jastr run <template-ref>` with no `$ARGUMENTS`. When the template declares
-    one or more inputs the body carries a `## Inputs` section plus a
-    construct-flags instruction; when it declares none the body stays lean with
-    no `## Inputs` section.
+    The generated Agent Skill wrapper never contains `$ARGUMENTS`. A wrapper
+    carries a `## Inputs` section plus the construct-flags instruction only when
+    two or more inputs are rendered; a no-input wrapper and a single-input
+    wrapper both omit the section.
   acceptance:
     - id: AC-0001
       statement: "A template that declares no inputs generates a wrapper with no Inputs section and a bare jastr run command."
     - id: AC-0002
-      statement: "A template that declares one or more inputs generates a wrapper with an Inputs section and a bare jastr run command."
+      statement: "A template that declares two or more inputs generates a wrapper with an Inputs section."
 
 - id: GEN-FR-0012
   title: Generate agent-skill supports selected variants
@@ -158,7 +157,7 @@
     - id: AC-0003
       statement: Variant generation can succeed without base `targets.agent-skill` when variant frontmatter supplies required metadata.
     - id: AC-0004
-      statement: "A variant wrapper renders an Inputs section listing the unlocked inputs when at least one declared input is not locked."
+      statement: "A variant wrapper renders an Inputs section listing the unlocked inputs when two or more declared inputs are not locked."
     - id: AC-0005
       statement: "A variant wrapper omits the Inputs section when all declared inputs are locked."
     - id: AC-0006
@@ -273,3 +272,46 @@
       statement: "An input declaring a description renders it verbatim after an em dash; an input without one renders no description segment."
     - id: AC-0004
       statement: "No generated wrapper contains the literal token $ARGUMENTS."
+
+- id: GEN-FR-0020
+  title: Generate inlines required inputs into the command
+  status: active
+  description: >
+    The generated wrapper command carries every rendered required input as a
+    `--<name>=<value>` placeholder in template declaration order. Optional
+    inputs are never inlined, and the uniform literal `<value>` placeholder is
+    used for every type, including boolean.
+  acceptance:
+    - id: AC-0001
+      statement: "A required input is inlined into the command as --<name>=<value>."
+    - id: AC-0002
+      statement: "Multiple required inputs are inlined in template declaration order."
+    - id: AC-0003
+      statement: "Optional inputs are not inlined into the command."
+    - id: AC-0004
+      statement: "A boolean required input is inlined as --<name>=<value>, never the bare --<name> form."
+
+- id: GEN-FR-0021
+  title: Generate renders single-input wrappers without an Inputs section
+  status: active
+  description: >
+    A wrapper whose rendered input list has exactly one entry omits the
+    `## Inputs` section and folds that input into a tailored instruction
+    sentence. A single required input inlines `--<name>=<value>` in the command;
+    a single optional input keeps the command bare.
+  acceptance:
+    - id: AC-0001
+      statement: "A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines --<name>=<value> in the command."
+    - id: AC-0002
+      statement: "A template with exactly one optional input omits the Inputs section, renders the single-optional sentence, and keeps the command bare."
+
+- id: GEN-FR-0022
+  title: Generate keeps the command bare when no required input is rendered
+  status: active
+  description: >
+    A multi-input wrapper whose rendered inputs are all optional renders the
+    `## Inputs` section with a bare `jastr run <template-ref>` command, since
+    optionals are never inlined.
+  acceptance:
+    - id: AC-0001
+      statement: "A template with two or more inputs that are all optional renders an Inputs section and a bare jastr run command."

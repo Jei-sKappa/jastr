@@ -127,3 +127,20 @@
       statement: "A variant wrapper never names a locked input anywhere in the body."
     - id: AC-0003
       statement: "A fully-locked variant generates a wrapper with no Inputs section."
+
+- id: VAR-FR-0010
+  title: Variant wrapper shape follows the unlocked input count
+  status: active
+  description: >
+    A generated variant wrapper's body shape is chosen by its unlocked input
+    count: exactly one unlocked input renders the single-input shape (no
+    `## Inputs` section), and a variant locking every declared input renders the
+    no-input shape. Each unlocked input keeps its own required/optional status
+    from the schema.
+  acceptance:
+    - id: AC-0001
+      statement: "A variant leaving exactly one required input unlocked renders the single-input shape with --<name>=<value> in the command and no Inputs section."
+    - id: AC-0002
+      statement: "A variant leaving exactly one optional input unlocked renders the single-input shape with a bare command and no Inputs section."
+    - id: AC-0003
+      statement: "A variant locking every declared input renders the no-input shape with a bare command and no Inputs section."
