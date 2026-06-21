@@ -229,21 +229,30 @@ If the command exits non-zero, report the exact error output to the user and sto
 `;
 }
 
-function renderInputBullet(
-  name: string,
-  definition: TemplateInputDefinition,
-): string {
+function inputDescriptor(definition: TemplateInputDefinition): {
+  typeToken: string;
+  defaultSeg: string;
+  descSeg: string;
+} {
   const typeToken =
     definition.type === "enum"
       ? `enum: ${definition.values.join("|")}`
       : definition.type;
-  const reqToken = definition.required ? "required" : "optional";
   const defaultSeg =
     !definition.required && definition.default !== undefined
       ? `, default: ${String(definition.default)}`
       : "";
   const descSeg =
     definition.description !== undefined ? ` — ${definition.description}` : "";
+  return { typeToken, defaultSeg, descSeg };
+}
+
+function renderInputBullet(
+  name: string,
+  definition: TemplateInputDefinition,
+): string {
+  const { typeToken, defaultSeg, descSeg } = inputDescriptor(definition);
+  const reqToken = definition.required ? "required" : "optional";
   return `- \`--${name}\` (${typeToken}, ${reqToken}${defaultSeg})${descSeg}`;
 }
 
