@@ -1,0 +1,19 @@
+id: generate-all-required
+covers:
+  - GEN-FR-0020.AC-0002
+  - GEN-FR-0020.AC-0004
+title: Generate inlines multiple required inputs in declaration order
+description: >
+  A template with two required inputs inlines both as --flag=<value> in
+  declaration order, and a required boolean is inlined as --force=<value> rather
+  than the bare flag form.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"

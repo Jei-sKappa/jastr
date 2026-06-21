@@ -1,0 +1,18 @@
+id: generate-all-optional
+covers:
+  - GEN-FR-0022.AC-0001
+title: Generate keeps the command bare when all inputs are optional
+description: >
+  A template with two optional inputs renders the Inputs section but keeps the
+  command bare, byte-identical to the pre-inlining two-shape Shape 2, because no
+  required input exists to inline.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"

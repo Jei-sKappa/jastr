@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**89** requirements · **222** acceptance criteria · **143** end-to-end cases.
+**93** requirements · **232** acceptance criteria · **148** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -74,7 +74,7 @@ output against its inputs.
   - [GEN-FR-0008 — Generate rejects non-kebab target frontmatter fields](#gen-fr-0008--generate-rejects-non-kebab-target-frontmatter-fields)
   - [GEN-FR-0009 — Generate rejects an over-long target description](#gen-fr-0009--generate-rejects-an-over-long-target-description)
   - [GEN-FR-0010 — Generate rejects unsupported targets](#gen-fr-0010--generate-rejects-unsupported-targets)
-  - [GEN-FR-0011 — Generate renders an Inputs section only when the template declares inputs](#gen-fr-0011--generate-renders-an-inputs-section-only-when-the-template-declares-inputs)
+  - [GEN-FR-0011 — Generate renders an Inputs section only for multi-input wrappers](#gen-fr-0011--generate-renders-an-inputs-section-only-for-multi-input-wrappers)
   - [GEN-FR-0012 — Generate agent-skill supports selected variants](#gen-fr-0012--generate-agent-skill-supports-selected-variants)
   - [GEN-FR-0013 — Generate --check confirms an up-to-date agent-skill](#gen-fr-0013--generate---check-confirms-an-up-to-date-agent-skill)
   - [GEN-FR-0014 — Generate --check reports a stale agent-skill](#gen-fr-0014--generate---check-reports-a-stale-agent-skill)
@@ -83,6 +83,9 @@ output against its inputs.
   - [GEN-FR-0017 — Generate --check surfaces template defects before freshness](#gen-fr-0017--generate---check-surfaces-template-defects-before-freshness)
   - [GEN-FR-0018 — Generate --check compares variant-specific content](#gen-fr-0018--generate---check-compares-variant-specific-content)
   - [GEN-FR-0019 — Generate renders the Inputs section bullets](#gen-fr-0019--generate-renders-the-inputs-section-bullets)
+  - [GEN-FR-0020 — Generate inlines required inputs into the command](#gen-fr-0020--generate-inlines-required-inputs-into-the-command)
+  - [GEN-FR-0021 — Generate renders single-input wrappers without an Inputs section](#gen-fr-0021--generate-renders-single-input-wrappers-without-an-inputs-section)
+  - [GEN-FR-0022 — Generate keeps the command bare when no required input is rendered](#gen-fr-0022--generate-keeps-the-command-bare-when-no-required-input-is-rendered)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
@@ -122,6 +125,7 @@ output against its inputs.
   - [VAR-FR-0007 — Selected variant config shape is strict and selected-only](#var-fr-0007--selected-variant-config-shape-is-strict-and-selected-only)
   - [VAR-FR-0008 — Locked input values use engine validation](#var-fr-0008--locked-input-values-use-engine-validation)
   - [VAR-FR-0009 — Variant wrappers list only unlocked inputs](#var-fr-0009--variant-wrappers-list-only-unlocked-inputs)
+  - [VAR-FR-0010 — Variant wrapper shape follows the unlocked input count](#var-fr-0010--variant-wrapper-shape-follows-the-unlocked-input-count)
 
 - [Validate](#validate)
   - [VALIDATE-FR-0001 — Validate confirms a well-formed template](#validate-fr-0001--validate-confirms-a-well-formed-template)
@@ -1019,7 +1023,7 @@ Every input definition may declare an optional `description` string. When presen
 
 #### Case: Generate renders the Inputs section with per-input bullets
 
-Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a bare command with no $ARGUMENTS.
+Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a command that inlines the required inputs with no $ARGUMENTS.
 
 Covers: AC-0001
 
@@ -1097,7 +1101,7 @@ description: Deploy to an environment.
 Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
 
 ```bash
-jastr run deploy
+jastr run deploy --env=<value> --tag=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -4064,14 +4068,10 @@ license: MIT
 my-extension-field: custom-value
 ---
 
-## Inputs
-
-- `--language` (enum: typescript|python, required)
-
-Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+This skill takes one input, `--language` (enum: typescript|python). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
 
 ```bash
-jastr run demo
+jastr run demo --language=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -4230,18 +4230,18 @@ Error: Unsupported generate target typescript.
 
 </details>
 
-### GEN-FR-0011 — Generate renders an Inputs section only when the template declares inputs
+### GEN-FR-0011 — Generate renders an Inputs section only for multi-input wrappers
 
-The generated Agent Skill wrapper's command line is always the bare `jastr run <template-ref>` with no `$ARGUMENTS`. When the template declares one or more inputs the body carries a `## Inputs` section plus a construct-flags instruction; when it declares none the body stays lean with no `## Inputs` section.
+The generated Agent Skill wrapper never contains `$ARGUMENTS`. A wrapper carries a `## Inputs` section plus the construct-flags instruction only when two or more inputs are rendered; a no-input wrapper and a single-input wrapper both omit the section.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
 | AC-0001 | A template that declares no inputs generates a wrapper with no Inputs section and a bare jastr run command. | ✅ `generate-router` |
-| AC-0002 | A template that declares one or more inputs generates a wrapper with an Inputs section and a bare jastr run command. | ✅ `generate-passthrough` |
+| AC-0002 | A template that declares two or more inputs generates a wrapper with an Inputs section. | ✅ `generate-inputs-section` |
 
-#### Case: Generate passes through frontmatter
+#### Case: Generate renders the Inputs section with per-input bullets
 
-Description: Shows how generate preserves author frontmatter fields and omits Jastr-owned inputs.
+Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a command that inlines the required inputs with no $ARGUMENTS.
 
 Covers: AC-0002
 
@@ -4253,36 +4253,49 @@ Covers: AC-0002
 ```text
 ./
 └─ .jastr/
-   └─ demo/
+   └─ deploy/
       └─ TEMPLATE.md
 ```
 
-`.jastr/demo/TEMPLATE.md`
+`.jastr/deploy/TEMPLATE.md`
 
 ```md
 ---
 targets:
   agent-skill:
     frontmatter:
-      name: demo
-      description: A demo skill
-      license: MIT
-      my-extension-field: custom-value
+      name: deploy
+      description: Deploy to an environment.
 inputs:
-  language:
+  env:
     type: enum
-    values: [typescript, python]
+    values: [dev, prod]
     required: true
+    description: target environment
+  region:
+    type: string
+    required: false
+    default: us-east-1
+    description: deployment region
+  dry-run:
+    type: boolean
+    required: false
+    description: preview without applying
+  tag:
+    type: string
+    required: true
+  verbose:
+    type: boolean
+    required: false
+    default: false
 ---
-::::if{condition="${language} == 'typescript'"}
-TS
-::::
+Deploy to {{env}}.
 ```
 
 **Command**
 
 ```console
-$ jastr generate agent-skill demo --out=out/SKILL.md
+$ jastr generate agent-skill deploy --out=out/SKILL.md
 ```
 
 **Output files**
@@ -4291,20 +4304,22 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 
 ````md
 ---
-name: demo
-description: A demo skill
-license: MIT
-my-extension-field: custom-value
+name: deploy
+description: Deploy to an environment.
 ---
 
 ## Inputs
 
-- `--language` (enum: typescript|python, required)
+- `--env` (enum: dev|prod, required) — target environment
+- `--region` (string, optional, default: us-east-1) — deployment region
+- `--dry-run` (boolean, optional) — preview without applying
+- `--tag` (string, required)
+- `--verbose` (boolean, optional, default: false)
 
 Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
 
 ```bash
-jastr run demo
+jastr run deploy --env=<value> --tag=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -4313,7 +4328,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 0
 
 ```console
-Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+Generated `out/SKILL.md` from template `.jastr/deploy/TEMPLATE.md`
 ```
 
 </details>
@@ -4391,7 +4406,7 @@ Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 | AC-0001 | Variant generation writes a wrapper whose command uses `<template-ref>#<variant-id>`. | ✅ `generate-variant-all-locked`, `generate-variant-unlocked` |
 | AC-0002 | Variant frontmatter shallowly overrides base Agent Skill frontmatter. | ✅ `generate-variant-unlocked` |
 | AC-0003 | Variant generation can succeed without base `targets.agent-skill` when variant frontmatter supplies required metadata. | ✅ `generate-variant-frontmatter-only` |
-| AC-0004 | A variant wrapper renders an Inputs section listing the unlocked inputs when at least one declared input is not locked. | ✅ `generate-variant-unlocked` |
+| AC-0004 | A variant wrapper renders an Inputs section listing the unlocked inputs when two or more declared inputs are not locked. | ✅ `generate-variant-inputs-hidden` |
 | AC-0005 | A variant wrapper omits the Inputs section when all declared inputs are locked. | ✅ `generate-variant-all-locked` |
 | AC-0006 | Static render validation uses selected locked input values. | ✅ `generate-variant-static-locked-value` |
 
@@ -4554,6 +4569,102 @@ Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
 
 </details>
 
+#### Case: Variant wrapper lists unlocked inputs and hides locked ones
+
+Description: A variant wrapper lists only the unlocked input, with its description, under the Inputs section and never names the locked input or its values.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  mode:
+    type: string
+    required: true
+    description: review mode
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} in {{mode}} mode
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+---
+
+## Inputs
+
+- `--mode` (string, required) — review mode
+- `--language` (string, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep --mode=<value> --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
 #### Case: Generate uses locked input values during static render validation
 
 Description: Static render validation fails when a selected locked input value is invalid.
@@ -4617,9 +4728,9 @@ Error: Input depth must be one of: quick, deep.
 
 #### Case: Generate a variant wrapper with an unlocked input
 
-Description: Variant frontmatter overrides base metadata and the wrapper lists the unlocked input under an Inputs section.
+Description: Variant frontmatter overrides base metadata and the wrapper folds the single unlocked input into a tailored single-input sentence, inlining it into the command with no Inputs section.
 
-Covers: AC-0001, AC-0002, AC-0004
+Covers: AC-0001, AC-0002
 
 <details>
 <summary>Input, command & output</summary>
@@ -4687,14 +4798,10 @@ description: Review with the deep policy.
 allowed-tools: Read
 ---
 
-## Inputs
-
-- `--language` (string, required)
-
-Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+This skill takes one input, `--language` (string). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
 
 ```bash
-jastr run review#deep
+jastr run review#deep --language=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -5113,14 +5220,10 @@ description: Review with the deep policy.
 allowed-tools: Read
 ---
 
-## Inputs
-
-- `--language` (string, required)
-
-Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+This skill takes one input, `--language` (string). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
 
 ```bash
-jastr run review#deep
+jastr run review#deep --language=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -5153,7 +5256,7 @@ For an input-bearing template the wrapper body lists each rendered input as one 
 
 #### Case: Generate renders the Inputs section with per-input bullets
 
-Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a bare command with no $ARGUMENTS.
+Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a command that inlines the required inputs with no $ARGUMENTS.
 
 Covers: AC-0001, AC-0002, AC-0003, AC-0004
 
@@ -5231,7 +5334,7 @@ description: Deploy to an environment.
 Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
 
 ```bash
-jastr run deploy
+jastr run deploy --env=<value> --tag=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -5241,6 +5344,564 @@ If the command exits non-zero, report the exact error output to the user and sto
 
 ```console
 Generated `out/SKILL.md` from template `.jastr/deploy/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0020 — Generate inlines required inputs into the command
+
+The generated wrapper command carries every rendered required input as a `--<name>=<value>` placeholder in template declaration order. Optional inputs are never inlined, and the uniform literal `<value>` placeholder is used for every type, including boolean.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A required input is inlined into the command as --<name>=<value>. | ✅ `generate-passthrough`, `generate-single-required` |
+| AC-0002 | Multiple required inputs are inlined in template declaration order. | ✅ `generate-all-required` |
+| AC-0003 | Optional inputs are not inlined into the command. | ✅ `generate-inputs-section` |
+| AC-0004 | A boolean required input is inlined as --<name>=<value>, never the bare --<name> form. | ✅ `generate-all-required` |
+
+#### Case: Generate inlines multiple required inputs in declaration order
+
+Description: A template with two required inputs inlines both as --flag=<value> in declaration order, and a required boolean is inlined as --force=<value> rather than the bare flag form.
+
+Covers: AC-0002, AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+  force:
+    type: boolean
+    required: true
+---
+Build {{tag}} force={{force}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--force` (boolean, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate renders the Inputs section with per-input bullets
+
+Description: Shows the generated wrapper listing each declared input as a bullet with its type, required/optional status, default, and description, plus the construct-flags instruction and a command that inlines the required inputs with no $ARGUMENTS.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ deploy/
+      └─ TEMPLATE.md
+```
+
+`.jastr/deploy/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: deploy
+      description: Deploy to an environment.
+inputs:
+  env:
+    type: enum
+    values: [dev, prod]
+    required: true
+    description: target environment
+  region:
+    type: string
+    required: false
+    default: us-east-1
+    description: deployment region
+  dry-run:
+    type: boolean
+    required: false
+    description: preview without applying
+  tag:
+    type: string
+    required: true
+  verbose:
+    type: boolean
+    required: false
+    default: false
+---
+Deploy to {{env}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill deploy --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: deploy
+description: Deploy to an environment.
+---
+
+## Inputs
+
+- `--env` (enum: dev|prod, required) — target environment
+- `--region` (string, optional, default: us-east-1) — deployment region
+- `--dry-run` (boolean, optional) — preview without applying
+- `--tag` (string, required)
+- `--verbose` (boolean, optional, default: false)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run deploy --env=<value> --tag=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/deploy/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate passes through frontmatter
+
+Description: Shows how generate preserves author frontmatter fields and omits Jastr-owned inputs.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: A demo skill
+      license: MIT
+      my-extension-field: custom-value
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: true
+---
+::::if{condition="${language} == 'typescript'"}
+TS
+::::
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: A demo skill
+license: MIT
+my-extension-field: custom-value
+---
+
+This skill takes one input, `--language` (enum: typescript|python). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate renders the single required-input shape
+
+Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as --tag=<value> in the command.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: tag-skill
+      description: Tag something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Tag {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: tag-skill
+description: Tag something.
+---
+
+This skill takes one input, `--tag` (string). Fill in `--tag=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0021 — Generate renders single-input wrappers without an Inputs section
+
+A wrapper whose rendered input list has exactly one entry omits the `## Inputs` section and folds that input into a tailored instruction sentence. A single required input inlines `--<name>=<value>` in the command; a single optional input keeps the command bare.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines --<name>=<value> in the command. | ✅ `generate-single-required` |
+| AC-0002 | A template with exactly one optional input omits the Inputs section, renders the single-optional sentence, and keeps the command bare. | ✅ `generate-single-optional` |
+
+#### Case: Generate renders the single optional-input shape with a bare command
+
+Description: A template with exactly one optional input drops the Inputs section, renders the tailored optional-input sentence, and keeps the command bare because optionals are never inlined.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: lang-skill
+      description: Pick a language.
+inputs:
+  language:
+    type: enum
+    values: [typescript, python]
+    required: false
+    default: typescript
+    description: target language
+---
+Lang {{language}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: lang-skill
+description: Pick a language.
+---
+
+This skill takes one optional input, `--language` (enum: typescript|python, default: typescript) — target language. Add `--language=<value>` if the user's request calls for it; otherwise leave it out. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate renders the single required-input shape
+
+Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as --tag=<value> in the command.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: tag-skill
+      description: Tag something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Tag {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: tag-skill
+description: Tag something.
+---
+
+This skill takes one input, `--tag` (string). Fill in `--tag=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0022 — Generate keeps the command bare when no required input is rendered
+
+A multi-input wrapper whose rendered inputs are all optional renders the `## Inputs` section with a bare `jastr run <template-ref>` command, since optionals are never inlined.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A template with two or more inputs that are all optional renders an Inputs section and a bare jastr run command. | ✅ `generate-all-optional` |
+
+#### Case: Generate keeps the command bare when all inputs are optional
+
+Description: A template with two optional inputs renders the Inputs section but keeps the command bare, byte-identical to the pre-inlining two-shape Shape 2, because no required input exists to inline.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: opt-skill
+      description: Optional inputs only.
+inputs:
+  region:
+    type: string
+    required: false
+    default: us-east-1
+  verbose:
+    type: boolean
+    required: false
+    default: false
+---
+Region {{region}} verbose {{verbose}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: opt-skill
+description: Optional inputs only.
+---
+
+## Inputs
+
+- `--region` (string, optional, default: us-east-1)
+- `--verbose` (boolean, optional, default: false)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 ```
 
 </details>
@@ -8245,6 +8906,9 @@ inputs:
     type: string
     required: true
     description: review mode
+  language:
+    type: string
+    required: true
 ---
 Review {{depth}} in {{mode}} mode
 ```
@@ -8268,11 +8932,280 @@ description: Review with the deep policy.
 ## Inputs
 
 - `--mode` (string, required) — review mode
+- `--language` (string, required)
 
 Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
 
 ```bash
+jastr run review#deep --mode=<value> --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+### VAR-FR-0010 — Variant wrapper shape follows the unlocked input count
+
+A generated variant wrapper's body shape is chosen by its unlocked input count: exactly one unlocked input renders the single-input shape (no `## Inputs` section), and a variant locking every declared input renders the no-input shape. Each unlocked input keeps its own required/optional status from the schema.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A variant leaving exactly one required input unlocked renders the single-input shape with --<name>=<value> in the command and no Inputs section. | ✅ `generate-variant-unlocked` |
+| AC-0002 | A variant leaving exactly one optional input unlocked renders the single-input shape with a bare command and no Inputs section. | ✅ `generate-variant-single-optional` |
+| AC-0003 | A variant locking every declared input renders the no-input shape with a bare command and no Inputs section. | ✅ `generate-variant-all-locked` |
+
+#### Case: Generate a variant wrapper with all inputs locked
+
+Description: When every declared input is locked, the wrapper command omits $ARGUMENTS.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-base
+description: Review with the base policy.
+---
+
+Run this command and follow its output exactly:
+
+```bash
 jastr run review#deep
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate renders Shape C for a variant leaving one optional input unlocked
+
+Description: A variant that locks the only required input and leaves one optional input unlocked renders the single optional-input shape — no Inputs section, the tailored optional sentence, and a bare variant command.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  region:
+    type: string
+    required: false
+    default: us-east-1
+    description: deployment region
+---
+Review {{depth}} in {{region}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+---
+
+This skill takes one optional input, `--region` (string, default: us-east-1) — deployment region. Add `--region=<value>` if the user's request calls for it; otherwise leave it out. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate a variant wrapper with an unlocked input
+
+Description: Variant frontmatter overrides base metadata and the wrapper folds the single unlocked input into a tailored single-input sentence, inlining it into the command with no Inputs section.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+      allowed-tools: Read
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+allowed-tools: Read
+---
+
+This skill takes one input, `--language` (string). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep --language=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.

@@ -1,0 +1,19 @@
+id: generate-single-optional
+covers:
+  - GEN-FR-0021.AC-0002
+title: Generate renders the single optional-input shape with a bare command
+description: >
+  A template with exactly one optional input drops the Inputs section, renders
+  the tailored optional-input sentence, and keeps the command bare because
+  optionals are never inlined.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"
+      - "## Inputs"

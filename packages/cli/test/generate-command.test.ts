@@ -41,9 +41,11 @@ Review {{language}}
       );
       expect(result.stderr).toBe("");
       const skill = await readProjectFile(project.root, "out/SKILL.md");
-      expect(skill).toContain("## Inputs");
-      expect(skill).toContain("- `--language` (string, required)");
-      expect(skill).toContain("jastr run review\n");
+      expect(skill).not.toContain("## Inputs");
+      expect(skill).toContain(
+        "This skill takes one input, `--language` (string).",
+      );
+      expect(skill).toContain("jastr run review --language=<value>\n");
       expect(skill).not.toContain("$ARGUMENTS");
     } finally {
       await project.cleanup();
@@ -175,9 +177,11 @@ Review {{depth}} {{language}}
       expect(skill).toContain("name: review-deep");
       expect(skill).toContain("description: Review with the deep policy.");
       expect(skill).toContain("allowed-tools: Read");
-      expect(skill).toContain("## Inputs");
-      expect(skill).toContain("- `--language` (string, required)");
-      expect(skill).toContain("jastr run review#deep\n");
+      expect(skill).not.toContain("## Inputs");
+      expect(skill).toContain(
+        "This skill takes one input, `--language` (string).",
+      );
+      expect(skill).toContain("jastr run review#deep --language=<value>\n");
       expect(skill).not.toContain("$ARGUMENTS");
     } finally {
       await project.cleanup();

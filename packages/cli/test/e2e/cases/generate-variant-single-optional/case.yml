@@ -1,0 +1,19 @@
+id: generate-variant-single-optional
+covers:
+  - VAR-FR-0010.AC-0002
+title: Generate renders Shape C for a variant leaving one optional input unlocked
+description: >
+  A variant that locks the only required input and leaves one optional input
+  unlocked renders the single optional-input shape — no Inputs section, the
+  tailored optional sentence, and a bare variant command.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"
+      - "## Inputs"

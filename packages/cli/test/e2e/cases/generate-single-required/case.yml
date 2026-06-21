@@ -1,0 +1,20 @@
+id: generate-single-required
+covers:
+  - GEN-FR-0021.AC-0001
+  - GEN-FR-0020.AC-0001
+title: Generate renders the single required-input shape
+description: >
+  A template with exactly one required input drops the Inputs section, renders
+  the tailored single-input sentence, and inlines the input as --tag=<value> in
+  the command.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "$ARGUMENTS"
+      - "## Inputs"
