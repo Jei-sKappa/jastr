@@ -11,7 +11,8 @@ title: Generate renders the Inputs section with per-input bullets
 description: >
   Shows the generated wrapper listing each declared input as a bullet with its
   type, required/optional status, default, and description, plus the
-  construct-flags instruction and a bare command with no $ARGUMENTS.
+  construct-flags instruction and a command that inlines the required inputs
+  with no $ARGUMENTS.
 command: ["generate", "agent-skill", "deploy", "--out=out/SKILL.md"]
 expect:
   exitCode: 0

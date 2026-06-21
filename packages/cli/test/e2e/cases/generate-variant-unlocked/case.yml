@@ -4,7 +4,7 @@ covers:
   - GEN-FR-0012.AC-0002
   - VAR-FR-0010.AC-0001
 title: Generate a variant wrapper with an unlocked input
-description: Variant frontmatter overrides base metadata and the wrapper lists the unlocked input under an Inputs section.
+description: Variant frontmatter overrides base metadata and the wrapper folds the single unlocked input into a tailored single-input sentence, inlining it into the command with no Inputs section.
 command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
 expect:
   exitCode: 0
