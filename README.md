@@ -7,9 +7,11 @@ safe includes, and print final Markdown to stdout.
 
 Agent Skill generation is a CLI target. A generated `SKILL.md` remains a small
 wrapper that runs `jastr run` and tells the agent to follow the rendered output.
-When the template declares inputs, the wrapper lists them under a `## Inputs`
-section and instructs the agent to construct the matching `--flag=value`
-arguments.
+Required inputs are inlined into the command as `--flag=<value>` placeholders the
+agent fills in. A template with exactly one input folds it into a tailored
+instruction sentence with no `## Inputs` section; a template with two or more
+inputs lists them under a `## Inputs` section and instructs the agent to
+construct the matching `--flag=value` arguments.
 
 ## Packages
 
@@ -135,9 +137,11 @@ variants:
 `jastr run analyze#strict` renders the base `.jastr/analyze/TEMPLATE.md` with
 `language` locked to `typescript`. `jastr generate agent-skill analyze#strict
 --out path/to/SKILL.md` writes a wrapper whose command points back to
-`jastr run analyze#strict`. The wrapper's `## Inputs` section lists only the
-inputs the variant did not lock; when the variant locks every declared input,
-the wrapper omits the section entirely.
+`jastr run analyze#strict`, inlining any unlocked required input as
+`--flag=<value>`. The wrapper renders only the inputs the variant did not lock:
+two or more unlocked inputs get a `## Inputs` section, exactly one unlocked input
+gets a tailored single-input sentence, and a variant that locks every declared
+input omits the inputs view entirely.
 
 `generate agent-skill --check` answers "is the committed wrapper still up to date
 with its template?" It rebuilds the wrapper in memory, byte-compares it against
