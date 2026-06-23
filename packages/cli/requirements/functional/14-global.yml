@@ -1,0 +1,166 @@
+- id: GLOBAL-FR-0001
+  title: Global root location
+  status: active
+  description: >
+    A home-directory global root is located by absolute path at
+    `$JASTR_HOME/.jastr` when `JASTR_HOME` is set, defaulting to the home
+    directory when `JASTR_HOME` is unset, and is never reached by an upward
+    walk. A global root that does not exist on disk is simply absent and is not
+    an error.
+  acceptance:
+    - id: AC-0001
+      statement: With `JASTR_HOME` set to an absolute existing directory, a ref present only in `$JASTR_HOME/.jastr` resolves from the global root, demonstrating the global root is `$JASTR_HOME/.jastr` (defaulting to the home directory when `JASTR_HOME` is unset).
+    - id: AC-0002
+      statement: A ref present only in the local root resolves without error when no global root exists on disk, so an absent global root produces no error from its absence alone.
+
+- id: GLOBAL-FR-0002
+  title: Layered resolution; local shadows global
+  status: active
+  description: >
+    A named or grouped template reference is looked up in the local root first
+    and then the global root. The hit predicate is the existing single-root
+    existence check; the first hit wins and commits to that root. A structural
+    miss in the local root falls through silently to the global root.
+  acceptance:
+    - id: AC-0001
+      statement: A named or grouped ref present only in the global root resolves from the global root.
+    - id: AC-0002
+      statement: A ref present in both roots resolves its template body from the local root.
+    - id: AC-0003
+      statement: A ref present only in the local root resolves from the local root, with behavior unchanged from today.
+    - id: AC-0004
+      statement: A structural miss in the local root — a `.jastr/<id>/` directory with no `TEMPLATE.md`, or a grouped directory missing its `.jastrgroup` marker or its `templates/<id>/TEMPLATE.md` — falls through to a valid global template of the same ref, which renders, and no warning is emitted to stderr.
+    - id: AC-0005
+      statement: When a local hit is found, resolution commits to the local root, so a malformed local `TEMPLATE.md` exits with code 1 and its existing parse/schema error instead of falling through to a valid global template of the same ref.
+
+- id: GLOBAL-FR-0003
+  title: Global-only context; missing_project_root relaxation
+  status: active
+  description: >
+    A run, generate, or validate backed only by an existing global root that
+    contains the ref succeeds, even when the upward walk finds no local
+    `.jastr`. `missing_project_root` is raised only when neither a local
+    `.jastr` nor the global root exists.
+  acceptance:
+    - id: AC-0001
+      statement: From a cwd with no local `.jastr` but an existing global root that contains the ref, the command succeeds using the global root.
+    - id: AC-0002
+      statement: With neither a local `.jastr` nor a global root present, the command exits with code 1 and the `missing_project_root` message naming both searched locations.
+
+- id: GLOBAL-FR-0004
+  title: Same-realpath collapse
+  status: deferred
+  coverage: >
+    Unit-covered by the realpath-collapse case in
+    `packages/cli/test/roots.test.ts`, which asserts that when the upward walk
+    resolves to the same realpath as the global root the two roots collapse to a
+    single root applied once. The hermetic e2e harness cannot point a temp local
+    root and `JASTR_HOME` at the same realpath, so this behavior is not
+    exercised by an e2e case.
+  description: >
+    When the upward walk resolves to the same realpath as the global root, the
+    two collapse to a single root: templates and `config.yml` are applied
+    exactly once, with no self-shadowing and no self-merge.
+  acceptance:
+    - id: AC-0001
+      statement: When the upward walk resolves to the same realpath as the global root, templates and `config.yml` are applied exactly once — a ref defined there is not treated as shadowing itself and its config is not merged with itself.
+
+- id: GLOBAL-FR-0005
+  title: Config two-layer composition (inputs)
+  status: active
+  description: >
+    Both the global-root and local-root `config.yml` are consulted for any ref
+    regardless of which root supplied the template body. Bare named-run input
+    precedence is per key: CLI flags over local config over global config over
+    template defaults. A composed key the resolved template does not declare
+    fails with `unknown_input`.
+  acceptance:
+    - id: AC-0001
+      statement: Both the global-root and local-root `config.yml` are consulted for a ref regardless of which root the template body resolved from.
+    - id: AC-0002
+      statement: For a bare named run, a key present only in global config takes the global value, a key present in both takes the local value, and a CLI flag overrides both.
+    - id: AC-0003
+      statement: A key present in neither config falls to the template-author default.
+    - id: AC-0004
+      statement: A merged effective input key the resolved template does not declare exits with code 1 and the `unknown_input` message.
+
+- id: GLOBAL-FR-0006
+  title: Variant composition (unit shadowing)
+  status: active
+  description: >
+    A `#<variant-id>` ref selects `variants.<ref>.<id>` from local config if
+    present, otherwise from global config; the whole variant entry comes from
+    one config with no cross-root `locked-inputs` merge. The selected variant's
+    locked inputs apply over CLI flags, layered config values, and template
+    defaults, and a CLI flag naming a locked input is rejected.
+  acceptance:
+    - id: AC-0001
+      statement: A `#<variant-id>` ref takes its whole variant entry from local config when present and otherwise from global config, with no merge of `locked-inputs` across the two configs.
+    - id: AC-0002
+      statement: The selected variant's locked inputs apply over CLI flags, layered config values, and template defaults, and a CLI flag naming a locked input exits with code 1.
+
+- id: GLOBAL-FR-0007
+  title: Per-root include containment; no cross-boundary include
+  status: active
+  description: >
+    Includes are resolved and containment-checked per resolved root by final
+    realpath: a global template's includes resolve within the global
+    template/group root, a local template's within the local root. The existing
+    boundary error is unchanged and no include resolves across into the other
+    root.
+  acceptance:
+    - id: AC-0001
+      statement: A globally-resolved template whose include resolves outside its own global root — including an include that targets the other root — exits with code 1 and the existing include boundary error.
+
+- id: GLOBAL-FR-0008
+  title: Path display by resolved root
+  status: active
+  description: >
+    Path display is scoped to the resolved root and applies uniformly to a
+    template's own path and to the paths of the files it includes. A
+    globally-resolved template renders all of its paths as real absolute
+    (realpath-resolved) paths; a locally-resolved template renders all of its
+    paths cwd-relative.
+  acceptance:
+    - id: AC-0001
+      statement: A globally-resolved template's own path is rendered as its real absolute path wherever a template path is printed, including the render `sourceId` and the `generate` success message.
+    - id: AC-0002
+      statement: A locally-resolved template renders its own path and its included files' paths cwd-relative, unchanged.
+    - id: AC-0003
+      statement: A file included by a globally-resolved template has its displayed include path rendered as its real absolute path, such as in an error that references the included file.
+
+- id: GLOBAL-FR-0009
+  title: template_not_found names both roots
+  status: active
+  description: >
+    When a ref is absent from both roots, the `template_not_found` message names
+    both searched locations: the local one as a cwd-relative path and the global
+    one as an absolute path.
+  acceptance:
+    - id: AC-0001
+      statement: A ref absent from both roots exits with code 1 and a `template_not_found` message naming the local searched location as a cwd-relative path and the global searched location as an absolute path.
+
+- id: GLOBAL-FR-0010
+  title: Uniform application across commands
+  status: active
+  description: >
+    `run`, `generate agent-skill` (including `--check`), and `validate` resolve
+    a global ref through the same layered mechanism and behave identically with
+    respect to which root supplies the template. Direct `.md` runs are
+    unaffected.
+  acceptance:
+    - id: AC-0001
+      statement: "`generate agent-skill --check` and `validate` against a global-only ref resolve it from the global root and behave consistently with `run`."
+    - id: AC-0002
+      statement: A direct `.md` run bypasses `.jastr` discovery, reads no `config.yml`, and supports no variants, unchanged.
+
+- id: GLOBAL-FR-0011
+  title: Test substitute token for the global root
+  status: active
+  description: >
+    The e2e harness exposes one closed-set `substitute` token that resolves to
+    the global root used by the case, mirroring the existing `projectRoot`
+    token, so cases asserting global absolute paths stay machine-independent.
+  acceptance:
+    - id: AC-0001
+      statement: A case asserting a global absolute path uses the global-root substitute token to render the expected absolute path and passes on any machine.
