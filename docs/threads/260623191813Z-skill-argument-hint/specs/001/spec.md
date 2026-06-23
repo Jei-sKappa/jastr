@@ -1,6 +1,7 @@
 ---
 version: 1
-status: {}
+status:
+  approved: 260623205505Z
 ---
 
 # Spec 001 — `argument-hint` in generated Agent Skill wrappers
