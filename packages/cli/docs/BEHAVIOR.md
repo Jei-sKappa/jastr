@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**93** requirements · **232** acceptance criteria · **148** end-to-end cases.
+**104** requirements · **256** acceptance criteria · **168** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -135,6 +135,19 @@ output against its inputs.
   - [VALIDATE-FR-0005 — Validate resolves and validates selected variants](#validate-fr-0005--validate-resolves-and-validates-selected-variants)
   - [VALIDATE-FR-0006 — Validate accepts direct .md references](#validate-fr-0006--validate-accepts-direct-md-references)
   - [VALIDATE-FR-0007 — Validate rejects malformed invocations](#validate-fr-0007--validate-rejects-malformed-invocations)
+
+- [Global](#global)
+  - [GLOBAL-FR-0001 — Global root location](#global-fr-0001--global-root-location)
+  - [GLOBAL-FR-0002 — Layered resolution; local shadows global](#global-fr-0002--layered-resolution-local-shadows-global)
+  - [GLOBAL-FR-0003 — Global-only context; missing_project_root relaxation](#global-fr-0003--global-only-context-missing_project_root-relaxation)
+  - [GLOBAL-FR-0004 — Same-realpath collapse](#global-fr-0004--same-realpath-collapse-_deferred_)
+  - [GLOBAL-FR-0005 — Config two-layer composition (inputs)](#global-fr-0005--config-two-layer-composition-inputs)
+  - [GLOBAL-FR-0006 — Variant composition (unit shadowing)](#global-fr-0006--variant-composition-unit-shadowing)
+  - [GLOBAL-FR-0007 — Per-root include containment; no cross-boundary include](#global-fr-0007--per-root-include-containment-no-cross-boundary-include)
+  - [GLOBAL-FR-0008 — Path display by resolved root](#global-fr-0008--path-display-by-resolved-root)
+  - [GLOBAL-FR-0009 — template_not_found names both roots](#global-fr-0009--template_not_found-names-both-roots)
+  - [GLOBAL-FR-0010 — Uniform application across commands](#global-fr-0010--uniform-application-across-commands)
+  - [GLOBAL-FR-0011 — Test substitute token for the global root](#global-fr-0011--test-substitute-token-for-the-global-root)
 
 ## Run
 
@@ -311,7 +324,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: No .jastr directory found from the current directory.
+Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).
 ```
 
 </details>
@@ -361,7 +374,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found at .jastr/no-such-skill/TEMPLATE.md.
+Error: Template no-such-skill was not found. Searched local .jastr/no-such-skill/TEMPLATE.md.
 ```
 
 </details>
@@ -507,7 +520,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.
+Error: Template team/demo was not found. Searched local .jastr/team/templates/demo/TEMPLATE.md.
 ```
 
 </details>
@@ -565,7 +578,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found at .jastr/team/templates/demo/TEMPLATE.md.
+Error: Template team/demo was not found. Searched local .jastr/team/templates/demo/TEMPLATE.md.
 ```
 
 </details>
@@ -6364,7 +6377,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found at .jastr/no-such-skill/TEMPLATE.md.
+Error: Template no-such-skill was not found. Searched local .jastr/no-such-skill/TEMPLATE.md.
 ```
 
 </details>
@@ -9923,6 +9936,1211 @@ $ jastr validate demo --force
 
 ```console
 Error: Unknown validate option --force.
+```
+
+</details>
+
+## Global
+
+### GLOBAL-FR-0001 — Global root location
+
+A home-directory global root is located by absolute path at `$JASTR_HOME/.jastr` when `JASTR_HOME` is set, defaulting to the home directory when `JASTR_HOME` is unset, and is never reached by an upward walk. A global root that does not exist on disk is simply absent and is not an error.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | With `JASTR_HOME` set to an absolute existing directory, a ref present only in `$JASTR_HOME/.jastr` resolves from the global root, demonstrating the global root is `$JASTR_HOME/.jastr` (defaulting to the home directory when `JASTR_HOME` is unset). | ✅ `global-only-resolve` |
+| AC-0002 | A ref present only in the local root resolves without error when no global root exists on disk, so an absent global root produces no error from its absence alone. | ✅ `local-only-resolve-no-global` |
+
+#### Case: Resolve a ref from the global root only
+
+Description: From a cwd with no local .jastr, a ref present only in the JASTR_HOME global root resolves and renders from the global root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+GLOBAL body
+```
+
+</details>
+
+#### Case: Local-only resolve with no global root present
+
+Description: A ref present only in the local root resolves without error when no global root exists on disk, so an absent global root is not an error by itself.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+LOCAL only body
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+LOCAL only body
+```
+
+</details>
+
+### GLOBAL-FR-0002 — Layered resolution; local shadows global
+
+A named or grouped template reference is looked up in the local root first and then the global root. The hit predicate is the existing single-root existence check; the first hit wins and commits to that root. A structural miss in the local root falls through silently to the global root.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A named or grouped ref present only in the global root resolves from the global root. | ✅ `global-only-resolve` |
+| AC-0002 | A ref present in both roots resolves its template body from the local root. | ✅ `local-shadows-global` |
+| AC-0003 | A ref present only in the local root resolves from the local root, with behavior unchanged from today. | ✅ `local-only-resolve-no-global` |
+| AC-0004 | A structural miss in the local root — a `.jastr/<id>/` directory with no `TEMPLATE.md`, or a grouped directory missing its `.jastrgroup` marker or its `templates/<id>/TEMPLATE.md` — falls through to a valid global template of the same ref, which renders, and no warning is emitted to stderr. | ✅ `global-structural-miss-fall-through` |
+| AC-0005 | When a local hit is found, resolution commits to the local root, so a malformed local `TEMPLATE.md` exits with code 1 and its existing parse/schema error instead of falling through to a valid global template of the same ref. | ✅ `global-defective-local-commits` |
+
+#### Case: Defective local hit commits and does not fall through
+
+Description: A present-but-malformed local TEMPLATE.md commits resolution to the local root and exits 1 with its own parse error instead of falling through to a valid global template of the same ref.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template frontmatter must close with --- on its own line.
+```
+
+</details>
+
+#### Case: Resolve a ref from the global root only
+
+Description: From a cwd with no local .jastr, a ref present only in the JASTR_HOME global root resolves and renders from the global root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+GLOBAL body
+```
+
+</details>
+
+#### Case: Structural miss in local root falls through to global silently
+
+Description: A local grouped layout missing its .jastrgroup marker is a structural miss that falls through to a valid global template of the same ref, which renders, with no warning emitted to stderr.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ team/
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
+```
+
+`.jastr/team/templates/demo/TEMPLATE.md`
+
+```md
+---
+---
+LOCAL grouped body (should not be reached)
+```
+
+**Command**
+
+```console
+$ jastr run team/demo
+```
+
+**CLI output** — exit 0
+
+```console
+GLOBAL grouped body
+```
+
+</details>
+
+#### Case: Local-only resolve with no global root present
+
+Description: A ref present only in the local root resolves without error when no global root exists on disk, so an absent global root is not an error by itself.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+LOCAL only body
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+LOCAL only body
+```
+
+</details>
+
+#### Case: Local root shadows the global root
+
+Description: A ref present in both the local and global roots resolves its template body from the local root.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+LOCAL body
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+LOCAL body
+```
+
+</details>
+
+### GLOBAL-FR-0003 — Global-only context; missing_project_root relaxation
+
+A run, generate, or validate backed only by an existing global root that contains the ref succeeds, even when the upward walk finds no local `.jastr`. `missing_project_root` is raised only when neither a local `.jastr` nor the global root exists.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | From a cwd with no local `.jastr` but an existing global root that contains the ref, the command succeeds using the global root. | ✅ `global-only-resolve` |
+| AC-0002 | With neither a local `.jastr` nor a global root present, the command exits with code 1 and the `missing_project_root` message naming both searched locations. | ✅ `global-missing-both-roots` |
+
+#### Case: missing_project_root only when neither root exists
+
+Description: With neither a local .jastr nor a global root present, the command exits 1 with the missing_project_root message naming both searched locations.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).
+```
+
+</details>
+
+#### Case: Resolve a ref from the global root only
+
+Description: From a cwd with no local .jastr, a ref present only in the JASTR_HOME global root resolves and renders from the global root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+GLOBAL body
+```
+
+</details>
+
+### GLOBAL-FR-0004 — Same-realpath collapse _(deferred)_
+
+When the upward walk resolves to the same realpath as the global root, the two collapse to a single root: templates and `config.yml` are applied exactly once, with no self-shadowing and no self-merge.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | When the upward walk resolves to the same realpath as the global root, templates and `config.yml` are applied exactly once — a ref defined there is not treated as shadowing itself and its config is not merged with itself. | ❌ uncovered |
+
+> Deferred: Unit-covered by the realpath-collapse case in `packages/cli/test/roots.test.ts`, which asserts that when the upward walk resolves to the same realpath as the global root the two roots collapse to a single root applied once. The hermetic e2e harness cannot point a temp local root and `JASTR_HOME` at the same realpath, so this behavior is not exercised by an e2e case.
+
+### GLOBAL-FR-0005 — Config two-layer composition (inputs)
+
+Both the global-root and local-root `config.yml` are consulted for any ref regardless of which root supplied the template body. Bare named-run input precedence is per key: CLI flags over local config over global config over template defaults. A composed key the resolved template does not declare fails with `unknown_input`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Both the global-root and local-root `config.yml` are consulted for a ref regardless of which root the template body resolved from. | ✅ `global-config-two-layer-defaults` |
+| AC-0002 | For a bare named run, a key present only in global config takes the global value, a key present in both takes the local value, and a CLI flag overrides both. | ✅ `global-config-flag-precedence` |
+| AC-0003 | A key present in neither config falls to the template-author default. | ✅ `global-config-two-layer-defaults` |
+| AC-0004 | A merged effective input key the resolved template does not declare exits with code 1 and the `unknown_input` message. | ✅ `global-config-unknown-composed-key` |
+
+#### Case: Flag over local over global config precedence
+
+Description: For a bare named run, a key present in both configs takes the local value and a CLI flag overrides both the local and the global config value.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+    output: localout
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  region:
+    type: string
+    required: false
+    default: us
+---
+depth={{depth}} output={{output}} region={{region}}
+```
+
+**Command**
+
+```console
+$ jastr run demo --output=cliout
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=cliout region=us
+```
+
+</details>
+
+#### Case: Both root configs consulted; unset key falls to template default
+
+Description: A bare named run consults both the global and local config.yml. A key present only in the global config takes its global value, a key present in both takes the local value, and a key in neither falls to the template-author default.
+
+Covers: AC-0001, AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  region:
+    type: string
+    required: false
+    default: us
+---
+depth={{depth}} output={{output}} region={{region}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=globalout region=us
+```
+
+</details>
+
+#### Case: Undeclared composed config key fails with unknown_input
+
+Description: A merged effective input key the resolved template does not declare — contributed here by the global config — exits 1 with the unknown_input message.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input extra is not declared.
+```
+
+</details>
+
+### GLOBAL-FR-0006 — Variant composition (unit shadowing)
+
+A `#<variant-id>` ref selects `variants.<ref>.<id>` from local config if present, otherwise from global config; the whole variant entry comes from one config with no cross-root `locked-inputs` merge. The selected variant's locked inputs apply over CLI flags, layered config values, and template defaults, and a CLI flag naming a locked input is rejected.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A `#<variant-id>` ref takes its whole variant entry from local config when present and otherwise from global config, with no merge of `locked-inputs` across the two configs. | ✅ `global-variant-from-global`, `global-variant-local-wins-wholesale` |
+| AC-0002 | The selected variant's locked inputs apply over CLI flags, layered config values, and template defaults, and a CLI flag naming a locked input exits with code 1. | ✅ `global-variant-locked-conflict` |
+
+#### Case: Variant entry taken from global config
+
+Description: A #<variant-id> ref takes its whole variant entry from the global config when no local config declares it, and the global variant's locked inputs apply.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  mode:
+    type: enum
+    values: [fast, thorough]
+    required: false
+    default: fast
+---
+depth={{depth}} output={{output}} mode={{mode}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=template mode=thorough
+```
+
+</details>
+
+#### Case: Local variant entry wins wholesale with no cross-root merge
+
+Description: When both configs declare the variant, the whole entry comes from the local config and the global entry's locked inputs are not merged in: mode stays at the template default rather than the global variant's value.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  mode:
+    type: enum
+    values: [fast, thorough]
+    required: false
+    default: fast
+---
+depth={{depth}} output={{output}} mode={{mode}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep
+```
+
+**CLI output** — exit 0
+
+```console
+depth=deep output=template mode=fast
+```
+
+</details>
+
+#### Case: Locked input from a global variant rejects a conflicting flag
+
+Description: The selected variant's locked inputs apply over flags, layered config, and defaults; a CLI flag naming an input locked by the global-sourced variant exits 1.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+  output:
+    type: string
+    required: false
+    default: template
+  mode:
+    type: enum
+    values: [fast, thorough]
+    required: false
+    default: fast
+---
+depth={{depth}} output={{output}} mode={{mode}}
+```
+
+**Command**
+
+```console
+$ jastr run review#deep --depth=quick
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input --depth is locked by variant review#deep.
+```
+
+</details>
+
+### GLOBAL-FR-0007 — Per-root include containment; no cross-boundary include
+
+Includes are resolved and containment-checked per resolved root by final realpath: a global template's includes resolve within the global template/group root, a local template's within the local root. The existing boundary error is unchanged and no include resolves across into the other root.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A globally-resolved template whose include resolves outside its own global root — including an include that targets the other root — exits with code 1 and the existing include boundary error. | ✅ `global-include-escape` |
+
+#### Case: Global template include cannot escape its own root
+
+Description: A globally-resolved template whose include resolves outside its own global template root exits 1 with the existing include boundary error; no include crosses into the other root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include path ../../outside.md escapes the allowed include boundary.
+```
+
+</details>
+
+### GLOBAL-FR-0008 — Path display by resolved root
+
+Path display is scoped to the resolved root and applies uniformly to a template's own path and to the paths of the files it includes. A globally-resolved template renders all of its paths as real absolute (realpath-resolved) paths; a locally-resolved template renders all of its paths cwd-relative.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A globally-resolved template's own path is rendered as its real absolute path wherever a template path is printed, including the render `sourceId` and the `generate` success message. | ✅ `global-path-display-generate` |
+| AC-0002 | A locally-resolved template renders its own path and its included files' paths cwd-relative, unchanged. | ✅ `global-local-path-cwd-relative` |
+| AC-0003 | A file included by a globally-resolved template has its displayed include path rendered as its real absolute path, such as in an error that references the included file. | ✅ `global-included-file-path-absolute` |
+
+#### Case: Included-file path in a global template renders absolute
+
+Description: A file included by a globally-resolved template has its displayed include path rendered as its real absolute path, shown here in an include-cycle error that references the included files, asserted via the global-root token.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.
+```
+
+</details>
+
+#### Case: Local template renders its paths cwd-relative
+
+Description: A locally-resolved template renders its own path and its included files' paths cwd-relative, unchanged, shown here in an include-cycle error that references the local included files.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ a.md
+      ├─ b.md
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/a.md`
+
+```md
+A
+::include{path="b.md"}
+```
+
+`.jastr/demo/b.md`
+
+```md
+B
+::include{path="a.md"}
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Root
+::include{path="a.md"}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
+```
+
+</details>
+
+#### Case: Global template renders its own path as absolute
+
+Description: Generating an agent-skill from a globally-resolved template names the template by its real absolute path in the success message, asserted machine-independently via the global-root substitution token.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `__GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+### GLOBAL-FR-0009 — template_not_found names both roots
+
+When a ref is absent from both roots, the `template_not_found` message names both searched locations: the local one as a cwd-relative path and the global one as an absolute path.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A ref absent from both roots exits with code 1 and a `template_not_found` message naming the local searched location as a cwd-relative path and the global searched location as an absolute path. | ✅ `global-template-not-found-both-roots` |
+
+#### Case: template_not_found names both searched roots
+
+Description: A ref absent from both roots exits 1 with a template_not_found message naming the local searched location as a cwd-relative path and the global searched location as an absolute path via the global-root token.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ other/
+      └─ TEMPLATE.md
+```
+
+`.jastr/other/TEMPLATE.md`
+
+```md
+---
+---
+local other
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.
+```
+
+</details>
+
+### GLOBAL-FR-0010 — Uniform application across commands
+
+`run`, `generate agent-skill` (including `--check`), and `validate` resolve a global ref through the same layered mechanism and behave identically with respect to which root supplies the template. Direct `.md` runs are unaffected.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `generate agent-skill --check` and `validate` against a global-only ref resolve it from the global root and behave consistently with `run`. | ✅ `global-generate-check-uniform`, `global-validate-uniform` |
+| AC-0002 | A direct `.md` run bypasses `.jastr` discovery, reads no `config.yml`, and supports no variants, unchanged. | ✅ `global-direct-md-ignores-config` |
+
+#### Case: Direct .md run bypasses config and variants, unchanged
+
+Description: A direct .md run bypasses .jastr discovery and reads neither the local nor the global config.yml, so a key both configs set for the path is ignored and the template default renders.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ templates/
+   └─ direct.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  templates/direct.md:
+    depth: standard
+```
+
+`templates/direct.md`
+
+```md
+---
+inputs:
+  depth:
+    type: enum
+    values: [quick, standard, deep]
+    required: false
+    default: quick
+---
+depth={{depth}}
+```
+
+**Command**
+
+```console
+$ jastr run templates/direct.md
+```
+
+**CLI output** — exit 0
+
+```console
+depth=quick
+```
+
+</details>
+
+#### Case: generate --check against a global-only ref behaves like run
+
+Description: generate agent-skill --check resolves a global-only ref through the same layered mechanism as run, rebuilds the wrapper from the global template, and confirms the committed local wrapper is up to date.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ out/
+   └─ SKILL.md
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --check
+```
+
+**CLI output** — exit 0
+
+```console
+agent-skill at out/SKILL.md is up to date.
+```
+
+</details>
+
+#### Case: validate against a global-only ref behaves like run
+
+Description: validate resolves a global-only ref through the same layered mechanism as run, validating the template from the global root and exiting 0.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 0
+
+```console
+Template demo is valid.
+```
+
+</details>
+
+### GLOBAL-FR-0011 — Test substitute token for the global root
+
+The e2e harness exposes one closed-set `substitute` token that resolves to the global root used by the case, mirroring the existing `projectRoot` token, so cases asserting global absolute paths stay machine-independent.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A case asserting a global absolute path uses the global-root substitute token to render the expected absolute path and passes on any machine. | ✅ `global-included-file-path-absolute`, `global-path-display-generate`, `global-template-not-found-both-roots` |
+
+#### Case: Included-file path in a global template renders absolute
+
+Description: A file included by a globally-resolved template has its displayed include path rendered as its real absolute path, shown here in an include-cycle error that references the included files, asserted via the global-root token.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.
+```
+
+</details>
+
+#### Case: Global template renders its own path as absolute
+
+Description: Generating an agent-skill from a globally-resolved template names the template by its real absolute path in the success message, asserted machine-independently via the global-root substitution token.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project**
+
+_Empty — no `.jastr/` directory present (command ran from the project root)._
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `__GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: template_not_found names both searched roots
+
+Description: A ref absent from both roots exits 1 with a template_not_found message naming the local searched location as a cwd-relative path and the global searched location as an absolute path via the global-root token.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Input project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ other/
+      └─ TEMPLATE.md
+```
+
+`.jastr/other/TEMPLATE.md`
+
+```md
+---
+---
+local other
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.
 ```
 
 </details>
