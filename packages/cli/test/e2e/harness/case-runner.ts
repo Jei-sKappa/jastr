@@ -20,12 +20,15 @@ import type {
 import { loadPackageVersion } from "./requirements";
 
 type Side = "fixture" | "expected";
-type ResolveCtx = { projectRoot: string; repoRoot: string };
+type ResolveCtx = { projectRoot: string; globalRoot: string; repoRoot: string };
 
 // The runner owns how each built-in substitution name resolves to a runtime
 // value and which side it applies to: `projectRoot` is injected into copied
-// fixture files; `jastrCliVersion` is injected into expected output. A case's
-// `substitute` map only binds author-chosen tokens to these names.
+// fixture files; `jastrCliVersion` and `globalRoot` are injected into expected
+// output. A case's `substitute` map only binds author-chosen tokens to these
+// names. `globalRoot` is the realpath of the per-case global base (which the
+// runner also points `JASTR_HOME` at), so a case asserting a global absolute
+// path stays machine-independent.
 const SUBSTITUTIONS: Record<
   SubstitutionValue,
   { side: Side; resolve: (ctx: ResolveCtx) => string | Promise<string> }
@@ -35,6 +38,7 @@ const SUBSTITUTIONS: Record<
     side: "expected",
     resolve: (ctx) => loadPackageVersion(ctx.repoRoot),
   },
+  globalRoot: { side: "expected", resolve: (ctx) => ctx.globalRoot },
 };
 
 function context(testCase: CaseManifest, field: string): string {
@@ -62,7 +66,7 @@ function expandExpected(
   return result;
 }
 
-async function createTempProject(): Promise<{
+async function createTempDir(): Promise<{
   root: string;
   cleanup: () => Promise<void>;
 }> {
@@ -73,28 +77,47 @@ async function createTempProject(): Promise<{
   };
 }
 
-export async function copyCaseFixture(
+async function copyCaseDir(
   caseDir: string,
+  subdir: string,
   tempRoot: string,
 ): Promise<void> {
-  const source = path.join(caseDir, "fixture");
-  // A case's `fixture/` folder holds the files that exist when the CLI runs;
-  // its *contents* are copied to `tempRoot`, so `tempRoot` becomes the project
-  // root the command sees. Some cases intentionally have an *empty* workspace —
+  const source = path.join(caseDir, subdir);
+  // A case's source folder holds the files that exist when the CLI runs; its
+  // *contents* are copied to `tempRoot`, so `tempRoot` becomes the root the
+  // command sees. Some cases intentionally have an *empty* workspace —
   // `missing-project-root`, for instance, asserts the "no .jastr/ directory"
   // error and so must run somewhere that contains nothing. Git cannot track an
-  // empty directory, so on a fresh clone that case ships with no `fixture/`
-  // folder at all (only `case.yml`). Treat an absent fixture as an empty
-  // workspace: `tempRoot` was just created by `mkdtemp`, so an empty workspace
-  // is exactly what we want. Without this guard, `cp` throws ENOENT on a clean
-  // checkout and the case fails before the CLI is ever invoked. (An
-  // empty-but-present `fixture/` dir, as may linger locally, copies to the same
-  // empty result.)
+  // empty directory, so on a fresh clone that case ships with no source folder
+  // at all (only `case.yml`). Treat an absent source as an empty workspace:
+  // `tempRoot` was just created by `mkdtemp`, so an empty workspace is exactly
+  // what we want. Without this guard, `cp` throws ENOENT on a clean checkout
+  // and the case fails before the CLI is ever invoked. (An empty-but-present
+  // source dir, as may linger locally, copies to the same empty result.)
   try {
     await cp(source, tempRoot, { recursive: true });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
+}
+
+export async function copyCaseFixture(
+  caseDir: string,
+  tempRoot: string,
+): Promise<void> {
+  // The `fixture/` contents populate the project root the command sees.
+  await copyCaseDir(caseDir, "fixture", tempRoot);
+}
+
+export async function copyCaseGlobalFixture(
+  caseDir: string,
+  tempRoot: string,
+): Promise<void> {
+  // The optional `global-fixture/` contents populate the per-case global base
+  // (pointed at by `JASTR_HOME`), mirroring how `fixture/` populates the
+  // project root. An absent `global-fixture/` yields an empty global base, so
+  // the case sees no global root.
+  await copyCaseDir(caseDir, "global-fixture", tempRoot);
 }
 
 export async function expandFixturePlaceholders(
@@ -142,10 +165,21 @@ export async function runCase(
   repoRoot: string,
   testCase: LoadedCase,
 ): Promise<void> {
-  const temp = await createTempProject();
+  const temp = await createTempDir();
+  // A second temp dir is the per-case global base. `JASTR_HOME` always points
+  // here so the CLI never reads the developer's real ~/.jastr: a case with no
+  // `global-fixture/` gets an empty base (no `.jastr` → no global root), while a
+  // `global-fixture/` populates the case's global root deterministically.
+  const globalTemp = await createTempDir();
   try {
     await copyCaseFixture(testCase.dirPath, temp.root);
+    await copyCaseGlobalFixture(testCase.dirPath, globalTemp.root);
     const projectRoot = await realpath(temp.root);
+    // Realpath the global base and point `JASTR_HOME` at the same realpath so
+    // CLI output (the `missing_project_root` message and global absolute paths)
+    // matches the `globalRoot` substitution token exactly, even where /var is a
+    // symlink to /private/var (macOS).
+    const globalRoot = await realpath(globalTemp.root);
 
     // Resolve the case's declared substitutions, routing each to the side its
     // built-in name applies to. Fixture-side tokens are rewritten in the copied
@@ -155,14 +189,17 @@ export async function runCase(
     const expectedReplacements = new Map<string, string>();
     for (const [token, name] of Object.entries(testCase.manifest.substitute)) {
       const spec = SUBSTITUTIONS[name];
-      const value = await spec.resolve({ projectRoot, repoRoot });
+      const value = await spec.resolve({ projectRoot, globalRoot, repoRoot });
       (spec.side === "fixture"
         ? fixtureReplacements
         : expectedReplacements
       ).set(token, value);
     }
     if (fixtureReplacements.size > 0) {
+      // Expand fixture-side tokens in the project root and the global base
+      // alike, so an absolute path baked into a global fixture resolves too.
       await expandFixturePlaceholders(projectRoot, fixtureReplacements);
+      await expandFixturePlaceholders(globalRoot, fixtureReplacements);
     }
 
     const cwd = await resolveCwd(
@@ -173,6 +210,7 @@ export async function runCase(
     const cliPath = path.resolve(repoRoot, "src/index.ts");
     const result = await execa("bun", [cliPath, ...testCase.manifest.command], {
       cwd,
+      env: { JASTR_HOME: globalRoot },
       reject: false,
       stripFinalNewline: false,
     });
@@ -262,5 +300,6 @@ export async function runCase(
     }
   } finally {
     await temp.cleanup();
+    await globalTemp.cleanup();
   }
 }

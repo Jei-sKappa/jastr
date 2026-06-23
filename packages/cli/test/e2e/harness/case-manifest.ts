@@ -30,7 +30,11 @@ const EXPECT_FIELDS = new Set([
 // expected output. The case `substitute` map binds author-chosen literal tokens
 // to one of these names; the runner owns the token→value resolution and which
 // side (fixture vs expected output) each name applies to.
-export const SUBSTITUTION_VALUES = ["projectRoot", "jastrCliVersion"] as const;
+export const SUBSTITUTION_VALUES = [
+  "projectRoot",
+  "jastrCliVersion",
+  "globalRoot",
+] as const;
 export type SubstitutionValue = (typeof SUBSTITUTION_VALUES)[number];
 const SUBSTITUTION_VALUE_SET: ReadonlySet<string> = new Set(
   SUBSTITUTION_VALUES,

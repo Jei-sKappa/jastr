@@ -54,6 +54,15 @@ describe("validateCaseManifest", () => {
     expect(manifest.substitute).toEqual({ __VERSION__: "jastrCliVersion" });
   });
 
+  it("accepts globalRoot as a built-in substitute value", () => {
+    const manifest = validateCaseManifest(
+      { ...validCase, substitute: { __GLOBAL_ROOT__: "globalRoot" } },
+      { filePath: "test/e2e/cases/global-resolve/case.yml" },
+    );
+
+    expect(manifest.substitute).toEqual({ __GLOBAL_ROOT__: "globalRoot" });
+  });
+
   it("defaults an omitted substitute map to empty", () => {
     const withoutSubstitute: Record<string, unknown> = { ...validCase };
     delete withoutSubstitute.substitute;
@@ -72,7 +81,7 @@ describe("validateCaseManifest", () => {
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(
-      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion/,
+      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion, globalRoot/,
     );
   });
 
@@ -83,7 +92,7 @@ describe("validateCaseManifest", () => {
         { filePath: "test/e2e/cases/basic-run/case.yml" },
       ),
     ).toThrow(
-      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion/,
+      /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion, globalRoot/,
     );
   });
 

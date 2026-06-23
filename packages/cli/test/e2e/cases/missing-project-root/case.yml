@@ -5,7 +5,9 @@ covers:
 title: Reject missing project root
 description: Shows how run command fails when no .jastr directory exists.
 command: ["run", "demo"]
+substitute:
+  __GLOBAL_ROOT__: globalRoot
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: No .jastr directory found from the current directory.\n"
+  stderr: "Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).\n"
