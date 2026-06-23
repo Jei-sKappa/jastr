@@ -1,0 +1,14 @@
+id: global-only-resolve
+covers:
+  - GLOBAL-FR-0001.AC-0001
+  - GLOBAL-FR-0002.AC-0001
+  - GLOBAL-FR-0003.AC-0001
+title: Resolve a ref from the global root only
+description: >
+  From a cwd with no local .jastr, a ref present only in the JASTR_HOME global
+  root resolves and renders from the global root.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "GLOBAL body\n"
+  stderr: ""

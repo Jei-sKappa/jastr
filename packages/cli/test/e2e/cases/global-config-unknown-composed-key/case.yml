@@ -1,0 +1,13 @@
+id: global-config-unknown-composed-key
+covers:
+  - GLOBAL-FR-0005.AC-0004
+title: Undeclared composed config key fails with unknown_input
+description: >
+  A merged effective input key the resolved template does not declare —
+  contributed here by the global config — exits 1 with the unknown_input
+  message.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input extra is not declared.\n"

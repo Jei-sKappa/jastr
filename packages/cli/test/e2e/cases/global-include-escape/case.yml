@@ -1,0 +1,13 @@
+id: global-include-escape
+covers:
+  - GLOBAL-FR-0007.AC-0001
+title: Global template include cannot escape its own root
+description: >
+  A globally-resolved template whose include resolves outside its own global
+  template root exits 1 with the existing include boundary error; no include
+  crosses into the other root.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include path ../../outside.md escapes the allowed include boundary.\n"

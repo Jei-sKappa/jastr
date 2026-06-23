@@ -1,0 +1,13 @@
+id: global-variant-local-wins-wholesale
+covers:
+  - GLOBAL-FR-0006.AC-0001
+title: Local variant entry wins wholesale with no cross-root merge
+description: >
+  When both configs declare the variant, the whole entry comes from the local
+  config and the global entry's locked inputs are not merged in: mode stays at
+  the template default rather than the global variant's value.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep output=template mode=fast\n"
+  stderr: ""

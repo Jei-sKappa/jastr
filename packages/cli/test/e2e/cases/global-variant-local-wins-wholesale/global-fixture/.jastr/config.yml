@@ -1,0 +1,6 @@
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: standard
+        mode: thorough

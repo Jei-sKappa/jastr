@@ -1,0 +1,12 @@
+id: local-shadows-global
+covers:
+  - GLOBAL-FR-0002.AC-0002
+title: Local root shadows the global root
+description: >
+  A ref present in both the local and global roots resolves its template body
+  from the local root.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "LOCAL body\n"
+  stderr: ""

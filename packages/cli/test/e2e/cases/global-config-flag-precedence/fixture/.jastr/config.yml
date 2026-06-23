@@ -1,0 +1,4 @@
+inputs:
+  demo:
+    depth: deep
+    output: localout

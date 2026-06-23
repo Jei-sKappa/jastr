@@ -1,0 +1,18 @@
+id: global-path-display-generate
+covers:
+  - GLOBAL-FR-0008.AC-0001
+  - GLOBAL-FR-0011.AC-0001
+title: Global template renders its own path as absolute
+description: >
+  Generating an agent-skill from a globally-resolved template names the template
+  by its real absolute path in the success message, asserted machine-independently
+  via the global-root substitution token.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+substitute:
+  __GLOBAL_ROOT__: globalRoot
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `__GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

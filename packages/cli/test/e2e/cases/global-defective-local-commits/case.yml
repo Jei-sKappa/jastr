@@ -1,0 +1,13 @@
+id: global-defective-local-commits
+covers:
+  - GLOBAL-FR-0002.AC-0005
+title: Defective local hit commits and does not fall through
+description: >
+  A present-but-malformed local TEMPLATE.md commits resolution to the local
+  root and exits 1 with its own parse error instead of falling through to a
+  valid global template of the same ref.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template frontmatter must close with --- on its own line.\n"

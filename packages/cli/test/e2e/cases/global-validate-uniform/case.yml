@@ -1,0 +1,12 @@
+id: global-validate-uniform
+covers:
+  - GLOBAL-FR-0010.AC-0001
+title: validate against a global-only ref behaves like run
+description: >
+  validate resolves a global-only ref through the same layered mechanism as run,
+  validating the template from the global root and exiting 0.
+command: ["validate", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Template demo is valid."
+  stderr: ""

@@ -1,0 +1,16 @@
+id: global-template-not-found-both-roots
+covers:
+  - GLOBAL-FR-0009.AC-0001
+  - GLOBAL-FR-0011.AC-0001
+title: template_not_found names both searched roots
+description: >
+  A ref absent from both roots exits 1 with a template_not_found message naming
+  the local searched location as a cwd-relative path and the global searched
+  location as an absolute path via the global-root token.
+command: ["run", "demo"]
+substitute:
+  __GLOBAL_ROOT__: globalRoot
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.\n"

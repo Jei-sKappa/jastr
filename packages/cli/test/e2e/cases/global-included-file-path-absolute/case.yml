@@ -1,0 +1,16 @@
+id: global-included-file-path-absolute
+covers:
+  - GLOBAL-FR-0008.AC-0003
+  - GLOBAL-FR-0011.AC-0001
+title: Included-file path in a global template renders absolute
+description: >
+  A file included by a globally-resolved template has its displayed include path
+  rendered as its real absolute path, shown here in an include-cycle error that
+  references the included files, asserted via the global-root token.
+command: ["run", "demo"]
+substitute:
+  __GLOBAL_ROOT__: globalRoot
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.\n"

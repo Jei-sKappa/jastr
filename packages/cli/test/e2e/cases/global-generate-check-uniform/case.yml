@@ -1,0 +1,13 @@
+id: global-generate-check-uniform
+covers:
+  - GLOBAL-FR-0010.AC-0001
+title: generate --check against a global-only ref behaves like run
+description: >
+  generate agent-skill --check resolves a global-only ref through the same
+  layered mechanism as run, rebuilds the wrapper from the global template, and
+  confirms the committed local wrapper is up to date.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--check"]
+expect:
+  exitCode: 0
+  stdout: "agent-skill at out/SKILL.md is up to date."
+  stderr: ""

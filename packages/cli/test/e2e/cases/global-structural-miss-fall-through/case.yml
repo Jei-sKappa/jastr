@@ -1,0 +1,13 @@
+id: global-structural-miss-fall-through
+covers:
+  - GLOBAL-FR-0002.AC-0004
+title: Structural miss in local root falls through to global silently
+description: >
+  A local grouped layout missing its .jastrgroup marker is a structural miss
+  that falls through to a valid global template of the same ref, which renders,
+  with no warning emitted to stderr.
+command: ["run", "team/demo"]
+expect:
+  exitCode: 0
+  stdout: "GLOBAL grouped body\n"
+  stderr: ""

@@ -1,0 +1,12 @@
+id: global-config-flag-precedence
+covers:
+  - GLOBAL-FR-0005.AC-0002
+title: Flag over local over global config precedence
+description: >
+  For a bare named run, a key present in both configs takes the local value and
+  a CLI flag overrides both the local and the global config value.
+command: ["run", "demo", "--output=cliout"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep output=cliout region=us\n"
+  stderr: ""

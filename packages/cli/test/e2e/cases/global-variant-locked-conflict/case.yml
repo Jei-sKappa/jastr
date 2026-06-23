@@ -1,0 +1,13 @@
+id: global-variant-locked-conflict
+covers:
+  - GLOBAL-FR-0006.AC-0002
+title: Locked input from a global variant rejects a conflicting flag
+description: >
+  The selected variant's locked inputs apply over flags, layered config, and
+  defaults; a CLI flag naming an input locked by the global-sourced variant
+  exits 1.
+command: ["run", "review#deep", "--depth=quick"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input --depth is locked by variant review#deep.\n"

@@ -1,0 +1,13 @@
+id: global-local-path-cwd-relative
+covers:
+  - GLOBAL-FR-0008.AC-0002
+title: Local template renders its paths cwd-relative
+description: >
+  A locally-resolved template renders its own path and its included files' paths
+  cwd-relative, unchanged, shown here in an include-cycle error that references
+  the local included files.
+command: ["run", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.\n"

@@ -1,0 +1,13 @@
+id: global-direct-md-ignores-config
+covers:
+  - GLOBAL-FR-0010.AC-0002
+title: Direct .md run bypasses config and variants, unchanged
+description: >
+  A direct .md run bypasses .jastr discovery and reads neither the local nor the
+  global config.yml, so a key both configs set for the path is ignored and the
+  template default renders.
+command: ["run", "templates/direct.md"]
+expect:
+  exitCode: 0
+  stdout: "depth=quick\n"
+  stderr: ""

@@ -1,0 +1,13 @@
+id: local-only-resolve-no-global
+covers:
+  - GLOBAL-FR-0001.AC-0002
+  - GLOBAL-FR-0002.AC-0003
+title: Local-only resolve with no global root present
+description: >
+  A ref present only in the local root resolves without error when no global
+  root exists on disk, so an absent global root is not an error by itself.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "LOCAL only body\n"
+  stderr: ""

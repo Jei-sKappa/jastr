@@ -1,0 +1,12 @@
+id: global-variant-from-global
+covers:
+  - GLOBAL-FR-0006.AC-0001
+title: Variant entry taken from global config
+description: >
+  A #<variant-id> ref takes its whole variant entry from the global config when
+  no local config declares it, and the global variant's locked inputs apply.
+command: ["run", "review#deep"]
+expect:
+  exitCode: 0
+  stdout: "depth=deep output=template mode=thorough\n"
+  stderr: ""
