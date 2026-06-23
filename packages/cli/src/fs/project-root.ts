@@ -11,17 +11,6 @@ export type ResolvedRoots = {
   global?: string; // projectRoot dir whose ./.jastr is the global root
 };
 
-export async function findProjectRoot(startCwd: string): Promise<string> {
-  const local = await findLocalProjectRoot(startCwd);
-  if (local === undefined) {
-    throw new JastrError(
-      "missing_project_root",
-      "No .jastr directory found from the current directory.",
-    );
-  }
-  return local;
-}
-
 export async function resolveProjectRoots(cwd: string): Promise<ResolvedRoots> {
   const local = await findLocalProjectRoot(cwd);
   const global = await findGlobalProjectRoot();

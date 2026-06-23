@@ -1,7 +1,11 @@
 import { readFile, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
-import { findProjectRoot } from "../fs/project-root";
+import {
+  type ResolvedRoot,
+  type ResolvedRoots,
+  resolveProjectRoots,
+} from "../fs/project-root";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 const GROUP_MARKER = ".jastrgroup";
@@ -36,7 +40,11 @@ type LoadedTemplateReferenceBase = {
 export type LoadedTemplateReference =
   | (LoadedTemplateReferenceBase & {
       mode: "named";
+      // Retained for now (= the resolved root's projectRoot); Task 4 migrates
+      // config off it and removes it.
       projectRoot: string;
+      roots: { local?: string; global?: string }; // both discovered project roots
+      resolvedRootKind: "local" | "global"; // which root supplied the body
     })
   | (LoadedTemplateReferenceBase & {
       mode: "direct";
@@ -74,28 +82,78 @@ export async function loadTemplateReference(options: {
   }
 
   const namedRef = parseNamedTemplateRef(parsedRef.baseTemplateRef);
-  const projectRoot = await findProjectRoot(cwd);
+  const roots = await resolveProjectRoots(cwd);
+  const resolvedRoots = { local: roots.local, global: roots.global };
 
-  if (namedRef.kind === "grouped") {
-    return loadGroupedNamedTemplate({
-      cwd,
-      projectRoot,
-      templateRef: parsedRef.baseTemplateRef,
-      requestedTemplateRef: templateRef,
-      variantId: parsedRef.variantId,
-      group: namedRef.group,
-      templateId: namedRef.templateId,
-    });
+  for (const root of roots.ordered) {
+    const loaded =
+      namedRef.kind === "grouped"
+        ? await tryLoadGroupedNamedTemplate({
+            cwd,
+            root,
+            roots: resolvedRoots,
+            templateRef: parsedRef.baseTemplateRef,
+            requestedTemplateRef: templateRef,
+            variantId: parsedRef.variantId,
+            group: namedRef.group,
+            templateId: namedRef.templateId,
+          })
+        : await tryLoadStandaloneNamedTemplate({
+            cwd,
+            root,
+            roots: resolvedRoots,
+            templateRef: parsedRef.baseTemplateRef,
+            requestedTemplateRef: templateRef,
+            variantId: parsedRef.variantId,
+            templateId: namedRef.templateId,
+          });
+
+    if (loaded !== undefined) {
+      return loaded;
+    }
   }
 
-  return loadStandaloneNamedTemplate({
-    cwd,
-    projectRoot,
-    templateRef: parsedRef.baseTemplateRef,
-    requestedTemplateRef: templateRef,
-    variantId: parsedRef.variantId,
-    templateId: namedRef.templateId,
-  });
+  throw templateNotFound(parsedRef.baseTemplateRef, namedRef, roots, cwd);
+}
+
+function templateNotFound(
+  templateRef: string,
+  namedRef: NamedTemplateRef,
+  roots: ResolvedRoots,
+  cwd: string,
+): JastrError {
+  const searched = roots.ordered
+    .map((root) => {
+      const declaredPath = declaredTemplatePath(root.projectRoot, namedRef);
+      if (root.kind === "local") {
+        return `local ${path.relative(cwd, declaredPath)}`;
+      }
+      return `global ${declaredPath}`;
+    })
+    .join(" and ");
+
+  return new JastrError(
+    "template_not_found",
+    `Template ${templateRef} was not found. Searched ${searched}.`,
+    { templateRef },
+  );
+}
+
+function declaredTemplatePath(
+  projectRoot: string,
+  namedRef: NamedTemplateRef,
+): string {
+  if (namedRef.kind === "grouped") {
+    return path.join(
+      projectRoot,
+      ".jastr",
+      namedRef.group,
+      GROUP_TEMPLATES_DIR,
+      namedRef.templateId,
+      TEMPLATE_FILE,
+    );
+  }
+  return path.join(projectRoot, ".jastr", namedRef.templateId, TEMPLATE_FILE);
 }
 
 export function parseTemplateReference(
@@ -143,26 +201,23 @@ function parseNamedTemplateRef(
   throwInvalidTemplateReference(errorTemplateRef);
 }
 
-async function loadStandaloneNamedTemplate(options: {
+async function tryLoadStandaloneNamedTemplate(options: {
   cwd: string;
-  projectRoot: string;
+  root: ResolvedRoot;
+  roots: { local?: string; global?: string };
   templateRef: string;
   requestedTemplateRef: string;
   variantId?: string;
   templateId: string;
-}): Promise<LoadedTemplateReference> {
+}): Promise<LoadedTemplateReference | undefined> {
   const declaredPath = path.join(
-    options.projectRoot,
+    options.root.projectRoot,
     ".jastr",
     options.templateId,
     TEMPLATE_FILE,
   );
   if (!(await isFile(declaredPath))) {
-    throw new JastrError(
-      "template_not_found",
-      `Template ${options.templateId} was not found at .jastr/${options.templateId}/${TEMPLATE_FILE}.`,
-      { templateRef: options.templateId },
-    );
+    return undefined;
   }
 
   const templatePath = await realpath(declaredPath);
@@ -173,22 +228,29 @@ async function loadStandaloneNamedTemplate(options: {
     variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
-    projectRoot: options.projectRoot,
+    projectRoot: options.root.projectRoot,
+    roots: options.roots,
+    resolvedRootKind: options.root.kind,
     includeContext: standaloneContext(templatePath),
     source: await readFile(templatePath, "utf8"),
   };
 }
 
-async function loadGroupedNamedTemplate(options: {
+async function tryLoadGroupedNamedTemplate(options: {
   cwd: string;
-  projectRoot: string;
+  root: ResolvedRoot;
+  roots: { local?: string; global?: string };
   templateRef: string;
   requestedTemplateRef: string;
   variantId?: string;
   group: string;
   templateId: string;
-}): Promise<LoadedTemplateReference> {
-  const groupRoot = path.join(options.projectRoot, ".jastr", options.group);
+}): Promise<LoadedTemplateReference | undefined> {
+  const groupRoot = path.join(
+    options.root.projectRoot,
+    ".jastr",
+    options.group,
+  );
   const markerPath = path.join(groupRoot, GROUP_MARKER);
   const declaredPath = path.join(
     groupRoot,
@@ -198,11 +260,7 @@ async function loadGroupedNamedTemplate(options: {
   );
 
   if (!(await isFile(markerPath)) || !(await isFile(declaredPath))) {
-    throw new JastrError(
-      "template_not_found",
-      `Template ${options.templateRef} was not found at .jastr/${options.group}/${GROUP_TEMPLATES_DIR}/${options.templateId}/${TEMPLATE_FILE}.`,
-      { templateRef: options.templateRef },
-    );
+    return undefined;
   }
 
   const templatePath = await realpath(declaredPath);
@@ -214,7 +272,9 @@ async function loadGroupedNamedTemplate(options: {
     variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
-    projectRoot: options.projectRoot,
+    projectRoot: options.root.projectRoot,
+    roots: options.roots,
+    resolvedRootKind: options.root.kind,
     includeContext: groupedContext(templatePath, realGroupRoot),
     source: await readFile(templatePath, "utf8"),
   };
