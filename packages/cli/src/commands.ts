@@ -23,6 +23,7 @@ import {
   validateAgentSkillTarget,
   writeAgentSkill,
 } from "./targets/agent-skill";
+import { displayPath } from "./templates/display";
 import { createFileIncludeResolver } from "./templates/includes";
 import { loadTemplateReference } from "./templates/template-ref";
 import {
@@ -90,7 +91,7 @@ export async function executeRun(opts: {
 
   const result = await renderTemplateSource({
     source: template.source,
-    sourceId: path.relative(template.cwd, template.templatePath),
+    sourceId: displayPath(template, template.templatePath),
     inputs,
     includeResolver: createFileIncludeResolver(template),
   });
@@ -151,7 +152,7 @@ export async function executeGenerate(opts: {
 
   await renderTemplateSource({
     source: template.source,
-    sourceId: path.relative(template.cwd, template.templatePath),
+    sourceId: displayPath(template, template.templatePath),
     inputs: sampleInputsForStaticRender(schema, selectedVariant?.lockedInputs),
     includeResolver: createFileIncludeResolver(template),
   });
@@ -183,7 +184,7 @@ export async function executeGenerate(opts: {
     content,
   });
 
-  return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${path.relative(template.cwd, template.templatePath)}\``;
+  return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${displayPath(template, template.templatePath)}\``;
 }
 
 export async function executeValidate(opts: {
@@ -211,7 +212,7 @@ export async function executeValidate(opts: {
   // engine input validation over sampled values (plus selected locked values).
   await renderTemplateSource({
     source: template.source,
-    sourceId: path.relative(template.cwd, template.templatePath),
+    sourceId: displayPath(template, template.templatePath),
     inputs: sampleInputsForStaticRender(schema, selectedVariant?.lockedInputs),
     includeResolver: createFileIncludeResolver(template),
   });

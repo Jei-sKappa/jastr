@@ -1,6 +1,7 @@
 import { readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 import { type IncludeResolver, JastrError } from "@jastr/engine";
+import { displayPath } from "./display";
 import type { LoadedTemplateReference } from "./template-ref";
 
 type IncludeRoot = "template" | "group" | "file";
@@ -23,7 +24,7 @@ export function createFileIncludeResolver(
 
     try {
       return {
-        id: path.relative(template.cwd, resolved),
+        id: displayPath(template, resolved),
         source: await readFile(resolved, "utf8"),
       };
     } catch (error) {
