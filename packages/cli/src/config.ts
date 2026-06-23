@@ -38,17 +38,76 @@ export async function loadProjectConfigInputs(options: {
   return selected;
 }
 
-export async function loadProjectConfigVariant(options: {
-  projectRoot: string;
+export async function loadComposedConfigInputs(options: {
+  roots: { local?: string; global?: string };
+  templateRef: string;
+}): Promise<Record<string, unknown>> {
+  // Both roots are consulted regardless of which root supplied the template
+  // body. Spread global first then local so a key in both takes the local
+  // value (CLI flags are layered later, preserving flags > local > global >
+  // defaults).
+  const global =
+    options.roots.global === undefined
+      ? {}
+      : await loadProjectConfigInputs({
+          projectRoot: options.roots.global,
+          templateRef: options.templateRef,
+        });
+  const local =
+    options.roots.local === undefined
+      ? {}
+      : await loadProjectConfigInputs({
+          projectRoot: options.roots.local,
+          templateRef: options.templateRef,
+        });
+
+  return { ...global, ...local };
+}
+
+export async function loadComposedConfigVariant(options: {
+  roots: { local?: string; global?: string };
   templateRef: string;
   variantId: string;
 }): Promise<ProjectConfigVariant> {
+  // Local shadows global at the granularity of the whole variant entry; the
+  // locked-inputs of the two roots are never merged.
+  const local =
+    options.roots.local === undefined
+      ? undefined
+      : await tryLoadProjectConfigVariant({
+          projectRoot: options.roots.local,
+          templateRef: options.templateRef,
+          variantId: options.variantId,
+        });
+  if (local !== undefined) return local;
+
+  const global =
+    options.roots.global === undefined
+      ? undefined
+      : await tryLoadProjectConfigVariant({
+          projectRoot: options.roots.global,
+          templateRef: options.templateRef,
+          variantId: options.variantId,
+        });
+  if (global !== undefined) return global;
+
+  throwVariantNotFound(
+    `${options.templateRef}#${options.variantId}`,
+    options.templateRef,
+    options.variantId,
+  );
+}
+
+export async function tryLoadProjectConfigVariant(options: {
+  projectRoot: string;
+  templateRef: string;
+  variantId: string;
+}): Promise<ProjectConfigVariant | undefined> {
   const parsed = await loadProjectConfig(options.projectRoot);
-  const variantRef = `${options.templateRef}#${options.variantId}`;
 
   const variants = parsed.variants;
   if (variants === undefined) {
-    throwVariantNotFound(variantRef, options.templateRef, options.variantId);
+    return undefined;
   }
   if (!isRecord(variants)) {
     throw new JastrError(
@@ -59,7 +118,7 @@ export async function loadProjectConfigVariant(options: {
 
   const templateVariants = variants[options.templateRef];
   if (templateVariants === undefined) {
-    throwVariantNotFound(variantRef, options.templateRef, options.variantId);
+    return undefined;
   }
   if (!isRecord(templateVariants)) {
     throw new JastrError(
@@ -70,7 +129,7 @@ export async function loadProjectConfigVariant(options: {
 
   const selected = templateVariants[options.variantId];
   if (selected === undefined) {
-    throwVariantNotFound(variantRef, options.templateRef, options.variantId);
+    return undefined;
   }
   if (!isRecord(selected)) {
     throw new JastrError(

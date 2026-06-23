@@ -40,9 +40,6 @@ type LoadedTemplateReferenceBase = {
 export type LoadedTemplateReference =
   | (LoadedTemplateReferenceBase & {
       mode: "named";
-      // Retained for now (= the resolved root's projectRoot); Task 4 migrates
-      // config off it and removes it.
-      projectRoot: string;
       roots: { local?: string; global?: string }; // both discovered project roots
       resolvedRootKind: "local" | "global"; // which root supplied the body
     })
@@ -228,7 +225,6 @@ async function tryLoadStandaloneNamedTemplate(options: {
     variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
-    projectRoot: options.root.projectRoot,
     roots: options.roots,
     resolvedRootKind: options.root.kind,
     includeContext: standaloneContext(templatePath),
@@ -272,7 +268,6 @@ async function tryLoadGroupedNamedTemplate(options: {
     variantId: options.variantId,
     templatePath,
     cwd: options.cwd,
-    projectRoot: options.root.projectRoot,
     roots: options.roots,
     resolvedRootKind: options.root.kind,
     includeContext: groupedContext(templatePath, realGroupRoot),

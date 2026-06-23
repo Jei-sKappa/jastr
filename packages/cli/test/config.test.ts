@@ -1,9 +1,19 @@
-import { JastrError } from "@jastr/engine";
+import {
+  JastrError,
+  parseTemplateSource,
+  renderTemplateSource,
+  validateTemplateInputs,
+  validateTemplateSchema,
+} from "@jastr/engine";
 import { describe, expect, it } from "vitest";
 import {
+  loadComposedConfigInputs,
+  loadComposedConfigVariant,
   loadProjectConfigInputs,
-  loadProjectConfigVariant,
+  tryLoadProjectConfigVariant,
 } from "../src/config";
+import { coerceRunFlags } from "../src/flags";
+import { assertNoLockedInputFlags, mergeVariantInputs } from "../src/variants";
 import { createTempProject, writeProjectFile } from "./support/helpers";
 
 describe("project config input loading", () => {
@@ -160,6 +170,227 @@ inputs:
   });
 });
 
+describe("composed config input loading", () => {
+  it("consults both roots regardless of which root supplied the body (AC-5.1)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: global
+`,
+      );
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    tone: local
+`,
+      );
+
+      // Both entries are merged even though only one root would have supplied
+      // the template body.
+      await expect(
+        loadComposedConfigInputs({
+          roots: { local: local.root, global: global.root },
+          templateRef: "review",
+        }),
+      ).resolves.toEqual({ depth: "global", tone: "local" });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("applies local over global per key (AC-5.2, AC-5.3)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: global-depth
+    only-global: 1
+`,
+      );
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: local-depth
+    only-local: 2
+`,
+      );
+
+      // A key in both takes the local value; a key only in one takes that
+      // value.
+      await expect(
+        loadComposedConfigInputs({
+          roots: { local: local.root, global: global.root },
+          templateRef: "review",
+        }),
+      ).resolves.toEqual({
+        depth: "local-depth",
+        "only-global": 1,
+        "only-local": 2,
+      });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("returns only the global entry when there is no local root", async () => {
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: global
+`,
+      );
+
+      await expect(
+        loadComposedConfigInputs({
+          roots: { global: global.root },
+          templateRef: "review",
+        }),
+      ).resolves.toEqual({ depth: "global" });
+    } finally {
+      await global.cleanup();
+    }
+  });
+
+  it("flags win over composed config, then local, then global, then defaults (AC-5.2, AC-5.3)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    flagged: from-global
+    local-key: from-global
+    global-key: from-global
+`,
+      );
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    flagged: from-local
+    local-key: from-local
+`,
+      );
+
+      const schema = validateTemplateSchema(
+        parseTemplateSource(
+          `---
+inputs:
+  flagged:
+    type: string
+    required: true
+  local-key:
+    type: string
+    required: true
+  global-key:
+    type: string
+    required: true
+  default-key:
+    type: string
+    required: false
+    default: from-default
+---
+body
+`,
+        ).frontmatter,
+      );
+
+      const configInputs = await loadComposedConfigInputs({
+        roots: { local: local.root, global: global.root },
+        templateRef: "review",
+      });
+      const flagInputs = coerceRunFlags(schema, [
+        { name: "flagged", form: "value", value: "from-flag" },
+      ]);
+      const effective = validateTemplateInputs(schema, {
+        ...configInputs,
+        ...flagInputs,
+      });
+
+      expect(effective).toEqual({
+        flagged: "from-flag",
+        "local-key": "from-local",
+        "global-key": "from-global",
+        "default-key": "from-default",
+      });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("fails with unknown_input when a composed key is not declared (AC-5.4)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    undeclared: from-global
+`,
+      );
+
+      const source = `---
+inputs:
+  declared:
+    type: string
+    required: false
+    default: ok
+---
+body
+`;
+
+      const configInputs = await loadComposedConfigInputs({
+        roots: { local: local.root, global: global.root },
+        templateRef: "review",
+      });
+
+      // The flag/lock merge in commands.ts is `{ ...configInputs, ...flagInputs }`,
+      // so an undeclared composed key reaches the engine and fails loudly.
+      let error: unknown;
+      try {
+        await renderTemplateSource({
+          source,
+          sourceId: "review",
+          inputs: { ...configInputs },
+        });
+      } catch (caught) {
+        error = caught;
+      }
+
+      expect(error).toBeInstanceOf(JastrError);
+      expect(error).toMatchObject({ code: "unknown_input" });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+});
+
 describe("project config variant loading", () => {
   it("loads only the selected variant and preserves YAML value types", async () => {
     const project = await createTempProject();
@@ -186,8 +417,8 @@ describe("project config variant loading", () => {
       );
 
       await expect(
-        loadProjectConfigVariant({
-          projectRoot: project.root,
+        loadComposedConfigVariant({
+          roots: { local: project.root },
           templateRef: "review",
           variantId: "deep",
         }),
@@ -216,8 +447,8 @@ describe("project config variant loading", () => {
       );
 
       await expect(
-        loadProjectConfigVariant({
-          projectRoot: project.root,
+        loadComposedConfigVariant({
+          roots: { local: project.root },
           templateRef: "review",
           variantId: "alias",
         }),
@@ -231,7 +462,7 @@ describe("project config variant loading", () => {
     const project = await createTempProject();
     try {
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "variant_not_found",
@@ -247,7 +478,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "variant_not_found",
@@ -276,8 +507,8 @@ describe("project config variant loading", () => {
       );
 
       await expect(
-        loadProjectConfigVariant({
-          projectRoot: project.root,
+        loadComposedConfigVariant({
+          roots: { local: project.root },
           templateRef: "review",
           variantId: "selected",
         }),
@@ -298,7 +529,7 @@ describe("project config variant loading", () => {
         "variants: true\n",
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -313,7 +544,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -329,7 +560,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -346,7 +577,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -363,7 +594,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -380,7 +611,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -398,7 +629,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -416,7 +647,7 @@ describe("project config variant loading", () => {
 `,
       );
       await expectVariantError(
-        project.root,
+        { local: project.root },
         "review",
         "deep",
         "invalid_config",
@@ -428,8 +659,307 @@ describe("project config variant loading", () => {
   });
 });
 
+describe("composed config variant loading", () => {
+  it("takes the variant wholesale from local when present (AC-6.1)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: global-deep
+        only-global: 1
+`,
+      );
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: local-deep
+`,
+      );
+
+      // The whole local entry shadows global; locked-inputs are never merged
+      // across roots, so the global-only key does not survive.
+      await expect(
+        loadComposedConfigVariant({
+          roots: { local: local.root, global: global.root },
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toEqual({ lockedInputs: { depth: "local-deep" } });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("falls through to the global variant when the local entry is absent (AC-6.1)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `variants:
+  other:
+    deep:
+      locked-inputs:
+        depth: other
+`,
+      );
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: global-deep
+`,
+      );
+
+      await expect(
+        loadComposedConfigVariant({
+          roots: { local: local.root, global: global.root },
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toEqual({ lockedInputs: { depth: "global-deep" } });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("throws variant_not_found when absent from both roots (AC-6.1)", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await expectVariantError(
+        { local: local.root, global: global.root },
+        "review",
+        "deep",
+        "variant_not_found",
+        "Variant review#deep was not found in .jastr/config.yml.",
+      );
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("surfaces a malformed local entry rather than falling through to global", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep: true
+`,
+      );
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: global-deep
+`,
+      );
+
+      await expectVariantError(
+        { local: local.root, global: global.root },
+        "review",
+        "deep",
+        "invalid_config",
+        ".jastr/config.yml variants.review.deep must be a mapping.",
+      );
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+});
+
+describe("per-root variant reader", () => {
+  it("returns undefined when the variant is simply absent", async () => {
+    const project = await createTempProject();
+    try {
+      await expect(
+        tryLoadProjectConfigVariant({
+          projectRoot: project.root,
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toBeUndefined();
+
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    quick: {}
+`,
+      );
+      await expect(
+        tryLoadProjectConfigVariant({
+          projectRoot: project.root,
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toBeUndefined();
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("still throws invalid_config on a malformed entry", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep: true
+`,
+      );
+
+      let error: unknown;
+      try {
+        await tryLoadProjectConfigVariant({
+          projectRoot: project.root,
+          templateRef: "review",
+          variantId: "deep",
+        });
+      } catch (caught) {
+        error = caught;
+      }
+
+      expect(error).toBeInstanceOf(JastrError);
+      expect(error).toMatchObject({
+        code: "invalid_config",
+        message: ".jastr/config.yml variants.review.deep must be a mapping.",
+      });
+    } finally {
+      await project.cleanup();
+    }
+  });
+});
+
+describe("locked-input precedence over composed inputs (AC-6.2)", () => {
+  it("applies locked inputs over composed config and flags", async () => {
+    const local = await createTempProject();
+    const global = await createTempProject();
+    try {
+      await writeProjectFile(
+        global.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: from-global
+`,
+      );
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `inputs:
+  review:
+    depth: from-local
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: locked
+`,
+      );
+
+      const schema = validateTemplateSchema(
+        parseTemplateSource(
+          `---
+inputs:
+  depth:
+    type: string
+    required: true
+---
+body
+`,
+        ).frontmatter,
+      );
+      const variant = await loadComposedConfigVariant({
+        roots: { local: local.root, global: global.root },
+        templateRef: "review",
+        variantId: "deep",
+      });
+      const configInputs = await loadComposedConfigInputs({
+        roots: { local: local.root, global: global.root },
+        templateRef: "review",
+      });
+
+      // The locked value wins over CLI flags, local config, and global config
+      // via the same merge order commands.ts uses.
+      const merged = mergeVariantInputs({
+        configInputs,
+        flagInputs: coerceRunFlags(schema, [
+          { name: "depth", form: "value", value: "flag" },
+        ]),
+        lockedInputs: variant.lockedInputs,
+      });
+      expect(merged).toEqual({ depth: "locked" });
+    } finally {
+      await local.cleanup();
+      await global.cleanup();
+    }
+  });
+
+  it("rejects a CLI flag that names a locked input (AC-6.2)", async () => {
+    const local = await createTempProject();
+    try {
+      await writeProjectFile(
+        local.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: locked
+`,
+      );
+
+      const variant = await loadComposedConfigVariant({
+        roots: { local: local.root },
+        templateRef: "review",
+        variantId: "deep",
+      });
+
+      expect(() =>
+        assertNoLockedInputFlags({
+          flags: [{ name: "depth", form: "value", value: "flag" }],
+          lockedInputs: variant.lockedInputs,
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).toThrow(JastrError);
+    } finally {
+      await local.cleanup();
+    }
+  });
+});
+
 async function expectVariantError(
-  projectRoot: string,
+  roots: { local?: string; global?: string },
   templateRef: string,
   variantId: string,
   code: string,
@@ -437,7 +967,7 @@ async function expectVariantError(
 ): Promise<void> {
   let error: unknown;
   try {
-    await loadProjectConfigVariant({ projectRoot, templateRef, variantId });
+    await loadComposedConfigVariant({ roots, templateRef, variantId });
   } catch (caught) {
     error = caught;
   }

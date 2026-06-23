@@ -9,8 +9,8 @@ import {
 import type { RawFlag } from "./args";
 import { validateGenerateOut } from "./args";
 import {
-  loadProjectConfigInputs,
-  loadProjectConfigVariant,
+  loadComposedConfigInputs,
+  loadComposedConfigVariant,
   type ProjectConfigVariant,
 } from "./config";
 import { coerceRunFlags } from "./flags";
@@ -47,16 +47,16 @@ export async function executeRun(opts: {
 
   const configInputs =
     template.mode === "named"
-      ? await loadProjectConfigInputs({
-          projectRoot: template.projectRoot,
+      ? await loadComposedConfigInputs({
+          roots: template.roots,
           templateRef: template.templateRef,
         })
       : {};
 
   const selectedVariant =
     template.mode === "named" && template.variantId !== undefined
-      ? await loadProjectConfigVariant({
-          projectRoot: template.projectRoot,
+      ? await loadComposedConfigVariant({
+          roots: template.roots,
           templateRef: template.templateRef,
           variantId: template.variantId,
         })
@@ -135,8 +135,8 @@ export async function executeGenerate(opts: {
 
   const selectedVariant =
     template.mode === "named" && template.variantId !== undefined
-      ? await loadProjectConfigVariant({
-          projectRoot: template.projectRoot,
+      ? await loadComposedConfigVariant({
+          roots: template.roots,
           templateRef: template.templateRef,
           variantId: template.variantId,
         })
@@ -200,8 +200,8 @@ export async function executeValidate(opts: {
 
   const selectedVariant =
     template.mode === "named" && template.variantId !== undefined
-      ? await loadProjectConfigVariant({
-          projectRoot: template.projectRoot,
+      ? await loadComposedConfigVariant({
+          roots: template.roots,
           templateRef: template.templateRef,
           variantId: template.variantId,
         })
