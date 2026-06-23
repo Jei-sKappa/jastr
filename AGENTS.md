@@ -451,9 +451,14 @@ your PATH.
   validation.
 - `bun run docs:cli:living` generates `packages/cli/docs/BEHAVIOR.md`, a living
   CLI behavior reference, by joining `packages/cli/requirements/functional/`
-  with the e2e cases on their `covers` refs. The committed behavior document
-  must stay current; `bun run docs:cli:living --check` exits 1 if regeneration
-  differs.
+  with the e2e cases on their `covers` refs. Each case's input section renders
+  both layered roots a command sees: a **Local project** block from `fixture/`
+  and, when present, a **Global root** (`$JASTR_HOME/.jastr`) block from
+  `global-fixture/`. Each root is shown only when it has files; an empty local
+  root still shows an explicit Empty note (so a globally-resolved case does not
+  look like its output came from nowhere), and a both-empty case shows that note
+  alone. The committed behavior document must stay current; `bun run
+  docs:cli:living --check` exits 1 if regeneration differs.
 
 ## Notes
 

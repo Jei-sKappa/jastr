@@ -37,6 +37,10 @@ export type RenderCase = {
   stderr: string;
   /** Every file under the case's `fixture/` folder — the command's inputs. */
   inputFiles: FixtureFile[];
+  /** Every file under the case's `global-fixture/` folder — the per-case global
+   * root (where `JASTR_HOME` points). Empty when the case has no
+   * `global-fixture/`, so the case sees no global root. */
+  globalInputFiles: FixtureFile[];
   /** Files the command is expected to produce, resolved from `expect.files`. */
   outputFiles: FixtureFile[];
 };
@@ -87,12 +91,14 @@ async function readStream(
 }
 
 /**
- * Recursively read every file under a case's `fixture/` folder, returning
- * project-root-relative POSIX paths with verbatim contents, sorted by path. A
- * case with no `fixture/` directory (for example, `missing-project-root`)
- * yields an empty list rather than throwing, so the renderer can state the
- * project is empty — and so generation stays deterministic whether or not the
- * untracked empty directory happens to exist locally.
+ * Recursively read every file under a case fixture folder (`fixture/` for the
+ * local project root, `global-fixture/` for the global root), returning
+ * root-relative POSIX paths with verbatim contents, sorted by path. A case with
+ * no such directory (for example, `missing-project-root` has no `fixture/`, and
+ * most cases have no `global-fixture/`) yields an empty list rather than
+ * throwing, so the renderer can state the root is empty — and so generation
+ * stays deterministic whether or not the untracked empty directory happens to
+ * exist locally.
  */
 async function loadFixtureFiles(fixtureDir: string): Promise<FixtureFile[]> {
   const files: FixtureFile[] = [];
@@ -165,6 +171,9 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
         dirPath,
       ),
       inputFiles: await loadFixtureFiles(path.join(dirPath, "fixture")),
+      globalInputFiles: await loadFixtureFiles(
+        path.join(dirPath, "global-fixture"),
+      ),
       outputFiles: await loadOutputFiles(dirPath, manifest.expect.files),
     })),
   );
@@ -328,18 +337,45 @@ function describeCwd(cwd: string): string {
   return cwd === "." ? "the project root" : `\`${cwd}/\``;
 }
 
-/** Input section: the project tree plus every fixture file's contents. */
-function renderInputSection(entry: RenderCase): string {
-  if (entry.inputFiles.length === 0) {
-    return `**Input project**\n\n_Empty — no \`.jastr/\` directory present (command ran from ${describeCwd(entry.cwd)})._`;
-  }
+/** One labelled root: its ASCII tree followed by every file's contents. */
+function renderRootTree(label: string, files: FixtureFile[]): string {
   const tree = [
     "```text",
-    buildFileTree(entry.inputFiles.map((file) => file.path)),
+    buildFileTree(files.map((file) => file.path)),
     "```",
   ].join("\n");
-  const fileBlocks = entry.inputFiles.map(renderFileBlock).join("\n\n");
-  return `**Input project** — ran from ${describeCwd(entry.cwd)}\n\n${tree}\n\n${fileBlocks}`;
+  const fileBlocks = files.map(renderFileBlock).join("\n\n");
+  return `${label}\n\n${tree}\n\n${fileBlocks}`;
+}
+
+/**
+ * Input section: the two layered roots a command sees — the local project
+ * (`fixture/`) and the global root (`global-fixture/`, where `JASTR_HOME`
+ * points). Each root is rendered only when it has content; an empty local root
+ * is still labelled with an explicit Empty note so a globally-resolved case does
+ * not look like its output came from nowhere, and a both-empty case shows that
+ * single Empty note alone.
+ */
+function renderInputSection(entry: RenderCase): string {
+  const localLabel = `**Local project** — ran from ${describeCwd(entry.cwd)}`;
+  const blocks: string[] = [];
+
+  if (entry.inputFiles.length > 0) {
+    blocks.push(renderRootTree(localLabel, entry.inputFiles));
+  } else {
+    blocks.push(`${localLabel}\n\n_Empty — no \`.jastr/\` directory present._`);
+  }
+
+  if (entry.globalInputFiles.length > 0) {
+    blocks.push(
+      renderRootTree(
+        "**Global root** — `$JASTR_HOME/.jastr`",
+        entry.globalInputFiles,
+      ),
+    );
+  }
+
+  return blocks.join("\n\n");
 }
 
 /** Output-files section: the files the command leaves on disk, if any. */

@@ -23,6 +23,7 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
         content: "---\nname: demo\n---\nHello {{target}}.\n",
       },
     ],
+    globalInputFiles: [],
     outputFiles: [],
     ...overrides,
   };
@@ -184,8 +185,10 @@ describe("renderDocument", () => {
       ],
     );
 
-    // The input section is a bold label naming where the command ran.
-    expect(doc).toContain("**Input project** — ran from the project root");
+    // The local root is a bold label naming where the command ran.
+    expect(doc).toContain("**Local project** — ran from the project root");
+    // With no global-fixture, no "Global root" section is rendered.
+    expect(doc).not.toContain("**Global root**");
     // A directory tree rooted at the project root orients the reader.
     expect(doc).toContain("./");
     expect(doc).toContain("└─ .jastr/");
@@ -196,25 +199,78 @@ describe("renderDocument", () => {
     expect(doc).toContain("Fragment for {{language}}");
   });
 
-  it("states the project is empty when no fixture files exist", () => {
+  it("states the project is empty when neither root has files", () => {
     const doc = renderDocument(
       [activeArea()],
-      [makeCase({ cwd: ".", inputFiles: [] })],
+      [makeCase({ cwd: ".", inputFiles: [], globalInputFiles: [] })],
     );
 
-    expect(doc).toContain("**Input project**");
-    expect(doc).toContain(
-      "_Empty — no `.jastr/` directory present (command ran from the project root)._",
-    );
+    expect(doc).toContain("**Local project** — ran from the project root");
+    expect(doc).toContain("_Empty — no `.jastr/` directory present._");
+    // With no global-fixture, no "Global root" section is rendered.
+    expect(doc).not.toContain("**Global root**");
     // No directory tree is rendered for an empty fixture.
     expect(doc).not.toContain("└─");
+  });
+
+  it("renders both roots when a case carries a global fixture", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          inputFiles: [
+            {
+              path: ".jastr/demo/TEMPLATE.md",
+              content: "LOCAL body\n",
+            },
+          ],
+          globalInputFiles: [
+            {
+              path: ".jastr/demo/TEMPLATE.md",
+              content: "GLOBAL body\n",
+            },
+          ],
+        }),
+      ],
+    );
+
+    // Both layered roots are labelled symmetrically.
+    expect(doc).toContain("**Local project** — ran from the project root");
+    expect(doc).toContain("**Global root** — `$JASTR_HOME/.jastr`");
+    // Each root's file contents are embedded verbatim.
+    expect(doc).toContain("LOCAL body");
+    expect(doc).toContain("GLOBAL body");
+  });
+
+  it("shows an empty local root then the global root for a global-only case", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          inputFiles: [],
+          globalInputFiles: [
+            {
+              path: ".jastr/demo/TEMPLATE.md",
+              content: "GLOBAL body\n",
+            },
+          ],
+        }),
+      ],
+    );
+
+    // The local root is explicitly Empty so the global output is not magic.
+    expect(doc).toContain("**Local project** — ran from the project root");
+    expect(doc).toContain("_Empty — no `.jastr/` directory present._");
+    // The global root section is rendered with its contents.
+    expect(doc).toContain("**Global root** — `$JASTR_HOME/.jastr`");
+    expect(doc).toContain("GLOBAL body");
   });
 
   it("labels a subdirectory cwd as the escape hatch", () => {
     const doc = renderDocument([activeArea()], [makeCase({ cwd: "nested" })]);
 
     // The rare case that runs from a subdirectory says so explicitly.
-    expect(doc).toContain("**Input project** — ran from `nested/`");
+    expect(doc).toContain("**Local project** — ran from `nested/`");
   });
 
   it("renders generated output files when a case declares them", () => {

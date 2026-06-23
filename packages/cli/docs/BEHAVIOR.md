@@ -170,7 +170,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -225,9 +225,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -261,7 +261,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -311,9 +311,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -347,7 +347,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -398,7 +398,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -450,9 +450,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -490,7 +490,7 @@ Covers: AC-0004, AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -534,7 +534,7 @@ Covers: AC-0006
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -592,7 +592,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -663,7 +663,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -718,7 +718,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -773,7 +773,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -829,7 +829,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -886,7 +886,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -930,7 +930,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -976,7 +976,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1043,7 +1043,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1137,7 +1137,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1194,7 +1194,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1240,7 +1240,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1286,7 +1286,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1341,7 +1341,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1397,7 +1397,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1455,7 +1455,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1496,7 +1496,7 @@ Covers: AC-0003, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1546,7 +1546,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1601,7 +1601,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1656,7 +1656,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1712,7 +1712,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1772,7 +1772,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1832,7 +1832,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1883,7 +1883,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1943,7 +1943,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -1991,7 +1991,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2053,7 +2053,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2113,7 +2113,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2173,7 +2173,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2233,7 +2233,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2284,7 +2284,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2346,7 +2346,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2407,7 +2407,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2468,7 +2468,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2532,7 +2532,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2598,7 +2598,7 @@ Covers: AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2647,7 +2647,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2689,7 +2689,7 @@ Covers: AC-0006
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2738,7 +2738,7 @@ Covers: AC-0007
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2787,7 +2787,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2836,7 +2836,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2902,7 +2902,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -2960,7 +2960,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3009,7 +3009,7 @@ Covers: AC-0008
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3068,7 +3068,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3136,7 +3136,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3188,7 +3188,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3247,7 +3247,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3305,7 +3305,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3365,7 +3365,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3426,7 +3426,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3482,7 +3482,7 @@ Covers: AC-0006, AC-0007
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3530,7 +3530,7 @@ Covers: AC-0004, AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3572,7 +3572,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3644,7 +3644,7 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3717,7 +3717,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3771,7 +3771,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3841,7 +3841,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3922,7 +3922,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -3978,7 +3978,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4032,7 +4032,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4116,7 +4116,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4171,7 +4171,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4225,9 +4225,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -4261,7 +4261,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4355,7 +4355,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4432,7 +4432,7 @@ Covers: AC-0001, AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4512,7 +4512,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4591,7 +4591,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4687,7 +4687,7 @@ Covers: AC-0006
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4748,7 +4748,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4846,7 +4846,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -4920,7 +4920,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5012,7 +5012,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5066,7 +5066,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5119,7 +5119,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5176,7 +5176,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5276,7 +5276,7 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5381,7 +5381,7 @@ Covers: AC-0002, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5457,7 +5457,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5551,7 +5551,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5626,7 +5626,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5703,7 +5703,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5774,7 +5774,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5850,7 +5850,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5941,7 +5941,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -5989,7 +5989,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6043,7 +6043,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6092,9 +6092,9 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -6134,7 +6134,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6182,7 +6182,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6241,7 +6241,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6296,7 +6296,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6350,7 +6350,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6391,7 +6391,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6444,7 +6444,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6492,7 +6492,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6546,7 +6546,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6601,7 +6601,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6657,7 +6657,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6718,7 +6718,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6779,7 +6779,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6832,7 +6832,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6885,7 +6885,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6936,7 +6936,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -6981,7 +6981,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7039,7 +7039,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7104,7 +7104,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7162,7 +7162,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7222,7 +7222,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7284,7 +7284,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7350,7 +7350,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7403,7 +7403,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7456,7 +7456,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7510,7 +7510,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7577,7 +7577,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7634,7 +7634,7 @@ Covers: AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7688,7 +7688,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7742,7 +7742,7 @@ Covers: AC-0006
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7795,7 +7795,7 @@ Covers: AC-0007
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7848,7 +7848,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7916,7 +7916,7 @@ Covers: AC-0001, AC-0002, AC-0003, AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -7996,7 +7996,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8061,7 +8061,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8118,7 +8118,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8182,7 +8182,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8257,9 +8257,9 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -8284,9 +8284,9 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -8320,7 +8320,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8380,7 +8380,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8428,7 +8428,7 @@ Covers: AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8476,7 +8476,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8523,7 +8523,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8569,7 +8569,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8614,7 +8614,7 @@ Covers: AC-0006
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8682,7 +8682,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8738,7 +8738,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8797,7 +8797,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8877,7 +8877,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -8983,7 +8983,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9063,7 +9063,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9152,7 +9152,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9253,7 +9253,7 @@ Covers: AC-0001, AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9306,7 +9306,7 @@ Covers: AC-0001, AC-0002, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9363,7 +9363,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9417,7 +9417,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9474,7 +9474,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9517,7 +9517,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9566,7 +9566,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9620,7 +9620,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9685,7 +9685,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9730,7 +9730,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9807,7 +9807,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -9868,9 +9868,9 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -9895,9 +9895,9 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -9922,9 +9922,9 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -9960,9 +9960,26 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL body
+```
 
 **Command**
 
@@ -9987,7 +10004,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10039,7 +10056,7 @@ Covers: AC-0005
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10053,6 +10070,23 @@ Covers: AC-0005
 ```md
 ---
 inputs:
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL body (should not be reached)
 ```
 
 **Command**
@@ -10078,9 +10112,26 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL body
+```
 
 **Command**
 
@@ -10105,7 +10156,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10122,6 +10173,32 @@ Covers: AC-0004
 ---
 ---
 LOCAL grouped body (should not be reached)
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ team/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ demo/
+            └─ TEMPLATE.md
+```
+
+`.jastr/team/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/team/templates/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL grouped body
 ```
 
 **Command**
@@ -10147,7 +10224,7 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10187,7 +10264,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10202,6 +10279,23 @@ Covers: AC-0002
 ---
 ---
 LOCAL body
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL body
 ```
 
 **Command**
@@ -10236,9 +10330,9 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
 
 **Command**
 
@@ -10263,9 +10357,26 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+GLOBAL body
+```
 
 **Command**
 
@@ -10311,7 +10422,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10352,6 +10463,23 @@ inputs:
 depth={{depth}} output={{output}} region={{region}}
 ```
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: standard
+    output: globalout
+```
+
 **Command**
 
 ```console
@@ -10375,7 +10503,7 @@ Covers: AC-0001, AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10415,6 +10543,23 @@ inputs:
 depth={{depth}} output={{output}} region={{region}}
 ```
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: standard
+    output: globalout
+```
+
 **Command**
 
 ```console
@@ -10438,7 +10583,7 @@ Covers: AC-0004
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10459,6 +10604,22 @@ inputs:
     default: quick
 ---
 depth={{depth}}
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    extra: oops
 ```
 
 **Command**
@@ -10493,7 +10654,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10525,6 +10686,25 @@ inputs:
 depth={{depth}} output={{output}} mode={{mode}}
 ```
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+        mode: thorough
+```
+
 **Command**
 
 ```console
@@ -10548,7 +10728,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10591,6 +10771,25 @@ inputs:
 depth={{depth}} output={{output}} mode={{mode}}
 ```
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: standard
+        mode: thorough
+```
+
 **Command**
 
 ```console
@@ -10614,7 +10813,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10644,6 +10843,25 @@ inputs:
     default: fast
 ---
 depth={{depth}} output={{output}} mode={{mode}}
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+        mode: thorough
 ```
 
 **Command**
@@ -10677,9 +10895,35 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ outside.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+::include{path="../../outside.md"}
+```
+
+`outside.md`
+
+```md
+Outside
+```
 
 **Command**
 
@@ -10714,9 +10958,45 @@ Covers: AC-0003
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ a.md
+      ├─ b.md
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/a.md`
+
+```md
+A
+::include{path="b.md"}
+```
+
+`.jastr/demo/b.md`
+
+```md
+B
+::include{path="a.md"}
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Root
+::include{path="a.md"}
+```
 
 **Command**
 
@@ -10741,7 +11021,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10800,9 +11080,31 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
 
 **Command**
 
@@ -10854,7 +11156,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10869,6 +11171,23 @@ Covers: AC-0001
 ---
 ---
 local other
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ other/
+      └─ TEMPLATE.md
+```
+
+`.jastr/other/TEMPLATE.md`
+
+```md
+---
+---
+global other
 ```
 
 **Command**
@@ -10903,7 +11222,7 @@ Covers: AC-0002
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10935,6 +11254,22 @@ inputs:
 depth={{depth}}
 ```
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  templates/direct.md:
+    depth: deep
+```
+
 **Command**
 
 ```console
@@ -10958,7 +11293,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -10983,6 +11318,28 @@ jastr run demo
 If the command exits non-zero, report the exact error output to the user and stop.
 ````
 
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
+
 **Command**
 
 ```console
@@ -11006,9 +11363,31 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
 
 **Command**
 
@@ -11041,9 +11420,45 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ a.md
+      ├─ b.md
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/a.md`
+
+```md
+A
+::include{path="b.md"}
+```
+
+`.jastr/demo/b.md`
+
+```md
+B
+::include{path="a.md"}
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+Root
+::include{path="a.md"}
+```
 
 **Command**
 
@@ -11068,9 +11483,31 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project**
+**Local project** — ran from the project root
 
-_Empty — no `.jastr/` directory present (command ran from the project root)._
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello
+```
 
 **Command**
 
@@ -11114,7 +11551,7 @@ Covers: AC-0001
 <details>
 <summary>Input, command & output</summary>
 
-**Input project** — ran from the project root
+**Local project** — ran from the project root
 
 ```text
 ./
@@ -11129,6 +11566,23 @@ Covers: AC-0001
 ---
 ---
 local other
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   └─ other/
+      └─ TEMPLATE.md
+```
+
+`.jastr/other/TEMPLATE.md`
+
+```md
+---
+---
+global other
 ```
 
 **Command**
