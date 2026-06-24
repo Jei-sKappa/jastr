@@ -15,9 +15,11 @@ import {
 } from "./config";
 import { coerceRunFlags } from "./flags";
 import {
+  type AgentSkillTarget,
   assertAgentSkillOutputAvailable,
   buildAgentSkillContent,
   checkAgentSkillOutput,
+  readBaseArgumentHintPrefix,
   readOptionalAgentSkillFrontmatter,
   validateAgentSkillFrontmatter,
   validateAgentSkillTarget,
@@ -142,13 +144,25 @@ export async function executeGenerate(opts: {
         })
       : undefined;
 
-  const target =
-    selectedVariant === undefined
-      ? validateAgentSkillTarget(schema.targets["agent-skill"])
-      : validateAgentSkillFrontmatter({
-          ...readOptionalAgentSkillFrontmatter(schema.targets["agent-skill"]),
-          ...(selectedVariant.agentSkillFrontmatter ?? {}),
-        });
+  let target: AgentSkillTarget;
+  if (selectedVariant === undefined) {
+    // The base target already carries argumentHintPrefix from validation.
+    target = validateAgentSkillTarget(schema.targets["agent-skill"]);
+  } else {
+    target = validateAgentSkillFrontmatter({
+      ...readOptionalAgentSkillFrontmatter(schema.targets["agent-skill"]),
+      ...(selectedVariant.agentSkillFrontmatter ?? {}),
+    });
+    // The base prefix is read+validated even on the variant path, so an
+    // invalid base prefix still surfaces invalid_target_metadata; a present
+    // variant prefix replaces it wholesale (no concatenation).
+    const basePrefix = readBaseArgumentHintPrefix(schema.targets["agent-skill"]);
+    const resolvedPrefix =
+      selectedVariant.agentSkillArgumentHintPrefix ?? basePrefix;
+    if (resolvedPrefix !== undefined) {
+      target = { ...target, argumentHintPrefix: resolvedPrefix };
+    }
+  }
 
   await renderTemplateSource({
     source: template.source,
@@ -248,4 +262,8 @@ function validateDeclaredAgentSkillTarget(
     ...readOptionalAgentSkillFrontmatter(declaredTarget),
     ...(selectedVariant.agentSkillFrontmatter ?? {}),
   });
+  // The variant prefix is validated at config-load time; the base prefix must
+  // be read+validated here so an invalid base prefix fails validate with
+  // invalid_target_metadata even when a variant could override it.
+  readBaseArgumentHintPrefix(declaredTarget);
 }

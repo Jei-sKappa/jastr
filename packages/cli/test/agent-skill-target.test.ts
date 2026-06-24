@@ -1,4 +1,4 @@
-import type { TemplateInputDefinition } from "@jastr/engine";
+import { JastrError, type TemplateInputDefinition } from "@jastr/engine";
 import { describe, expect, it } from "vitest";
 import YAML from "yaml";
 import {
@@ -380,6 +380,67 @@ describe("Agent Skill target metadata", () => {
     ).toThrow(
       "targets.agent-skill.frontmatter must not declare argument-hint.",
     );
+  });
+});
+
+describe("base argument-hint-prefix directive", () => {
+  it("accepts a sibling argument-hint-prefix and carries it trimmed on the target (AC-2.1, AC-2.2)", () => {
+    const target = validateAgentSkillTarget({
+      frontmatter: { name: "demo", description: "Demo skill." },
+      "argument-hint-prefix": "  Apply the change  ",
+    });
+    expect(target.argumentHintPrefix).toBe("Apply the change");
+  });
+
+  it("leaves argumentHintPrefix absent when the prefix is undeclared", () => {
+    const target = validateAgentSkillTarget({
+      frontmatter: { name: "demo", description: "Demo skill." },
+    });
+    expect(target.argumentHintPrefix).toBeUndefined();
+  });
+
+  it("rejects a non-string base prefix with invalid_target_metadata (AC-2.3)", () => {
+    let error: unknown;
+    try {
+      validateAgentSkillTarget({
+        frontmatter: { name: "demo", description: "Demo skill." },
+        "argument-hint-prefix": 42,
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect(error).toMatchObject({ code: "invalid_target_metadata" });
+    expect((error as JastrError).message).toContain("must be a string");
+  });
+
+  it("rejects an empty / whitespace-only base prefix with invalid_target_metadata (AC-2.4)", () => {
+    let error: unknown;
+    try {
+      validateAgentSkillTarget({
+        frontmatter: { name: "demo", description: "Demo skill." },
+        "argument-hint-prefix": "   ",
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect(error).toMatchObject({ code: "invalid_target_metadata" });
+  });
+
+  it("rejects a multi-line base prefix with invalid_target_metadata (AC-2.5)", () => {
+    let error: unknown;
+    try {
+      validateAgentSkillTarget({
+        frontmatter: { name: "demo", description: "Demo skill." },
+        "argument-hint-prefix": "first\nsecond",
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect(error).toMatchObject({ code: "invalid_target_metadata" });
+    expect((error as JastrError).message).toContain("single line");
   });
 });
 

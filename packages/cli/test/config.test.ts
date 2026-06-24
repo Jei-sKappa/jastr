@@ -958,6 +958,110 @@ body
   });
 });
 
+describe("variant argument-hint-prefix directive", () => {
+  it("accepts a sibling argument-hint-prefix and carries it trimmed on the variant (AC-5.2)", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: "  Run the deep review  "
+`,
+      );
+
+      await expect(
+        loadComposedConfigVariant({
+          roots: { local: project.root },
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toEqual({
+        lockedInputs: { depth: "deep" },
+        agentSkillArgumentHintPrefix: "Run the deep review",
+      });
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("accepts argument-hint-prefix as a sibling of frontmatter (no longer field not supported)", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      agent-skill:
+        argument-hint-prefix: Run the deep review
+        frontmatter:
+          name: deep-review
+          description: Run the deep review policy.
+`,
+      );
+
+      await expect(
+        loadComposedConfigVariant({
+          roots: { local: project.root },
+          templateRef: "review",
+          variantId: "deep",
+        }),
+      ).resolves.toEqual({
+        lockedInputs: {},
+        agentSkillFrontmatter: {
+          name: "deep-review",
+          description: "Run the deep review policy.",
+        },
+        agentSkillArgumentHintPrefix: "Run the deep review",
+      });
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects an invalid variant argument-hint-prefix with invalid_config (AC-5.5)", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/config.yml",
+        `variants:
+  review:
+    deep:
+      agent-skill:
+        argument-hint-prefix: 42
+`,
+      );
+
+      let error: unknown;
+      try {
+        await loadComposedConfigVariant({
+          roots: { local: project.root },
+          templateRef: "review",
+          variantId: "deep",
+        });
+      } catch (caught) {
+        error = caught;
+      }
+
+      expect(error).toBeInstanceOf(JastrError);
+      expect(error).toMatchObject({ code: "invalid_config" });
+      expect((error as JastrError).message).toContain(
+        ".jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix",
+      );
+    } finally {
+      await project.cleanup();
+    }
+  });
+});
+
 async function expectVariantError(
   roots: { local?: string; global?: string },
   templateRef: string,

@@ -1,12 +1,19 @@
 import { constants } from "node:fs";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { JastrError, type TemplateInputDefinition } from "@jastr/engine";
+import {
+  JastrError,
+  type JastrErrorCode,
+  type TemplateInputDefinition,
+} from "@jastr/engine";
 import YAML from "yaml";
 
 const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FRONTMATTER_FIELD_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-const AGENT_SKILL_TARGET_FIELDS = new Set(["frontmatter"]);
+const AGENT_SKILL_TARGET_FIELDS = new Set([
+  "frontmatter",
+  "argument-hint-prefix",
+]);
 const RESERVED_FRONTMATTER_FIELDS = new Set(["inputs", "argument-hint"]);
 const AGENT_SKILL_FAILURE_LINE =
   "If the command exits non-zero, report the exact error output to the user and stop.";
@@ -35,7 +42,50 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
     );
   }
 
-  return validateAgentSkillFrontmatter(readAgentSkillFrontmatter(value));
+  const target = validateAgentSkillFrontmatter(readAgentSkillFrontmatter(value));
+  const argumentHintPrefix = readBaseArgumentHintPrefix(value);
+  return argumentHintPrefix === undefined
+    ? target
+    : { ...target, argumentHintPrefix };
+}
+
+// Reads and validates just the base `argument-hint-prefix` sibling of
+// `frontmatter` from a raw `targets.agent-skill` value, returning the trimmed
+// prefix or undefined when undeclared. Used by the variant `generate` path and
+// the `validate` paths, which do not flow through `validateAgentSkillTarget`.
+export function readBaseArgumentHintPrefix(value: unknown): string | undefined {
+  if (!isRecord(value)) return undefined;
+  const prefix = value["argument-hint-prefix"];
+  if (prefix === undefined) return undefined;
+  return validateArgumentHintPrefix(
+    prefix,
+    "invalid_target_metadata",
+    "targets.agent-skill.argument-hint-prefix",
+  );
+}
+
+// Shared prefix validation for the base directive
+// (`invalid_target_metadata`) and the variant directive (`invalid_config`).
+// Returns the trimmed prefix on success.
+export function validateArgumentHintPrefix(
+  value: unknown,
+  errorCode: JastrErrorCode,
+  label: string,
+): string {
+  if (typeof value !== "string") {
+    throw new JastrError(errorCode, `${label} must be a string.`);
+  }
+  if (/[\n\r]/.test(value)) {
+    throw new JastrError(errorCode, `${label} must be a single line.`);
+  }
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    throw new JastrError(
+      errorCode,
+      `${label} must not be empty or whitespace-only.`,
+    );
+  }
+  return trimmed;
 }
 
 function readAgentSkillFrontmatter(value: unknown): Record<string, unknown> {

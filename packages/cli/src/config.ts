@@ -2,13 +2,18 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import YAML from "yaml";
+import { validateArgumentHintPrefix } from "./targets/agent-skill";
 
 const SELECTED_VARIANT_FIELDS = new Set(["locked-inputs", "agent-skill"]);
-const SELECTED_AGENT_SKILL_FIELDS = new Set(["frontmatter"]);
+const SELECTED_AGENT_SKILL_FIELDS = new Set([
+  "frontmatter",
+  "argument-hint-prefix",
+]);
 
 export type ProjectConfigVariant = {
   lockedInputs: Record<string, unknown>;
   agentSkillFrontmatter?: Record<string, unknown>;
+  agentSkillArgumentHintPrefix?: string;
 };
 
 export async function loadProjectConfigInputs(options: {
@@ -161,10 +166,18 @@ export async function tryLoadProjectConfigVariant(options: {
     options.templateRef,
     options.variantId,
   );
+  const agentSkillArgumentHintPrefix = readVariantArgumentHintPrefix(
+    selected["agent-skill"],
+    options.templateRef,
+    options.variantId,
+  );
 
   return {
     lockedInputs: lockedInputs ?? {},
     ...(agentSkillFrontmatter === undefined ? {} : { agentSkillFrontmatter }),
+    ...(agentSkillArgumentHintPrefix === undefined
+      ? {}
+      : { agentSkillArgumentHintPrefix }),
   };
 }
 
@@ -236,6 +249,23 @@ function readVariantAgentSkillFrontmatter(
     );
   }
   return frontmatter;
+}
+
+function readVariantArgumentHintPrefix(
+  value: unknown,
+  templateRef: string,
+  variantId: string,
+): string | undefined {
+  // The `agent-skill` mapping shape and unknown-field gating are already
+  // enforced by readVariantAgentSkillFrontmatter, called from the same site.
+  if (!isRecord(value)) return undefined;
+  const prefix = value["argument-hint-prefix"];
+  if (prefix === undefined) return undefined;
+  return validateArgumentHintPrefix(
+    prefix,
+    "invalid_config",
+    `.jastr/config.yml variants.${templateRef}.${variantId}.agent-skill.argument-hint-prefix`,
+  );
 }
 
 function throwVariantNotFound(
