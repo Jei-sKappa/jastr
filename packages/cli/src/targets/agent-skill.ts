@@ -7,7 +7,7 @@ import YAML from "yaml";
 const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FRONTMATTER_FIELD_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const AGENT_SKILL_TARGET_FIELDS = new Set(["frontmatter"]);
-const RESERVED_FRONTMATTER_FIELDS = new Set(["inputs"]);
+const RESERVED_FRONTMATTER_FIELDS = new Set(["inputs", "argument-hint"]);
 const AGENT_SKILL_FAILURE_LINE =
   "If the command exits non-zero, report the exact error output to the user and stop.";
 
@@ -15,6 +15,9 @@ export type AgentSkillTarget = {
   name: string;
   description: string;
   frontmatter: Record<string, unknown>;
+  // Already-trimmed, already-resolved author intent prefix (base or
+  // variant-resolved). Absent when the author declared none.
+  argumentHintPrefix?: string;
 };
 
 export function readOptionalAgentSkillFrontmatter(
@@ -186,9 +189,12 @@ export function buildAgentSkillContent(options: {
   target: AgentSkillTarget;
   inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>;
 }): string {
+  const form = deriveArgumentHintForm(options.inputs);
+  const hint = assembleArgumentHint(options.target.argumentHintPrefix, form);
   const frontmatter = {
     name: options.target.name,
     description: options.target.description,
+    ...(hint !== undefined ? { "argument-hint": hint } : {}),
     ...options.target.frontmatter,
   };
   const header = `---\n${YAML.stringify(frontmatter).trimEnd()}\n---`;
@@ -261,6 +267,41 @@ function inputDescriptor(definition: TemplateInputDefinition): {
   const descSeg =
     definition.description !== undefined ? ` — ${definition.description}` : "";
   return { typeToken, defaultSeg, descSeg };
+}
+
+function deriveArgumentHintForm(
+  inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>,
+): string {
+  return inputs
+    .map(({ name, definition }) => deriveArgumentHintToken(name, definition))
+    .join(" ");
+}
+
+function deriveArgumentHintToken(
+  name: string,
+  definition: TemplateInputDefinition,
+): string {
+  let token = `--${name}`;
+  if (definition.type === "string") {
+    token += "=<value>";
+  } else if (definition.type === "enum") {
+    // Enum values are joined verbatim with no escaping (spec §8).
+    token += `=${definition.values.join("|")}`;
+  }
+  // Boolean tokens are the flag name only, with no placeholder.
+  return definition.required ? token : `[${token}]`;
+}
+
+function assembleArgumentHint(
+  prefix: string | undefined,
+  form: string,
+): string | undefined {
+  const hasPrefix = prefix !== undefined && prefix !== "";
+  const hasForm = form !== "";
+  if (hasPrefix && hasForm) return `${prefix} ${form}`;
+  if (hasPrefix) return prefix;
+  if (hasForm) return form;
+  return undefined;
 }
 
 function buildCommand(
