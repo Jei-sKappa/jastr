@@ -1,0 +1,15 @@
+id: generate-argument-hint-special-chars
+covers:
+  - GEN-FR-0023.AC-0011
+title: Generate serializes an argument-hint with YAML special characters
+description: >
+  An argument-hint value carrying a leading dash, square brackets, a pipe, an
+  equals, and an angle bracket is emitted as valid YAML through the deterministic
+  serialization path.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

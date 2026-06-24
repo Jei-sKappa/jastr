@@ -1,0 +1,12 @@
+id: generate-argument-hint-check-up-to-date
+covers:
+  - GEN-FR-0023.AC-0009
+title: Check confirms a wrapper carrying the derived argument-hint line
+description: >
+  A committed wrapper whose frontmatter carries the derived argument-hint line
+  passes --check with the up-to-date message and exit 0.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--check"]
+expect:
+  exitCode: 0
+  stdout: "agent-skill at out/SKILL.md is up to date."
+  stderr: ""

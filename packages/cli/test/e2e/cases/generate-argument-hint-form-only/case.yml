@@ -1,0 +1,14 @@
+id: generate-argument-hint-form-only
+covers:
+  - GEN-FR-0023.AC-0003
+title: Generate emits the derived form alone when no prefix is declared
+description: >
+  A template with inputs but no argument-hint-prefix emits an argument-hint
+  whose value is just the derived flag form, with no leading prefix or space.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

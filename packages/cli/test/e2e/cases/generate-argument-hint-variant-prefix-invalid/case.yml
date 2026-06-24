@@ -1,0 +1,12 @@
+id: generate-argument-hint-variant-prefix-invalid
+covers:
+  - VAR-FR-0011.AC-0005
+title: Generate rejects an invalid variant argument-hint-prefix
+description: >
+  A whitespace-only variant agent-skill.argument-hint-prefix fails with
+  invalid_config, exit 1.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must not be empty or whitespace-only.\n"

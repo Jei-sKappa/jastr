@@ -1,0 +1,17 @@
+id: generate-argument-hint-grammar
+covers:
+  - GEN-FR-0023.AC-0001
+  - GEN-FR-0023.AC-0002
+title: Generate derives the argument-hint flag grammar for every input type
+description: >
+  A template mixing a required string, an optional string, a required enum, an
+  optional enum, a required boolean, and an optional boolean derives one
+  argument-hint token per grammar row in declaration order, prefixed by the
+  trimmed author prefix with exactly one joining space.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

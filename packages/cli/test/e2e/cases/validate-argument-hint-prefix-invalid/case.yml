@@ -1,0 +1,12 @@
+id: validate-argument-hint-prefix-invalid
+covers:
+  - VALIDATE-FR-0008.AC-0001
+title: Validate reports an invalid base argument-hint-prefix
+description: >
+  validate on a template whose base argument-hint-prefix is multi-line fails
+  with invalid_target_metadata, exit 1.
+command: ["validate", "demo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: targets.agent-skill.argument-hint-prefix must be a single line.\n"

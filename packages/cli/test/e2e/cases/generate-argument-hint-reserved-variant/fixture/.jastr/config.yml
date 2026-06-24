@@ -1,0 +1,10 @@
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+          argument-hint: do not let me through

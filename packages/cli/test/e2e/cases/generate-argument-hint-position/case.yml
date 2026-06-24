@@ -1,0 +1,14 @@
+id: generate-argument-hint-position
+covers:
+  - GEN-FR-0023.AC-0006
+title: Generate places argument-hint after description and before passthrough
+description: >
+  The emitted frontmatter orders name, description, argument-hint, then any
+  passthrough field (here allowed-tools).
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

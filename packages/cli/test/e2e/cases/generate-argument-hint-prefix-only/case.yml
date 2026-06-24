@@ -1,0 +1,14 @@
+id: generate-argument-hint-prefix-only
+covers:
+  - GEN-FR-0023.AC-0005
+title: Generate emits the prefix alone for a no-input template
+description: >
+  A no-input template that declares an argument-hint-prefix emits argument-hint
+  with the trimmed prefix and no derived flag form.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

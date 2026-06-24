@@ -85,3 +85,21 @@
       statement: An unexpected option exits 1 with `Unknown validate option <option>.`.
     - id: AC-0003
       statement: An extra positional argument exits 1 with `Invalid validate argument <argument>.`.
+
+- id: VALIDATE-FR-0008
+  title: Validate covers argument-hint prefix defects
+  status: active
+  description: >
+    validate surfaces the new `argument-hint-prefix` directive defects with the
+    same codes as generate, with no validate-specific special-casing.
+    `jastr validate <ref>` reports an invalid base prefix with
+    `invalid_target_metadata`; `jastr validate <ref>#<variant>` reports an
+    invalid variant prefix with `invalid_config`; a template carrying a valid
+    prefix passes.
+  acceptance:
+    - id: AC-0001
+      statement: validate on a template with an invalid base argument-hint-prefix exits 1 with the invalid_target_metadata message.
+    - id: AC-0002
+      statement: validate on a variant ref with an invalid variant argument-hint-prefix exits 1 with the invalid_config message.
+    - id: AC-0003
+      statement: validate on a template with a valid argument-hint-prefix prints `Template <template-ref> is valid.` and exits 0.

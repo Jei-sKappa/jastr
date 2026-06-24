@@ -1,0 +1,12 @@
+id: validate-argument-hint-variant-invalid
+covers:
+  - VALIDATE-FR-0008.AC-0002
+title: Validate reports an invalid variant argument-hint-prefix
+description: >
+  validate on a variant ref whose agent-skill.argument-hint-prefix is non-string
+  fails with invalid_config, exit 1.
+command: ["validate", "review#deep"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must be a string.\n"

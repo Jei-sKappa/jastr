@@ -1,0 +1,17 @@
+id: generate-argument-hint-variant-prefix
+covers:
+  - VAR-FR-0011.AC-0002
+title: Variant argument-hint-prefix replaces the base prefix
+description: >
+  A selected variant declaring its own argument-hint-prefix replaces the base
+  prefix wholesale in the emitted hint.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "base policy"

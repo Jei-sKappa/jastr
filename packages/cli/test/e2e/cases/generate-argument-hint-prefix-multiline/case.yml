@@ -1,0 +1,12 @@
+id: generate-argument-hint-prefix-multiline
+covers:
+  - GEN-FR-0023.AC-0007
+title: Generate rejects a multi-line base argument-hint-prefix
+description: >
+  A multi-line targets.agent-skill.argument-hint-prefix fails with
+  invalid_target_metadata, exit 1.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: targets.agent-skill.argument-hint-prefix must be a single line.\n"

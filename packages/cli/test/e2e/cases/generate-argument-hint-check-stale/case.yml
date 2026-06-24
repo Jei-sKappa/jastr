@@ -1,0 +1,14 @@
+id: generate-argument-hint-check-stale
+covers:
+  - GEN-FR-0023.AC-0010
+title: Check reports a wrapper missing the derived argument-hint line as stale
+description: >
+  A committed wrapper that predates the feature and omits the now-derived
+  argument-hint line fails --check with output_stale, exit 1, writing nothing.
+command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--check"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.\n"
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

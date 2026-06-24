@@ -1,0 +1,10 @@
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: 42
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.

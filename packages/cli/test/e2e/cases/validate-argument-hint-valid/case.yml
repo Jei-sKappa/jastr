@@ -1,0 +1,12 @@
+id: validate-argument-hint-valid
+covers:
+  - VALIDATE-FR-0008.AC-0003
+title: Validate accepts a template with a valid argument-hint-prefix
+description: >
+  validate on a template declaring a valid base argument-hint-prefix prints the
+  confirmation line and exits 0.
+command: ["validate", "demo"]
+expect:
+  exitCode: 0
+  stdout: "Template demo is valid."
+  stderr: ""

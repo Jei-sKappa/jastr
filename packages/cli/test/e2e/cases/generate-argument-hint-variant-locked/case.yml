@@ -1,0 +1,18 @@
+id: generate-argument-hint-variant-locked
+covers:
+  - VAR-FR-0011.AC-0001
+title: Variant argument-hint omits locked inputs and keeps unlocked order
+description: >
+  A variant locking the depth enum derives an argument-hint form from only the
+  unlocked inputs (language, then notes) in declaration order; the locked depth
+  never appears.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "depth"

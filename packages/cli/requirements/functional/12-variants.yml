@@ -144,3 +144,29 @@
       statement: "A variant leaving exactly one optional input unlocked renders the single-input shape with a bare command and no Inputs section."
     - id: AC-0003
       statement: "A variant locking every declared input renders the no-input shape with a bare command and no Inputs section."
+
+- id: VAR-FR-0011
+  title: Variant argument-hint prefix and locked exclusion
+  status: active
+  description: >
+    A generated variant wrapper's `argument-hint` derives its flag form from the
+    unlocked inputs only — locked inputs never appear — in declaration order. A
+    selected variant's `agent-skill.argument-hint-prefix` replaces the base
+    prefix wholesale; when the variant omits it, the base prefix applies. A
+    variant that locks every declared input and declares a prefix emits the
+    prefix alone. An invalid variant `argument-hint-prefix` is rejected with
+    `invalid_config`, and a literal `argument-hint` in a selected variant's
+    `agent-skill.frontmatter` is rejected with `invalid_target_metadata`.
+  acceptance:
+    - id: AC-0001
+      statement: "Locked inputs are absent from the variant wrapper's argument-hint form, while unlocked inputs appear in declaration order."
+    - id: AC-0002
+      statement: "A selected variant's argument-hint-prefix replaces the base prefix in the emitted hint."
+    - id: AC-0003
+      statement: "When a selected variant omits argument-hint-prefix, the base prefix is used."
+    - id: AC-0004
+      statement: "A variant that locks every declared input and declares a prefix emits argument-hint with the prefix only."
+    - id: AC-0005
+      statement: "An invalid variant argument-hint-prefix exits 1 with an invalid_config Error message."
+    - id: AC-0006
+      statement: "A literal argument-hint in a selected variant's agent-skill.frontmatter exits 1 with an invalid_target_metadata Error message."

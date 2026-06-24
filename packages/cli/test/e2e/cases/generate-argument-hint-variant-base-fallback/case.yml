@@ -1,0 +1,17 @@
+id: generate-argument-hint-variant-base-fallback
+covers:
+  - VAR-FR-0011.AC-0003
+title: Variant without a prefix falls back to the base prefix
+description: >
+  A selected variant that omits argument-hint-prefix uses the base prefix in the
+  emitted hint.
+command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileContains:
+    out/SKILL.md:
+      - "review with the base policy"
