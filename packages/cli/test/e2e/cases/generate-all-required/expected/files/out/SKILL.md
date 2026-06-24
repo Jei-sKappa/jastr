@@ -1,6 +1,7 @@
 ---
 name: build-skill
 description: Build something.
+argument-hint: --tag=<value> --force
 ---
 
 ## Inputs

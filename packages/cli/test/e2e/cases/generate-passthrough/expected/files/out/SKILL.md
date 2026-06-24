@@ -1,6 +1,7 @@
 ---
 name: demo
 description: A demo skill
+argument-hint: --language=typescript|python
 license: MIT
 my-extension-field: custom-value
 ---

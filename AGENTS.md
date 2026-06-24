@@ -76,6 +76,18 @@ no-input body; exactly one input drops the `## Inputs` section in favor of a
 tailored single-input sentence; two or more inputs render a `## Inputs` section
 plus a construct-flags instruction.
 
+Generated wrappers also emit an `argument-hint` frontmatter field (placed
+immediately after `description`, before any author passthrough fields): an
+optional author-supplied **intent** prefix followed by an auto-derived **form**
+suffix listing the rendered (unlocked) inputs as flags in declaration order
+(`--name=<value>` / `[--name=<value>]` for strings, `--name=v1|v2|v3` for enums,
+`--name` / `[--name]` for booleans). The prefix comes from
+`targets.agent-skill.argument-hint-prefix` (a sibling of `frontmatter`),
+overridable per variant by `agent-skill.argument-hint-prefix`. When neither a
+prefix nor any input exists the field is omitted entirely. A literal
+`argument-hint` is reserved against author passthrough in both base
+`targets.agent-skill.frontmatter` and variant `agent-skill.frontmatter`.
+
 Generated bare-template Agent Skill wrappers render a `## Inputs` section only
 when the template declares two or more inputs. Generated variant wrappers render
 only the inputs the selected variant did not lock, choosing the same shape by the
@@ -164,6 +176,20 @@ neither root exists, `template_not_found` names both searched roots, and a
 globally-resolved template's own path and its included files render as absolute
 realpaths. CLI-only; no engine, schema, or `JastrErrorCode` change.
 
+The active skill argument-hint design thread is
+`docs/threads/260623191813Z-skill-argument-hint/`. Its implemented v1 contract
+is `docs/threads/260623191813Z-skill-argument-hint/specs/001/spec.md`. It adds an
+`argument-hint` frontmatter field to generated Agent Skill wrappers: an optional
+author **intent** prefix (`targets.agent-skill.argument-hint-prefix`, overridable
+per variant by `agent-skill.argument-hint-prefix`) followed by a derived **form**
+listing the unlocked inputs as flags in declaration order. The field is emitted
+after `description`, omitted when neither a prefix nor any input exists,
+serialized through the existing `YAML.stringify` path, and covered by `--check`
+and `validate`. A literal `argument-hint` is reserved against passthrough in both
+base `targets.agent-skill.frontmatter` and variant `agent-skill.frontmatter`. An
+invalid base prefix raises `invalid_target_metadata`; an invalid variant prefix
+raises `invalid_config`. CLI-only; no engine, schema, or `JastrErrorCode` change.
+
 Current v2 direction:
 
 - Canonical commands are `jastr run <template-ref> [input flags...]`,
@@ -194,6 +220,23 @@ Current v2 direction:
   new codes). Argv-shape errors are `invalid_command`: `Missing template
   reference for validate.`, `Unknown validate option <option>.`, and `Invalid
   validate argument <argument>.`.
+- Generated Agent Skill wrappers emit an `argument-hint` frontmatter field
+  (immediately after `description`, before any author passthrough field): an
+  optional author **intent** prefix joined by a single space to a derived **form**
+  listing the rendered (unlocked) inputs as flags in declaration order
+  (`--name=<value>` / `[--name=<value>]` for strings, `--name=v1|v2|v3` for enums,
+  `--name` / `[--name]` for booleans), serialized through `YAML.stringify` and
+  omitted entirely when neither a prefix nor any input exists. The prefix is the
+  base directive `targets.agent-skill.argument-hint-prefix` (a sibling of
+  `frontmatter`), replaced wholesale by a selected variant's
+  `agent-skill.argument-hint-prefix` when present. Each prefix must be a
+  non-empty-after-trim, single-line string; an invalid base prefix raises
+  `invalid_target_metadata` and an invalid variant prefix raises `invalid_config`.
+  A literal `argument-hint` is reserved against passthrough in both base
+  `targets.agent-skill.frontmatter` and variant `agent-skill.frontmatter`
+  (`invalid_target_metadata`). `--check` and `validate` cover the field with no
+  special-casing; the CLI-only feature adds no engine, schema, or `JastrErrorCode`
+  change.
 - `@jastr/engine` exposes only the top-level template API pinned in the v2 spec:
   `parseTemplateSource`, `validateTemplateSchema`, `validateTemplateInputs`,
   `renderTemplateSource`, `JastrError`, and the public template/render/error
@@ -227,10 +270,11 @@ Current v2 direction:
   runs never read `.jastr/config.yml` and do not support variants.
 - `variants` config is selected-only strict. The top-level `variants` value,
   selected `variants.<template-ref>`, selected
-  `variants.<template-ref>.<variant-id>`, selected `locked-inputs`, and selected
-  `agent-skill.frontmatter` must have the shapes defined in the generated skill
-  variants v2 spec. Malformed unrelated variant entries do not affect another
-  selected variant.
+  `variants.<template-ref>.<variant-id>`, selected `locked-inputs`, selected
+  `agent-skill.frontmatter`, and selected `agent-skill.argument-hint-prefix` must
+  have the shapes defined in the generated skill variants v2 spec (the
+  `argument-hint-prefix` shape per the skill argument-hint v1 spec). Malformed
+  unrelated variant entries do not affect another selected variant.
 - Templates use Markdown with optional YAML frontmatter. Recognized root keys
   are `inputs` and `targets`; unknown root keys are ignored. Recognized
   structures are strict. Optional inputs may declare `default:` only when

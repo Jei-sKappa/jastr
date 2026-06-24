@@ -42,7 +42,9 @@ export function validateAgentSkillTarget(value: unknown): AgentSkillTarget {
     );
   }
 
-  const target = validateAgentSkillFrontmatter(readAgentSkillFrontmatter(value));
+  const target = validateAgentSkillFrontmatter(
+    readAgentSkillFrontmatter(value),
+  );
   const argumentHintPrefix = readBaseArgumentHintPrefix(value);
   return argumentHintPrefix === undefined
     ? target

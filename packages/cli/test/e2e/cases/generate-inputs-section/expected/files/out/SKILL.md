@@ -1,6 +1,7 @@
 ---
 name: deploy
 description: Deploy to an environment.
+argument-hint: --env=dev|prod [--region=<value>] [--dry-run] --tag=<value> [--verbose]
 ---
 
 ## Inputs

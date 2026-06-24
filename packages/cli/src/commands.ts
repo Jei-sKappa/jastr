@@ -156,7 +156,9 @@ export async function executeGenerate(opts: {
     // The base prefix is read+validated even on the variant path, so an
     // invalid base prefix still surfaces invalid_target_metadata; a present
     // variant prefix replaces it wholesale (no concatenation).
-    const basePrefix = readBaseArgumentHintPrefix(schema.targets["agent-skill"]);
+    const basePrefix = readBaseArgumentHintPrefix(
+      schema.targets["agent-skill"],
+    );
     const resolvedPrefix =
       selectedVariant.agentSkillArgumentHintPrefix ?? basePrefix;
     if (resolvedPrefix !== undefined) {

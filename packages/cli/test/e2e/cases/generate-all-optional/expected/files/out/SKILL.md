@@ -1,6 +1,7 @@
 ---
 name: opt-skill
 description: Optional inputs only.
+argument-hint: "[--region=<value>] [--verbose]"
 ---
 
 ## Inputs

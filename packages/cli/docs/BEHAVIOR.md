@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**104** requirements · **256** acceptance criteria · **168** end-to-end cases.
+**107** requirements · **276** acceptance criteria · **189** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -86,6 +86,7 @@ output against its inputs.
   - [GEN-FR-0020 — Generate inlines required inputs into the command](#gen-fr-0020--generate-inlines-required-inputs-into-the-command)
   - [GEN-FR-0021 — Generate renders single-input wrappers without an Inputs section](#gen-fr-0021--generate-renders-single-input-wrappers-without-an-inputs-section)
   - [GEN-FR-0022 — Generate keeps the command bare when no required input is rendered](#gen-fr-0022--generate-keeps-the-command-bare-when-no-required-input-is-rendered)
+  - [GEN-FR-0023 — Generate emits an argument-hint frontmatter field](#gen-fr-0023--generate-emits-an-argument-hint-frontmatter-field)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
@@ -126,6 +127,7 @@ output against its inputs.
   - [VAR-FR-0008 — Locked input values use engine validation](#var-fr-0008--locked-input-values-use-engine-validation)
   - [VAR-FR-0009 — Variant wrappers list only unlocked inputs](#var-fr-0009--variant-wrappers-list-only-unlocked-inputs)
   - [VAR-FR-0010 — Variant wrapper shape follows the unlocked input count](#var-fr-0010--variant-wrapper-shape-follows-the-unlocked-input-count)
+  - [VAR-FR-0011 — Variant argument-hint prefix and locked exclusion](#var-fr-0011--variant-argument-hint-prefix-and-locked-exclusion)
 
 - [Validate](#validate)
   - [VALIDATE-FR-0001 — Validate confirms a well-formed template](#validate-fr-0001--validate-confirms-a-well-formed-template)
@@ -135,6 +137,7 @@ output against its inputs.
   - [VALIDATE-FR-0005 — Validate resolves and validates selected variants](#validate-fr-0005--validate-resolves-and-validates-selected-variants)
   - [VALIDATE-FR-0006 — Validate accepts direct .md references](#validate-fr-0006--validate-accepts-direct-md-references)
   - [VALIDATE-FR-0007 — Validate rejects malformed invocations](#validate-fr-0007--validate-rejects-malformed-invocations)
+  - [VALIDATE-FR-0008 — Validate covers argument-hint prefix defects](#validate-fr-0008--validate-covers-argument-hint-prefix-defects)
 
 - [Global](#global)
   - [GLOBAL-FR-0001 — Global root location](#global-fr-0001--global-root-location)
@@ -1101,6 +1104,7 @@ $ jastr generate agent-skill deploy --out=out/SKILL.md
 ---
 name: deploy
 description: Deploy to an environment.
+argument-hint: --env=dev|prod [--region=<value>] [--dry-run] --tag=<value> [--verbose]
 ---
 
 ## Inputs
@@ -4077,6 +4081,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: demo
 description: A demo skill
+argument-hint: --language=typescript|python
 license: MIT
 my-extension-field: custom-value
 ---
@@ -4319,6 +4324,7 @@ $ jastr generate agent-skill deploy --out=out/SKILL.md
 ---
 name: deploy
 description: Deploy to an environment.
+argument-hint: --env=dev|prod [--region=<value>] [--dry-run] --tag=<value> [--verbose]
 ---
 
 ## Inputs
@@ -4654,6 +4660,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --mode=<value> --language=<value>
 ---
 
 ## Inputs
@@ -4808,6 +4815,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --language=<value>
 allowed-tools: Read
 ---
 
@@ -5230,6 +5238,7 @@ Review {{depth}} {{language}}
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --language=<value>
 allowed-tools: Read
 ---
 
@@ -5334,6 +5343,7 @@ $ jastr generate agent-skill deploy --out=out/SKILL.md
 ---
 name: deploy
 description: Deploy to an environment.
+argument-hint: --env=dev|prod [--region=<value>] [--dry-run] --tag=<value> [--verbose]
 ---
 
 ## Inputs
@@ -5424,6 +5434,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: build-skill
 description: Build something.
+argument-hint: --tag=<value> --force
 ---
 
 ## Inputs
@@ -5515,6 +5526,7 @@ $ jastr generate agent-skill deploy --out=out/SKILL.md
 ---
 name: deploy
 description: Deploy to an environment.
+argument-hint: --env=dev|prod [--region=<value>] [--dry-run] --tag=<value> [--verbose]
 ---
 
 ## Inputs
@@ -5596,6 +5608,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: demo
 description: A demo skill
+argument-hint: --language=typescript|python
 license: MIT
 my-extension-field: custom-value
 ---
@@ -5666,6 +5679,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: tag-skill
 description: Tag something.
+argument-hint: --tag=<value>
 ---
 
 This skill takes one input, `--tag` (string). Fill in `--tag=<value>` from the user's request. Then run this command and follow its output exactly:
@@ -5746,6 +5760,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: lang-skill
 description: Pick a language.
+argument-hint: "[--language=typescript|python]"
 ---
 
 This skill takes one optional input, `--language` (enum: typescript|python, default: typescript) — target language. Add `--language=<value>` if the user's request calls for it; otherwise leave it out. Then run this command and follow its output exactly:
@@ -5814,6 +5829,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: tag-skill
 description: Tag something.
+argument-hint: --tag=<value>
 ---
 
 This skill takes one input, `--tag` (string). Fill in `--tag=<value>` from the user's request. Then run this command and follow its output exactly:
@@ -5895,6 +5911,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 ---
 name: opt-skill
 description: Optional inputs only.
+argument-hint: "[--region=<value>] [--verbose]"
 ---
 
 ## Inputs
@@ -5906,6 +5923,858 @@ Map the user's request to the inputs above and append them as `--flag=value` arg
 
 ```bash
 jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0023 — Generate emits an argument-hint frontmatter field
+
+The generated Agent Skill wrapper emits an `argument-hint` frontmatter field that combines the author-supplied `targets.agent-skill.argument-hint-prefix` intent with an auto-derived flag form listing the rendered inputs. The derived form follows a fixed grammar per input type and required/optional status, joined by single spaces in declaration order. The field is inserted immediately after `description` and before passthrough frontmatter, is omitted entirely when neither a prefix nor any input exists, and is serialized through the deterministic YAML path so special characters round-trip and `--check` byte-comparison stays stable. A literal `argument-hint` in base `targets.agent-skill.frontmatter` and an invalid base `argument-hint-prefix` are rejected with `invalid_target_metadata`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | The derived form renders each grammar row (string/enum/boolean x required/optional) and joins all inputs by single spaces in declaration order. | ✅ `generate-argument-hint-grammar` |
+| AC-0002 | A valid base argument-hint-prefix is prepended to the derived form with exactly one space, and the template generates with exit code 0. | ✅ `generate-argument-hint-grammar` |
+| AC-0003 | A template with inputs and no prefix emits argument-hint with the derived form only. | ✅ `generate-argument-hint-form-only` |
+| AC-0004 | A template with no inputs and no prefix emits no argument-hint field. | ✅ `generate-argument-hint-omitted` |
+| AC-0005 | A template with no inputs and a prefix emits argument-hint with the prefix only. | ✅ `generate-argument-hint-prefix-only` |
+| AC-0006 | The emitted argument-hint appears immediately after description and before any passthrough frontmatter field. | ✅ `generate-argument-hint-position` |
+| AC-0007 | A non-string, empty/whitespace-only, or multi-line base argument-hint-prefix exits 1 with an invalid_target_metadata Error message. | ✅ `generate-argument-hint-prefix-empty`, `generate-argument-hint-prefix-multiline`, `generate-argument-hint-prefix-non-string` |
+| AC-0008 | A literal argument-hint in base targets.agent-skill.frontmatter exits 1 with an invalid_target_metadata Error message. | ✅ `generate-argument-hint-reserved-base` |
+| AC-0009 | A --check run against a committed wrapper that carries the derived argument-hint line exits 0 with the up-to-date message. | ✅ `generate-argument-hint-check-up-to-date` |
+| AC-0010 | A --check run against a committed wrapper missing the now-derived argument-hint line exits 1 with the output_stale message. | ✅ `generate-argument-hint-check-stale` |
+| AC-0011 | An argument-hint value containing [, <, |, =, and a leading - is emitted as valid YAML and re-checks clean end-to-end. | ✅ `generate-argument-hint-special-chars` |
+
+#### Case: Check reports a wrapper missing the derived argument-hint line as stale
+
+Description: A committed wrapper that predates the feature and omits the now-derived argument-hint line fails --check with output_stale, exit 1, writing nothing.
+
+Covers: AC-0010
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: build the project
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+  force:
+    type: boolean
+    required: true
+---
+Build {{tag}} force={{force}}.
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--force` (boolean, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md --check
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--force` (boolean, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 1
+
+```console
+Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.
+```
+
+</details>
+
+#### Case: Check confirms a wrapper carrying the derived argument-hint line
+
+Description: A committed wrapper whose frontmatter carries the derived argument-hint line passes --check with the up-to-date message and exit 0.
+
+Covers: AC-0009
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: build the project
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+  force:
+    type: boolean
+    required: true
+---
+Build {{tag}} force={{force}}.
+```
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+argument-hint: build the project --tag=<value> --force
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--force` (boolean, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md --check
+```
+
+**CLI output** — exit 0
+
+```console
+agent-skill at out/SKILL.md is up to date.
+```
+
+</details>
+
+#### Case: Generate emits the derived form alone when no prefix is declared
+
+Description: A template with inputs but no argument-hint-prefix emits an argument-hint whose value is just the derived flag form, with no leading prefix or space.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+  force:
+    type: boolean
+    required: true
+---
+Build {{tag}} force={{force}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+argument-hint: --tag=<value> --force
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--force` (boolean, required)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate derives the argument-hint flag grammar for every input type
+
+Description: A template mixing a required string, an optional string, a required enum, an optional enum, a required boolean, and an optional boolean derives one argument-hint token per grammar row in declaration order, prefixed by the trimmed author prefix with exactly one joining space.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: build the project
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+  note:
+    type: string
+    required: false
+  mode:
+    type: enum
+    values: [new, merge]
+    required: true
+  level:
+    type: enum
+    values: [low, high]
+    required: false
+  force:
+    type: boolean
+    required: true
+  verbose:
+    type: boolean
+    required: false
+---
+Build {{tag}} {{mode}} force={{force}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+argument-hint: build the project --tag=<value> [--note=<value>] --mode=new|merge
+  [--level=low|high] --force [--verbose]
+---
+
+## Inputs
+
+- `--tag` (string, required)
+- `--note` (string, optional)
+- `--mode` (enum: new|merge, required)
+- `--level` (enum: low|high, optional)
+- `--force` (boolean, required)
+- `--verbose` (boolean, optional)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value> --mode=<value> --force=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate omits argument-hint with no prefix and no inputs
+
+Description: A no-input template that declares no argument-hint-prefix emits no argument-hint frontmatter field at all.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: route-skill
+      description: Route something.
+---
+Static body with no inputs.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: route-skill
+description: Route something.
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate places argument-hint after description and before passthrough
+
+Description: The emitted frontmatter orders name, description, argument-hint, then any passthrough field (here allowed-tools).
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: build the project
+    frontmatter:
+      name: build-skill
+      description: Build something.
+      allowed-tools: Read
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+argument-hint: build the project --tag=<value>
+allowed-tools: Read
+---
+
+This skill takes one input, `--tag` (string). Fill in `--tag=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --tag=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate rejects a whitespace-only base argument-hint-prefix
+
+Description: A whitespace-only targets.agent-skill.argument-hint-prefix fails with invalid_target_metadata, exit 1.
+
+Covers: AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: "   "
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.argument-hint-prefix must not be empty or whitespace-only.
+```
+
+</details>
+
+#### Case: Generate rejects a multi-line base argument-hint-prefix
+
+Description: A multi-line targets.agent-skill.argument-hint-prefix fails with invalid_target_metadata, exit 1.
+
+Covers: AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: "build the project\nthen ship it"
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.argument-hint-prefix must be a single line.
+```
+
+</details>
+
+#### Case: Generate rejects a non-string base argument-hint-prefix
+
+Description: A non-string targets.agent-skill.argument-hint-prefix fails with invalid_target_metadata, exit 1.
+
+Covers: AC-0007
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: 42
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.argument-hint-prefix must be a string.
+```
+
+</details>
+
+#### Case: Generate emits the prefix alone for a no-input template
+
+Description: A no-input template that declares an argument-hint-prefix emits argument-hint with the trimmed prefix and no derived flag form.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: route the request
+    frontmatter:
+      name: route-skill
+      description: Route something.
+---
+Static body with no inputs.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: route-skill
+description: Route something.
+argument-hint: route the request
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate reserves argument-hint against base passthrough
+
+Description: A literal argument-hint declared in base targets.agent-skill.frontmatter is rejected as a reserved field with invalid_target_metadata, exit 1.
+
+Covers: AC-0008
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: build-skill
+      description: Build something.
+      argument-hint: do not let me through
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.frontmatter must not declare argument-hint.
+```
+
+</details>
+
+#### Case: Generate serializes an argument-hint with YAML special characters
+
+Description: An argument-hint value carrying a leading dash, square brackets, a pipe, an equals, and an angle bracket is emitted as valid YAML through the deterministic serialization path.
+
+Covers: AC-0011
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: "-mode picker"
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  manifest:
+    type: string
+    required: true
+  mode:
+    type: enum
+    values: [new, merge]
+    required: false
+---
+Build {{manifest}} {{mode}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: build-skill
+description: Build something.
+argument-hint: -mode picker --manifest=<value> [--mode=new|merge]
+---
+
+## Inputs
+
+- `--manifest` (string, required)
+- `--mode` (enum: new|merge, optional)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run demo --manifest=<value>
 ```
 
 If the command exits non-zero, report the exact error output to the user and stop.
@@ -8940,6 +9809,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --mode=<value> --language=<value>
 ---
 
 ## Inputs
@@ -9124,6 +9994,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: "[--region=<value>]"
 ---
 
 This skill takes one optional input, `--region` (string, default: us-east-1) — deployment region. Add `--region=<value>` if the user's request calls for it; otherwise leave it out. Then run this command and follow its output exactly:
@@ -9212,6 +10083,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --language=<value>
 allowed-tools: Read
 ---
 
@@ -9228,6 +10100,520 @@ If the command exits non-zero, report the exact error output to the user and sto
 
 ```console
 Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+### VAR-FR-0011 — Variant argument-hint prefix and locked exclusion
+
+A generated variant wrapper's `argument-hint` derives its flag form from the unlocked inputs only — locked inputs never appear — in declaration order. A selected variant's `agent-skill.argument-hint-prefix` replaces the base prefix wholesale; when the variant omits it, the base prefix applies. A variant that locks every declared input and declares a prefix emits the prefix alone. An invalid variant `argument-hint-prefix` is rejected with `invalid_config`, and a literal `argument-hint` in a selected variant's `agent-skill.frontmatter` is rejected with `invalid_target_metadata`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Locked inputs are absent from the variant wrapper's argument-hint form, while unlocked inputs appear in declaration order. | ✅ `generate-argument-hint-variant-locked` |
+| AC-0002 | A selected variant's argument-hint-prefix replaces the base prefix in the emitted hint. | ✅ `generate-argument-hint-variant-prefix` |
+| AC-0003 | When a selected variant omits argument-hint-prefix, the base prefix is used. | ✅ `generate-argument-hint-variant-base-fallback` |
+| AC-0004 | A variant that locks every declared input and declares a prefix emits argument-hint with the prefix only. | ✅ `generate-argument-hint-variant-fully-locked` |
+| AC-0005 | An invalid variant argument-hint-prefix exits 1 with an invalid_config Error message. | ✅ `generate-argument-hint-variant-prefix-invalid` |
+| AC-0006 | A literal argument-hint in a selected variant's agent-skill.frontmatter exits 1 with an invalid_target_metadata Error message. | ✅ `generate-argument-hint-reserved-variant` |
+
+#### Case: Generate reserves argument-hint against variant passthrough
+
+Description: A literal argument-hint declared in a selected variant's agent-skill.frontmatter is rejected with invalid_target_metadata, exit 1.
+
+Covers: AC-0006
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+          argument-hint: do not let me through
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.frontmatter must not declare argument-hint.
+```
+
+</details>
+
+#### Case: Variant without a prefix falls back to the base prefix
+
+Description: A selected variant that omits argument-hint-prefix uses the base prefix in the emitted hint.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review with the base policy
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review with the base policy --language=<value>
+---
+
+This skill takes one input, `--language` (string). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Fully-locked variant with a prefix emits the prefix alone
+
+Description: A variant that locks every declared input but declares an argument-hint-prefix emits argument-hint with the variant prefix and no derived flag form.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: review with the deep policy
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review with the base policy
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Review {{depth}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review with the deep policy
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run review#deep
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Variant argument-hint omits locked inputs and keeps unlocked order
+
+Description: A variant locking the depth enum derives an argument-hint form from only the unlocked inputs (language, then notes) in declaration order; the locked depth never appears.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review the change
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+  notes:
+    type: string
+    required: false
+---
+Review {{depth}} {{language}} {{notes}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review the change --language=<value> [--notes=<value>]
+---
+
+## Inputs
+
+- `--language` (string, required)
+- `--notes` (string, optional)
+
+Map the user's request to the inputs above and append them as `--flag=value` arguments, including every required input. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Variant argument-hint-prefix replaces the base prefix
+
+Description: A selected variant declaring its own argument-hint-prefix replaces the base prefix wholesale in the emitted hint.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: review with the deep policy
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review with the base policy
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review with the deep policy --language=<value>
+---
+
+This skill takes one input, `--language` (string). Fill in `--language=<value>` from the user's request. Then run this command and follow its output exactly:
+
+```bash
+jastr run review#deep --language=<value>
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate rejects an invalid variant argument-hint-prefix
+
+Description: A whitespace-only variant agent-skill.argument-hint-prefix fails with invalid_config, exit 1.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: "   "
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out=out/SKILL.md
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must not be empty or whitespace-only.
 ```
 
 </details>
@@ -9936,6 +11322,185 @@ $ jastr validate demo --force
 
 ```console
 Error: Unknown validate option --force.
+```
+
+</details>
+
+### VALIDATE-FR-0008 — Validate covers argument-hint prefix defects
+
+validate surfaces the new `argument-hint-prefix` directive defects with the same codes as generate, with no validate-specific special-casing. `jastr validate <ref>` reports an invalid base prefix with `invalid_target_metadata`; `jastr validate <ref>#<variant>` reports an invalid variant prefix with `invalid_config`; a template carrying a valid prefix passes.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | validate on a template with an invalid base argument-hint-prefix exits 1 with the invalid_target_metadata message. | ✅ `validate-argument-hint-prefix-invalid` |
+| AC-0002 | validate on a variant ref with an invalid variant argument-hint-prefix exits 1 with the invalid_config message. | ✅ `validate-argument-hint-variant-invalid` |
+| AC-0003 | validate on a template with a valid argument-hint-prefix prints `Template <template-ref> is valid.` and exits 0. | ✅ `validate-argument-hint-valid` |
+
+#### Case: Validate reports an invalid base argument-hint-prefix
+
+Description: validate on a template whose base argument-hint-prefix is multi-line fails with invalid_target_metadata, exit 1.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: "build the project\nthen ship it"
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: targets.agent-skill.argument-hint-prefix must be a single line.
+```
+
+</details>
+
+#### Case: Validate accepts a template with a valid argument-hint-prefix
+
+Description: validate on a template declaring a valid base argument-hint-prefix prints the confirmation line and exits 0.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: build the project
+    frontmatter:
+      name: build-skill
+      description: Build something.
+inputs:
+  tag:
+    type: string
+    required: true
+---
+Build {{tag}}.
+```
+
+**Command**
+
+```console
+$ jastr validate demo
+```
+
+**CLI output** — exit 0
+
+```console
+Template demo is valid.
+```
+
+</details>
+
+#### Case: Validate reports an invalid variant argument-hint-prefix
+
+Description: validate on a variant ref whose agent-skill.argument-hint-prefix is non-string fails with invalid_config, exit 1.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: 42
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+  language:
+    type: string
+    required: true
+---
+Review {{depth}} {{language}}
+```
+
+**Command**
+
+```console
+$ jastr validate review#deep
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must be a string.
 ```
 
 </details>

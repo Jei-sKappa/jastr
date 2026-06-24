@@ -1,6 +1,7 @@
 ---
 name: review-deep
 description: Review with the deep policy.
+argument-hint: --language=<value>
 allowed-tools: Read
 ---
 
