@@ -1,0 +1,4 @@
+# Seed: Template steps — chaining mini-templates into a human-in-the-loop workflow executor
+External: none — private single-owner personal tool; the repo is the sole owner and there is nothing external to drift against.
+
+Draft idea, not yet settled. Add the concept of "steps": an `implement` skill could have N steps (read the plan, read the relevant code, build a task list, implement, self-review, commit, PR), each a small individual TEMPLATE, with a larger template defining their batched composition — effectively a mini workflow executor. A step could depend on user input in a human-in-the-loop way: e.g. a plan-review template that finds errors could run an optional step guiding the user to a discussion phase — asking whether to move there, or doing so automatically by invoking a separate, complete, much larger "discussion" template. In effect this chains skills/templates together, which could be very interesting.
