@@ -15939,7 +15939,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-Updated foo (? -> ?) [local].
+Updated foo (unversioned) [local].
 ```
 
 </details>
@@ -16005,7 +16005,7 @@ $ jastr update foo --force
 **CLI output** — exit 0
 
 ```console
-Updated foo (? -> ?) [local].
+Updated foo (unversioned) [local].
 ```
 
 </details>
@@ -16135,7 +16135,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-Updated foo (? -> ?) [local].
+Updated foo (unversioned) [local].
 ```
 
 </details>
@@ -16501,7 +16501,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-foo reconciled to (? -> ?) [local].
+foo reconciled to (unversioned) [local].
 ```
 
 </details>

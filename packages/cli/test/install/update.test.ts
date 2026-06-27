@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { executeAdd } from "../../src/install/add";
 import type { GitRunner } from "../../src/install/git";
 import { readLock } from "../../src/install/lock";
-import { executeUpdate } from "../../src/install/update";
+import { commitTransition, executeUpdate } from "../../src/install/update";
 
 const temps: string[] = [];
 
@@ -506,5 +506,31 @@ describe("executeUpdate: tampered lock entry", () => {
 
     expect(result.ok).toBe(false);
     expect(sink.err.join("\n")).toContain("invalid");
+  });
+});
+
+describe("commitTransition: version-transition rendering", () => {
+  // Inputs are full-length so the 12-char short truncation is exercised too.
+  const FROM = "a1b2c3d4e5f6a7b8";
+  const TO = "0f9e8d7c6b5a4039";
+
+  it("renders a short from -> to when both sides record a commit", () => {
+    expect(commitTransition(FROM, TO)).toBe("(a1b2c3d4e5f6 -> 0f9e8d7c6b5a)");
+  });
+
+  it("renders the missing side as unversioned (clean -> dirty/non-git)", () => {
+    expect(commitTransition(FROM, undefined)).toBe(
+      "(a1b2c3d4e5f6 -> unversioned)",
+    );
+  });
+
+  it("renders the missing side as unversioned (dirty/non-git -> clean)", () => {
+    expect(commitTransition(undefined, TO)).toBe(
+      "(unversioned -> 0f9e8d7c6b5a)",
+    );
+  });
+
+  it("collapses to a single (unversioned) when neither side has a commit", () => {
+    expect(commitTransition(undefined, undefined)).toBe("(unversioned)");
   });
 });

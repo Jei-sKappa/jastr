@@ -337,15 +337,28 @@ function writeReconciledLock(args: {
   return writeLock(root, nextLock);
 }
 
-/** A `from → to` short-commit transition for the outcome line, tolerant of an
- * absent commit on either side (a non-git / dirty local source records none). */
-function commitTransition(
+/** Token shown for a version with no recorded commit — a non-git or dirty local
+ * source records none (decisions P18/P23). */
+const UNVERSIONED = "unversioned";
+
+/**
+ * A `from → to` short-commit transition for the outcome line. A side with no
+ * recorded commit renders `unversioned` instead of a SHA, so a clean→dirty (or
+ * dirty→clean) local source still reads meaningfully, e.g.
+ * `(a1b2c3d4e5f6 -> unversioned)`. When neither side records a commit (the
+ * common non-git local-source case) it collapses to a single `(unversioned)`
+ * rather than the noise of `(? -> ?)`.
+ */
+export function commitTransition(
   from: string | undefined,
   to: string | undefined,
 ): string {
-  const before = shortCommit(from) ?? "?";
-  const after = shortCommit(to) ?? "?";
-  return `(${before} -> ${after})`;
+  const before = shortCommit(from);
+  const after = shortCommit(to);
+  if (before === undefined && after === undefined) {
+    return `(${UNVERSIONED})`;
+  }
+  return `(${before ?? UNVERSIONED} -> ${after ?? UNVERSIONED})`;
 }
 
 /** Length of the short commit rendered in an outcome line (full SHAs are 40). */

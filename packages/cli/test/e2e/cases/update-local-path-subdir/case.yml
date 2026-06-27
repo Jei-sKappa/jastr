@@ -15,7 +15,7 @@ setup:
 command: ["update", "foo"]
 expect:
   exitCode: 0
-  stdout: "Updated foo (? -> ?) [local].\n"
+  stdout: "Updated foo (unversioned) [local].\n"
   stderr: ""
   files:
     .jastr/foo/TEMPLATE.md: upstream/TEMPLATE.md
