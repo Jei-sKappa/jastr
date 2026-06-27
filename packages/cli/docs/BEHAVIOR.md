@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**149** requirements · **332** acceptance criteria · **247** end-to-end cases.
+**149** requirements · **333** acceptance criteria · **248** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -14340,6 +14340,113 @@ DEMO body
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
 | AC-0001 | A tracked unit shows its id, kind, source@ref, and short commit; an untracked unit shows marked local. | ✅ `list-mixed-tracked-local` |
+| AC-0002 | A group row is followed by its member templates as a sorted tree of indented `<group>/<template>` refs, using `├── ` for each member but the last and `└── ` for the last; member lines carry no per-member provenance. | ✅ `list-group-members` |
+
+#### Case: List renders a group's member templates as a tree
+
+Description: Under a group row, list renders each member template on its own line as a sorted tree (`├── ` for every member but the last, `└── ` for the last) at the row's 2-space indent, carrying the runnable group/template ref and no per-member provenance. A tracked group with two members shows the full tree; an untracked (local) group still lists its members, and a single-member group uses the `└── ` connector. The lock is hand-written (list never hashes), so the row provenance is fully determined by the fixture.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ lock.json
+   ├─ team/
+   │  ├─ .jastrgroup
+   │  └─ templates/
+   │     ├─ api/
+   │     │  └─ TEMPLATE.md
+   │     └─ demo/
+   │        └─ TEMPLATE.md
+   └─ tools/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ fmt/
+            └─ TEMPLATE.md
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "team": {
+      "source": "Jei-sKappa/jastr",
+      "url": "https://github.com/Jei-sKappa/jastr.git",
+      "ref": "main",
+      "name": "team",
+      "kind": "group",
+      "commit": "814343598f39abcdef0123456789abcdef012345",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}
+```
+
+`.jastr/team/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/team/templates/api/TEMPLATE.md`
+
+```md
+---
+name: api
+---
+Api body
+```
+
+`.jastr/team/templates/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+---
+Demo body
+```
+
+`.jastr/tools/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/tools/templates/fmt/TEMPLATE.md`
+
+```md
+---
+name: fmt
+---
+Fmt body
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  team (group) Jei-sKappa/jastr@main @ 814343598f39
+  ├── team/api
+  └── team/demo
+  tools (group) (local)
+  └── tools/fmt
+```
+
+</details>
 
 #### Case: List shows tracked and local rows together
 

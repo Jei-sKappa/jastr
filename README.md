@@ -53,7 +53,8 @@ template (or whole group) into a `.jastr/` root, **inspect** what is installed,
   so a broken template is never installed.
 - `jastr list` shows the installed and authored inventory across both roots
   (`--local` / `--global` restrict scope), marking tracked installs with their
-  source and locally-authored templates as `local`.
+  source and locally-authored templates as `local`. A group row lists its member
+  templates beneath it as a sorted tree of `group/template` refs.
 - `jastr update [<id>...]` refreshes tracked installs from their recorded source;
   bare `update` refreshes everything in the root. `--check` reports drift without
   changing anything (exit 0 when all up to date, exit 1 otherwise) and cannot be

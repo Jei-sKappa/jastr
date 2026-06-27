@@ -247,7 +247,9 @@ Current v2 direction:
   between repositories. `jastr add <repo-source> <name>` fetches a **named ref**
   (a standalone template or a whole group) from the source's `.jastr/<name>/` and
   installs it into the local or global `.jastr/` root; `jastr list` shows the
-  installed/authored inventory with provenance; `jastr remove <id>...` deletes
+  installed/authored inventory with provenance, listing a group row's member
+  templates beneath it as a sorted `├──`/`└──` tree of `group/template` refs;
+  `jastr remove <id>...` deletes
   tracked installs from one root; and `jastr update [<id>...]` refreshes installs
   from where they came. Each command operates on exactly one root per invocation
   (default local with bootstrap, `-g`/`--global` for the global root). Source

@@ -335,10 +335,17 @@ Flags: `--local`, `--global` (default: **both** roots).
      commit;
    - unit present + no lock entry → **local** (authored): show id marked `local`;
    - lock entry whose unit dir is gone → **missing** (drift), flagged as such.
-2. Roots render as labeled sections (Local / Global), each shown only if it has
+2. A **group** row is followed by its member templates as a tree: each member
+   template under `<group>/templates/` (those holding a `TEMPLATE.md`, sorted
+   ascending) on its own line at the row's indent, prefixed with a box-drawing
+   connector (`├── ` for every member but the last, `└── ` for the last) and the
+   runnable `<group>/<template>` ref. Member lines carry no per-member provenance
+   (the lock tracks only the group); a `missing` group (its dir is gone), and a
+   group with no member templates, render no member lines.
+3. Roots render as labeled sections (Local / Global), each shown only if it has
    rows. Entries are sorted by id.
-3. If nothing is found anywhere in scope, print `No templates installed.`
-4. `list` is read-only and never mutates the filesystem; exit 0.
+4. If nothing is found anywhere in scope, print `No templates installed.`
+5. `list` is read-only and never mutates the filesystem; exit 0.
 
 ### 5.4 `jastr remove <id>...`
 
@@ -524,6 +531,10 @@ enforces.
   present only if it has rows; `--local` / `--global` restrict to one. *(P14)*
 - **AC-LIST.4** Entries are sorted by id; an empty in-scope inventory prints
   `No templates installed.`; `list` mutates nothing and exits 0. *(P14)*
+- **AC-LIST.5** A group row is followed by its member templates as a sorted tree
+  (`├── ` for each member but the last, `└── ` for the last) of indented
+  `<group>/<template>` refs; member lines carry no per-member provenance, and a
+  `missing` group (or a group with no member templates) renders none. *(P14)*
 
 ### FR-REMOVE — `jastr remove`
 
