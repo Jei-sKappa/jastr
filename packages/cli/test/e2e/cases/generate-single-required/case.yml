@@ -5,7 +5,7 @@ covers:
 title: Generate renders the single required-input shape
 description: >
   A template with exactly one required input drops the Inputs section, renders
-  the tailored single-input sentence, and inlines the input as --tag=<value> in
+  the tailored single-input sentence, and inlines the input as `--tag=<value>` in
   the command.
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:

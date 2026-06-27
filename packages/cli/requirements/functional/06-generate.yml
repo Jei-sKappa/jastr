@@ -283,13 +283,13 @@
     used for every type, including boolean.
   acceptance:
     - id: AC-0001
-      statement: "A required input is inlined into the command as --<name>=<value>."
+      statement: "A required input is inlined into the command as `--<name>=<value>`."
     - id: AC-0002
       statement: "Multiple required inputs are inlined in template declaration order."
     - id: AC-0003
       statement: "Optional inputs are not inlined into the command."
     - id: AC-0004
-      statement: "A boolean required input is inlined as --<name>=<value>, never the bare --<name> form."
+      statement: "A boolean required input is inlined as `--<name>=<value>`, never the bare `--<name>` form."
 
 - id: GEN-FR-0021
   title: Generate renders single-input wrappers without an Inputs section
@@ -301,7 +301,7 @@
     a single optional input keeps the command bare.
   acceptance:
     - id: AC-0001
-      statement: "A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines --<name>=<value> in the command."
+      statement: "A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines `--<name>=<value>` in the command."
     - id: AC-0002
       statement: "A template with exactly one optional input omits the Inputs section, renders the single-optional sentence, and keeps the command bare."
 

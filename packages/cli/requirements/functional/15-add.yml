@@ -8,7 +8,7 @@
     deterministic provenance line.
   acceptance:
     - id: AC-0001
-      statement: Adding a standalone copies its directory contents verbatim into .jastr/<name>/ and prints a single Installed line.
+      statement: Adding a standalone copies its directory contents verbatim into `.jastr/<name>/` and prints a single Installed line.
 
 - id: ADD-FR-0002
   title: Add installs a whole group
@@ -66,7 +66,7 @@
     - id: AC-0001
       statement: A remote add clones the source, installs the unit, and records its commit in the lock.
     - id: AC-0002
-      statement: --ref <branch> is forwarded to git as --branch <branch>.
+      statement: "`--ref <branch>` is forwarded to git as `--branch <branch>`."
 
 - id: ADD-FR-0007
   title: Add fails loudly when git is unavailable or the clone fails
@@ -90,7 +90,7 @@
     that escapes the source root is rejected with `invalid_command`.
   acceptance:
     - id: AC-0001
-      statement: --path <subdir> resolves <source>/<subdir>/.jastr/<name> and records the relative path.
+      statement: "`--path <subdir>` resolves `<source>/<subdir>/.jastr/<name>` and records the relative path."
     - id: AC-0002
       statement: An absolute --path exits 1 with invalid_command.
 

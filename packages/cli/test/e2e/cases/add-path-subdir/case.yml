@@ -3,7 +3,7 @@ covers:
   - ADD-FR-0008.AC-0001
 title: Add resolves an optional --path subdir
 description: >
-  --path <subdir> resolves the source's .jastr/ under that subdirectory and
+  `--path <subdir>` resolves the source's .jastr/ under that subdirectory and
   records the normalized relative path in the lock entry.
 command: ["add", "./source", "bar", "--path", "sub"]
 expect:

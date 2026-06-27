@@ -2,7 +2,7 @@ id: variant-invalid-config-template-entry
 covers:
   - VAR-FR-0007.AC-0002
 title: Reject a non-mapping selected template variants entry
-description: A non-mapping variants.<template-ref> entry fails with a stable error.
+description: A non-mapping `variants.<template-ref>` entry fails with a stable error.
 command: ["run", "review#deep"]
 expect:
   exitCode: 1

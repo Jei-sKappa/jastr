@@ -536,7 +536,7 @@ A two-segment named template reference `<group>/<template-id>` resolves to `.jas
 
 #### Case: Reject a grouped named template without a marker
 
-Description: Grouped named access requires .jastr/<group>/.jastrgroup and never falls back to standalone lookup.
+Description: Grouped named access requires `.jastr/<group>/.jastrgroup` and never falls back to standalone lookup.
 
 Covers: AC-0004, AC-0005
 
@@ -3529,7 +3529,7 @@ Fragment for typescript
 
 #### Case: Reject group root on a standalone direct template
 
-Description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/TEMPLATE.md realpath shape.
+Description: A direct template beside .jastrgroup is standalone unless it has the exact `group/templates/<id>/TEMPLATE.md` realpath shape.
 
 Covers: AC-0006, AC-0007
 
@@ -5427,14 +5427,14 @@ The generated wrapper command carries every rendered required input as a `--<nam
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A required input is inlined into the command as --<name>=<value>. | ✅ `generate-passthrough`, `generate-single-required` |
+| AC-0001 | A required input is inlined into the command as `--<name>=<value>`. | ✅ `generate-passthrough`, `generate-single-required` |
 | AC-0002 | Multiple required inputs are inlined in template declaration order. | ✅ `generate-all-required` |
 | AC-0003 | Optional inputs are not inlined into the command. | ✅ `generate-inputs-section` |
-| AC-0004 | A boolean required input is inlined as --<name>=<value>, never the bare --<name> form. | ✅ `generate-all-required` |
+| AC-0004 | A boolean required input is inlined as `--<name>=<value>`, never the bare `--<name>` form. | ✅ `generate-all-required` |
 
 #### Case: Generate inlines multiple required inputs in declaration order
 
-Description: A template with two required inputs inlines both as --flag=<value> in declaration order, and a required boolean is inlined as --force=<value> rather than the bare flag form.
+Description: A template with two required inputs inlines both as `--flag=<value>` in declaration order, and a required boolean is inlined as `--force=<value>` rather than the bare flag form.
 
 Covers: AC-0002, AC-0004
 
@@ -5682,7 +5682,7 @@ Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 
 #### Case: Generate renders the single required-input shape
 
-Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as --tag=<value> in the command.
+Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as `--tag=<value>` in the command.
 
 Covers: AC-0001
 
@@ -5755,7 +5755,7 @@ A wrapper whose rendered input list has exactly one entry omits the `## Inputs` 
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines --<name>=<value> in the command. | ✅ `generate-single-required` |
+| AC-0001 | A template with exactly one required input omits the Inputs section, renders the single-required sentence, and inlines `--<name>=<value>` in the command. | ✅ `generate-single-required` |
 | AC-0002 | A template with exactly one optional input omits the Inputs section, renders the single-optional sentence, and keeps the command bare. | ✅ `generate-single-optional` |
 
 #### Case: Generate renders the single optional-input shape with a bare command
@@ -5832,7 +5832,7 @@ Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 
 #### Case: Generate renders the single required-input shape
 
-Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as --tag=<value> in the command.
+Description: A template with exactly one required input drops the Inputs section, renders the tailored single-input sentence, and inlines the input as `--tag=<value>` in the command.
 
 Covers: AC-0001
 
@@ -9443,7 +9443,7 @@ Error: .jastr/config.yml variants.review.deep must be a mapping.
 
 #### Case: Reject a non-mapping selected template variants entry
 
-Description: A non-mapping variants.<template-ref> entry fails with a stable error.
+Description: A non-mapping `variants.<template-ref>` entry fails with a stable error.
 
 Covers: AC-0002
 
@@ -9898,7 +9898,7 @@ A generated variant wrapper's body shape is chosen by its unlocked input count: 
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | A variant leaving exactly one required input unlocked renders the single-input shape with --<name>=<value> in the command and no Inputs section. | ✅ `generate-variant-unlocked` |
+| AC-0001 | A variant leaving exactly one required input unlocked renders the single-input shape with `--<name>=<value>` in the command and no Inputs section. | ✅ `generate-variant-unlocked` |
 | AC-0002 | A variant leaving exactly one optional input unlocked renders the single-input shape with a bare command and no Inputs section. | ✅ `generate-variant-single-optional` |
 | AC-0003 | A variant locking every declared input renders the no-input shape with a bare command and no Inputs section. | ✅ `generate-variant-all-locked` |
 
@@ -12270,7 +12270,7 @@ A `#<variant-id>` ref selects `variants.<ref>.<id>` from local config if present
 
 #### Case: Variant entry taken from global config
 
-Description: A #<variant-id> ref takes its whole variant entry from the global config when no local config declares it, and the global variant's locked inputs apply.
+Description: A `#<variant-id>` ref takes its whole variant entry from the global config when no local config declares it, and the global variant's locked inputs apply.
 
 Covers: AC-0001
 
@@ -13230,7 +13230,7 @@ Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and g
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | Adding a standalone copies its directory contents verbatim into .jastr/<name>/ and prints a single Installed line. | ✅ `add-standalone-local` |
+| AC-0001 | Adding a standalone copies its directory contents verbatim into `.jastr/<name>/` and prints a single Installed line. | ✅ `add-standalone-local` |
 
 #### Case: Add a standalone template from a local path
 
@@ -13564,7 +13564,7 @@ A remote source is cloned and installed; `--ref` is passed via `--branch`, and t
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
 | AC-0001 | A remote add clones the source, installs the unit, and records its commit in the lock. | ✅ `add-clone-success` |
-| AC-0002 | --ref <branch> is forwarded to git as --branch <branch>. | ✅ `add-clone-success` |
+| AC-0002 | `--ref <branch>` is forwarded to git as `--branch <branch>`. | ✅ `add-clone-success` |
 
 #### Case: Add clones a remote ref and records its commit
 
@@ -13687,7 +13687,7 @@ Error: git is not available; install git to add a remote source (owner/repo).
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | --path <subdir> resolves <source>/<subdir>/.jastr/<name> and records the relative path. | ✅ `add-path-subdir` |
+| AC-0001 | `--path <subdir>` resolves `<source>/<subdir>/.jastr/<name>` and records the relative path. | ✅ `add-path-subdir` |
 | AC-0002 | An absolute --path exits 1 with invalid_command. | ✅ `add-path-absolute-rejected` |
 
 #### Case: Add rejects an absolute --path
@@ -13733,7 +13733,7 @@ Error: --path must be a relative subpath, not an absolute path (/etc).
 
 #### Case: Add resolves an optional --path subdir
 
-Description: --path <subdir> resolves the source's .jastr/ under that subdirectory and records the normalized relative path in the lock entry.
+Description: `--path <subdir>` resolves the source's .jastr/ under that subdirectory and records the normalized relative path in the lock entry.
 
 Covers: AC-0001
 
@@ -14213,7 +14213,7 @@ Error: source/.jastr/evil/link.md is not a regular file or directory (symlinks a
 
 #### Case: Add with a missing name is an invalid_command
 
-Description: add requires both a <repo-source> and a <name>; a single positional fails with invalid_command before any filesystem access.
+Description: add requires both a `<repo-source>` and a `<name>`; a single positional fails with invalid_command before any filesystem access.
 
 Covers: AC-0001
 

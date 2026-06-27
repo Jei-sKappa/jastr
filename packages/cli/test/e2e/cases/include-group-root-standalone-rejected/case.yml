@@ -3,7 +3,7 @@ covers:
   - INCLUDE-FR-0008.AC-0006
   - INCLUDE-FR-0008.AC-0007
 title: Reject group root on a standalone direct template
-description: A direct template beside .jastrgroup is standalone unless it has the exact group/templates/<id>/TEMPLATE.md realpath shape.
+description: A direct template beside .jastrgroup is standalone unless it has the exact `group/templates/<id>/TEMPLATE.md` realpath shape.
 command: ["run", "solo/TEMPLATE.md"]
 expect:
   exitCode: 1

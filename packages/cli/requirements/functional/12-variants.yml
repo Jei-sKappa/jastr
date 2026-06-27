@@ -139,7 +139,7 @@
     from the schema.
   acceptance:
     - id: AC-0001
-      statement: "A variant leaving exactly one required input unlocked renders the single-input shape with --<name>=<value> in the command and no Inputs section."
+      statement: "A variant leaving exactly one required input unlocked renders the single-input shape with `--<name>=<value>` in the command and no Inputs section."
     - id: AC-0002
       statement: "A variant leaving exactly one optional input unlocked renders the single-input shape with a bare command and no Inputs section."
     - id: AC-0003

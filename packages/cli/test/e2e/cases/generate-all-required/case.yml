@@ -4,8 +4,8 @@ covers:
   - GEN-FR-0020.AC-0004
 title: Generate inlines multiple required inputs in declaration order
 description: >
-  A template with two required inputs inlines both as --flag=<value> in
-  declaration order, and a required boolean is inlined as --force=<value> rather
+  A template with two required inputs inlines both as `--flag=<value>` in
+  declaration order, and a required boolean is inlined as `--force=<value>` rather
   than the bare flag form.
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:

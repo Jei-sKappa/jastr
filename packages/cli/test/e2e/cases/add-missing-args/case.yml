@@ -3,7 +3,7 @@ covers:
   - ADD-FR-0014.AC-0001
 title: Add with a missing name is an invalid_command
 description: >
-  add requires both a <repo-source> and a <name>; a single positional fails with
+  add requires both a `<repo-source>` and a `<name>`; a single positional fails with
   invalid_command before any filesystem access.
 command: ["add", "./source"]
 expect:
