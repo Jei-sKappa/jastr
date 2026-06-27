@@ -21,7 +21,7 @@ import {
   resolveNamedUnit,
   stageUnit,
 } from "./unit";
-import { validateStagedUnit } from "./validate-unit";
+import { validateStagedUnitForInstall } from "./validate-unit";
 
 export type ExecuteAddOptions = {
   /** The as-typed `<repo-source>` (a local path, `owner/repo`, or a git URL). */
@@ -84,7 +84,12 @@ export async function executeAdd(opts: ExecuteAddOptions): Promise<string> {
     // Stage on the destination filesystem so the commit is an atomic rename.
     const stageDir = await stageUnit({ unitDir: unit.dir, destRoot });
     try {
-      await validateStagedUnit({ stageDir, kind: unit.kind });
+      await validateStagedUnitForInstall({
+        stageDir,
+        kind: unit.kind,
+        operation: "add",
+        id: unit.id,
+      });
       const destDir = path.join(destRoot, ".jastr", unit.id);
       await commitUnit({ stageDir, destDir });
 

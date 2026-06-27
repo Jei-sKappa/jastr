@@ -3,7 +3,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import { afterEach, describe, expect, it } from "vitest";
-import { validateStagedUnit } from "../../src/install/validate-unit";
+import {
+  validateStagedUnit,
+  validateStagedUnitForInstall,
+} from "../../src/install/validate-unit";
 
 const temps: string[] = [];
 
@@ -126,5 +129,105 @@ describe("validateStagedUnit (group)", () => {
     expect(await codeOf(validateStagedUnit({ stageDir, kind: "group" }))).toBe(
       "include_not_found",
     );
+  });
+});
+
+describe("validateStagedUnitForInstall (operation context)", () => {
+  /** Capture the rejected JastrError so its code and message can be asserted. */
+  async function rejection(promise: Promise<unknown>): Promise<JastrError> {
+    try {
+      await promise;
+    } catch (error) {
+      expect(error).toBeInstanceOf(JastrError);
+      return error as JastrError;
+    }
+    throw new Error("expected validateStagedUnitForInstall to reject");
+  }
+
+  it("resolves for a clean unit", async () => {
+    const stageDir = await makeStage("jastr-ctx-ok-");
+    await writeAt(
+      path.join(stageDir, "TEMPLATE.md"),
+      "---\nname: demo\n---\n# Demo\n",
+    );
+
+    await expect(
+      validateStagedUnitForInstall({
+        stageDir,
+        kind: "standalone",
+        operation: "add",
+        id: "demo",
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it("wraps a standalone defect with add context, preserving the engine code", async () => {
+    const stageDir = await makeStage("jastr-ctx-add-");
+    await writeAt(
+      path.join(stageDir, "TEMPLATE.md"),
+      '---\nname: demo\n---\n::include{path="absent.md"}\n',
+    );
+
+    const error = await rejection(
+      validateStagedUnitForInstall({
+        stageDir,
+        kind: "standalone",
+        operation: "add",
+        id: "demo",
+      }),
+    );
+    // Code is the engine's, unchanged (AC-ADD.17); only the message gains context.
+    expect(error.code).toBe("include_not_found");
+    expect(
+      error.message.startsWith(
+        "Unable to add demo: the template failed validation. ",
+      ),
+    ).toBe(true);
+  });
+
+  it("uses the update verb when the operation is update", async () => {
+    const stageDir = await makeStage("jastr-ctx-update-");
+    await writeAt(
+      path.join(stageDir, "TEMPLATE.md"),
+      '---\nname: demo\n---\n::include{path="absent.md"}\n',
+    );
+
+    const error = await rejection(
+      validateStagedUnitForInstall({
+        stageDir,
+        kind: "standalone",
+        operation: "update",
+        id: "demo",
+      }),
+    );
+    expect(
+      error.message.startsWith(
+        "Unable to update demo: the template failed validation. ",
+      ),
+    ).toBe(true);
+  });
+
+  it("names a group defect as a template in the group", async () => {
+    const stageDir = await makeStage("jastr-ctx-group-");
+    await writeAt(path.join(stageDir, ".jastrgroup"), "");
+    await writeAt(
+      path.join(stageDir, "templates", "one", "TEMPLATE.md"),
+      '---\nname: one\n---\n::include{path="absent.md"}\n',
+    );
+
+    const error = await rejection(
+      validateStagedUnitForInstall({
+        stageDir,
+        kind: "group",
+        operation: "add",
+        id: "grp",
+      }),
+    );
+    expect(error.code).toBe("include_not_found");
+    expect(
+      error.message.startsWith(
+        "Unable to add grp: a template in the group failed validation. ",
+      ),
+    ).toBe(true);
   });
 });

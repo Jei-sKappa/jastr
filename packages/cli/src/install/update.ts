@@ -20,7 +20,7 @@ import {
   resolveNamedUnit,
   stageUnit,
 } from "./unit";
-import { validateStagedUnit } from "./validate-unit";
+import { validateStagedUnitForInstall } from "./validate-unit";
 
 export type ExecuteUpdateOptions = {
   /**
@@ -264,7 +264,12 @@ async function updateOne(args: {
       destRoot: root,
     });
     try {
-      await validateStagedUnit({ stageDir, kind: upstreamUnit.kind });
+      await validateStagedUnitForInstall({
+        stageDir,
+        kind: upstreamUnit.kind,
+        operation: "update",
+        id,
+      });
       // Swap on the destination filesystem: remove the old unit, then commit the
       // staged new one by atomic rename. Then re-hash the committed unit and bump
       // the lock — unit first, then lock (§5.1 crash order).

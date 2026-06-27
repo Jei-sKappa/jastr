@@ -14148,7 +14148,7 @@ $ jastr add ./source broken
 **CLI output** — exit 1
 
 ```console
-Error: Input x must explicitly declare required: true or required: false.
+Error: Unable to add broken: the template failed validation. Input x must explicitly declare required: true or required: false.
 ```
 
 </details>
@@ -16391,7 +16391,7 @@ $ jastr update foo
 **CLI output** — exit 1
 
 ```console
-Error: Input x must explicitly declare required: true or required: false.
+Error: Unable to update foo: the template failed validation. Input x must explicitly declare required: true or required: false.
 ```
 
 </details>

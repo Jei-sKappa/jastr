@@ -2,6 +2,7 @@ import type { Dirent } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import {
+  JastrError,
   parseTemplateSource,
   renderTemplateSource,
   validateTemplateSchema,
@@ -43,6 +44,42 @@ export async function validateStagedUnit(
   const templatePaths = await collectTemplatePaths(options);
   for (const templatePath of templatePaths) {
     await validateStagedTemplate(templatePath);
+  }
+}
+
+/**
+ * Run {@link validateStagedUnit} for an install operation (`add` / `update`),
+ * wrapping any defect so the surfaced message names the unit being installed
+ * instead of only the bare engine defect (e.g.
+ * `Unable to add "review": the template failed validation. <reason>`). The
+ * engine error's CODE and details are preserved unchanged — only the message
+ * gains context — so the existing-engine-code contract (`AC-ADD.17` /
+ * `AC-UPDATE.9`) still holds. Non-`JastrError` failures propagate untouched.
+ */
+export async function validateStagedUnitForInstall(options: {
+  stageDir: string;
+  kind: "standalone" | "group";
+  operation: "add" | "update";
+  id: string;
+}): Promise<void> {
+  try {
+    await validateStagedUnit({
+      stageDir: options.stageDir,
+      kind: options.kind,
+    });
+  } catch (error) {
+    if (!(error instanceof JastrError)) {
+      throw error;
+    }
+    const subject =
+      options.kind === "group"
+        ? "a template in the group failed validation"
+        : "the template failed validation";
+    throw new JastrError(
+      error.code,
+      `Unable to ${options.operation} ${options.id}: ${subject}. ${error.message}`,
+      error.details,
+    );
   }
 }
 
