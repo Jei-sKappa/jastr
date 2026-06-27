@@ -27,6 +27,8 @@ const baseCase: CaseManifest = {
   cwd: ".",
   command: ["run", "demo"],
   substitute: {},
+  env: {},
+  setup: [],
   expect: { exitCode: 0, stdout: "ok\n", stderr: "" },
 };
 

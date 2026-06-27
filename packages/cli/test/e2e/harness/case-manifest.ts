@@ -12,8 +12,12 @@ const CASE_FIELDS = new Set([
   "cwd",
   "command",
   "substitute",
+  "env",
+  "setup",
   "expect",
 ]);
+const SETUP_STEP_FIELDS = new Set(["cli", "cp"]);
+const CP_STEP_FIELDS = new Set(["from", "to"]);
 const EXPECT_FIELDS = new Set([
   "exitCode",
   "stdout",
@@ -52,6 +56,18 @@ export type CaseExpect = {
   fileNotContains?: Record<string, string[]>;
 };
 
+/** A `cli:` setup step: run the jastr CLI before the main `command`, sharing the
+ * case's cwd, env, and `JASTR_HOME`. A non-zero exit fails the case loudly. */
+export type SetupCliStep = { cli: string[] };
+
+/** A `cp:` setup step: copy a case-relative fixture path onto a root-relative
+ * destination in the temp tree (used to mutate a recorded source or installed
+ * unit between, say, an `add` and an `update`). Both paths are safe relatives. */
+export type SetupCpStep = { cp: { from: string; to: string } };
+
+/** One ordered setup pre-step: exactly a `cli:` or a `cp:` step. */
+export type SetupStep = SetupCliStep | SetupCpStep;
+
 export type CaseManifest = {
   id: string;
   covers: string[];
@@ -60,6 +76,8 @@ export type CaseManifest = {
   cwd: string;
   command: string[];
   substitute: Record<string, SubstitutionValue>;
+  env: Record<string, string>;
+  setup: SetupStep[];
   expect: CaseExpect;
 };
 
@@ -198,6 +216,70 @@ function validateSubstitute(
   return result;
 }
 
+/**
+ * `env` is a free-form string→string map merged into the CLI subprocess
+ * environment after `JASTR_HOME`. Unlike `files`/`substitute`, its values are
+ * environment variables (e.g. `JASTR_GIT_BIN` pointing at the fake-git shim
+ * outside the temp tree), so they are not constrained to safe relative paths.
+ */
+function validateEnvMap(
+  value: unknown,
+  field: string,
+  source: Source,
+): Record<string, string> {
+  if (!isRecord(value)) fail(source, `${field} must be a mapping.`);
+  const result: Record<string, string> = {};
+  for (const [key, raw] of Object.entries(value)) {
+    if (key.length === 0) fail(source, `${field} keys must be non-empty.`);
+    if (typeof raw !== "string") {
+      fail(source, `${field}["${key}"] must be a string: ${String(raw)}`);
+    }
+    result[key] = raw;
+  }
+  return result;
+}
+
+/**
+ * `setup` is an optional ordered list of pre-`command` steps. Each entry is
+ * exactly one of a `cli:` step (a CLI argv run before the main command) or a
+ * `cp:` step (a fixture copy into the temp tree). The runner executes them in
+ * order after fixture/substitute expansion and before the main `command`.
+ */
+function validateSetup(
+  value: unknown,
+  field: string,
+  source: Source,
+): SetupStep[] {
+  if (!Array.isArray(value)) fail(source, `${field} must be an array.`);
+  return value.map((entry, index) => {
+    const where = `${field}[${index}]`;
+    if (!isRecord(entry)) fail(source, `${where} must be a mapping.`);
+    rejectUnknownFields(entry, SETUP_STEP_FIELDS, "setup step", source);
+    const hasCli = entry.cli !== undefined;
+    const hasCp = entry.cp !== undefined;
+    if (hasCli === hasCp) {
+      fail(source, `${where} must set exactly one of cli or cp.`);
+    }
+    if (hasCli) {
+      if (!Array.isArray(entry.cli) || entry.cli.length === 0) {
+        fail(source, `${where}.cli must be a non-empty string array.`);
+      }
+      const cli = entry.cli.map((item, argIndex) => {
+        if (typeof item !== "string") {
+          fail(source, `${where}.cli[${argIndex}] must be a string.`);
+        }
+        return item;
+      });
+      return { cli };
+    }
+    if (!isRecord(entry.cp)) fail(source, `${where}.cp must be a mapping.`);
+    rejectUnknownFields(entry.cp, CP_STEP_FIELDS, "cp step", source);
+    const from = validateSafePath(`${where}.cp.from`, entry.cp.from, source);
+    const to = validateSafePath(`${where}.cp.to`, entry.cp.to, source);
+    return { cp: { from, to } };
+  });
+}
+
 export function validateCaseManifest(
   value: unknown,
   source: Source,
@@ -258,6 +340,20 @@ export function validateCaseManifest(
     value.substitute === undefined
       ? {}
       : validateSubstitute(value.substitute, `${id}.substitute`, source);
+
+  // `env` is optional: only cases that need extra environment for the CLI
+  // subprocess (e.g. `JASTR_GIT_BIN` pointing at the fake-git shim) declare it.
+  const env =
+    value.env === undefined
+      ? {}
+      : validateEnvMap(value.env, `${id}.env`, source);
+
+  // `setup` is optional: only stateful cases that must mutate the temp tree or
+  // run a prior CLI invocation (e.g. `add` before `update`/`remove`) declare it.
+  const setup =
+    value.setup === undefined
+      ? []
+      : validateSetup(value.setup, `${id}.setup`, source);
 
   if (!isRecord(value.expect)) fail(source, `${id}.expect must be a mapping.`);
   rejectUnknownFields(value.expect, EXPECT_FIELDS, "expect", source);
@@ -343,7 +439,18 @@ export function validateCaseManifest(
     );
   }
 
-  return { id, covers, title, description, cwd, command, substitute, expect };
+  return {
+    id,
+    covers,
+    title,
+    description,
+    cwd,
+    command,
+    substitute,
+    env,
+    setup,
+    expect,
+  };
 }
 
 async function findCaseManifestFiles(root: string): Promise<string[]> {

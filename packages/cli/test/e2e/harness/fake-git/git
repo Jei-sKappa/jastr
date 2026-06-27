@@ -1,0 +1,114 @@
+#!/usr/bin/env node
+
+// Test-only fake `git` for hermetic, offline e2e coverage of jastr's
+// git-dependent paths. A case points the CLI at it via
+// `env: { JASTR_GIT_BIN: <abs path to this file> }`. It records every
+// invocation and simulates just the four git operations jastr invokes:
+//
+//   git --version                     -> prints a version, exit 0 (isAvailable)
+//   git clone --depth 1 [--branch R] -- URL DIR
+//                                      -> copies FAKE_GIT_SOURCE into DIR, exit 0
+//   git -C DIR rev-parse HEAD          -> prints FAKE_GIT_COMMIT (or a default)
+//   git -C DIR status --porcelain      -> prints FAKE_GIT_DIRTY (or nothing/clean)
+//
+// Wiring (all via the case's `env:` map, since the shim is checked-in harness
+// infra outside the temp tree):
+//   JASTR_GIT_BIN   absolute path to this script (selects the shim)
+//   FAKE_GIT_SOURCE absolute path to a bundled source tree `clone` copies into
+//                   the clone target dir. Required for clone to succeed.
+//   FAKE_GIT_FAIL   when set (non-empty), `clone` exits non-zero after writing
+//                   `FAKE_GIT_STDERR` (or a default message) to stderr — drives
+//                   the `clone_failed` path deterministically and offline.
+//   FAKE_GIT_STDERR stderr text emitted when FAKE_GIT_FAIL is set.
+//   FAKE_GIT_COMMIT  the SHA `rev-parse HEAD` reports (default below).
+//   FAKE_GIT_DIRTY   `status --porcelain` output; empty/unset ⇒ clean.
+//
+// Every invocation appends one JSON line — its argv (excluding argv[0]/argv[1])
+// — to `.fake-git-argv` in the process cwd, so a case can assert the exact
+// command jastr ran (e.g. that `--` precedes the positionals, or that
+// `--branch <ref>` was passed). This file is ESM (the package is `type:
+// module`), so it uses `import`, not `require`.
+
+import { appendFileSync, cpSync } from "node:fs";
+import path from "node:path";
+
+const DEFAULT_COMMIT = "0123456789abcdef0123456789abcdef01234567";
+
+const argv = process.argv.slice(2);
+
+function recordArgv() {
+  try {
+    appendFileSync(
+      path.join(process.cwd(), ".fake-git-argv"),
+      `${JSON.stringify(argv)}\n`,
+    );
+  } catch {
+    // Recording is best-effort; never let it mask the simulated behavior.
+  }
+}
+
+function fail(message) {
+  process.stderr.write(`${message}\n`);
+  process.exit(1);
+}
+
+// The index of the `--` separator jastr always places before positionals.
+function dashDashIndex() {
+  return argv.indexOf("--");
+}
+
+function runClone() {
+  if (process.env.FAKE_GIT_FAIL) {
+    const stderr =
+      process.env.FAKE_GIT_STDERR ?? "fatal: fake-git: simulated clone failure";
+    fail(stderr);
+  }
+  const source = process.env.FAKE_GIT_SOURCE;
+  if (!source) {
+    fail("fatal: fake-git: FAKE_GIT_SOURCE is not set");
+  }
+  const sep = dashDashIndex();
+  // After `--`, jastr passes exactly [url, dir].
+  const positionals = sep === -1 ? [] : argv.slice(sep + 1);
+  const dir = positionals[1];
+  if (!dir) {
+    fail("fatal: fake-git: missing clone target directory");
+  }
+  cpSync(source, dir, { recursive: true });
+  process.exit(0);
+}
+
+function runRevParse() {
+  process.stdout.write(`${process.env.FAKE_GIT_COMMIT ?? DEFAULT_COMMIT}\n`);
+  process.exit(0);
+}
+
+function runStatusPorcelain() {
+  const dirty = process.env.FAKE_GIT_DIRTY ?? "";
+  process.stdout.write(dirty.length > 0 ? `${dirty}\n` : "");
+  process.exit(0);
+}
+
+function main() {
+  recordArgv();
+
+  if (argv.includes("--version")) {
+    process.stdout.write("git version 2.0.0 (fake-git)\n");
+    process.exit(0);
+  }
+
+  // Drop a leading `-C <dir>` so the subcommand is at a known position.
+  let rest = argv;
+  if (rest[0] === "-C") rest = rest.slice(2);
+  const subcommand = rest[0];
+
+  if (subcommand === "clone") return runClone();
+  if (subcommand === "rev-parse") return runRevParse();
+  if (subcommand === "status" && rest.includes("--porcelain")) {
+    return runStatusPorcelain();
+  }
+
+  fail(`fatal: fake-git: unsupported invocation: ${argv.join(" ")}`);
+}
+
+main();

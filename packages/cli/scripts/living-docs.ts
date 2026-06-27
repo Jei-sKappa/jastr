@@ -2,7 +2,7 @@ import type { Dirent } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
-import { loadCases } from "../test/e2e/harness/case-manifest";
+import { loadCases, type SetupStep } from "../test/e2e/harness/case-manifest";
 import {
   acceptanceRef,
   type Requirement,
@@ -31,6 +31,11 @@ export type RenderCase = {
   cwd: string;
   command: string[];
   covers: string[];
+  /** Human-readable one-line descriptions of the case's `setup` pre-steps (a
+   * prior `jastr` invocation or a fixture copy), in order. Empty for cases with
+   * no `setup`. Surfaced so a stateful case (e.g. `add` then `update`) does not
+   * look like its observed state appeared from nowhere. */
+  setupSteps: string[];
   exitCode: number;
   stdout: string;
   stdoutContains?: string[];
@@ -144,6 +149,16 @@ async function loadOutputFiles(
   return resolved;
 }
 
+/** One-line, deterministic description of a `setup` pre-step for the document.
+ * A `cli:` step renders as the `jastr …` command it runs; a `cp:` step renders
+ * as the fixture copy it performs. (The `env` map — e.g. `JASTR_GIT_BIN` for the
+ * fake-git shim — is intentionally not surfaced: its absolute-path values are
+ * machine-specific plumbing, not observable behavior.) */
+function describeSetupStep(step: SetupStep): string {
+  if ("cli" in step) return `Runs \`${formatCommand(step.cli)}\``;
+  return `Copies \`${step.cp.from}\` → \`${step.cp.to}\``;
+}
+
 /**
  * Load cases and resolve their expected streams to strings so the renderer can
  * stay pure (and therefore unit-testable without touching the filesystem).
@@ -158,6 +173,7 @@ export async function loadRenderCases(root: string): Promise<RenderCase[]> {
       cwd: manifest.cwd,
       command: manifest.command,
       covers: manifest.covers,
+      setupSteps: manifest.setup.map(describeSetupStep),
       exitCode: manifest.expect.exitCode,
       stdout: await readStream(
         manifest.expect.stdout,
@@ -372,6 +388,16 @@ function renderInputSection(entry: RenderCase): string {
         "**Global root** — `$JASTR_HOME/.jastr`",
         entry.globalInputFiles,
       ),
+    );
+  }
+
+  if (entry.setupSteps.length > 0) {
+    blocks.push(
+      [
+        "**Setup steps** — run before the command",
+        "",
+        ...entry.setupSteps.map((step) => `1. ${step}`),
+      ].join("\n"),
     );
   }
 

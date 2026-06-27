@@ -18,6 +18,8 @@ const validCase: RawCaseManifest = {
   cwd: "sub",
   command: ["run", "demo"],
   substitute: {},
+  env: {},
+  setup: [],
   expect: {
     exitCode: 0,
     stdoutFile: "expected/stdout.md",
@@ -94,6 +96,145 @@ describe("validateCaseManifest", () => {
     ).toThrow(
       /substitute\["__X__"\] must be one of projectRoot, jastrCliVersion, globalRoot/,
     );
+  });
+
+  it("accepts an env map of string values and defaults an omitted one to empty", () => {
+    const manifest = validateCaseManifest(
+      {
+        ...validCase,
+        env: { JASTR_GIT_BIN: "/abs/path/to/fake-git/git", FAKE_GIT_FAIL: "1" },
+      },
+      { filePath: "test/e2e/cases/add-clone/case.yml" },
+    );
+    expect(manifest.env).toEqual({
+      JASTR_GIT_BIN: "/abs/path/to/fake-git/git",
+      FAKE_GIT_FAIL: "1",
+    });
+
+    const withoutEnv: Record<string, unknown> = { ...validCase };
+    delete withoutEnv.env;
+    expect(
+      validateCaseManifest(withoutEnv, {
+        filePath: "test/e2e/cases/basic-run/case.yml",
+      }).env,
+    ).toEqual({});
+  });
+
+  it("rejects a non-string env value and a non-mapping env", () => {
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, env: { JASTR_GIT_BIN: 1 } },
+        { filePath: "test/e2e/cases/add-clone/case.yml" },
+      ),
+    ).toThrow(/env\["JASTR_GIT_BIN"\] must be a string/);
+
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, env: ["JASTR_GIT_BIN"] },
+        { filePath: "test/e2e/cases/add-clone/case.yml" },
+      ),
+    ).toThrow(/env must be a mapping/);
+  });
+
+  it("accepts setup cli and cp steps and defaults an omitted setup to empty", () => {
+    const manifest = validateCaseManifest(
+      {
+        ...validCase,
+        setup: [
+          { cli: ["add", "./src", "demo"] },
+          {
+            cp: { from: "mutated/TEMPLATE.md", to: ".jastr/demo/TEMPLATE.md" },
+          },
+        ],
+      },
+      { filePath: "test/e2e/cases/update-replace/case.yml" },
+    );
+    expect(manifest.setup).toEqual([
+      { cli: ["add", "./src", "demo"] },
+      { cp: { from: "mutated/TEMPLATE.md", to: ".jastr/demo/TEMPLATE.md" } },
+    ]);
+
+    const withoutSetup: Record<string, unknown> = { ...validCase };
+    delete withoutSetup.setup;
+    expect(
+      validateCaseManifest(withoutSetup, {
+        filePath: "test/e2e/cases/basic-run/case.yml",
+      }).setup,
+    ).toEqual([]);
+  });
+
+  it("rejects a setup step that is neither cli nor cp, or sets both", () => {
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, setup: [{ run: ["demo"] }] },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/unknown setup step field run/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          setup: [{ cli: ["add"], cp: { from: "a", to: "b" } }],
+        },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\] must set exactly one of cli or cp/);
+
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, setup: [{}] },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\] must set exactly one of cli or cp/);
+  });
+
+  it("rejects a malformed setup cli step", () => {
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, setup: [{ cli: [] }] },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\]\.cli must be a non-empty string array/);
+
+    expect(() =>
+      validateCaseManifest(
+        { ...validCase, setup: [{ cli: ["add", 1] }] },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\]\.cli\[1\] must be a string/);
+  });
+
+  it("rejects unsafe cp paths and unknown cp fields", () => {
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          setup: [{ cp: { from: "../escape", to: ".jastr/demo" } }],
+        },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\]\.cp\.from must not contain \.\. path segments/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          setup: [{ cp: { from: "ok", to: "/abs/dest" } }],
+        },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/setup\[0\]\.cp\.to must not be absolute/);
+
+    expect(() =>
+      validateCaseManifest(
+        {
+          ...validCase,
+          setup: [{ cp: { from: "ok", to: "dest", extra: "x" } }],
+        },
+        { filePath: "test/e2e/cases/update-replace/case.yml" },
+      ),
+    ).toThrow(/unknown cp step field extra/);
   });
 
   it("rejects uppercase or requirement-shaped case ids", () => {

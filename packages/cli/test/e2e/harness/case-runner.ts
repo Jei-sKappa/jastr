@@ -15,6 +15,7 @@ import { expect } from "vitest";
 import type {
   CaseManifest,
   LoadedCase,
+  SetupStep,
   SubstitutionValue,
 } from "./case-manifest";
 import { loadPackageVersion } from "./requirements";
@@ -161,6 +162,57 @@ async function resolveCwd(
   return absoluteCwd;
 }
 
+type SetupContext = {
+  /** The case directory (source of `cp:` `from` paths). */
+  caseDir: string;
+  /** The temp project root (target of `cp:` `to` paths). */
+  projectRoot: string;
+  /** The cwd the CLI runs from (same as the main command). */
+  cwd: string;
+  /** The bundled CLI entrypoint argv[0]. */
+  cliPath: string;
+  /** The subprocess environment (already includes `JASTR_HOME` + case `env`). */
+  env: NodeJS.ProcessEnv;
+  /** Label prefix for assertion/error context. */
+  label: string;
+};
+
+/**
+ * Run the case's `setup` pre-steps in order, before the main `command`. A `cli:`
+ * step runs the jastr CLI through the same bundled entrypoint, cwd, and
+ * environment as the main command — a non-zero exit fails the case loudly so a
+ * broken setup never silently masquerades as the behavior under test. A `cp:`
+ * step copies a case-relative fixture path onto a root-relative destination in
+ * the temp tree (creating parent directories), the primitive that mutates a
+ * recorded source or installed unit between, say, an `add` and an `update`.
+ */
+export async function runSetupSteps(
+  steps: readonly SetupStep[],
+  ctx: SetupContext,
+): Promise<void> {
+  for (const [index, step] of steps.entries()) {
+    if ("cli" in step) {
+      const result = await execa("bun", [ctx.cliPath, ...step.cli], {
+        cwd: ctx.cwd,
+        env: ctx.env,
+        reject: false,
+        stripFinalNewline: false,
+      });
+      if (result.exitCode !== 0) {
+        throw new Error(
+          `${ctx.label} setup[${index}] cli step failed (exit ${result.exitCode}): ` +
+            `jastr ${step.cli.join(" ")}\n${result.stderr}`,
+        );
+      }
+    } else {
+      const from = path.join(ctx.caseDir, step.cp.from);
+      const to = path.join(ctx.projectRoot, step.cp.to);
+      await mkdir(path.dirname(to), { recursive: true });
+      await cp(from, to, { recursive: true });
+    }
+  }
+}
+
 export async function runCase(
   repoRoot: string,
   testCase: LoadedCase,
@@ -208,9 +260,28 @@ export async function runCase(
       testCase.manifest,
     );
     const cliPath = path.resolve(repoRoot, "src/index.ts");
+    // The CLI subprocess always sees `JASTR_HOME` (global-base hermeticity); a
+    // case's `env` map is merged after it, so a case can add (or override) extra
+    // environment such as `JASTR_GIT_BIN` pointing at the fake-git shim.
+    const env: NodeJS.ProcessEnv = {
+      JASTR_HOME: globalRoot,
+      ...testCase.manifest.env,
+    };
+
+    // Run any `setup` pre-steps (in order) after fixture/substitute expansion and
+    // before the main command, sharing the same cwd and environment.
+    await runSetupSteps(testCase.manifest.setup, {
+      caseDir: testCase.dirPath,
+      projectRoot,
+      cwd,
+      cliPath,
+      env,
+      label: `[${testCase.manifest.id}]`,
+    });
+
     const result = await execa("bun", [cliPath, ...testCase.manifest.command], {
       cwd,
-      env: { JASTR_HOME: globalRoot },
+      env,
       reject: false,
       stripFinalNewline: false,
     });

@@ -14,6 +14,7 @@ function makeCase(overrides: Partial<RenderCase> = {}): RenderCase {
     cwd: ".",
     command: ["run", "demo"],
     covers: ["DEMO-FR-0001.AC-0001"],
+    setupSteps: [],
     exitCode: 0,
     stdout: "ok\n",
     stderr: "",
@@ -271,6 +272,27 @@ describe("renderDocument", () => {
 
     // The rare case that runs from a subdirectory says so explicitly.
     expect(doc).toContain("**Local project** — ran from `nested/`");
+  });
+
+  it("renders a case's setup pre-steps so observed state is not magic", () => {
+    const doc = renderDocument(
+      [activeArea()],
+      [
+        makeCase({
+          command: ["update", "demo"],
+          setupSteps: [
+            "Runs `jastr add ./src demo`",
+            "Copies `mutated/TEMPLATE.md` → `src/.jastr/demo/TEMPLATE.md`",
+          ],
+        }),
+      ],
+    );
+
+    expect(doc).toContain("**Setup steps** — run before the command");
+    expect(doc).toContain("1. Runs `jastr add ./src demo`");
+    expect(doc).toContain(
+      "1. Copies `mutated/TEMPLATE.md` → `src/.jastr/demo/TEMPLATE.md`",
+    );
   });
 
   it("renders generated output files when a case declares them", () => {
