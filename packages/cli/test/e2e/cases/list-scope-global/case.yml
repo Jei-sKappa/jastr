@@ -1,0 +1,12 @@
+id: list-scope-global
+covers:
+  - LIST-FR-0003.AC-0001
+title: List --global shows only the global root
+description: >
+  --global restricts the inventory to the global root even though a local root
+  is present (fixture/), so only the Global section is rendered.
+command: ["list", "--global"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

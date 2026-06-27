@@ -1,0 +1,15 @@
+id: list-sorted-readonly
+covers:
+  - LIST-FR-0004.AC-0001
+title: List sorts entries by id and never rewrites the lock
+description: >
+  Three tracked units recorded out of id-order in the lock (zebra, alpha, mango)
+  are listed sorted by id (alpha, mango, zebra). list is read-only: the
+  hand-written lock.json is byte-identical after the run.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""
+  files:
+    .jastr/lock.json: fixture/.jastr/lock.json

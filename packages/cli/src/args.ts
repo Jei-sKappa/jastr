@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, or jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g].";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], or jastr list [--local] [--global].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";
@@ -32,13 +32,19 @@ export function validateCliArgv(argv: string[]): void {
     command !== "run" &&
     command !== "generate" &&
     command !== "validate" &&
-    command !== "add"
+    command !== "add" &&
+    command !== "list"
   ) {
     throw new JastrError("invalid_command", expectedCommandShape);
   }
 
   if (command === "add") {
     validateAddArgs(argv.slice(1));
+    return;
+  }
+
+  if (command === "list") {
+    validateListArgs(argv.slice(1));
     return;
   }
 
@@ -195,6 +201,26 @@ function validateAddArgs(rest: string[]): void {
       "invalid_command",
       `Invalid add argument ${positionals[2]}.`,
     );
+  }
+}
+
+/**
+ * Validate `list`'s argv shape. `list` takes no positionals and recognizes only
+ * the scope flags `--local` and `--global`; any other option or a positional is
+ * an `invalid_command`.
+ */
+function validateListArgs(rest: string[]): void {
+  for (const arg of rest) {
+    if (isHelpToken(arg)) {
+      return;
+    }
+    if (arg === "--local" || arg === "--global") {
+      continue;
+    }
+    if (arg.startsWith("-")) {
+      throw new JastrError("invalid_command", `Unknown list option ${arg}.`);
+    }
+    throw new JastrError("invalid_command", `Invalid list argument ${arg}.`);
   }
 }
 

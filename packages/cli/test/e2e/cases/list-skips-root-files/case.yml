@@ -1,0 +1,13 @@
+id: list-skips-root-files
+covers:
+  - LIST-FR-0005.AC-0001
+title: List never lists config.yml or lock.json as a unit
+description: >
+  A root holds one unit (widget) beside the root-level config.yml and lock.json
+  files. list enumerates only the unit; neither config.yml nor lock.json ever
+  appears as a listed unit.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

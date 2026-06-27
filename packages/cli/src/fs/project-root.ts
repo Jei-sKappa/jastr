@@ -110,6 +110,41 @@ export async function resolveAddDestination(
   return local ?? path.resolve(cwd);
 }
 
+/**
+ * Resolve the in-scope roots for `list`, additively beside `resolveProjectRoots`
+ * and WITHOUT its throwing `missing_project_root` path: `list` reports an empty
+ * inventory rather than erroring when nothing is installed anywhere.
+ *
+ * - `local` returns the existing local root (the upward `.jastr/` walk), if any.
+ * - `global` returns the existing global root (`$JASTR_HOME` else home), if any.
+ * - `both` returns local-then-global, collapsing identical realpaths so a single
+ *   root (e.g. cwd under `$JASTR_HOME`) is listed once.
+ *
+ * A root is included only when its `.jastr/` exists on disk; an absent root is
+ * simply omitted (no error).
+ */
+export async function resolveListRoots(
+  cwd: string,
+  scope: "local" | "global" | "both",
+): Promise<ResolvedRoot[]> {
+  const local =
+    scope === "global" ? undefined : await findLocalProjectRoot(cwd);
+  const global = scope === "local" ? undefined : await findGlobalProjectRoot();
+
+  const roots: ResolvedRoot[] = [];
+  if (local !== undefined) {
+    roots.push({ kind: "local", projectRoot: local });
+  }
+  if (global !== undefined) {
+    if (local !== undefined && (await isSameRealpath(local, global))) {
+      // The local entry already represents this root; do not list it twice.
+    } else {
+      roots.push({ kind: "global", projectRoot: global });
+    }
+  }
+  return roots;
+}
+
 async function isSameRealpath(a: string, b: string): Promise<boolean> {
   try {
     return (await realpath(a)) === (await realpath(b));

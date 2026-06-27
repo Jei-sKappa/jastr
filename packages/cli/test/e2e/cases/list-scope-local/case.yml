@@ -1,0 +1,12 @@
+id: list-scope-local
+covers:
+  - LIST-FR-0003.AC-0001
+title: List --local shows only the local root
+description: >
+  --local restricts the inventory to the local root even though a global root is
+  present (global-fixture/), so only the Local section is rendered.
+command: ["list", "--local"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

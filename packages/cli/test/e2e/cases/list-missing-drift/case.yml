@@ -1,0 +1,13 @@
+id: list-missing-drift
+covers:
+  - LIST-FR-0002.AC-0001
+title: List flags a lock entry whose unit directory is gone
+description: >
+  The lock records two entries but only one unit directory exists on disk. The
+  unit with no directory (drift from a manual delete) is flagged missing; it is
+  never shown as a tracked row. The surviving unit lists normally as tracked.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

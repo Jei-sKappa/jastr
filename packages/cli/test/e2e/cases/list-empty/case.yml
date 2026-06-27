@@ -1,0 +1,15 @@
+id: list-empty
+covers:
+  - LIST-FR-0004.AC-0001
+title: List reports an empty inventory and mutates nothing
+description: >
+  A local root whose .jastr/ holds only a config.yml (no installed units) has an
+  empty inventory, so list prints No templates installed. and exits 0. The
+  config.yml is byte-identical afterward, showing list mutates nothing.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdout: "No templates installed.\n"
+  stderr: ""
+  files:
+    .jastr/config.yml: fixture/.jastr/config.yml

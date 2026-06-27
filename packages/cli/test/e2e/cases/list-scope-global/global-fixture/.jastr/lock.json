@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "templates": {
+    "glob": {
+      "source": "acme/global",
+      "url": "https://github.com/acme/global.git",
+      "ref": "release",
+      "name": "glob",
+      "kind": "standalone",
+      "commit": "2020202020202020202020202020202020202020",
+      "hash": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  }
+}

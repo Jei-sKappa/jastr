@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "templates": {
+    "present": {
+      "source": "acme/present",
+      "url": "https://github.com/acme/present.git",
+      "ref": "main",
+      "name": "present",
+      "kind": "standalone",
+      "commit": "aaaaaaaabbbbbbbbccccccccddddddddeeeeeeee",
+      "hash": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "ghost": {
+      "source": "acme/ghost",
+      "url": "https://github.com/acme/ghost.git",
+      "ref": "v3",
+      "name": "ghost",
+      "kind": "standalone",
+      "commit": "ffffffff0000000011111111222222223333333344",
+      "hash": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  }
+}

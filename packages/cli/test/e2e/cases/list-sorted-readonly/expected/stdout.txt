@@ -1,0 +1,4 @@
+Local:
+  alpha (standalone) acme/alpha @ 888888888888
+  mango (standalone) acme/mango @ 777777777777
+  zebra (standalone) acme/zebra @ 999999999999

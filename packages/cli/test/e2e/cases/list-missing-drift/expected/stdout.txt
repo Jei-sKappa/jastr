@@ -1,0 +1,3 @@
+Local:
+  ghost (standalone) acme/ghost@v3 @ ffffffff0000 (missing)
+  present (standalone) acme/present@main @ aaaaaaaabbbb

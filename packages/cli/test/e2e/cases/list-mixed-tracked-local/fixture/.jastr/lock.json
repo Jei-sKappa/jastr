@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "templates": {
+    "tracked": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "tracked",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}

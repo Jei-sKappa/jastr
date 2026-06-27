@@ -11,4 +11,5 @@ Commands:
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
+  list [options]                              List installed templates and groups across the .jastr/ roots
   help [command]                              display help for command

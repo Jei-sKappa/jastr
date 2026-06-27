@@ -1,0 +1,2 @@
+Local:
+  widget (standalone) acme/widget @ abcabcabcabc

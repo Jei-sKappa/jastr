@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "templates": {
+    "loc": {
+      "source": "acme/local",
+      "url": "https://github.com/acme/local.git",
+      "ref": "main",
+      "name": "loc",
+      "kind": "standalone",
+      "commit": "1010101010101010101010101010101010101010",
+      "hash": "3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  }
+}

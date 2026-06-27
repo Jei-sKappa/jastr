@@ -1,0 +1,13 @@
+id: list-both-roots
+covers:
+  - LIST-FR-0003.AC-0001
+title: List shows both roots by default
+description: >
+  With no scope flag, list shows the local and the global root as separate
+  labeled sections, each present because both have an installed unit. The local
+  unit is hand-locked in fixture/ and the global unit in global-fixture/.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

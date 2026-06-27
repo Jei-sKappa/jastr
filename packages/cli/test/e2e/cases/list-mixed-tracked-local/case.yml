@@ -1,0 +1,14 @@
+id: list-mixed-tracked-local
+covers:
+  - LIST-FR-0001.AC-0001
+title: List shows tracked and local rows together
+description: >
+  list is folder-first with a lock overlay. A unit carrying a lock entry is
+  shown tracked with its source@ref, kind, and short commit; a unit with no lock
+  entry is shown marked local. The lock is hand-written (list never hashes), so
+  the row content is fully determined by the fixture.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

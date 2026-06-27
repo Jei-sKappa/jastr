@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**122** requirements · **299** acceptance criteria · **210** end-to-end cases.
+**127** requirements · **304** acceptance criteria · **218** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -169,6 +169,13 @@ output against its inputs.
   - [ADD-FR-0014 — Add rejects malformed invocations and prompts for nothing](#add-fr-0014--add-rejects-malformed-invocations-and-prompts-for-nothing)
   - [ADD-FR-0015 — A present lock.json does not perturb template discovery](#add-fr-0015--a-present-lockjson-does-not-perturb-template-discovery)
 
+- [List](#list)
+  - [LIST-FR-0001 — List shows the folder-first inventory with a lock overlay](#list-fr-0001--list-shows-the-folder-first-inventory-with-a-lock-overlay)
+  - [LIST-FR-0002 — List flags a lock entry whose unit directory is gone](#list-fr-0002--list-flags-a-lock-entry-whose-unit-directory-is-gone)
+  - [LIST-FR-0003 — List spans both roots by default and restricts with a scope flag](#list-fr-0003--list-spans-both-roots-by-default-and-restricts-with-a-scope-flag)
+  - [LIST-FR-0004 — List sorts by id, reports an empty inventory, and mutates nothing](#list-fr-0004--list-sorts-by-id-reports-an-empty-inventory-and-mutates-nothing)
+  - [LIST-FR-0005 — List never treats a root-level file as a unit](#list-fr-0005--list-never-treats-a-root-level-file-as-a-unit)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a named template
@@ -258,7 +265,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, or jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], or jastr list [--local] [--global].
 ```
 
 </details>
@@ -6916,6 +6923,7 @@ Commands:
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
+  list [options]                              List installed templates and groups across the .jastr/ roots
   help [command]                              display help for command
 ```
 
@@ -7224,6 +7232,7 @@ Commands:
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
+  list [options]                              List installed templates and groups across the .jastr/ roots
   help [command]                              display help for command
 ```
 
@@ -14288,6 +14297,747 @@ $ jastr run demo
 
 ```console
 DEMO body
+```
+
+</details>
+
+## List
+
+### LIST-FR-0001 — List shows the folder-first inventory with a lock overlay
+
+`jastr list` enumerates the template/group units found on disk in a root's `.jastr/` and joins each against that root's lock. A unit carrying a lock entry is shown as tracked with its `source@ref`, kind, and short commit; a unit with no lock entry is shown marked `local` (authored). The inventory is folder-first: it shows what is actually installed, not merely what the lock records.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A tracked unit shows its id, kind, source@ref, and short commit; an untracked unit shows marked local. | ✅ `list-mixed-tracked-local` |
+
+#### Case: List shows tracked and local rows together
+
+Description: list is folder-first with a lock overlay. A unit carrying a lock entry is shown tracked with its source@ref, kind, and short commit; a unit with no lock entry is shown marked local. The lock is hand-written (list never hashes), so the row content is fully determined by the fixture.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ authored/
+   │  └─ TEMPLATE.md
+   ├─ lock.json
+   └─ tracked/
+      └─ TEMPLATE.md
+```
+
+`.jastr/authored/TEMPLATE.md`
+
+```md
+---
+name: authored
+---
+Authored body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "tracked": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "tracked",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}
+```
+
+`.jastr/tracked/TEMPLATE.md`
+
+```md
+---
+name: tracked
+---
+Tracked body
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  authored (standalone) (local)
+  tracked (standalone) acme/widgets@main @ 0123456789ab
+```
+
+</details>
+
+### LIST-FR-0002 — List flags a lock entry whose unit directory is gone
+
+A lock entry whose unit directory has been removed is shown flagged `missing` (drift). Because enumeration is folder-first, a manually-deleted unit never appears as a tracked ghost — only as a flagged missing row.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A lock entry with no unit directory is shown flagged missing and a deleted unit is never shown as tracked. | ✅ `list-missing-drift` |
+
+#### Case: List flags a lock entry whose unit directory is gone
+
+Description: The lock records two entries but only one unit directory exists on disk. The unit with no directory (drift from a manual delete) is flagged missing; it is never shown as a tracked row. The surviving unit lists normally as tracked.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ lock.json
+   └─ present/
+      └─ TEMPLATE.md
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "present": {
+      "source": "acme/present",
+      "url": "https://github.com/acme/present.git",
+      "ref": "main",
+      "name": "present",
+      "kind": "standalone",
+      "commit": "aaaaaaaabbbbbbbbccccccccddddddddeeeeeeee",
+      "hash": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "ghost": {
+      "source": "acme/ghost",
+      "url": "https://github.com/acme/ghost.git",
+      "ref": "v3",
+      "name": "ghost",
+      "kind": "standalone",
+      "commit": "ffffffff0000000011111111222222223333333344",
+      "hash": "2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  }
+}
+```
+
+`.jastr/present/TEMPLATE.md`
+
+```md
+---
+name: present
+---
+Present body
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  ghost (standalone) acme/ghost@v3 @ ffffffff0000 (missing)
+  present (standalone) acme/present@main @ aaaaaaaabbbb
+```
+
+</details>
+
+### LIST-FR-0003 — List spans both roots by default and restricts with a scope flag
+
+With no flags, `list` shows both the local and the global root as labeled sections, each present only if it has rows. `--local` restricts the inventory to the local root and `--global` restricts it to the global root.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | With no flags both roots are shown as labeled sections; --local shows only the local root and --global only the global root. | ✅ `list-both-roots`, `list-scope-global`, `list-scope-local` |
+
+#### Case: List shows both roots by default
+
+Description: With no scope flag, list shows the local and the global root as separate labeled sections, each present because both have an installed unit. The local unit is hand-locked in fixture/ and the global unit in global-fixture/.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ loc/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/loc/TEMPLATE.md`
+
+```md
+---
+name: loc
+---
+Local body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "loc": {
+      "source": "acme/local",
+      "url": "https://github.com/acme/local.git",
+      "ref": "main",
+      "name": "loc",
+      "kind": "standalone",
+      "commit": "1010101010101010101010101010101010101010",
+      "hash": "3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  }
+}
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   ├─ glob/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/glob/TEMPLATE.md`
+
+```md
+---
+name: glob
+---
+Global body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "glob": {
+      "source": "acme/global",
+      "url": "https://github.com/acme/global.git",
+      "ref": "release",
+      "name": "glob",
+      "kind": "standalone",
+      "commit": "2020202020202020202020202020202020202020",
+      "hash": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  loc (standalone) acme/local@main @ 101010101010
+
+Global:
+  glob (standalone) acme/global@release @ 202020202020
+```
+
+</details>
+
+#### Case: List --global shows only the global root
+
+Description: --global restricts the inventory to the global root even though a local root is present (fixture/), so only the Global section is rendered.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ loc/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/loc/TEMPLATE.md`
+
+```md
+---
+name: loc
+---
+Local body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "loc": {
+      "source": "acme/local",
+      "url": "https://github.com/acme/local.git",
+      "ref": "main",
+      "name": "loc",
+      "kind": "standalone",
+      "commit": "1010101010101010101010101010101010101010",
+      "hash": "3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  }
+}
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   ├─ glob/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/glob/TEMPLATE.md`
+
+```md
+---
+name: glob
+---
+Global body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "glob": {
+      "source": "acme/global",
+      "url": "https://github.com/acme/global.git",
+      "ref": "release",
+      "name": "glob",
+      "kind": "standalone",
+      "commit": "2020202020202020202020202020202020202020",
+      "hash": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr list --global
+```
+
+**CLI output** — exit 0
+
+```console
+Global:
+  glob (standalone) acme/global@release @ 202020202020
+```
+
+</details>
+
+#### Case: List --local shows only the local root
+
+Description: --local restricts the inventory to the local root even though a global root is present (global-fixture/), so only the Local section is rendered.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ loc/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/loc/TEMPLATE.md`
+
+```md
+---
+name: loc
+---
+Local body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "loc": {
+      "source": "acme/local",
+      "url": "https://github.com/acme/local.git",
+      "ref": "main",
+      "name": "loc",
+      "kind": "standalone",
+      "commit": "1010101010101010101010101010101010101010",
+      "hash": "3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  }
+}
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   ├─ glob/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/glob/TEMPLATE.md`
+
+```md
+---
+name: glob
+---
+Global body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "glob": {
+      "source": "acme/global",
+      "url": "https://github.com/acme/global.git",
+      "ref": "release",
+      "name": "glob",
+      "kind": "standalone",
+      "commit": "2020202020202020202020202020202020202020",
+      "hash": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr list --local
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  loc (standalone) acme/local@main @ 101010101010
+```
+
+</details>
+
+### LIST-FR-0004 — List sorts by id, reports an empty inventory, and mutates nothing
+
+Entries are sorted by id. An in-scope inventory with no installed units prints `No templates installed.`. `list` is read-only: it never writes `lock.json` or any other file and exits 0.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Entries are sorted by id; an empty in-scope inventory prints No templates installed.; list writes nothing and exits 0. | ✅ `list-empty`, `list-sorted-readonly` |
+
+#### Case: List reports an empty inventory and mutates nothing
+
+Description: A local root whose .jastr/ holds only a config.yml (no installed units) has an empty inventory, so list prints No templates installed. and exits 0. The config.yml is byte-identical afterward, showing list mutates nothing.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: {}
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**Output files**
+
+`.jastr/config.yml`
+
+```yaml
+inputs: {}
+```
+
+**CLI output** — exit 0
+
+```console
+No templates installed.
+```
+
+</details>
+
+#### Case: List sorts entries by id and never rewrites the lock
+
+Description: Three tracked units recorded out of id-order in the lock (zebra, alpha, mango) are listed sorted by id (alpha, mango, zebra). list is read-only: the hand-written lock.json is byte-identical after the run.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ alpha/
+   │  └─ TEMPLATE.md
+   ├─ lock.json
+   ├─ mango/
+   │  └─ TEMPLATE.md
+   └─ zebra/
+      └─ TEMPLATE.md
+```
+
+`.jastr/alpha/TEMPLATE.md`
+
+```md
+---
+name: alpha
+---
+A
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "zebra": {
+      "source": "acme/zebra",
+      "url": "https://github.com/acme/zebra.git",
+      "name": "zebra",
+      "kind": "standalone",
+      "commit": "9999999999999999999999999999999999999999",
+      "hash": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "alpha": {
+      "source": "acme/alpha",
+      "url": "https://github.com/acme/alpha.git",
+      "name": "alpha",
+      "kind": "standalone",
+      "commit": "8888888888888888888888888888888888888888",
+      "hash": "6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "mango": {
+      "source": "acme/mango",
+      "url": "https://github.com/acme/mango.git",
+      "name": "mango",
+      "kind": "standalone",
+      "commit": "7777777777777777777777777777777777777777",
+      "hash": "7777777777777777777777777777777777777777777777777777777777777777"
+    }
+  }
+}
+```
+
+`.jastr/mango/TEMPLATE.md`
+
+```md
+---
+name: mango
+---
+M
+```
+
+`.jastr/zebra/TEMPLATE.md`
+
+```md
+---
+name: zebra
+---
+Z
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**Output files**
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "zebra": {
+      "source": "acme/zebra",
+      "url": "https://github.com/acme/zebra.git",
+      "name": "zebra",
+      "kind": "standalone",
+      "commit": "9999999999999999999999999999999999999999",
+      "hash": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "alpha": {
+      "source": "acme/alpha",
+      "url": "https://github.com/acme/alpha.git",
+      "name": "alpha",
+      "kind": "standalone",
+      "commit": "8888888888888888888888888888888888888888",
+      "hash": "6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "mango": {
+      "source": "acme/mango",
+      "url": "https://github.com/acme/mango.git",
+      "name": "mango",
+      "kind": "standalone",
+      "commit": "7777777777777777777777777777777777777777",
+      "hash": "7777777777777777777777777777777777777777777777777777777777777777"
+    }
+  }
+}
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  alpha (standalone) acme/alpha @ 888888888888
+  mango (standalone) acme/mango @ 777777777777
+  zebra (standalone) acme/zebra @ 999999999999
+```
+
+</details>
+
+### LIST-FR-0005 — List never treats a root-level file as a unit
+
+Enumeration skips non-directories and the root-level `config.yml` / `lock.json` files, so neither ever appears as an installed unit in the listing.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A root containing config.yml and lock.json beside its units lists only the units, never config.yml or lock.json. | ✅ `list-skips-root-files` |
+
+#### Case: List never lists config.yml or lock.json as a unit
+
+Description: A root holds one unit (widget) beside the root-level config.yml and lock.json files. list enumerates only the unit; neither config.yml nor lock.json ever appears as a listed unit.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   ├─ lock.json
+   └─ widget/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: {}
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "widget": {
+      "source": "acme/widget",
+      "url": "https://github.com/acme/widget.git",
+      "name": "widget",
+      "kind": "standalone",
+      "commit": "abcabcabcabcabcabcabcabcabcabcabcabcabca",
+      "hash": "8888888888888888888888888888888888888888888888888888888888888888"
+    }
+  }
+}
+```
+
+`.jastr/widget/TEMPLATE.md`
+
+```md
+---
+name: widget
+---
+W
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  widget (standalone) acme/widget @ abcabcabcabc
 ```
 
 </details>

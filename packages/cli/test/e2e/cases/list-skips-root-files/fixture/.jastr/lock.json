@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "templates": {
+    "widget": {
+      "source": "acme/widget",
+      "url": "https://github.com/acme/widget.git",
+      "name": "widget",
+      "kind": "standalone",
+      "commit": "abcabcabcabcabcabcabcabcabcabcabcabcabca",
+      "hash": "8888888888888888888888888888888888888888888888888888888888888888"
+    }
+  }
+}

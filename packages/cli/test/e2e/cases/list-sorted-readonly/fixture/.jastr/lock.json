@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "templates": {
+    "zebra": {
+      "source": "acme/zebra",
+      "url": "https://github.com/acme/zebra.git",
+      "name": "zebra",
+      "kind": "standalone",
+      "commit": "9999999999999999999999999999999999999999",
+      "hash": "5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "alpha": {
+      "source": "acme/alpha",
+      "url": "https://github.com/acme/alpha.git",
+      "name": "alpha",
+      "kind": "standalone",
+      "commit": "8888888888888888888888888888888888888888",
+      "hash": "6666666666666666666666666666666666666666666666666666666666666666"
+    },
+    "mango": {
+      "source": "acme/mango",
+      "url": "https://github.com/acme/mango.git",
+      "name": "mango",
+      "kind": "standalone",
+      "commit": "7777777777777777777777777777777777777777",
+      "hash": "7777777777777777777777777777777777777777777777777777777777777777"
+    }
+  }
+}
