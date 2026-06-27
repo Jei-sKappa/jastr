@@ -1,0 +1,15 @@
+id: add-conflict-tracked
+covers:
+  - ADD-FR-0010.AC-0001
+title: Add over a tracked id routes to jastr update
+description: >
+  add is create-only. Re-adding an id already installed (and tracked in the
+  lock) writes nothing and fails with destination_exists, routing the user to
+  jastr update.
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["add", "./source", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: foo is already installed at .jastr/foo; run `jastr update foo` to refresh it.\n"

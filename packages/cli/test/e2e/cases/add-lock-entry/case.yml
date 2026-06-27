@@ -1,0 +1,20 @@
+id: add-lock-entry
+covers:
+  - ADD-FR-0011.AC-0001
+title: Add records a provenance lock entry
+description: >
+  A successful add writes a lock entry under .jastr/lock.json carrying the
+  recorded source, resolved name, kind, and a content hash. (The url is the
+  source's absolute realpath, asserted by the integration test.)
+command: ["add", "./source", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stderr: ""
+  fileContains:
+    .jastr/lock.json:
+      - '"version": 1'
+      - '"source": "./source"'
+      - '"name": "foo"'
+      - '"kind": "standalone"'
+      - '"hash":'

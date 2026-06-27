@@ -1,0 +1,13 @@
+id: add-missing-name
+covers:
+  - ADD-FR-0004.AC-0001
+title: Add reports a missing name against the source
+description: >
+  A name that resolves to neither a standalone template nor a group in the
+  source's .jastr/ fails with template_not_found, naming the source that was
+  searched.
+command: ["add", "./source", "missing"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template missing was not found in ./source.\n"

@@ -1,0 +1,13 @@
+id: add-validation-rejected
+covers:
+  - ADD-FR-0012.AC-0001
+title: Add rejects a unit that fails the validation gate
+description: >
+  A fetched unit whose template fails the static-validation pipeline is not
+  installed; add fails with that defect's existing engine code and the
+  destination is unchanged.
+command: ["add", "./source", "broken"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input x must explicitly declare required: true or required: false.\n"

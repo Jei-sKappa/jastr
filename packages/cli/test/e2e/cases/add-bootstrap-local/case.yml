@@ -1,0 +1,14 @@
+id: add-bootstrap-local
+covers:
+  - ADD-FR-0009.AC-0001
+title: Add bootstraps a local .jastr/ when none exists up-tree
+description: >
+  With no local .jastr/ found by walking up from cwd, a default add creates
+  .jastr/ in cwd and installs there; add never raises missing_project_root.
+command: ["add", "./source", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md

@@ -1,0 +1,17 @@
+id: add-clone-failed
+covers:
+  - ADD-FR-0007.AC-0002
+title: Add reports a clone failure with git's stderr
+description: >
+  A clone that fails (simulated by the fake-git shim) surfaces clone_failed
+  carrying git's own stderr; nothing is installed and no clone temp dir is left
+  behind.
+command: ["add", "owner/repo", "foo"]
+env:
+  JASTR_GIT_BIN: "__FAKE_GIT_BIN__"
+  FAKE_GIT_FAIL: "1"
+  FAKE_GIT_STDERR: "fatal: repository not found"
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: git clone failed for https://github.com/owner/repo.git (exit 1).\nfatal: repository not found\n"

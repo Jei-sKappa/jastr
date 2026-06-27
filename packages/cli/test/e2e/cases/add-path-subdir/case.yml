@@ -1,0 +1,17 @@
+id: add-path-subdir
+covers:
+  - ADD-FR-0008.AC-0001
+title: Add resolves an optional --path subdir
+description: >
+  --path <subdir> resolves the source's .jastr/ under that subdirectory and
+  records the normalized relative path in the lock entry.
+command: ["add", "./source", "bar", "--path", "sub"]
+expect:
+  exitCode: 0
+  stdout: "Installed bar from ./source into .jastr/bar [local]."
+  stderr: ""
+  files:
+    .jastr/bar/TEMPLATE.md: fixture/source/sub/.jastr/bar/TEMPLATE.md
+  fileContains:
+    .jastr/lock.json:
+      - '"path": "sub"'

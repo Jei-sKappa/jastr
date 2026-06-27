@@ -10,4 +10,5 @@ Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
+  add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   help [command]                              display help for command

@@ -1,0 +1,25 @@
+id: add-clone-success
+covers:
+  - ADD-FR-0006.AC-0001
+  - ADD-FR-0006.AC-0002
+title: Add clones a remote ref and records its commit
+description: >
+  A remote add (through the fake-git shim) clones the source, installs the unit,
+  forwards --ref via --branch, and records the resolved commit in the lock.
+command: ["add", "owner/repo", "foo", "--ref", "main"]
+env:
+  JASTR_GIT_BIN: "__FAKE_GIT_BIN__"
+  FAKE_GIT_SOURCE: "clone-source"
+  FAKE_GIT_COMMIT: "feedface00000000000000000000000000000000"
+expect:
+  exitCode: 0
+  stdout: "Installed foo from owner/repo (ref main) into .jastr/foo [local]."
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/clone-source/.jastr/foo/TEMPLATE.md
+  fileContains:
+    .jastr/lock.json:
+      - '"commit": "feedface00000000000000000000000000000000"'
+      - '"ref": "main"'
+    .fake-git-argv:
+      - '"--branch","main"'

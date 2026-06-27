@@ -1,0 +1,16 @@
+id: add-standalone-local
+covers:
+  - ADD-FR-0001.AC-0001
+title: Add a standalone template from a local path
+description: >
+  Installs a standalone template from a local source directory into the local
+  root, copying the directory contents (template and its included files)
+  verbatim and printing a single provenance line.
+command: ["add", "./source", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md
+    .jastr/foo/partials/snippet.md: fixture/source/.jastr/foo/partials/snippet.md

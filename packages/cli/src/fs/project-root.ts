@@ -85,6 +85,31 @@ function globalBase(): string {
   return os.homedir();
 }
 
+/**
+ * Resolve the single destination root for an `add` install, additively beside
+ * `resolveProjectRoots` and WITHOUT its throwing `missing_project_root` path.
+ *
+ * - `-g/--global` targets the global base (`$JASTR_HOME` else home directory),
+ *   which is created on demand at install time when absent.
+ * - The default (local) walks up from `cwd` for an existing `.jastr/`; when none
+ *   exists up the tree, the install bootstraps a fresh `.jastr/` in `cwd` — so a
+ *   default `add` never raises `missing_project_root`.
+ *
+ * The `.jastr/` directory itself is NOT created here (a caller may still fail the
+ * conflict/validation gate before any write); the caller ensures it exists before
+ * writing the unit and lock.
+ */
+export async function resolveAddDestination(
+  cwd: string,
+  scope: "local" | "global",
+): Promise<string> {
+  if (scope === "global") {
+    return globalBase();
+  }
+  const local = await findLocalProjectRoot(cwd);
+  return local ?? path.resolve(cwd);
+}
+
 async function isSameRealpath(a: string, b: string): Promise<boolean> {
   try {
     return (await realpath(a)) === (await realpath(b));

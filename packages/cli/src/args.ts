@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], or jastr validate <template-ref>.";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, or jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";
@@ -28,8 +28,18 @@ export function validateCliArgv(argv: string[]): void {
     return;
   }
 
-  if (command !== "run" && command !== "generate" && command !== "validate") {
+  if (
+    command !== "run" &&
+    command !== "generate" &&
+    command !== "validate" &&
+    command !== "add"
+  ) {
     throw new JastrError("invalid_command", expectedCommandShape);
+  }
+
+  if (command === "add") {
+    validateAddArgs(argv.slice(1));
+    return;
   }
 
   if (command === "run") {
@@ -124,6 +134,76 @@ export function validateGenerateOut(out: string | undefined): string {
   }
 
   return out;
+}
+
+/**
+ * Validate `add`'s argv shape. `add` takes two positionals (`<repo-source>` and
+ * `<name>`) plus the fixed options `--ref <v>`, `--path <v>`, and `-g`/`--global`;
+ * a missing positional, an unknown option, or an extra positional is an
+ * `invalid_command`. There is deliberately no `--yes`/prompt path (it falls into
+ * the unknown-option branch).
+ */
+function validateAddArgs(rest: string[]): void {
+  const valueOptions = new Set(["--ref", "--path"]);
+  const positionals: string[] = [];
+
+  for (let index = 0; index < rest.length; index += 1) {
+    const arg = rest[index];
+    if (arg === undefined) continue;
+
+    if (isHelpToken(arg)) {
+      return;
+    }
+
+    if (arg === "-g" || arg === "--global") {
+      continue;
+    }
+
+    if (valueOptions.has(arg)) {
+      const value = rest[index + 1];
+      if (value === undefined || value.startsWith("--")) {
+        throw new JastrError("invalid_command", `Missing value for ${arg}.`);
+      }
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--ref=")) {
+      requireOptionValue(arg, "--ref");
+      continue;
+    }
+    if (arg.startsWith("--path=")) {
+      requireOptionValue(arg, "--path");
+      continue;
+    }
+
+    if (arg.startsWith("-")) {
+      throw new JastrError("invalid_command", `Unknown add option ${arg}.`);
+    }
+
+    positionals.push(arg);
+  }
+
+  if (positionals.length === 0) {
+    throw new JastrError("invalid_command", "Missing repo source for add.");
+  }
+  if (positionals.length === 1) {
+    throw new JastrError("invalid_command", "Missing template name for add.");
+  }
+  if (positionals.length > 2) {
+    throw new JastrError(
+      "invalid_command",
+      `Invalid add argument ${positionals[2]}.`,
+    );
+  }
+}
+
+/** Require a non-empty value on an `--opt=value` form, else `invalid_command`. */
+function requireOptionValue(arg: string, option: string): void {
+  const value = arg.slice(`${option}=`.length);
+  if (value === "") {
+    throw new JastrError("invalid_command", `Missing value for ${option}.`);
+  }
 }
 
 function validateValidateArgs(rest: string[]): void {

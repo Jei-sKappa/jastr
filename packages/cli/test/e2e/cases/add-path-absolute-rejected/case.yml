@@ -1,0 +1,12 @@
+id: add-path-absolute-rejected
+covers:
+  - ADD-FR-0008.AC-0002
+title: Add rejects an absolute --path
+description: >
+  An absolute --path cannot stay within the source root, so it is rejected with
+  invalid_command before anything is installed.
+command: ["add", "./source", "bar", "--path", "/etc"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: --path must be a relative subpath, not an absolute path (/etc).\n"

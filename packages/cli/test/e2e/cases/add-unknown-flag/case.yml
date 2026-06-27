@@ -1,0 +1,13 @@
+id: add-unknown-flag
+covers:
+  - ADD-FR-0014.AC-0002
+title: Add rejects an unknown flag and offers no prompt
+description: >
+  add accepts only --ref, --path, and -g/--global; any other flag (including a
+  hypothetical --yes) fails with invalid_command. There is no interactive
+  confirmation path.
+command: ["add", "./source", "foo", "--yes"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown add option --yes.\n"

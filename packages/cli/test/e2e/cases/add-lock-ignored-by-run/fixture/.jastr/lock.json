@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "templates": {
+    "demo": {
+      "source": "owner/repo",
+      "url": "https://github.com/owner/repo.git",
+      "name": "demo",
+      "kind": "standalone",
+      "hash": "abc"
+    }
+  }
+}

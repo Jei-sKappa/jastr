@@ -1,0 +1,12 @@
+id: add-grouped-template-rejected
+covers:
+  - ADD-FR-0003.AC-0001
+title: Add rejects a two-segment group/template ref
+description: >
+  A two-segment group/template ref is recognized but rejected because groups
+  install as an atomic whole; nothing is installed.
+command: ["add", "./source", "grp/tpl"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: grp/tpl refers to a template inside a group; add the whole group by its name instead (groups install as a unit).\n"

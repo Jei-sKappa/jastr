@@ -1,0 +1,13 @@
+id: add-lock-ignored-by-run
+covers:
+  - ADD-FR-0015.AC-0001
+title: A present lock.json does not perturb template discovery
+description: >
+  .jastr/lock.json is a root-level file ignored by template discovery exactly
+  like config.yml; jastr run renders a template normally when a lock.json is
+  present in the root.
+command: ["run", "demo"]
+expect:
+  exitCode: 0
+  stdout: "DEMO body\n"
+  stderr: ""

@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**107** requirements · **276** acceptance criteria · **189** end-to-end cases.
+**122** requirements · **299** acceptance criteria · **210** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -152,6 +152,23 @@ output against its inputs.
   - [GLOBAL-FR-0010 — Uniform application across commands](#global-fr-0010--uniform-application-across-commands)
   - [GLOBAL-FR-0011 — Test substitute token for the global root](#global-fr-0011--test-substitute-token-for-the-global-root)
 
+- [Add](#add)
+  - [ADD-FR-0001 — Add installs a standalone template](#add-fr-0001--add-installs-a-standalone-template)
+  - [ADD-FR-0002 — Add installs a whole group](#add-fr-0002--add-installs-a-whole-group)
+  - [ADD-FR-0003 — Add rejects a two-segment group/template ref](#add-fr-0003--add-rejects-a-two-segment-grouptemplate-ref)
+  - [ADD-FR-0004 — Add reports a missing name against the source](#add-fr-0004--add-reports-a-missing-name-against-the-source)
+  - [ADD-FR-0005 — Add expands owner/repo and guards positionals](#add-fr-0005--add-expands-ownerrepo-and-guards-positionals)
+  - [ADD-FR-0006 — Add clones a remote ref and records its commit](#add-fr-0006--add-clones-a-remote-ref-and-records-its-commit)
+  - [ADD-FR-0007 — Add fails loudly when git is unavailable or the clone fails](#add-fr-0007--add-fails-loudly-when-git-is-unavailable-or-the-clone-fails)
+  - [ADD-FR-0008 — Add resolves an optional --path subdir and rejects escapes](#add-fr-0008--add-resolves-an-optional---path-subdir-and-rejects-escapes)
+  - [ADD-FR-0009 — Add targets the local root by default and the global root with -g](#add-fr-0009--add-targets-the-local-root-by-default-and-the-global-root-with--g)
+  - [ADD-FR-0010 — Add is create-only with a tracked-vs-untracked conflict message](#add-fr-0010--add-is-create-only-with-a-tracked-vs-untracked-conflict-message)
+  - [ADD-FR-0011 — Add records a provenance lock entry and never touches config.yml](#add-fr-0011--add-records-a-provenance-lock-entry-and-never-touches-configyml)
+  - [ADD-FR-0012 — Add validates a fetched unit before installing it](#add-fr-0012--add-validates-a-fetched-unit-before-installing-it)
+  - [ADD-FR-0013 — Add rejects a unit containing a special file](#add-fr-0013--add-rejects-a-unit-containing-a-special-file)
+  - [ADD-FR-0014 — Add rejects malformed invocations and prompts for nothing](#add-fr-0014--add-rejects-malformed-invocations-and-prompts-for-nothing)
+  - [ADD-FR-0015 — A present lock.json does not perturb template discovery](#add-fr-0015--a-present-lockjson-does-not-perturb-template-discovery)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a named template
@@ -241,7 +258,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], or jastr validate <template-ref>.
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, or jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g].
 ```
 
 </details>
@@ -6898,6 +6915,7 @@ Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
+  add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   help [command]                              display help for command
 ```
 
@@ -7205,6 +7223,7 @@ Commands:
   run <template-ref> [inputs...]              Render a Jastr template to Markdown
   generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
+  add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   help [command]                              display help for command
 ```
 
@@ -13160,6 +13179,1115 @@ $ jastr run demo
 
 ```console
 Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.
+```
+
+</details>
+
+## Add
+
+### ADD-FR-0001 — Add installs a standalone template
+
+`jastr add <repo-source> <name>` resolves a single-segment `<name>` to a standalone template directory in the source's `.jastr/` and copies it verbatim into the destination root's `.jastr/<name>/`, printing one deterministic provenance line.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Adding a standalone copies its directory contents verbatim into .jastr/<name>/ and prints a single Installed line. | ✅ `add-standalone-local` |
+
+#### Case: Add a standalone template from a local path
+
+Description: Installs a standalone template from a local source directory into the local root, copying the directory contents (template and its included files) verbatim and printing a single provenance line.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ placeholder/
+│     └─ TEMPLATE.md
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         ├─ partials/
+         │  └─ snippet.md
+         └─ TEMPLATE.md
+```
+
+`.jastr/placeholder/TEMPLATE.md`
+
+```md
+---
+---
+placeholder
+```
+
+`source/.jastr/foo/partials/snippet.md`
+
+```md
+snippet
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**Output files**
+
+`.jastr/foo/partials/snippet.md`
+
+```md
+snippet
+```
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from ./source into .jastr/foo [local].
+```
+
+</details>
+
+### ADD-FR-0002 — Add installs a whole group
+
+A `<name>` that resolves to a group (a directory with a `.jastrgroup` marker) installs the entire group directory — marker plus every template — and the success line reports the group's template count.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Adding a group installs the .jastrgroup marker and all templates and reports the template count. | ✅ `add-group-local` |
+
+#### Case: Add a whole group from a local path
+
+Description: Installs an entire group — its .jastrgroup marker and every template — from a local source, reporting the group's template count in the success line.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ mygroup/
+         ├─ .jastrgroup
+         └─ templates/
+            ├─ one/
+            │  └─ TEMPLATE.md
+            └─ two/
+               └─ TEMPLATE.md
+```
+
+`source/.jastr/mygroup/.jastrgroup`
+
+```text
+
+```
+
+`source/.jastr/mygroup/templates/one/TEMPLATE.md`
+
+```md
+---
+---
+# one
+```
+
+`source/.jastr/mygroup/templates/two/TEMPLATE.md`
+
+```md
+---
+---
+# two
+```
+
+**Command**
+
+```console
+$ jastr add ./source mygroup
+```
+
+**Output files**
+
+`.jastr/mygroup/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/mygroup/templates/one/TEMPLATE.md`
+
+```md
+---
+---
+# one
+```
+
+`.jastr/mygroup/templates/two/TEMPLATE.md`
+
+```md
+---
+---
+# two
+```
+
+**CLI output** — exit 0
+
+```console
+Installed group mygroup (2 templates) from ./source into .jastr/mygroup [local].
+```
+
+</details>
+
+### ADD-FR-0003 — Add rejects a two-segment group/template ref
+
+Groups install as an atomic whole, so a two-segment `group/template` ref is recognized but rejected with `grouped_template_not_addable`; nothing is installed.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A two-segment group/template ref exits 1 with grouped_template_not_addable and installs nothing. | ✅ `add-grouped-template-rejected` |
+
+#### Case: Add rejects a two-segment group/template ref
+
+Description: A two-segment group/template ref is recognized but rejected because groups install as an atomic whole; nothing is installed.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ grp/
+         ├─ .jastrgroup
+         └─ templates/
+            └─ tpl/
+               └─ TEMPLATE.md
+```
+
+`source/.jastr/grp/.jastrgroup`
+
+```text
+
+```
+
+`source/.jastr/grp/templates/tpl/TEMPLATE.md`
+
+```md
+---
+---
+# tpl
+```
+
+**Command**
+
+```console
+$ jastr add ./source grp/tpl
+```
+
+**CLI output** — exit 1
+
+```console
+Error: grp/tpl refers to a template inside a group; add the whole group by its name instead (groups install as a unit).
+```
+
+</details>
+
+### ADD-FR-0004 — Add reports a missing name against the source
+
+When `<name>` resolves to neither a standalone template nor a group in the source's `.jastr/`, `add` fails with `template_not_found` whose message names the source.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A name absent from the source exits 1 with template_not_found naming the source. | ✅ `add-missing-name` |
+
+#### Case: Add reports a missing name against the source
+
+Description: A name that resolves to neither a standalone template nor a group in the source's .jastr/ fails with template_not_found, naming the source that was searched.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ exists/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/exists/TEMPLATE.md`
+
+```md
+---
+---
+# x
+```
+
+**Command**
+
+```console
+$ jastr add ./source missing
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template missing was not found in ./source.
+```
+
+</details>
+
+### ADD-FR-0005 — Add expands owner/repo and guards positionals
+
+The `owner/repo` shorthand is cloned from `https://github.com/owner/repo.git`, and every git invocation places `--` before its positional arguments so a hostile source/url/ref can never be read as a git option.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | owner/repo expands to the github HTTPS URL in the clone argv. | ✅ `add-clone-owner-repo` |
+| AC-0002 | The clone argv places -- before the positional URL and directory. | ✅ `add-clone-owner-repo` |
+
+#### Case: Add expands owner/repo and guards positionals with --
+
+Description: The owner/repo shorthand is cloned from https://github.com/owner/repo.git, and the clone argv places -- before the positional URL and directory so a hostile value can never be read as a git option (asserted via the recorded argv).
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ clone-source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`clone-source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# cloned foo
+```
+
+**Command**
+
+```console
+$ jastr add owner/repo foo
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from owner/repo into .jastr/foo [local].
+```
+
+</details>
+
+### ADD-FR-0006 — Add clones a remote ref and records its commit
+
+A remote source is cloned and installed; `--ref` is passed via `--branch`, and the resolved commit is captured into the lock entry.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A remote add clones the source, installs the unit, and records its commit in the lock. | ✅ `add-clone-success` |
+| AC-0002 | --ref <branch> is forwarded to git as --branch <branch>. | ✅ `add-clone-success` |
+
+#### Case: Add clones a remote ref and records its commit
+
+Description: A remote add (through the fake-git shim) clones the source, installs the unit, forwards --ref via --branch, and records the resolved commit in the lock.
+
+Covers: AC-0001, AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ clone-source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`clone-source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# cloned foo
+```
+
+**Command**
+
+```console
+$ jastr add owner/repo foo --ref main
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# cloned foo
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from owner/repo (ref main) into .jastr/foo [local].
+```
+
+</details>
+
+### ADD-FR-0007 — Add fails loudly when git is unavailable or the clone fails
+
+With `git` absent from PATH a remote `add` fails with `git_unavailable`; with `git` present but the clone failing it fails with `clone_failed` carrying git's stderr, leaving no clone temp dir or partial unit. Neither hangs.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A remote add with git absent exits 1 with git_unavailable. | ✅ `add-git-unavailable` |
+| AC-0002 | A clone failure exits 1 with clone_failed carrying git's stderr and leaves nothing installed. | ✅ `add-clone-failed` |
+
+#### Case: Add reports a clone failure with git's stderr
+
+Description: A clone that fails (simulated by the fake-git shim) surfaces clone_failed carrying git's own stderr; nothing is installed and no clone temp dir is left behind.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr add owner/repo foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: git clone failed for https://github.com/owner/repo.git (exit 1).
+fatal: repository not found
+```
+
+</details>
+
+#### Case: Add reports git_unavailable when git cannot be run
+
+Description: With JASTR_GIT_BIN pointing at a nonexistent binary, a remote add fails with git_unavailable rather than hanging; nothing is installed.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr add owner/repo foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: git is not available; install git to add a remote source (owner/repo).
+```
+
+</details>
+
+### ADD-FR-0008 — Add resolves an optional --path subdir and rejects escapes
+
+`--path <subdir>` resolves the source's `.jastr/` under that subdir and records the normalized relative path in the lock; an absolute `--path` or one that escapes the source root is rejected with `invalid_command`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | --path <subdir> resolves <source>/<subdir>/.jastr/<name> and records the relative path. | ✅ `add-path-subdir` |
+| AC-0002 | An absolute --path exits 1 with invalid_command. | ✅ `add-path-absolute-rejected` |
+
+#### Case: Add rejects an absolute --path
+
+Description: An absolute --path cannot stay within the source root, so it is rejected with invalid_command before anything is installed.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ bar/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/bar/TEMPLATE.md`
+
+```md
+---
+---
+# bar
+```
+
+**Command**
+
+```console
+$ jastr add ./source bar --path /etc
+```
+
+**CLI output** — exit 1
+
+```console
+Error: --path must be a relative subpath, not an absolute path (/etc).
+```
+
+</details>
+
+#### Case: Add resolves an optional --path subdir
+
+Description: --path <subdir> resolves the source's .jastr/ under that subdirectory and records the normalized relative path in the lock entry.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ sub/
+      └─ .jastr/
+         └─ bar/
+            └─ TEMPLATE.md
+```
+
+`source/sub/.jastr/bar/TEMPLATE.md`
+
+```md
+---
+---
+# bar
+```
+
+**Command**
+
+```console
+$ jastr add ./source bar --path sub
+```
+
+**Output files**
+
+`.jastr/bar/TEMPLATE.md`
+
+```md
+---
+---
+# bar
+```
+
+**CLI output** — exit 0
+
+```console
+Installed bar from ./source into .jastr/bar [local].
+```
+
+</details>
+
+### ADD-FR-0009 — Add targets the local root by default and the global root with -g
+
+A default `add` installs into the local root; `-g`/`--global` installs into the global root (`$JASTR_HOME/.jastr`). When no local `.jastr/` exists up the tree, a default `add` bootstraps `.jastr/` in cwd and installs there — `add` never raises `missing_project_root`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A default add with no local .jastr/ up-tree creates .jastr/ in cwd and installs there. | ✅ `add-bootstrap-local` |
+| AC-0002 | -g installs into the global root .jastr/. | ✅ `add-global-root` |
+
+#### Case: Add bootstraps a local .jastr/ when none exists up-tree
+
+Description: With no local .jastr/ found by walking up from cwd, a default add creates .jastr/ in cwd and installs there; add never raises missing_project_root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from ./source into .jastr/foo [local].
+```
+
+</details>
+
+#### Case: Add with -g installs into the global root
+
+Description: -g/--global installs the unit into the global root ($JASTR_HOME/.jastr) instead of the local one, reported by the [global] label in the success line.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo -g
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from ./source into .jastr/foo [global].
+```
+
+</details>
+
+### ADD-FR-0010 — Add is create-only with a tracked-vs-untracked conflict message
+
+`add` to an existing destination id writes nothing and fails with `destination_exists`; there is no `--force`. A tracked id (carries a lock entry) is routed to `jastr update`; an untracked id is told it was not jastr-installed and must be deleted by hand.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Adding over a tracked id exits 1 with destination_exists routing to jastr update. | ✅ `add-conflict-tracked` |
+| AC-0002 | Adding over an untracked id exits 1 with destination_exists telling the user to delete it by hand, and the existing files are untouched. | ✅ `add-conflict-untracked` |
+
+#### Case: Add over a tracked id routes to jastr update
+
+Description: add is create-only. Re-adding an id already installed (and tracked in the lock) writes nothing and fails with destination_exists, routing the user to jastr update.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo is already installed at .jastr/foo; run `jastr update foo` to refresh it.
+```
+
+</details>
+
+#### Case: Add over an untracked id tells the user to delete it by hand
+
+Description: An id present on disk but with no lock entry is author-written. add writes nothing and fails with destination_exists telling the user it was not jastr-installed; the existing author file is left untouched.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ foo/
+│     └─ TEMPLATE.md
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# author foo
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# source foo
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# author foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/foo already exists and was not jastr-installed; delete it by hand before adding foo.
+```
+
+</details>
+
+### ADD-FR-0011 — Add records a provenance lock entry and never touches config.yml
+
+A successful `add` writes a lock entry under `.jastr/lock.json` with the recorded source, url, name, kind, and content hash (commit omitted for a non-git local path). `add` never reads or writes any `config.yml`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A successful add writes a lock entry with source, url, name, kind, and hash. | ✅ `add-lock-entry` |
+| AC-0002 | add creates no config.yml at the destination. | ✅ `add-no-config` |
+
+#### Case: Add records a provenance lock entry
+
+Description: A successful add writes a lock entry under .jastr/lock.json carrying the recorded source, resolved name, kind, and a content hash. (The url is the source's absolute realpath, asserted by the integration test.)
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from ./source into .jastr/foo [local].
+```
+
+</details>
+
+#### Case: Add never writes a config.yml
+
+Description: add records provenance only in the lock; it never reads or writes any config.yml at the destination.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Command**
+
+```console
+$ jastr add ./source foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 0
+
+```console
+Installed foo from ./source into .jastr/foo [local].
+```
+
+</details>
+
+### ADD-FR-0012 — Add validates a fetched unit before installing it
+
+A fetched unit that fails the static-validation pipeline is not installed; `add` fails with that defect's existing engine code and the destination is unchanged.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A unit with a malformed schema exits 1 with the existing engine code and installs nothing. | ✅ `add-validation-rejected` |
+
+#### Case: Add rejects a unit that fails the validation gate
+
+Description: A fetched unit whose template fails the static-validation pipeline is not installed; add fails with that defect's existing engine code and the destination is unchanged.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ broken/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/broken/TEMPLATE.md`
+
+```md
+---
+inputs:
+  x:
+    type: string
+---
+# {{ x }}
+```
+
+**Command**
+
+```console
+$ jastr add ./source broken
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input x must explicitly declare required: true or required: false.
+```
+
+</details>
+
+### ADD-FR-0013 — Add rejects a unit containing a special file
+
+A fetched unit that contains a symlink or other special file is rejected with `unsupported_source_entry` before any copy, hash, or validation; nothing is installed.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A unit containing a symlink exits 1 with unsupported_source_entry and installs nothing. | ✅ `add-special-file-rejected` |
+
+#### Case: Add rejects a unit containing a special file
+
+Description: A fetched unit that contains a symlink is rejected with unsupported_source_entry before any copy, hash, or validation; nothing is installed. The offending entry is reported relative to the as-typed source.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ evil/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/evil/TEMPLATE.md`
+
+```md
+---
+---
+# evil
+```
+
+**Command**
+
+```console
+$ jastr add ./source evil
+```
+
+**CLI output** — exit 1
+
+```console
+Error: source/.jastr/evil/link.md is not a regular file or directory (symlinks and special files are not allowed in a source unit).
+```
+
+</details>
+
+### ADD-FR-0014 — Add rejects malformed invocations and prompts for nothing
+
+`add` takes two positionals (`<repo-source>` and `<name>`) plus the fixed options `--ref`, `--path`, and `-g`/`--global`. A missing positional or an unknown flag is an `invalid_command`; there is no interactive prompt and no `--yes`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A missing repo source or name exits 1 with invalid_command. | ✅ `add-missing-args` |
+| AC-0002 | An unknown flag exits 1 with invalid_command, and no flag enables an interactive prompt. | ✅ `add-unknown-flag` |
+
+#### Case: Add with a missing name is an invalid_command
+
+Description: add requires both a <repo-source> and a <name>; a single positional fails with invalid_command before any filesystem access.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr add ./source
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Missing template name for add.
+```
+
+</details>
+
+#### Case: Add rejects an unknown flag and offers no prompt
+
+Description: add accepts only --ref, --path, and -g/--global; any other flag (including a hypothetical --yes) fails with invalid_command. There is no interactive confirmation path.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr add ./source foo --yes
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Unknown add option --yes.
+```
+
+</details>
+
+### ADD-FR-0015 — A present lock.json does not perturb template discovery
+
+`.jastr/lock.json` is a root-level file ignored by template discovery exactly like `config.yml`; `jastr run` behaves identically whether or not it is present.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | jastr run renders a template normally when a lock.json is present in the root. | ✅ `add-lock-ignored-by-run` |
+
+#### Case: A present lock.json does not perturb template discovery
+
+Description: .jastr/lock.json is a root-level file ignored by template discovery exactly like config.yml; jastr run renders a template normally when a lock.json is present in the root.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ demo/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+---
+DEMO body
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "demo": {
+      "source": "owner/repo",
+      "url": "https://github.com/owner/repo.git",
+      "name": "demo",
+      "kind": "standalone",
+      "hash": "abc"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr run demo
+```
+
+**CLI output** — exit 0
+
+```console
+DEMO body
 ```
 
 </details>

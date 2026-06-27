@@ -1,0 +1,12 @@
+id: add-global-root
+covers:
+  - ADD-FR-0009.AC-0002
+title: Add with -g installs into the global root
+description: >
+  -g/--global installs the unit into the global root ($JASTR_HOME/.jastr)
+  instead of the local one, reported by the [global] label in the success line.
+command: ["add", "./source", "foo", "-g"]
+expect:
+  exitCode: 0
+  stdout: "Installed foo from ./source into .jastr/foo [global]."
+  stderr: ""

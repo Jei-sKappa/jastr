@@ -46,6 +46,32 @@ function context(testCase: CaseManifest, field: string): string {
   return `[${testCase.id}] covers ${testCase.covers.join(", ")} ${field}`;
 }
 
+/** The harness-relative location of the checked-in fake-git shim. */
+const FAKE_GIT_SHIM = "test/e2e/harness/fake-git/git";
+
+/** The sentinel an `env` value uses to reference the fake-git shim's absolute
+ * path, which is machine-dependent and so cannot be hard-coded into a case. */
+export const FAKE_GIT_BIN_TOKEN = "__FAKE_GIT_BIN__";
+
+/**
+ * Resolve a case's `env` map for the subprocess: every value equal to
+ * {@link FAKE_GIT_BIN_TOKEN} becomes the checked-in fake-git shim's absolute
+ * path (resolved against `repoRoot`); all other values pass through verbatim.
+ */
+function resolveEnv(
+  env: Record<string, string>,
+  repoRoot: string,
+): Record<string, string> {
+  const resolved: Record<string, string> = {};
+  for (const [key, value] of Object.entries(env)) {
+    resolved[key] =
+      value === FAKE_GIT_BIN_TOKEN
+        ? path.resolve(repoRoot, FAKE_GIT_SHIM)
+        : value;
+  }
+  return resolved;
+}
+
 async function readExpectedText(
   testCase: LoadedCase,
   inline: string | undefined,
@@ -262,10 +288,13 @@ export async function runCase(
     const cliPath = path.resolve(repoRoot, "src/index.ts");
     // The CLI subprocess always sees `JASTR_HOME` (global-base hermeticity); a
     // case's `env` map is merged after it, so a case can add (or override) extra
-    // environment such as `JASTR_GIT_BIN` pointing at the fake-git shim.
+    // environment such as `JASTR_GIT_BIN` pointing at the fake-git shim. The
+    // shim's absolute path is machine-dependent, so a case writes the
+    // `__FAKE_GIT_BIN__` sentinel and the runner resolves it to the checked-in
+    // shim — the only hermetic way a case.yml can point `JASTR_GIT_BIN` at it.
     const env: NodeJS.ProcessEnv = {
       JASTR_HOME: globalRoot,
-      ...testCase.manifest.env,
+      ...resolveEnv(testCase.manifest.env, repoRoot),
     };
 
     // Run any `setup` pre-steps (in order) after fixture/substitute expansion and

@@ -1,0 +1,183 @@
+- id: ADD-FR-0001
+  title: Add installs a standalone template
+  status: active
+  description: >
+    `jastr add <repo-source> <name>` resolves a single-segment `<name>` to a
+    standalone template directory in the source's `.jastr/` and copies it
+    verbatim into the destination root's `.jastr/<name>/`, printing one
+    deterministic provenance line.
+  acceptance:
+    - id: AC-0001
+      statement: Adding a standalone copies its directory contents verbatim into .jastr/<name>/ and prints a single Installed line.
+
+- id: ADD-FR-0002
+  title: Add installs a whole group
+  status: active
+  description: >
+    A `<name>` that resolves to a group (a directory with a `.jastrgroup`
+    marker) installs the entire group directory — marker plus every template —
+    and the success line reports the group's template count.
+  acceptance:
+    - id: AC-0001
+      statement: Adding a group installs the .jastrgroup marker and all templates and reports the template count.
+
+- id: ADD-FR-0003
+  title: Add rejects a two-segment group/template ref
+  status: active
+  description: >
+    Groups install as an atomic whole, so a two-segment `group/template` ref is
+    recognized but rejected with `grouped_template_not_addable`; nothing is
+    installed.
+  acceptance:
+    - id: AC-0001
+      statement: A two-segment group/template ref exits 1 with grouped_template_not_addable and installs nothing.
+
+- id: ADD-FR-0004
+  title: Add reports a missing name against the source
+  status: active
+  description: >
+    When `<name>` resolves to neither a standalone template nor a group in the
+    source's `.jastr/`, `add` fails with `template_not_found` whose message names
+    the source.
+  acceptance:
+    - id: AC-0001
+      statement: A name absent from the source exits 1 with template_not_found naming the source.
+
+- id: ADD-FR-0005
+  title: Add expands owner/repo and guards positionals
+  status: active
+  description: >
+    The `owner/repo` shorthand is cloned from `https://github.com/owner/repo.git`,
+    and every git invocation places `--` before its positional arguments so a
+    hostile source/url/ref can never be read as a git option.
+  acceptance:
+    - id: AC-0001
+      statement: owner/repo expands to the github HTTPS URL in the clone argv.
+    - id: AC-0002
+      statement: The clone argv places -- before the positional URL and directory.
+
+- id: ADD-FR-0006
+  title: Add clones a remote ref and records its commit
+  status: active
+  description: >
+    A remote source is cloned and installed; `--ref` is passed via `--branch`,
+    and the resolved commit is captured into the lock entry.
+  acceptance:
+    - id: AC-0001
+      statement: A remote add clones the source, installs the unit, and records its commit in the lock.
+    - id: AC-0002
+      statement: --ref <branch> is forwarded to git as --branch <branch>.
+
+- id: ADD-FR-0007
+  title: Add fails loudly when git is unavailable or the clone fails
+  status: active
+  description: >
+    With `git` absent from PATH a remote `add` fails with `git_unavailable`; with
+    `git` present but the clone failing it fails with `clone_failed` carrying
+    git's stderr, leaving no clone temp dir or partial unit. Neither hangs.
+  acceptance:
+    - id: AC-0001
+      statement: A remote add with git absent exits 1 with git_unavailable.
+    - id: AC-0002
+      statement: A clone failure exits 1 with clone_failed carrying git's stderr and leaves nothing installed.
+
+- id: ADD-FR-0008
+  title: Add resolves an optional --path subdir and rejects escapes
+  status: active
+  description: >
+    `--path <subdir>` resolves the source's `.jastr/` under that subdir and
+    records the normalized relative path in the lock; an absolute `--path` or one
+    that escapes the source root is rejected with `invalid_command`.
+  acceptance:
+    - id: AC-0001
+      statement: --path <subdir> resolves <source>/<subdir>/.jastr/<name> and records the relative path.
+    - id: AC-0002
+      statement: An absolute --path exits 1 with invalid_command.
+
+- id: ADD-FR-0009
+  title: Add targets the local root by default and the global root with -g
+  status: active
+  description: >
+    A default `add` installs into the local root; `-g`/`--global` installs into
+    the global root (`$JASTR_HOME/.jastr`). When no local `.jastr/` exists up the
+    tree, a default `add` bootstraps `.jastr/` in cwd and installs there — `add`
+    never raises `missing_project_root`.
+  acceptance:
+    - id: AC-0001
+      statement: A default add with no local .jastr/ up-tree creates .jastr/ in cwd and installs there.
+    - id: AC-0002
+      statement: -g installs into the global root .jastr/.
+
+- id: ADD-FR-0010
+  title: Add is create-only with a tracked-vs-untracked conflict message
+  status: active
+  description: >
+    `add` to an existing destination id writes nothing and fails with
+    `destination_exists`; there is no `--force`. A tracked id (carries a lock
+    entry) is routed to `jastr update`; an untracked id is told it was not
+    jastr-installed and must be deleted by hand.
+  acceptance:
+    - id: AC-0001
+      statement: Adding over a tracked id exits 1 with destination_exists routing to jastr update.
+    - id: AC-0002
+      statement: Adding over an untracked id exits 1 with destination_exists telling the user to delete it by hand, and the existing files are untouched.
+
+- id: ADD-FR-0011
+  title: Add records a provenance lock entry and never touches config.yml
+  status: active
+  description: >
+    A successful `add` writes a lock entry under `.jastr/lock.json` with the
+    recorded source, url, name, kind, and content hash (commit omitted for a
+    non-git local path). `add` never reads or writes any `config.yml`.
+  acceptance:
+    - id: AC-0001
+      statement: A successful add writes a lock entry with source, url, name, kind, and hash.
+    - id: AC-0002
+      statement: add creates no config.yml at the destination.
+
+- id: ADD-FR-0012
+  title: Add validates a fetched unit before installing it
+  status: active
+  description: >
+    A fetched unit that fails the static-validation pipeline is not installed;
+    `add` fails with that defect's existing engine code and the destination is
+    unchanged.
+  acceptance:
+    - id: AC-0001
+      statement: A unit with a malformed schema exits 1 with the existing engine code and installs nothing.
+
+- id: ADD-FR-0013
+  title: Add rejects a unit containing a special file
+  status: active
+  description: >
+    A fetched unit that contains a symlink or other special file is rejected with
+    `unsupported_source_entry` before any copy, hash, or validation; nothing is
+    installed.
+  acceptance:
+    - id: AC-0001
+      statement: A unit containing a symlink exits 1 with unsupported_source_entry and installs nothing.
+
+- id: ADD-FR-0014
+  title: Add rejects malformed invocations and prompts for nothing
+  status: active
+  description: >
+    `add` takes two positionals (`<repo-source>` and `<name>`) plus the fixed
+    options `--ref`, `--path`, and `-g`/`--global`. A missing positional or an
+    unknown flag is an `invalid_command`; there is no interactive prompt and no
+    `--yes`.
+  acceptance:
+    - id: AC-0001
+      statement: A missing repo source or name exits 1 with invalid_command.
+    - id: AC-0002
+      statement: An unknown flag exits 1 with invalid_command, and no flag enables an interactive prompt.
+
+- id: ADD-FR-0015
+  title: A present lock.json does not perturb template discovery
+  status: active
+  description: >
+    `.jastr/lock.json` is a root-level file ignored by template discovery exactly
+    like `config.yml`; `jastr run` behaves identically whether or not it is
+    present.
+  acceptance:
+    - id: AC-0001
+      statement: jastr run renders a template normally when a lock.json is present in the root.

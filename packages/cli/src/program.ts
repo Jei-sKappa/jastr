@@ -1,4 +1,5 @@
 import { Command } from "@commander-js/extra-typings";
+import { makeAddCommand } from "./commands/add";
 import { makeGenerateCommand } from "./commands/generate";
 import { makeRunCommand } from "./commands/run";
 import { makeValidateCommand } from "./commands/validate";
@@ -14,5 +15,6 @@ export function buildProgram(): Command {
     .exitOverride()
     .addCommand(makeRunCommand())
     .addCommand(makeGenerateCommand())
-    .addCommand(makeValidateCommand());
+    .addCommand(makeValidateCommand())
+    .addCommand(makeAddCommand());
 }

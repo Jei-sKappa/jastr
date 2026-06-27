@@ -1,0 +1,20 @@
+id: add-clone-owner-repo
+covers:
+  - ADD-FR-0005.AC-0001
+  - ADD-FR-0005.AC-0002
+title: Add expands owner/repo and guards positionals with --
+description: >
+  The owner/repo shorthand is cloned from https://github.com/owner/repo.git, and
+  the clone argv places -- before the positional URL and directory so a hostile
+  value can never be read as a git option (asserted via the recorded argv).
+command: ["add", "owner/repo", "foo"]
+env:
+  JASTR_GIT_BIN: "__FAKE_GIT_BIN__"
+  FAKE_GIT_SOURCE: "clone-source"
+expect:
+  exitCode: 0
+  stdout: "Installed foo from owner/repo into .jastr/foo [local]."
+  stderr: ""
+  fileContains:
+    .fake-git-argv:
+      - '"clone","--depth","1","--","https://github.com/owner/repo.git"'

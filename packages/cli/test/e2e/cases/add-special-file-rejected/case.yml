@@ -1,0 +1,13 @@
+id: add-special-file-rejected
+covers:
+  - ADD-FR-0013.AC-0001
+title: Add rejects a unit containing a special file
+description: >
+  A fetched unit that contains a symlink is rejected with
+  unsupported_source_entry before any copy, hash, or validation; nothing is
+  installed. The offending entry is reported relative to the as-typed source.
+command: ["add", "./source", "evil"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: source/.jastr/evil/link.md is not a regular file or directory (symlinks and special files are not allowed in a source unit).\n"

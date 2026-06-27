@@ -1,0 +1,17 @@
+id: add-no-config
+covers:
+  - ADD-FR-0011.AC-0002
+title: Add never writes a config.yml
+description: >
+  add records provenance only in the lock; it never reads or writes any
+  config.yml at the destination.
+command: ["add", "./source", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md
+  fileNotContains:
+    .jastr/lock.json:
+      - "config.yml"
