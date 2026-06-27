@@ -77,30 +77,44 @@ export async function resolveNamedUnit(
 }
 
 /**
- * Count the templates a group carries: directories under `<groupDir>/templates/`
- * that hold a `TEMPLATE.md`. Used only for the install output count, so a
- * directory without a `TEMPLATE.md` is simply not counted (the validation gate
- * enforces structure separately).
+ * List a group's member template ids: directories under `<groupDir>/templates/`
+ * that hold a `TEMPLATE.md`, sorted ascending. A directory without a
+ * `TEMPLATE.md` is simply not listed (the validation gate enforces structure
+ * separately), and a missing `templates/` dir yields an empty list.
+ *
+ * Shared so both the install output count (`countGroupTemplates`) and `jastr
+ * list`'s member tree reuse the one enumeration instead of re-encoding it.
  */
-async function countGroupTemplates(groupDir: string): Promise<number> {
+export async function listGroupTemplateIds(
+  groupDir: string,
+): Promise<string[]> {
   const templatesDir = path.join(groupDir, GROUP_TEMPLATES_DIR);
   let entries: Dirent[];
   try {
     entries = await readdir(templatesDir, { withFileTypes: true });
   } catch {
-    return 0;
+    return [];
   }
-  let count = 0;
+  const ids: string[] = [];
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const template = await safeLstat(
       path.join(templatesDir, entry.name, TEMPLATE_FILE),
     );
     if (template?.isFile()) {
-      count += 1;
+      ids.push(entry.name);
     }
   }
-  return count;
+  ids.sort();
+  return ids;
+}
+
+/**
+ * Count the templates a group carries. Used only for the install output count;
+ * delegates to {@link listGroupTemplateIds} so the enumeration lives in one place.
+ */
+async function countGroupTemplates(groupDir: string): Promise<number> {
+  return (await listGroupTemplateIds(groupDir)).length;
 }
 
 /**

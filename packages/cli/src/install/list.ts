@@ -4,6 +4,7 @@ import path from "node:path";
 import { resolveListRoots } from "../fs/project-root";
 import { classifyUnitDir } from "../templates/template-ref";
 import { type LockEntry, readLock } from "./lock";
+import { listGroupTemplateIds } from "./unit";
 
 export type ExecuteListOptions = {
   /** `true` for `--local`: restrict the inventory to the local root. */
@@ -29,6 +30,9 @@ type ListRow = {
   sourceRef?: string;
   /** The short commit for a tracked or missing row, when the lock recorded one. */
   shortCommit?: string;
+  /** A group row's member template ids (sorted), rendered as a tree under the
+   * row. Absent for standalone rows and for a `missing` group (its dir is gone). */
+  members?: string[];
 };
 
 type RootInventory = {
@@ -74,10 +78,11 @@ export async function executeList(opts: ExecuteListOptions): Promise<string> {
   }
 
   const sections = inventories.map((inventory) => {
-    const lines = [
-      `${inventory.label}:`,
-      ...inventory.rows.map((row) => `  ${formatRow(row)}`),
-    ];
+    const lines = [`${inventory.label}:`];
+    for (const row of inventory.rows) {
+      lines.push(`  ${formatRow(row)}`);
+      lines.push(...formatMemberTree(row));
+    }
     return lines.join("\n");
   });
   return `${sections.join("\n\n")}\n`;
@@ -98,11 +103,14 @@ async function inventoryRoot(projectRoot: string): Promise<ListRow[]> {
 
   for (const [id, kind] of unitKinds) {
     const entry = lock.templates[id];
-    if (entry !== undefined) {
-      rows.push(trackedRow(id, kind, entry));
-    } else {
-      rows.push({ id, status: "local", kind });
+    const row: ListRow =
+      entry !== undefined
+        ? trackedRow(id, kind, entry)
+        : { id, status: "local", kind };
+    if (kind === "group") {
+      row.members = await listGroupTemplateIds(path.join(jastrDir, id));
     }
+    rows.push(row);
   }
 
   for (const [id, entry] of Object.entries(lock.templates)) {
@@ -218,4 +226,23 @@ function formatRow(row: ListRow): string {
     parts.push("(missing)");
   }
   return parts.join(" ");
+}
+
+/**
+ * Render a group row's member templates as a tree hanging off the group row: each
+ * member on its own line at the row's 2-space indent, prefixed with the
+ * box-drawing connector (`├── ` for every member but the last, `└── ` for the
+ * last), followed by the runnable `<group-id>/<member-id>` ref. The member lines
+ * carry no provenance (the lock tracks only the group). A standalone row, or a
+ * group with no members, contributes no lines.
+ */
+function formatMemberTree(row: ListRow): string[] {
+  const members = row.members;
+  if (members === undefined || members.length === 0) {
+    return [];
+  }
+  return members.map((member, index) => {
+    const connector = index === members.length - 1 ? "└── " : "├── ";
+    return `  ${connector}${row.id}/${member}`;
+  });
 }
