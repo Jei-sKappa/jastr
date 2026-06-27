@@ -1,0 +1,13 @@
+id: remove-unknown-flag
+covers:
+  - REMOVE-FR-0009.AC-0002
+title: Remove rejects an unknown flag
+description: >
+  remove recognizes only -g/--global and --force. An unrecognized flag (here a
+  would-be confirmation flag) is an invalid_command; no flag enables an
+  interactive prompt.
+command: ["remove", "foo", "--yes"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown remove option --yes.\n"

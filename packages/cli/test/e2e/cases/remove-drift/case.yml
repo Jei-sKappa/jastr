@@ -1,0 +1,16 @@
+id: remove-drift
+covers:
+  - REMOVE-FR-0003.AC-0001
+title: Remove cleans a stale lock entry when the unit directory is gone
+description: >
+  The lock tracks foo but its unit directory was already deleted (drift). remove
+  has no unit to delete, so it simply drops the stale entry, reported by
+  lock.json no longer naming foo.
+command: ["remove", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Cleaned stale entry foo [local].\n"
+  stderr: ""
+  fileNotContains:
+    .jastr/lock.json:
+      - '"foo"'

@@ -1,0 +1,18 @@
+id: remove-tampered-lock
+covers:
+  - REMOVE-FR-0008.AC-0001
+title: Remove rejects a tampered lock entry before mutating
+description: >
+  The lock entry for foo carries an unknown extra field. remove strictly
+  validates the selected entry before acting, so it fails with invalid_lock and
+  mutates nothing — the unit directory and the lock are left intact.
+command: ["remove", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: lock entry \"foo\" is invalid: it has an unknown field \"bogus\".\n"
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/.jastr/foo/TEMPLATE.md
+  fileContains:
+    .jastr/lock.json:
+      - '"bogus"'

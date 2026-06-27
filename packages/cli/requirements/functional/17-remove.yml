@@ -1,0 +1,103 @@
+- id: REMOVE-FR-0001
+  title: Remove deletes a clean tracked install
+  status: active
+  description: >
+    `jastr remove <id>` on a tracked id whose on-disk unit is unmodified (its
+    content hash equals the recorded lock hash) deletes the unit directory and
+    drops the lock entry, printing one deterministic removal line.
+  acceptance:
+    - id: AC-0001
+      statement: Removing a clean tracked id deletes its unit directory and drops its lock entry.
+
+- id: REMOVE-FR-0002
+  title: Remove refuses a locally-modified unit unless forced
+  status: active
+  description: >
+    A tracked id whose on-disk unit differs from the recorded hash (locally
+    modified) is refused with `local_modifications` and left in place; `--force`
+    deletes it and drops the entry anyway.
+  acceptance:
+    - id: AC-0001
+      statement: Removing a locally-modified tracked id exits 1 with local_modifications and deletes nothing.
+    - id: AC-0002
+      statement: Removing a locally-modified tracked id with --force deletes it and drops the lock entry.
+
+- id: REMOVE-FR-0003
+  title: Remove cleans a stale lock entry when the unit directory is gone
+  status: active
+  description: >
+    A tracked id whose unit directory is already gone (drift) has no unit to
+    delete; `remove` simply drops the stale lock entry.
+  acceptance:
+    - id: AC-0001
+      statement: Removing a tracked id whose directory is gone drops the stale lock entry.
+
+- id: REMOVE-FR-0004
+  title: Remove refuses an untracked unit
+  status: active
+  description: >
+    An id present on disk with no lock entry is author-written (untracked).
+    `remove` refuses with `not_jastr_installed` and deletes nothing, never
+    destroying author work.
+  acceptance:
+    - id: AC-0001
+      statement: Removing an untracked id (on disk, no lock entry) exits 1 with not_jastr_installed and deletes nothing.
+
+- id: REMOVE-FR-0005
+  title: Remove reports an unknown id and hints the other root
+  status: active
+  description: >
+    An id with neither a unit directory nor a lock entry in the target root fails
+    with `not_installed`. The default targets the local root and `-g`/`--global`
+    the global root; when the unknown id is tracked in the other root, the message
+    hints at switching root.
+  acceptance:
+    - id: AC-0001
+      statement: Removing an unknown id from the local root exits 1 with not_installed and hints the global root when it is tracked there.
+    - id: AC-0002
+      statement: Removing an unknown id with -g targets the global root and exits 1 with not_installed.
+
+- id: REMOVE-FR-0006
+  title: Remove deletes a whole group
+  status: active
+  description: >
+    A tracked group id removes the entire group directory (its `.jastrgroup`
+    marker and every template) and its lock entry as a single unit.
+  acceptance:
+    - id: AC-0001
+      statement: Removing a tracked group deletes the whole group directory and drops its lock entry.
+
+- id: REMOVE-FR-0007
+  title: Remove processes ids in order with no pre-validation
+  status: active
+  description: >
+    Multiple ids are processed in declaration order with no pre-validation pass;
+    the first per-id failure emits the uniform `Error:` and exits 1, and any ids
+    already removed before it stay removed (partial completion is accepted).
+  acceptance:
+    - id: AC-0001
+      statement: Given a removable id followed by a failing id, the first is removed, the run exits 1 at the second, and the first stays removed.
+
+- id: REMOVE-FR-0008
+  title: Remove strictly validates a tampered lock entry before mutating
+  status: active
+  description: >
+    Before acting on a selected entry, `remove` strictly validates it; a tampered
+    but parseable entry (e.g. an unknown extra field) fails with `invalid_lock`
+    before any unit or lock mutation.
+  acceptance:
+    - id: AC-0001
+      statement: Removing an id whose lock entry is tampered exits 1 with invalid_lock and mutates nothing.
+
+- id: REMOVE-FR-0009
+  title: Remove rejects malformed invocations and prompts for nothing
+  status: active
+  description: >
+    `remove` requires at least one positional id and recognizes only the fixed
+    flags `-g`/`--global` and `--force`. A missing id or an unknown flag is an
+    `invalid_command`; there is no interactive prompt and no `--yes`.
+  acceptance:
+    - id: AC-0001
+      statement: Removing with no id exits 1 with invalid_command.
+    - id: AC-0002
+      statement: An unknown remove flag exits 1 with invalid_command, and no flag enables an interactive prompt.

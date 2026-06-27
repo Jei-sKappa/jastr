@@ -1,0 +1,18 @@
+id: remove-group
+covers:
+  - REMOVE-FR-0006.AC-0001
+title: Remove deletes a whole group
+description: >
+  A prior add installs the group mygroup (marker plus two templates). remove on
+  the clean tracked group deletes the entire group directory and drops its lock
+  entry as one unit.
+setup:
+  - cli: ["add", "./source", "mygroup"]
+command: ["remove", "mygroup"]
+expect:
+  exitCode: 0
+  stdout: "Removed mygroup (was ./source) [local].\n"
+  stderr: ""
+  fileNotContains:
+    .jastr/lock.json:
+      - '"mygroup"'

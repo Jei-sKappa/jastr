@@ -1,0 +1,13 @@
+id: remove-unknown-global
+covers:
+  - REMOVE-FR-0005.AC-0002
+title: Remove -g targets the global root and reports an unknown id
+description: >
+  -g/--global targets the global root. An id installed in neither root fails
+  with not_installed naming the global root (no other-root hint, since it is
+  tracked nowhere).
+command: ["remove", "nope", "-g"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: nope is not installed in the global root.\n"

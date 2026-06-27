@@ -145,6 +145,30 @@ export async function resolveListRoots(
   return roots;
 }
 
+/**
+ * Resolve the single target root for a `remove` invocation, additively beside
+ * `resolveProjectRoots` and WITHOUT its throwing `missing_project_root` path:
+ * `remove` reports an id's flavor (`not_installed` / `not_jastr_installed` / …)
+ * rather than erroring when no root exists.
+ *
+ * - `-g/--global` targets the global base (`$JASTR_HOME` else home directory).
+ * - The default (local) walks up from `cwd` for an existing `.jastr/`; when none
+ *   exists up the tree it falls back to `cwd` — a root with no `.jastr/`, so an
+ *   unknown id simply resolves to `not_installed` there.
+ *
+ * Mirrors `resolveAddDestination`'s single-root resolution; nothing is created.
+ */
+export async function resolveRemoveRoot(
+  cwd: string,
+  scope: "local" | "global",
+): Promise<string> {
+  if (scope === "global") {
+    return globalBase();
+  }
+  const local = await findLocalProjectRoot(cwd);
+  return local ?? path.resolve(cwd);
+}
+
 async function isSameRealpath(a: string, b: string): Promise<boolean> {
   try {
     return (await realpath(a)) === (await realpath(b));

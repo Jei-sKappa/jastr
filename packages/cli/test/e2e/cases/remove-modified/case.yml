@@ -1,0 +1,19 @@
+id: remove-modified
+covers:
+  - REMOVE-FR-0002.AC-0001
+title: Remove refuses a locally-modified unit
+description: >
+  After a real add, a cp setup step overwrites the installed unit's TEMPLATE.md
+  so its content hash no longer matches the lock. remove refuses with
+  local_modifications, deletes nothing, and leaves the lock entry intact.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: tampered/TEMPLATE.md, to: .jastr/foo/TEMPLATE.md }
+command: ["remove", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: foo has local modifications at .jastr/foo; re-run with --force to remove it anyway.\n"
+  fileContains:
+    .jastr/lock.json:
+      - '"foo"'

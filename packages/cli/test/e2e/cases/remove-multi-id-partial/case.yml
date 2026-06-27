@@ -1,0 +1,21 @@
+id: remove-multi-id-partial
+covers:
+  - REMOVE-FR-0007.AC-0001
+title: Remove processes ids in order and stops at the first failure
+description: >
+  A prior add installs foo (tracked, clean); authored is an untracked author
+  unit. remove foo authored removes foo first (its line is printed), then fails
+  at authored with not_jastr_installed and exits 1. foo stays removed — its lock
+  entry is gone — while authored is untouched.
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["remove", "foo", "authored"]
+expect:
+  exitCode: 1
+  stdout: "Removed foo (was ./source) [local].\n"
+  stderr: "Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.\n"
+  files:
+    .jastr/authored/TEMPLATE.md: fixture/.jastr/authored/TEMPLATE.md
+  fileNotContains:
+    .jastr/lock.json:
+      - '"foo"'

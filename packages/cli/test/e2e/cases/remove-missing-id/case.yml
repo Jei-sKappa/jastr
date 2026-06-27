@@ -1,0 +1,12 @@
+id: remove-missing-id
+covers:
+  - REMOVE-FR-0009.AC-0001
+title: Remove with no id is rejected
+description: >
+  remove requires at least one positional id. Invoked with none, it fails with
+  invalid_command before any project lookup.
+command: ["remove"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Missing template id for remove.\n"

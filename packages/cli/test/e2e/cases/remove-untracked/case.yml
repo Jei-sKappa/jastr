@@ -1,0 +1,14 @@
+id: remove-untracked
+covers:
+  - REMOVE-FR-0004.AC-0001
+title: Remove refuses an untracked unit and deletes nothing
+description: >
+  authored is present on disk with no lock entry, so it is author-written.
+  remove refuses with not_jastr_installed and leaves the directory untouched.
+command: ["remove", "authored"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.\n"
+  files:
+    .jastr/authored/TEMPLATE.md: fixture/.jastr/authored/TEMPLATE.md

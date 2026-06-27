@@ -1,0 +1,18 @@
+id: remove-modified-force
+covers:
+  - REMOVE-FR-0002.AC-0002
+title: Remove --force deletes a locally-modified unit
+description: >
+  A cp setup step makes the installed unit differ from its recorded hash. With
+  --force, remove deletes the modified unit anyway and drops the lock entry.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: tampered/TEMPLATE.md, to: .jastr/foo/TEMPLATE.md }
+command: ["remove", "foo", "--force"]
+expect:
+  exitCode: 0
+  stdout: "Removed foo (was ./source) [local].\n"
+  stderr: ""
+  fileNotContains:
+    .jastr/lock.json:
+      - '"foo"'

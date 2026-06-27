@@ -1,0 +1,19 @@
+id: remove-clean
+covers:
+  - REMOVE-FR-0001.AC-0001
+title: Remove deletes a clean tracked install
+description: >
+  A prior add installs foo (a real lock with a correct content hash). remove on
+  the clean tracked id deletes the unit directory and drops its lock entry,
+  printing one removal line. The dropped entry is shown by lock.json no longer
+  naming foo.
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["remove", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Removed foo (was ./source) [local].\n"
+  stderr: ""
+  fileNotContains:
+    .jastr/lock.json:
+      - '"foo"'

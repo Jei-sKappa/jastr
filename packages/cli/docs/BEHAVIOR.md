@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**127** requirements · **304** acceptance criteria · **218** end-to-end cases.
+**136** requirements · **316** acceptance criteria · **230** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -176,6 +176,17 @@ output against its inputs.
   - [LIST-FR-0004 — List sorts by id, reports an empty inventory, and mutates nothing](#list-fr-0004--list-sorts-by-id-reports-an-empty-inventory-and-mutates-nothing)
   - [LIST-FR-0005 — List never treats a root-level file as a unit](#list-fr-0005--list-never-treats-a-root-level-file-as-a-unit)
 
+- [Remove](#remove)
+  - [REMOVE-FR-0001 — Remove deletes a clean tracked install](#remove-fr-0001--remove-deletes-a-clean-tracked-install)
+  - [REMOVE-FR-0002 — Remove refuses a locally-modified unit unless forced](#remove-fr-0002--remove-refuses-a-locally-modified-unit-unless-forced)
+  - [REMOVE-FR-0003 — Remove cleans a stale lock entry when the unit directory is gone](#remove-fr-0003--remove-cleans-a-stale-lock-entry-when-the-unit-directory-is-gone)
+  - [REMOVE-FR-0004 — Remove refuses an untracked unit](#remove-fr-0004--remove-refuses-an-untracked-unit)
+  - [REMOVE-FR-0005 — Remove reports an unknown id and hints the other root](#remove-fr-0005--remove-reports-an-unknown-id-and-hints-the-other-root)
+  - [REMOVE-FR-0006 — Remove deletes a whole group](#remove-fr-0006--remove-deletes-a-whole-group)
+  - [REMOVE-FR-0007 — Remove processes ids in order with no pre-validation](#remove-fr-0007--remove-processes-ids-in-order-with-no-pre-validation)
+  - [REMOVE-FR-0008 — Remove strictly validates a tampered lock entry before mutating](#remove-fr-0008--remove-strictly-validates-a-tampered-lock-entry-before-mutating)
+  - [REMOVE-FR-0009 — Remove rejects malformed invocations and prompts for nothing](#remove-fr-0009--remove-rejects-malformed-invocations-and-prompts-for-nothing)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a named template
@@ -265,7 +276,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], or jastr list [--local] [--global].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], or jastr remove <id>... [-g] [--force].
 ```
 
 </details>
@@ -6924,6 +6935,7 @@ Commands:
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   list [options]                              List installed templates and groups across the .jastr/ roots
+  remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
   help [command]                              display help for command
 ```
 
@@ -7233,6 +7245,7 @@ Commands:
   validate <template-ref>                     Validate a Jastr template without rendering or writing output
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   list [options]                              List installed templates and groups across the .jastr/ roots
+  remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
   help [command]                              display help for command
 ```
 
@@ -15038,6 +15051,667 @@ $ jastr list
 ```console
 Local:
   widget (standalone) acme/widget @ abcabcabcabc
+```
+
+</details>
+
+## Remove
+
+### REMOVE-FR-0001 — Remove deletes a clean tracked install
+
+`jastr remove <id>` on a tracked id whose on-disk unit is unmodified (its content hash equals the recorded lock hash) deletes the unit directory and drops the lock entry, printing one deterministic removal line.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing a clean tracked id deletes its unit directory and drops its lock entry. | ✅ `remove-clean` |
+
+#### Case: Remove deletes a clean tracked install
+
+Description: A prior add installs foo (a real lock with a correct content hash). remove on the clean tracked id deletes the unit directory and drops its lock entry, printing one removal line. The dropped entry is shown by lock.json no longer naming foo.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr remove foo
+```
+
+**CLI output** — exit 0
+
+```console
+Removed foo (was ./source) [local].
+```
+
+</details>
+
+### REMOVE-FR-0002 — Remove refuses a locally-modified unit unless forced
+
+A tracked id whose on-disk unit differs from the recorded hash (locally modified) is refused with `local_modifications` and left in place; `--force` deletes it and drops the entry anyway.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing a locally-modified tracked id exits 1 with local_modifications and deletes nothing. | ✅ `remove-modified` |
+| AC-0002 | Removing a locally-modified tracked id with --force deletes it and drops the lock entry. | ✅ `remove-modified-force` |
+
+#### Case: Remove refuses a locally-modified unit
+
+Description: After a real add, a cp setup step overwrites the installed unit's TEMPLATE.md so its content hash no longer matches the lock. remove refuses with local_modifications, deletes nothing, and leaves the lock entry intact.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `tampered/TEMPLATE.md` → `.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr remove foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo has local modifications at .jastr/foo; re-run with --force to remove it anyway.
+```
+
+</details>
+
+#### Case: Remove --force deletes a locally-modified unit
+
+Description: A cp setup step makes the installed unit differ from its recorded hash. With --force, remove deletes the modified unit anyway and drops the lock entry.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `tampered/TEMPLATE.md` → `.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr remove foo --force
+```
+
+**CLI output** — exit 0
+
+```console
+Removed foo (was ./source) [local].
+```
+
+</details>
+
+### REMOVE-FR-0003 — Remove cleans a stale lock entry when the unit directory is gone
+
+A tracked id whose unit directory is already gone (drift) has no unit to delete; `remove` simply drops the stale lock entry.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing a tracked id whose directory is gone drops the stale lock entry. | ✅ `remove-drift` |
+
+#### Case: Remove cleans a stale lock entry when the unit directory is gone
+
+Description: The lock tracks foo but its unit directory was already deleted (drift). remove has no unit to delete, so it simply drops the stale entry, reported by lock.json no longer naming foo.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ lock.json
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr remove foo
+```
+
+**CLI output** — exit 0
+
+```console
+Cleaned stale entry foo [local].
+```
+
+</details>
+
+### REMOVE-FR-0004 — Remove refuses an untracked unit
+
+An id present on disk with no lock entry is author-written (untracked). `remove` refuses with `not_jastr_installed` and deletes nothing, never destroying author work.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing an untracked id (on disk, no lock entry) exits 1 with not_jastr_installed and deletes nothing. | ✅ `remove-untracked` |
+
+#### Case: Remove refuses an untracked unit and deletes nothing
+
+Description: authored is present on disk with no lock entry, so it is author-written. remove refuses with not_jastr_installed and leaves the directory untouched.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ authored/
+      └─ TEMPLATE.md
+```
+
+`.jastr/authored/TEMPLATE.md`
+
+```md
+---
+---
+# authored
+```
+
+**Command**
+
+```console
+$ jastr remove authored
+```
+
+**Output files**
+
+`.jastr/authored/TEMPLATE.md`
+
+```md
+---
+---
+# authored
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.
+```
+
+</details>
+
+### REMOVE-FR-0005 — Remove reports an unknown id and hints the other root
+
+An id with neither a unit directory nor a lock entry in the target root fails with `not_installed`. The default targets the local root and `-g`/`--global` the global root; when the unknown id is tracked in the other root, the message hints at switching root.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing an unknown id from the local root exits 1 with not_installed and hints the global root when it is tracked there. | ✅ `remove-unknown-hint` |
+| AC-0002 | Removing an unknown id with -g targets the global root and exits 1 with not_installed. | ✅ `remove-unknown-global` |
+
+#### Case: Remove -g targets the global root and reports an unknown id
+
+Description: -g/--global targets the global root. An id installed in neither root fails with not_installed naming the global root (no other-root hint, since it is tracked nowhere).
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr remove nope -g
+```
+
+**CLI output** — exit 1
+
+```console
+Error: nope is not installed in the global root.
+```
+
+</details>
+
+#### Case: Remove of an unknown local id hints the other root
+
+Description: foo is not installed in the local root but is tracked in the global root. remove (default local) fails with not_installed and hints the user to re-run with -g.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   ├─ foo/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr remove foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo is not installed in the local root; it is installed in the global root — re-run with -g to remove it.
+```
+
+</details>
+
+### REMOVE-FR-0006 — Remove deletes a whole group
+
+A tracked group id removes the entire group directory (its `.jastrgroup` marker and every template) and its lock entry as a single unit.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing a tracked group deletes the whole group directory and drops its lock entry. | ✅ `remove-group` |
+
+#### Case: Remove deletes a whole group
+
+Description: A prior add installs the group mygroup (marker plus two templates). remove on the clean tracked group deletes the entire group directory and drops its lock entry as one unit.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ mygroup/
+         ├─ .jastrgroup
+         └─ templates/
+            ├─ one/
+            │  └─ TEMPLATE.md
+            └─ two/
+               └─ TEMPLATE.md
+```
+
+`source/.jastr/mygroup/.jastrgroup`
+
+```text
+
+```
+
+`source/.jastr/mygroup/templates/one/TEMPLATE.md`
+
+```md
+---
+---
+# one
+```
+
+`source/.jastr/mygroup/templates/two/TEMPLATE.md`
+
+```md
+---
+---
+# two
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source mygroup`
+
+**Command**
+
+```console
+$ jastr remove mygroup
+```
+
+**CLI output** — exit 0
+
+```console
+Removed mygroup (was ./source) [local].
+```
+
+</details>
+
+### REMOVE-FR-0007 — Remove processes ids in order with no pre-validation
+
+Multiple ids are processed in declaration order with no pre-validation pass; the first per-id failure emits the uniform `Error:` and exits 1, and any ids already removed before it stay removed (partial completion is accepted).
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Given a removable id followed by a failing id, the first is removed, the run exits 1 at the second, and the first stays removed. | ✅ `remove-multi-id-partial` |
+
+#### Case: Remove processes ids in order and stops at the first failure
+
+Description: A prior add installs foo (tracked, clean); authored is an untracked author unit. remove foo authored removes foo first (its line is printed), then fails at authored with not_jastr_installed and exits 1. foo stays removed — its lock entry is gone — while authored is untouched.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ authored/
+│     └─ TEMPLATE.md
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`.jastr/authored/TEMPLATE.md`
+
+```md
+---
+---
+# authored
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo body
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr remove foo authored
+```
+
+**Output files**
+
+`.jastr/authored/TEMPLATE.md`
+
+```md
+---
+---
+# authored
+```
+
+**CLI output** — exit 1
+
+```console
+Removed foo (was ./source) [local].
+Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.
+```
+
+</details>
+
+### REMOVE-FR-0008 — Remove strictly validates a tampered lock entry before mutating
+
+Before acting on a selected entry, `remove` strictly validates it; a tampered but parseable entry (e.g. an unknown extra field) fails with `invalid_lock` before any unit or lock mutation.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing an id whose lock entry is tampered exits 1 with invalid_lock and mutates nothing. | ✅ `remove-tampered-lock` |
+
+#### Case: Remove rejects a tampered lock entry before mutating
+
+Description: The lock entry for foo carries an unknown extra field. remove strictly validates the selected entry before acting, so it fails with invalid_lock and mutates nothing — the unit directory and the lock are left intact.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ foo/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef",
+      "bogus": true
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr remove foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: lock entry "foo" is invalid: it has an unknown field "bogus".
+```
+
+</details>
+
+### REMOVE-FR-0009 — Remove rejects malformed invocations and prompts for nothing
+
+`remove` requires at least one positional id and recognizes only the fixed flags `-g`/`--global` and `--force`. A missing id or an unknown flag is an `invalid_command`; there is no interactive prompt and no `--yes`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Removing with no id exits 1 with invalid_command. | ✅ `remove-missing-id` |
+| AC-0002 | An unknown remove flag exits 1 with invalid_command, and no flag enables an interactive prompt. | ✅ `remove-unknown-flag` |
+
+#### Case: Remove with no id is rejected
+
+Description: remove requires at least one positional id. Invoked with none, it fails with invalid_command before any project lookup.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr remove
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Missing template id for remove.
+```
+
+</details>
+
+#### Case: Remove rejects an unknown flag
+
+Description: remove recognizes only -g/--global and --force. An unrecognized flag (here a would-be confirmation flag) is an invalid_command; no flag enables an interactive prompt.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr remove foo --yes
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Unknown remove option --yes.
 ```
 
 </details>

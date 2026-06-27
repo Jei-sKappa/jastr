@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], or jastr list [--local] [--global].";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], or jastr remove <id>... [-g] [--force].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";
@@ -33,7 +33,8 @@ export function validateCliArgv(argv: string[]): void {
     command !== "generate" &&
     command !== "validate" &&
     command !== "add" &&
-    command !== "list"
+    command !== "list" &&
+    command !== "remove"
   ) {
     throw new JastrError("invalid_command", expectedCommandShape);
   }
@@ -45,6 +46,11 @@ export function validateCliArgv(argv: string[]): void {
 
   if (command === "list") {
     validateListArgs(argv.slice(1));
+    return;
+  }
+
+  if (command === "remove") {
+    validateRemoveArgs(argv.slice(1));
     return;
   }
 
@@ -221,6 +227,33 @@ function validateListArgs(rest: string[]): void {
       throw new JastrError("invalid_command", `Unknown list option ${arg}.`);
     }
     throw new JastrError("invalid_command", `Invalid list argument ${arg}.`);
+  }
+}
+
+/**
+ * Validate `remove`'s argv shape. `remove` takes one or more positional ids and
+ * recognizes only the fixed flags `-g`/`--global` and `--force`; a missing id or
+ * an unrecognized option is an `invalid_command`. There is deliberately no
+ * `--yes`/prompt path (it falls into the unknown-option branch).
+ */
+function validateRemoveArgs(rest: string[]): void {
+  const positionals: string[] = [];
+
+  for (const arg of rest) {
+    if (isHelpToken(arg)) {
+      return;
+    }
+    if (arg === "-g" || arg === "--global" || arg === "--force") {
+      continue;
+    }
+    if (arg.startsWith("-")) {
+      throw new JastrError("invalid_command", `Unknown remove option ${arg}.`);
+    }
+    positionals.push(arg);
+  }
+
+  if (positionals.length === 0) {
+    throw new JastrError("invalid_command", "Missing template id for remove.");
   }
 }
 
