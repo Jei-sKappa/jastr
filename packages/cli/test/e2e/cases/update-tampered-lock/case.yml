@@ -1,0 +1,18 @@
+id: update-tampered-lock
+covers:
+  - UPDATE-FR-0011.AC-0001
+title: Update rejects a tampered lock entry before acting
+description: >
+  The lock entry for foo carries an unknown extra field. update strictly validates
+  the selected entry before any acquire or mutation, so it fails foo with
+  invalid_lock and mutates nothing — the unit directory and the lock stay intact.
+command: ["update", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: lock entry \"foo\" is invalid: it has an unknown field \"bogus\".\n"
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/.jastr/foo/TEMPLATE.md
+  fileContains:
+    .jastr/lock.json:
+      - '"bogus"'

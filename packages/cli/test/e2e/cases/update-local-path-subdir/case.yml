@@ -1,0 +1,21 @@
+id: update-local-path-subdir
+covers:
+  - UPDATE-FR-0005.AC-0001
+title: A local-path install updates from its recorded path regardless of cwd
+description: >
+  A prior add (run from the nested subdir) installs foo from ./source, recording
+  the source's absolute realpath in the lock. A cp step then advances that source.
+  Running update foo from the same nested subdir re-reads the recorded absolute
+  path (not a cwd-relative one), so the swap succeeds and the installed unit at the
+  project-root .jastr/foo carries the upstream body.
+cwd: nested
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: upstream/TEMPLATE.md, to: nested/source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Updated foo (? -> ?) [local].\n"
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: upstream/TEMPLATE.md

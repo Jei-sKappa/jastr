@@ -1,0 +1,18 @@
+id: update-up-to-date
+covers:
+  - UPDATE-FR-0002.AC-0001
+title: Update reports an up-to-date target and changes nothing
+description: >
+  A prior add installs foo (a real lock with a correct content hash). The source
+  is unchanged, so the re-fetched unit hash equals the stored hash. update reports
+  foo is up to date, exits 0, and leaves the lock untouched (it still names foo).
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["update", "foo"]
+expect:
+  exitCode: 0
+  stdout: "foo is up to date [local].\n"
+  stderr: ""
+  fileContains:
+    .jastr/lock.json:
+      - '"foo"'

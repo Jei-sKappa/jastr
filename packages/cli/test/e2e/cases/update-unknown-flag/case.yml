@@ -1,0 +1,13 @@
+id: update-unknown-flag
+covers:
+  - UPDATE-FR-0013.AC-0001
+title: Update rejects an unknown flag
+description: >
+  update recognizes only -g/--global, --force, and --check. An unrecognized flag
+  (here a would-be confirmation flag) is an invalid_command; no flag enables an
+  interactive prompt.
+command: ["update", "foo", "--yes"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown update option --yes.\n"

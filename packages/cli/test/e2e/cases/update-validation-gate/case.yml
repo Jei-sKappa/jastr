@@ -1,0 +1,21 @@
+id: update-validation-gate
+covers:
+  - UPDATE-FR-0008.AC-0001
+title: A broken upstream fails the id and leaves the prior unit intact
+description: >
+  A prior add installs a valid foo. A cp step then rewrites the recorded source's
+  TEMPLATE.md into a broken template (a required input referenced before it is
+  validated, tripping the static gate). update validates the fetched upstream
+  before replacing, so it fails foo with the engine defect code (malformed_schema),
+  exits 1, and leaves the previously-installed valid unit untouched (no partial
+  swap, no leftover stage dir).
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: broken/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input x must explicitly declare required: true or required: false.\n"
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md

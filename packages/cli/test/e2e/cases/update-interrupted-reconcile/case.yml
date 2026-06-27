@@ -1,0 +1,21 @@
+id: update-interrupted-reconcile
+covers:
+  - UPDATE-FR-0010.AC-0001
+title: Update reconciles an interrupted prior update instead of refusing
+description: >
+  A prior add installs foo (v1). Two cp steps then put the SAME advanced body (v2)
+  onto both the installed unit and the recorded source — the signature of an
+  interrupted prior update where the unit was swapped before the lock was written.
+  Because disk equals upstream but differs from stored, update reconciles the lock
+  (no local_modifications refusal), exits 0, and leaves the v2 unit in place.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: v2/TEMPLATE.md, to: .jastr/foo/TEMPLATE.md }
+  - cp: { from: v2/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo"]
+expect:
+  exitCode: 0
+  stdout: "foo reconciled to (? -> ?) [local].\n"
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: v2/TEMPLATE.md

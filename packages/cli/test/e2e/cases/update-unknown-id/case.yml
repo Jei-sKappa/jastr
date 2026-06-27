@@ -1,0 +1,12 @@
+id: update-unknown-id
+covers:
+  - UPDATE-FR-0001.AC-0001
+title: Update of an explicit unknown id reports not_installed
+description: >
+  The local root has no tracked installs. update ghost names an id with no lock
+  entry, so it is reported not_installed on stderr and the run exits 1.
+command: ["update", "ghost"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: ghost is not installed in the local root.\n"

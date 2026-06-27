@@ -1,0 +1,20 @@
+id: update-replace
+covers:
+  - UPDATE-FR-0003.AC-0001
+title: Update replaces a clean stale unit and bumps the lock
+description: >
+  A prior add installs foo. A cp setup step then rewrites the recorded source's
+  TEMPLATE.md so upstream differs from the stored hash while the installed unit is
+  still clean. update validates the upstream, swaps the unit (the installed
+  TEMPLATE.md now carries the v2 body), and bumps the lock — reported by one
+  Updated line.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: upstream/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo"]
+expect:
+  exitCode: 0
+  stdout: "Updated foo (? -> ?) [local].\n"
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: upstream/TEMPLATE.md

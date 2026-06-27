@@ -1,0 +1,17 @@
+id: update-missing-dir
+covers:
+  - UPDATE-FR-0012.AC-0001
+title: Update reports a missing unit directory without re-installing
+description: >
+  The lock tracks foo but its unit directory is gone (drift). update reports the
+  missing directory non-destructively (consistent with list's missing), never
+  re-installs it, and counts it as not-up-to-date so the run exits 1. The lock
+  entry is left intact.
+command: ["update", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: foo is tracked but its unit directory is missing at .jastr/foo; re-add it with `jastr add`.\n"
+  fileContains:
+    .jastr/lock.json:
+      - '"foo"'

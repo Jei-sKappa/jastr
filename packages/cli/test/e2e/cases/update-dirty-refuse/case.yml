@@ -1,0 +1,20 @@
+id: update-dirty-refuse
+covers:
+  - UPDATE-FR-0004.AC-0001
+title: Update refuses a locally-modified target
+description: >
+  After a real add, one cp step locally edits the installed unit (disk differs
+  from the stored hash) and another advances the recorded source to a different
+  body (upstream differs from both). update refuses + skips foo with
+  local_modifications, exits 1, and leaves the local edit intact.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: local-edit/TEMPLATE.md, to: .jastr/foo/TEMPLATE.md }
+  - cp: { from: upstream/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: foo has local modifications at .jastr/foo; re-run with --force to overwrite it.\n"
+  files:
+    .jastr/foo/TEMPLATE.md: local-edit/TEMPLATE.md

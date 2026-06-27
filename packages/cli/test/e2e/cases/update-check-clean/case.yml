@@ -1,0 +1,14 @@
+id: update-check-clean
+covers:
+  - UPDATE-FR-0006.AC-0001
+title: update --check exits 0 when every target is up to date
+description: >
+  A prior add installs foo. The source is unchanged, so update --check reports foo
+  up to date, writes nothing, and exits 0.
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["update", "--check", "foo"]
+expect:
+  exitCode: 0
+  stdout: "foo is up to date [local].\n"
+  stderr: ""

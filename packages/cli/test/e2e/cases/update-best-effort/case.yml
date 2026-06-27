@@ -1,0 +1,15 @@
+id: update-best-effort
+covers:
+  - UPDATE-FR-0007.AC-0001
+title: Update is best-effort across ids
+description: >
+  A prior add installs foo (up to date). update foo ghost reports foo up to date
+  (stdout), continues past it to ghost which has no entry (not_installed on
+  stderr), and exits 1 — proving processing did not stop at the first error.
+setup:
+  - cli: ["add", "./source", "foo"]
+command: ["update", "foo", "ghost"]
+expect:
+  exitCode: 1
+  stdout: "foo is up to date [local].\n"
+  stderr: "Error: ghost is not installed in the local root.\n"

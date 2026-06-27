@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef",
+      "bogus": true
+    }
+  }
+}

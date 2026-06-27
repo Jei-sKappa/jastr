@@ -1,0 +1,12 @@
+id: update-nothing
+covers:
+  - UPDATE-FR-0009.AC-0001
+title: Bare update with no tracked installs is an explicit no-op success
+description: >
+  The local root exists but tracks no installs. A bare update is a no-op success:
+  it prints an explicit nothing-to-update line and exits 0.
+command: ["update"]
+expect:
+  exitCode: 0
+  stdout: "Nothing to update in the local root.\n"
+  stderr: ""

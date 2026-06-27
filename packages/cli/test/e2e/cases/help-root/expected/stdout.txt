@@ -13,4 +13,5 @@ Commands:
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   list [options]                              List installed templates and groups across the .jastr/ roots
   remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
+  update [options] [id...]                    Refresh installed templates or groups from where they came
   help [command]                              display help for command

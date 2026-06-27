@@ -1,0 +1,19 @@
+id: update-dirty-force
+covers:
+  - UPDATE-FR-0004.AC-0002
+title: Update --force overwrites a locally-modified target
+description: >
+  Same dirty setup as the refuse case (a local edit plus an advanced source).
+  With --force, update validates the upstream, overwrites the locally-modified
+  unit with the upstream body, re-records the lock, and exits 0.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: local-edit/TEMPLATE.md, to: .jastr/foo/TEMPLATE.md }
+  - cp: { from: upstream/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "foo", "--force"]
+expect:
+  exitCode: 0
+  stdout: "Updated foo (? -> ?) [local].\n"
+  stderr: ""
+  files:
+    .jastr/foo/TEMPLATE.md: upstream/TEMPLATE.md

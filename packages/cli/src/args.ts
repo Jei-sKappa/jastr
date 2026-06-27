@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], or jastr remove <id>... [-g] [--force].";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";
@@ -34,7 +34,8 @@ export function validateCliArgv(argv: string[]): void {
     command !== "validate" &&
     command !== "add" &&
     command !== "list" &&
-    command !== "remove"
+    command !== "remove" &&
+    command !== "update"
   ) {
     throw new JastrError("invalid_command", expectedCommandShape);
   }
@@ -51,6 +52,11 @@ export function validateCliArgv(argv: string[]): void {
 
   if (command === "remove") {
     validateRemoveArgs(argv.slice(1));
+    return;
+  }
+
+  if (command === "update") {
+    validateUpdateArgs(argv.slice(1));
     return;
   }
 
@@ -254,6 +260,48 @@ function validateRemoveArgs(rest: string[]): void {
 
   if (positionals.length === 0) {
     throw new JastrError("invalid_command", "Missing template id for remove.");
+  }
+}
+
+/**
+ * Validate `update`'s argv shape. `update` takes zero or more positional ids
+ * (bare `update` targets every tracked id) and recognizes only the fixed flags
+ * `-g`/`--global`, `--force`, and `--check`; any other option is an
+ * `invalid_command`. There is deliberately no `--yes`/prompt path (it falls into
+ * the unknown-option branch). Mirroring `generate`, `--check` (which writes
+ * nothing) combined with `--force` (which governs overwriting) is incoherent and
+ * rejected.
+ */
+function validateUpdateArgs(rest: string[]): void {
+  let sawCheck = false;
+  let sawForce = false;
+
+  for (const arg of rest) {
+    if (isHelpToken(arg)) {
+      return;
+    }
+    if (arg === "-g" || arg === "--global") {
+      continue;
+    }
+    if (arg === "--force") {
+      sawForce = true;
+      continue;
+    }
+    if (arg === "--check") {
+      sawCheck = true;
+      continue;
+    }
+    if (arg.startsWith("-")) {
+      throw new JastrError("invalid_command", `Unknown update option ${arg}.`);
+    }
+    // A bare positional is an id; ids are optional, so any count is accepted.
+  }
+
+  if (sawCheck && sawForce) {
+    throw new JastrError(
+      "invalid_command",
+      "--check cannot be combined with --force.",
+    );
   }
 }
 

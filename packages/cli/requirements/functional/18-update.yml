@@ -1,0 +1,150 @@
+- id: UPDATE-FR-0001
+  title: Update targets bare-all, explicit ids, and reports unknown ids
+  status: active
+  description: >
+    `jastr update` with no id targets every tracked id in the root; `update <id>`
+    targets only the named id(s). An explicit id with no lock entry is reported
+    `not_installed` and counted as an error.
+  acceptance:
+    - id: AC-0001
+      statement: Bare update targets all tracked ids and an explicit unknown id exits 1 with not_installed.
+
+- id: UPDATE-FR-0002
+  title: Update reports an up-to-date target and changes nothing
+  status: active
+  description: >
+    When the freshly re-fetched unit hash equals the stored lock hash, `update`
+    reports the id is up to date and makes no change to the unit or the lock.
+  acceptance:
+    - id: AC-0001
+      statement: A target whose re-fetched hash equals the stored hash is reported up to date and nothing changes.
+
+- id: UPDATE-FR-0003
+  title: Update replaces a clean stale unit and bumps the lock
+  status: active
+  description: >
+    When upstream differs from the stored hash and the on-disk unit is unchanged
+    from the lock hash (clean), `update` validates the upstream unit, swaps the
+    unit by stage-then-swap, and bumps the lock `hash` (and `commit`).
+  acceptance:
+    - id: AC-0001
+      statement: A clean target whose upstream differs is replaced and its lock hash is bumped.
+
+- id: UPDATE-FR-0004
+  title: Update refuses a locally-modified target unless forced
+  status: active
+  description: >
+    When upstream differs and the on-disk unit was locally modified (disk differs
+    from both stored and upstream), `update` refuses and skips that id with
+    `local_modifications`; `--force` validates, overwrites, and re-records it.
+  acceptance:
+    - id: AC-0001
+      statement: A locally-modified target is skipped with local_modifications and exits 1, leaving the edit intact.
+    - id: AC-0002
+      statement: A locally-modified target with --force is overwritten with the upstream unit and re-recorded.
+
+- id: UPDATE-FR-0005
+  title: Update re-fetches a local-path install cwd-independently
+  status: active
+  description: >
+    A local-path install is re-read from its recorded absolute realpath, so it
+    updates from the same source directory regardless of the cwd `update` runs
+    from (the lock's `url` is an absolute realpath).
+  acceptance:
+    - id: AC-0001
+      statement: A local-path install updates from its recorded path even when update runs from a subdirectory.
+
+- id: UPDATE-FR-0006
+  title: Update --check reports drift without changing anything
+  status: active
+  description: >
+    `update --check` reports per-id status, changes nothing, and exits 0 only when
+    every target is up to date; it exits 1 when any target has an available update
+    or is dirty-blocked or errored, using `update_available` for the stale/blocked
+    status. `--check` combined with `--force` is rejected as an invalid_command.
+  acceptance:
+    - id: AC-0001
+      statement: update --check exits 0 and writes nothing when every target is up to date.
+    - id: AC-0002
+      statement: update --check exits 1 and writes nothing when a target has an available update.
+    - id: AC-0003
+      statement: update --check combined with --force exits 1 with invalid_command.
+
+- id: UPDATE-FR-0007
+  title: Update is best-effort across ids
+  status: active
+  description: >
+    `update` processes ids best-effort: it reports each id's outcome, continues
+    past per-id failures and skips, and exits 1 if anything errored, was
+    skipped-dirty, or (under `--check`) is stale. This differs from `remove`'s
+    first-failure-throw.
+  acceptance:
+    - id: AC-0001
+      statement: Given an up-to-date id followed by an unknown id, both are reported, the run exits 1, and processing did not stop at the failure.
+
+- id: UPDATE-FR-0008
+  title: Update validates the upstream before replacing and is atomic on failure
+  status: active
+  description: >
+    Before replacing, `update` validates the fetched upstream unit (the same
+    engine static-validation gate as `add`). A broken upstream fails that id under
+    the best-effort model (exit 1) and leaves the previously-installed unit intact
+    with no stage or clone temp left behind (stage-then-swap).
+  acceptance:
+    - id: AC-0001
+      statement: A broken upstream fails its id with the defect's engine code, leaves the prior unit intact, and leaves no leftover stage directory.
+
+- id: UPDATE-FR-0009
+  title: Update with nothing tracked is an explicit no-op success
+  status: active
+  description: >
+    A bare `update` in a root with no tracked installs exits 0 with an explicit
+    nothing-to-update message, mirroring `list`'s empty-inventory path.
+  acceptance:
+    - id: AC-0001
+      statement: A bare update with no tracked installs exits 0 with an explicit nothing-to-update message.
+
+- id: UPDATE-FR-0010
+  title: Update reconciles an interrupted prior update
+  status: active
+  description: >
+    When the on-disk unit differs from the stored hash but equals the freshly
+    fetched upstream (an interrupted prior update whose unit was swapped before the
+    lock was written), `update` reconciles the lock to the new hash/commit instead
+    of refusing with `local_modifications`.
+  acceptance:
+    - id: AC-0001
+      statement: When disk equals upstream but differs from stored, update reconciles the lock and does not refuse.
+
+- id: UPDATE-FR-0011
+  title: Update strictly validates a tampered lock entry before acting
+  status: active
+  description: >
+    Before acting on a selected entry, `update` strictly validates it; a tampered
+    but parseable entry (e.g. an unknown extra field) fails that id with
+    `invalid_lock` before any acquire or mutation.
+  acceptance:
+    - id: AC-0001
+      statement: Updating an id whose lock entry is tampered exits 1 with invalid_lock and mutates nothing.
+
+- id: UPDATE-FR-0012
+  title: Update reports a missing unit directory without re-installing
+  status: active
+  description: >
+    A tracked id whose unit directory is gone (drift) is reported
+    non-destructively (consistent with `list`'s `missing`) and is never
+    re-installed; it counts as a not-up-to-date outcome so the run exits 1.
+  acceptance:
+    - id: AC-0001
+      statement: A tracked id whose unit directory is missing is reported, exits 1, and is not re-installed.
+
+- id: UPDATE-FR-0013
+  title: Update rejects malformed invocations and prompts for nothing
+  status: active
+  description: >
+    `update` accepts zero or more positional ids and recognizes only the fixed
+    flags `-g`/`--global`, `--force`, and `--check`. An unknown flag is an
+    `invalid_command`; there is no interactive prompt and no `--yes`.
+  acceptance:
+    - id: AC-0001
+      statement: An unknown update flag exits 1 with invalid_command, and no flag enables an interactive prompt.

@@ -1,0 +1,16 @@
+id: update-bare-all
+covers:
+  - UPDATE-FR-0001.AC-0001
+title: Bare update targets every tracked id in the root
+description: >
+  Two prior adds install alpha and beta (two real lock entries). A bare update
+  (no id) targets every tracked id, reporting each in sorted order. Both sources
+  are unchanged, so both are up to date and the run exits 0.
+setup:
+  - cli: ["add", "./source", "alpha"]
+  - cli: ["add", "./source", "beta"]
+command: ["update"]
+expect:
+  exitCode: 0
+  stdout: "alpha is up to date [local].\nbeta is up to date [local].\n"
+  stderr: ""

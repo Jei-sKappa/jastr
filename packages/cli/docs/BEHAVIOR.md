@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**136** requirements · **316** acceptance criteria · **230** end-to-end cases.
+**149** requirements · **332** acceptance criteria · **247** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -187,6 +187,21 @@ output against its inputs.
   - [REMOVE-FR-0008 — Remove strictly validates a tampered lock entry before mutating](#remove-fr-0008--remove-strictly-validates-a-tampered-lock-entry-before-mutating)
   - [REMOVE-FR-0009 — Remove rejects malformed invocations and prompts for nothing](#remove-fr-0009--remove-rejects-malformed-invocations-and-prompts-for-nothing)
 
+- [Update](#update)
+  - [UPDATE-FR-0001 — Update targets bare-all, explicit ids, and reports unknown ids](#update-fr-0001--update-targets-bare-all-explicit-ids-and-reports-unknown-ids)
+  - [UPDATE-FR-0002 — Update reports an up-to-date target and changes nothing](#update-fr-0002--update-reports-an-up-to-date-target-and-changes-nothing)
+  - [UPDATE-FR-0003 — Update replaces a clean stale unit and bumps the lock](#update-fr-0003--update-replaces-a-clean-stale-unit-and-bumps-the-lock)
+  - [UPDATE-FR-0004 — Update refuses a locally-modified target unless forced](#update-fr-0004--update-refuses-a-locally-modified-target-unless-forced)
+  - [UPDATE-FR-0005 — Update re-fetches a local-path install cwd-independently](#update-fr-0005--update-re-fetches-a-local-path-install-cwd-independently)
+  - [UPDATE-FR-0006 — Update --check reports drift without changing anything](#update-fr-0006--update---check-reports-drift-without-changing-anything)
+  - [UPDATE-FR-0007 — Update is best-effort across ids](#update-fr-0007--update-is-best-effort-across-ids)
+  - [UPDATE-FR-0008 — Update validates the upstream before replacing and is atomic on failure](#update-fr-0008--update-validates-the-upstream-before-replacing-and-is-atomic-on-failure)
+  - [UPDATE-FR-0009 — Update with nothing tracked is an explicit no-op success](#update-fr-0009--update-with-nothing-tracked-is-an-explicit-no-op-success)
+  - [UPDATE-FR-0010 — Update reconciles an interrupted prior update](#update-fr-0010--update-reconciles-an-interrupted-prior-update)
+  - [UPDATE-FR-0011 — Update strictly validates a tampered lock entry before acting](#update-fr-0011--update-strictly-validates-a-tampered-lock-entry-before-acting)
+  - [UPDATE-FR-0012 — Update reports a missing unit directory without re-installing](#update-fr-0012--update-reports-a-missing-unit-directory-without-re-installing)
+  - [UPDATE-FR-0013 — Update rejects malformed invocations and prompts for nothing](#update-fr-0013--update-rejects-malformed-invocations-and-prompts-for-nothing)
+
 ## Run
 
 ### RUN-FR-0001 — Run renders a named template
@@ -276,7 +291,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], or jastr remove <id>... [-g] [--force].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].
 ```
 
 </details>
@@ -6936,6 +6951,7 @@ Commands:
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   list [options]                              List installed templates and groups across the .jastr/ roots
   remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
+  update [options] [id...]                    Refresh installed templates or groups from where they came
   help [command]                              display help for command
 ```
 
@@ -7246,6 +7262,7 @@ Commands:
   add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
   list [options]                              List installed templates and groups across the .jastr/ roots
   remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
+  update [options] [id...]                    Refresh installed templates or groups from where they came
   help [command]                              display help for command
 ```
 
@@ -15712,6 +15729,951 @@ $ jastr remove foo --yes
 
 ```console
 Error: Unknown remove option --yes.
+```
+
+</details>
+
+## Update
+
+### UPDATE-FR-0001 — Update targets bare-all, explicit ids, and reports unknown ids
+
+`jastr update` with no id targets every tracked id in the root; `update <id>` targets only the named id(s). An explicit id with no lock entry is reported `not_installed` and counted as an error.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Bare update targets all tracked ids and an explicit unknown id exits 1 with not_installed. | ✅ `update-bare-all`, `update-unknown-id` |
+
+#### Case: Bare update targets every tracked id in the root
+
+Description: Two prior adds install alpha and beta (two real lock entries). A bare update (no id) targets every tracked id, reporting each in sorted order. Both sources are unchanged, so both are up to date and the run exits 0.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      ├─ alpha/
+      │  └─ TEMPLATE.md
+      └─ beta/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/alpha/TEMPLATE.md`
+
+```md
+---
+---
+# alpha
+```
+
+`source/.jastr/beta/TEMPLATE.md`
+
+```md
+---
+---
+# beta
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source alpha`
+1. Runs `jastr add ./source beta`
+
+**Command**
+
+```console
+$ jastr update
+```
+
+**CLI output** — exit 0
+
+```console
+alpha is up to date [local].
+beta is up to date [local].
+```
+
+</details>
+
+#### Case: Update of an explicit unknown id reports not_installed
+
+Description: The local root has no tracked installs. update ghost names an id with no lock entry, so it is reported not_installed on stderr and the run exits 1.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr update ghost
+```
+
+**CLI output** — exit 1
+
+```console
+Error: ghost is not installed in the local root.
+```
+
+</details>
+
+### UPDATE-FR-0002 — Update reports an up-to-date target and changes nothing
+
+When the freshly re-fetched unit hash equals the stored lock hash, `update` reports the id is up to date and makes no change to the unit or the lock.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A target whose re-fetched hash equals the stored hash is reported up to date and nothing changes. | ✅ `update-up-to-date` |
+
+#### Case: Update reports an up-to-date target and changes nothing
+
+Description: A prior add installs foo (a real lock with a correct content hash). The source is unchanged, so the re-fetched unit hash equals the stored hash. update reports foo is up to date, exits 0, and leaves the lock untouched (it still names foo).
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**CLI output** — exit 0
+
+```console
+foo is up to date [local].
+```
+
+</details>
+
+### UPDATE-FR-0003 — Update replaces a clean stale unit and bumps the lock
+
+When upstream differs from the stored hash and the on-disk unit is unchanged from the lock hash (clean), `update` validates the upstream unit, swaps the unit by stage-then-swap, and bumps the lock `hash` (and `commit`).
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A clean target whose upstream differs is replaced and its lock hash is bumped. | ✅ `update-replace` |
+
+#### Case: Update replaces a clean stale unit and bumps the lock
+
+Description: A prior add installs foo. A cp setup step then rewrites the recorded source's TEMPLATE.md so upstream differs from the stored hash while the installed unit is still clean. update validates the upstream, swaps the unit (the installed TEMPLATE.md now carries the v2 body), and bumps the lock — reported by one Updated line.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `upstream/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo v2
+```
+
+**CLI output** — exit 0
+
+```console
+Updated foo (? -> ?) [local].
+```
+
+</details>
+
+### UPDATE-FR-0004 — Update refuses a locally-modified target unless forced
+
+When upstream differs and the on-disk unit was locally modified (disk differs from both stored and upstream), `update` refuses and skips that id with `local_modifications`; `--force` validates, overwrites, and re-records it.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A locally-modified target is skipped with local_modifications and exits 1, leaving the edit intact. | ✅ `update-dirty-refuse` |
+| AC-0002 | A locally-modified target with --force is overwritten with the upstream unit and re-recorded. | ✅ `update-dirty-force` |
+
+#### Case: Update --force overwrites a locally-modified target
+
+Description: Same dirty setup as the refuse case (a local edit plus an advanced source). With --force, update validates the upstream, overwrites the locally-modified unit with the upstream body, re-records the lock, and exits 0.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `local-edit/TEMPLATE.md` → `.jastr/foo/TEMPLATE.md`
+1. Copies `upstream/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo --force
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo upstream v3
+```
+
+**CLI output** — exit 0
+
+```console
+Updated foo (? -> ?) [local].
+```
+
+</details>
+
+#### Case: Update refuses a locally-modified target
+
+Description: After a real add, one cp step locally edits the installed unit (disk differs from the stored hash) and another advances the recorded source to a different body (upstream differs from both). update refuses + skips foo with local_modifications, exits 1, and leaves the local edit intact.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `local-edit/TEMPLATE.md` → `.jastr/foo/TEMPLATE.md`
+1. Copies `upstream/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo local edit
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo has local modifications at .jastr/foo; re-run with --force to overwrite it.
+```
+
+</details>
+
+### UPDATE-FR-0005 — Update re-fetches a local-path install cwd-independently
+
+A local-path install is re-read from its recorded absolute realpath, so it updates from the same source directory regardless of the cwd `update` runs from (the lock's `url` is an absolute realpath).
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A local-path install updates from its recorded path even when update runs from a subdirectory. | ✅ `update-local-path-subdir` |
+
+#### Case: A local-path install updates from its recorded path regardless of cwd
+
+Description: A prior add (run from the nested subdir) installs foo from ./source, recording the source's absolute realpath in the lock. A cp step then advances that source. Running update foo from the same nested subdir re-reads the recorded absolute path (not a cwd-relative one), so the swap succeeds and the installed unit at the project-root .jastr/foo carries the upstream body.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from `nested/`
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ nested/
+   └─ source/
+      └─ .jastr/
+         └─ foo/
+            └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: {}
+```
+
+`nested/source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `upstream/TEMPLATE.md` → `nested/source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo v2
+```
+
+**CLI output** — exit 0
+
+```console
+Updated foo (? -> ?) [local].
+```
+
+</details>
+
+### UPDATE-FR-0006 — Update --check reports drift without changing anything
+
+`update --check` reports per-id status, changes nothing, and exits 0 only when every target is up to date; it exits 1 when any target has an available update or is dirty-blocked or errored, using `update_available` for the stale/blocked status. `--check` combined with `--force` is rejected as an invalid_command.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | update --check exits 0 and writes nothing when every target is up to date. | ✅ `update-check-clean` |
+| AC-0002 | update --check exits 1 and writes nothing when a target has an available update. | ✅ `update-check-stale` |
+| AC-0003 | update --check combined with --force exits 1 with invalid_command. | ✅ `update-check-force-rejected` |
+
+#### Case: update --check exits 0 when every target is up to date
+
+Description: A prior add installs foo. The source is unchanged, so update --check reports foo up to date, writes nothing, and exits 0.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr update --check foo
+```
+
+**CLI output** — exit 0
+
+```console
+foo is up to date [local].
+```
+
+</details>
+
+#### Case: update --check combined with --force is rejected
+
+Description: --check writes nothing and --force governs overwriting, so the combination is incoherent. Mirroring generate, update rejects it with invalid_command before any project lookup.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr update --check --force
+```
+
+**CLI output** — exit 1
+
+```console
+Error: --check cannot be combined with --force.
+```
+
+</details>
+
+#### Case: update --check exits 1 when an update is available and writes nothing
+
+Description: A prior add installs foo; a cp step then advances the recorded source so an update is available. update --check reports foo is not up to date on stderr, exits 1, and writes nothing — the installed unit still carries the original body.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `upstream/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update --check foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo is not up to date in the local root.
+```
+
+</details>
+
+### UPDATE-FR-0007 — Update is best-effort across ids
+
+`update` processes ids best-effort: it reports each id's outcome, continues past per-id failures and skips, and exits 1 if anything errored, was skipped-dirty, or (under `--check`) is stale. This differs from `remove`'s first-failure-throw.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Given an up-to-date id followed by an unknown id, both are reported, the run exits 1, and processing did not stop at the failure. | ✅ `update-best-effort` |
+
+#### Case: Update is best-effort across ids
+
+Description: A prior add installs foo (up to date). update foo ghost reports foo up to date (stdout), continues past it to ghost which has no entry (not_installed on stderr), and exits 1 — proving processing did not stop at the first error.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+
+**Command**
+
+```console
+$ jastr update foo ghost
+```
+
+**CLI output** — exit 1
+
+```console
+foo is up to date [local].
+Error: ghost is not installed in the local root.
+```
+
+</details>
+
+### UPDATE-FR-0008 — Update validates the upstream before replacing and is atomic on failure
+
+Before replacing, `update` validates the fetched upstream unit (the same engine static-validation gate as `add`). A broken upstream fails that id under the best-effort model (exit 1) and leaves the previously-installed unit intact with no stage or clone temp left behind (stage-then-swap).
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A broken upstream fails its id with the defect's engine code, leaves the prior unit intact, and leaves no leftover stage directory. | ✅ `update-validation-gate` |
+
+#### Case: A broken upstream fails the id and leaves the prior unit intact
+
+Description: A prior add installs a valid foo. A cp step then rewrites the recorded source's TEMPLATE.md into a broken template (a required input referenced before it is validated, tripping the static gate). update validates the fetched upstream before replacing, so it fails foo with the engine defect code (malformed_schema), exits 1, and leaves the previously-installed valid unit untouched (no partial swap, no leftover stage dir).
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `broken/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input x must explicitly declare required: true or required: false.
+```
+
+</details>
+
+### UPDATE-FR-0009 — Update with nothing tracked is an explicit no-op success
+
+A bare `update` in a root with no tracked installs exits 0 with an explicit nothing-to-update message, mirroring `list`'s empty-inventory path.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A bare update with no tracked installs exits 0 with an explicit nothing-to-update message. | ✅ `update-nothing` |
+
+#### Case: Bare update with no tracked installs is an explicit no-op success
+
+Description: The local root exists but tracks no installs. A bare update is a no-op success: it prints an explicit nothing-to-update line and exits 0.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ config.yml
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: {}
+```
+
+**Command**
+
+```console
+$ jastr update
+```
+
+**CLI output** — exit 0
+
+```console
+Nothing to update in the local root.
+```
+
+</details>
+
+### UPDATE-FR-0010 — Update reconciles an interrupted prior update
+
+When the on-disk unit differs from the stored hash but equals the freshly fetched upstream (an interrupted prior update whose unit was swapped before the lock was written), `update` reconciles the lock to the new hash/commit instead of refusing with `local_modifications`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | When disk equals upstream but differs from stored, update reconciles the lock and does not refuse. | ✅ `update-interrupted-reconcile` |
+
+#### Case: Update reconciles an interrupted prior update instead of refusing
+
+Description: A prior add installs foo (v1). Two cp steps then put the SAME advanced body (v2) onto both the installed unit and the recorded source — the signature of an interrupted prior update where the unit was swapped before the lock was written. Because disk equals upstream but differs from stored, update reconciles the lock (no local_modifications refusal), exits 0, and leaves the v2 unit in place.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ source/
+   └─ .jastr/
+      └─ foo/
+         └─ TEMPLATE.md
+```
+
+`source/.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr add ./source foo`
+1. Copies `v2/TEMPLATE.md` → `.jastr/foo/TEMPLATE.md`
+1. Copies `v2/TEMPLATE.md` → `source/.jastr/foo/TEMPLATE.md`
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo v2
+```
+
+**CLI output** — exit 0
+
+```console
+foo reconciled to (? -> ?) [local].
+```
+
+</details>
+
+### UPDATE-FR-0011 — Update strictly validates a tampered lock entry before acting
+
+Before acting on a selected entry, `update` strictly validates it; a tampered but parseable entry (e.g. an unknown extra field) fails that id with `invalid_lock` before any acquire or mutation.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Updating an id whose lock entry is tampered exits 1 with invalid_lock and mutates nothing. | ✅ `update-tampered-lock` |
+
+#### Case: Update rejects a tampered lock entry before acting
+
+Description: The lock entry for foo carries an unknown extra field. update strictly validates the selected entry before any acquire or mutation, so it fails foo with invalid_lock and mutates nothing — the unit directory and the lock stay intact.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ foo/
+   │  └─ TEMPLATE.md
+   └─ lock.json
+```
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef",
+      "bogus": true
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**Output files**
+
+`.jastr/foo/TEMPLATE.md`
+
+```md
+---
+---
+# foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: lock entry "foo" is invalid: it has an unknown field "bogus".
+```
+
+</details>
+
+### UPDATE-FR-0012 — Update reports a missing unit directory without re-installing
+
+A tracked id whose unit directory is gone (drift) is reported non-destructively (consistent with `list`'s `missing`) and is never re-installed; it counts as a not-up-to-date outcome so the run exits 1.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A tracked id whose unit directory is missing is reported, exits 1, and is not re-installed. | ✅ `update-missing-dir` |
+
+#### Case: Update reports a missing unit directory without re-installing
+
+Description: The lock tracks foo but its unit directory is gone (drift). update reports the missing directory non-destructively (consistent with list's missing), never re-installs it, and counts it as not-up-to-date so the run exits 1. The lock entry is left intact.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ lock.json
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "foo": {
+      "source": "acme/widgets",
+      "url": "https://github.com/acme/widgets.git",
+      "ref": "main",
+      "name": "foo",
+      "kind": "standalone",
+      "commit": "0123456789abcdef0123456789abcdef01234567",
+      "hash": "deadbeef"
+    }
+  }
+}
+```
+
+**Command**
+
+```console
+$ jastr update foo
+```
+
+**CLI output** — exit 1
+
+```console
+Error: foo is tracked but its unit directory is missing at .jastr/foo; re-add it with `jastr add`.
+```
+
+</details>
+
+### UPDATE-FR-0013 — Update rejects malformed invocations and prompts for nothing
+
+`update` accepts zero or more positional ids and recognizes only the fixed flags `-g`/`--global`, `--force`, and `--check`. An unknown flag is an `invalid_command`; there is no interactive prompt and no `--yes`.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | An unknown update flag exits 1 with invalid_command, and no flag enables an interactive prompt. | ✅ `update-unknown-flag` |
+
+#### Case: Update rejects an unknown flag
+
+Description: update recognizes only -g/--global, --force, and --check. An unrecognized flag (here a would-be confirmation flag) is an invalid_command; no flag enables an interactive prompt.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+_Empty — no `.jastr/` directory present._
+
+**Command**
+
+```console
+$ jastr update foo --yes
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Unknown update option --yes.
 ```
 
 </details>

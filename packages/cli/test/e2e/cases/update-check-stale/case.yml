@@ -1,0 +1,18 @@
+id: update-check-stale
+covers:
+  - UPDATE-FR-0006.AC-0002
+title: update --check exits 1 when an update is available and writes nothing
+description: >
+  A prior add installs foo; a cp step then advances the recorded source so an
+  update is available. update --check reports foo is not up to date on stderr,
+  exits 1, and writes nothing — the installed unit still carries the original body.
+setup:
+  - cli: ["add", "./source", "foo"]
+  - cp: { from: upstream/TEMPLATE.md, to: source/.jastr/foo/TEMPLATE.md }
+command: ["update", "--check", "foo"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: foo is not up to date in the local root.\n"
+  files:
+    .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md
