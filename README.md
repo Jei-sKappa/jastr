@@ -28,10 +28,45 @@ construct the matching `--flag=value` arguments.
 jastr run <template-ref> [input flags...]
 jastr generate agent-skill <template-ref> --out <path> [--check] [--force]
 jastr validate <template-ref>
+jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g|--global]
+jastr list [--local] [--global]
+jastr remove <id>... [-g|--global] [--force]
+jastr update [<id>...] [-g|--global] [--force] [--check]
 jastr --help
 jastr help [command]
 jastr --version
 ```
+
+The `add` / `list` / `remove` / `update` family shares templates between
+repositories with the same mental model as installing packages: **install** a
+template (or whole group) into a `.jastr/` root, **inspect** what is installed,
+**refresh** it from where it came, and **remove** it.
+
+- `jastr add <repo-source> <name>` fetches the named template — a standalone
+  template or a whole group — from the source's `.jastr/<name>/` and installs it
+  into the local `.jastr/` root (or the global root with `-g`/`--global`). A
+  `<repo-source>` that is a local directory is read in place; an `owner/repo`
+  shorthand expands to its GitHub URL; any other string is passed to `git clone`.
+  `--ref` selects a branch or tag and `--path` cds into a subdirectory of the
+  source before resolving `.jastr/`. A two-segment `group/template` is rejected —
+  groups install whole. Each fetched template is validated before it is committed,
+  so a broken template is never installed.
+- `jastr list` shows the installed and authored inventory across both roots
+  (`--local` / `--global` restrict scope), marking tracked installs with their
+  source and locally-authored templates as `local`.
+- `jastr update [<id>...]` refreshes tracked installs from their recorded source;
+  bare `update` refreshes everything in the root. `--check` reports drift without
+  changing anything (exit 0 when all up to date, exit 1 otherwise) and cannot be
+  combined with `--force`.
+- `jastr remove <id>...` deletes tracked installs from one root; `--force`
+  overrides the locally-modified guard.
+
+Each root records what it installed in a per-root provenance lock at
+`<root>/.jastr/lock.json`. The lock is committed and team-shared, written
+deterministically, and ignored by template discovery (so `run`/`validate`/
+`generate` behave the same whether or not it is present). Remote `add` and
+`update` shell out to `git`, so **`git` must be on PATH** for those operations;
+its absence is reported rather than hung on.
 
 Input values for bare named template runs are resolved in this order: CLI input
 flags, then selected `.jastr/config.yml` values for `inputs.<template-ref>`,

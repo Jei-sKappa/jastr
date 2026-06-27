@@ -190,12 +190,35 @@ base `targets.agent-skill.frontmatter` and variant `agent-skill.frontmatter`. An
 invalid base prefix raises `invalid_target_metadata`; an invalid variant prefix
 raises `invalid_config`. CLI-only; no engine, schema, or `JastrErrorCode` change.
 
+The active remote template install design thread is
+`docs/threads/260626094825Z-remote-template-install/`. Its implemented v4
+contract is
+`docs/threads/260626094825Z-remote-template-install/specs/001/spec.md`. It adds
+the four-command install family `add`/`list`/`remove`/`update`, a per-root
+provenance lock at `<root>/.jastr/lock.json` (ignored by template discovery like
+`config.yml`), named-ref-only resolution from a source's `.jastr/`, local-path
+read-in-place vs `git clone --depth 1` acquisition via `node:child_process`
+(binary from `JASTR_GIT_BIN`, timeout from `JASTR_GIT_TIMEOUT_MS`), pre-commit
+validation through the existing static pipeline, and crash-safe unit-then-lock
+atomic writes. Unlike the recent CLI-only features, this one **does** change the
+engine: it adds ten `JastrErrorCode` literals (`git_unavailable`, `clone_failed`,
+`destination_exists`, `not_installed`, `not_jastr_installed`,
+`local_modifications`, `update_available`, `grouped_template_not_addable`,
+`invalid_lock`, `unsupported_source_entry`) — the sole engine change; the engine
+imports no fs/child_process/network code and all command logic stays in
+`@jastr/cli`.
+
 Current v2 direction:
 
 - Canonical commands are `jastr run <template-ref> [input flags...]`,
   `jastr generate agent-skill <template-ref> --out <path> [--check] [--force]`,
-  and `jastr validate <template-ref>`, where named template refs may include
-  `#<variant-id>`, plus `--help`, `help [command]`, and `--version`.
+  `jastr validate <template-ref>`, and the template-install family
+  `jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g|--global]`,
+  `jastr list [--local] [--global]`,
+  `jastr remove <id>... [-g|--global] [--force]`, and
+  `jastr update [<id>...] [-g|--global] [--force] [--check]`, where named template
+  refs may include `#<variant-id>`, plus `--help`, `help [command]`, and
+  `--version`.
 - `jastr generate agent-skill <template-ref> --out <path> --check` rebuilds the
   wrapper in memory and byte-compares it against the committed file at `--out`,
   writing nothing. It exits 0 with `agent-skill at <out> is up to date.` on an
@@ -220,6 +243,57 @@ Current v2 direction:
   new codes). Argv-shape errors are `invalid_command`: `Missing template
   reference for validate.`, `Unknown validate option <option>.`, and `Invalid
   validate argument <argument>.`.
+- The template-install family (`add`/`list`/`remove`/`update`) shares templates
+  between repositories. `jastr add <repo-source> <name>` fetches a **named ref**
+  (a standalone template or a whole group) from the source's `.jastr/<name>/` and
+  installs it into the local or global `.jastr/` root; `jastr list` shows the
+  installed/authored inventory with provenance; `jastr remove <id>...` deletes
+  tracked installs from one root; and `jastr update [<id>...]` refreshes installs
+  from where they came. Each command operates on exactly one root per invocation
+  (default local with bootstrap, `-g`/`--global` for the global root). Source
+  resolution is **named ref only**: a bare single segment classifies
+  `<base>/.jastr/<name>/` as standalone (`TEMPLATE.md`) or group (`.jastrgroup`);
+  a two-segment `group/template` is rejected with `grouped_template_not_addable`
+  (groups install whole); neither present is `template_not_found` naming the
+  source. `add` and `update` validate every fetched unit through the existing
+  static-validation pipeline (the same one `validate` uses) against a staged copy
+  before any atomic commit, so template defects surface with their existing engine
+  code. `add` never reads or writes `config.yml`. `update` is best-effort across
+  ids; `remove` throws on the first failing id (already-removed ids stay removed).
+  `update --check` reports per-id status, changes nothing, and is rejected with
+  the message `--check cannot be combined with --force.` when combined with
+  `--force`; an `update` target whose unit dir is gone is a non-destructive report
+  (never re-installed).
+- Source acquisition: a `<repo-source>` that resolves to an existing local
+  directory is read **in place** (no clone, no temp dir) and its lock `url` is the
+  source root's absolute realpath; an `owner/repo` shorthand expands to
+  `https://github.com/owner/repo.git`; any other string is passed straight to
+  `git clone`. Remote `add`/`update` shell out to `git` via `node:child_process`
+  (no npm git dependency), non-interactively, with `git clone --depth 1
+  [--branch <ref>] -- <url> <dir>` (`--` guards option injection), under a bounded
+  timeout that on expiry kills the child and surfaces `clone_failed`; `git` absent
+  is `git_unavailable`. The git binary resolves from `JASTR_GIT_BIN ?? "git"` (a
+  documented test seam and real-world escape hatch for a non-PATH git) and the
+  clone timeout default is overridable via `JASTR_GIT_TIMEOUT_MS`.
+- Each root carries a per-root provenance lock at `<root>/.jastr/lock.json` — JSON,
+  top-level `version: 1`, keyed by installed id, identical shape for both roots,
+  recording `source`/`url`/`ref?`/`name`/`path?`/`kind`/`commit?`/`hash` per
+  entry. It is written deterministically (entries sorted by key, 2-space indent,
+  trailing newline, no timestamps) and is **ignored by template discovery exactly
+  like `config.yml`** — `run`/`validate`/`generate` behave identically whether or
+  not it is present. A missing or empty lock means no tracked installs; a present
+  lock that is unparseable or carries an unknown `version`, or any malformed or
+  tampered entry a command will act on, fails with `invalid_lock` and mutates
+  nothing.
+- The install family adds ten new `JastrErrorCode`s to `@jastr/engine` —
+  `git_unavailable`, `clone_failed`, `destination_exists`, `not_installed`,
+  `not_jastr_installed`, `local_modifications`, `update_available`,
+  `grouped_template_not_addable`, `invalid_lock`, and `unsupported_source_entry`.
+  Adding these literals to the `JastrErrorCode` union is the **only** engine
+  change for the feature; all command logic (git/subprocess, clone, copy, lock IO)
+  lives in `@jastr/cli`, and a fetched unit containing a symlink or non-regular
+  (special) file is rejected with `unsupported_source_entry` before any validate,
+  copy, or hash.
 - Generated Agent Skill wrappers emit an `argument-hint` frontmatter field
   (immediately after `description`, before any author passthrough field): an
   optional author **intent** prefix joined by a single space to a derived **form**
@@ -241,13 +315,18 @@ Current v2 direction:
   `parseTemplateSource`, `validateTemplateSchema`, `validateTemplateInputs`,
   `renderTemplateSource`, `JastrError`, and the public template/render/error
   types exported from `packages/engine/src/index.ts`.
-- `@jastr/engine` must not import Node filesystem APIs, Commander, CLI argv
-  parsers, process entrypoints, Bun runtime APIs, `.jastr` lookup code, or Agent
-  Skill target generation code.
+- `@jastr/engine` must not import Node filesystem APIs, `node:child_process`,
+  network APIs, Commander, CLI argv parsers, process entrypoints, Bun runtime
+  APIs, `.jastr` lookup code, Agent Skill target generation code, or
+  template-install (`add`/`list`/`remove`/`update`) code. The engine stays pure:
+  the install family's *only* engine change is the new `JastrErrorCode` literals
+  (above), not any fs/subprocess/network import.
 - `@jastr/cli` owns Commander wiring, command-line argument parsing, dual-root
   (local and global) `.jastr` project discovery, direct file loading, Node
-  filesystem include resolution, Agent Skill target validation/generation,
-  stdout/stderr formatting, exit codes, and `jastr --version`.
+  filesystem include resolution, Agent Skill target validation/generation, the
+  template-install commands (git/subprocess clone via `node:child_process`,
+  unit copy/staging, the `lock.json` provenance lock), stdout/stderr formatting,
+  exit codes, and `jastr --version`.
 - Named/grouped refs resolve local-first then global: the existing single-root
   existence check is the hit predicate, a structural miss (entry absent or
   incomplete) falls through silently to the global root, and the first hit
@@ -295,8 +374,8 @@ Current v2 direction:
   vary per template, so Commander passes them through to Jastr's own
   `parseRunFlags` in `packages/cli/src/args.ts`.
 - Error UX is uniform: every failure prints `Error: <message>` to stderr with
-  exit code 1. Only `--help`, `help [command]`, and `--version` exit 0 as
-  informational paths.
+  exit code 1. The exit-0 informational paths are `--help`, `help [command]`,
+  `--version`, and a clean `update --check` (every target already up to date).
 - `--version` prints the `@jastr/cli` package version as
   `<package version> (<git short SHA>)`, or `(dev)` when run from source/tests.
   The SHA is injected at build time via the `JASTR_GIT_SHA` define in
