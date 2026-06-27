@@ -8,9 +8,17 @@ import {
 } from "../fs/project-root";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
-const GROUP_MARKER = ".jastrgroup";
-const GROUP_TEMPLATES_DIR = "templates";
-const TEMPLATE_FILE = "TEMPLATE.md";
+
+/**
+ * The grouped-template layout markers, shared so other modules (e.g. install
+ * unit classification) reuse the exact same standalone-vs-grouped predicates
+ * rather than re-encoding them: a group is a directory holding {@link GROUP_MARKER}
+ * and a {@link GROUP_TEMPLATES_DIR} subdir of `<id>/{@link TEMPLATE_FILE}`; a
+ * standalone is a directory holding {@link TEMPLATE_FILE} directly.
+ */
+export const GROUP_MARKER = ".jastrgroup";
+export const GROUP_TEMPLATES_DIR = "templates";
+export const TEMPLATE_FILE = "TEMPLATE.md";
 
 type StandaloneIncludeContext = {
   kind: "standalone";
@@ -323,6 +331,30 @@ function groupedContext(
 
 function isTemplateIdSegment(value: string | undefined): value is string {
   return value !== undefined && TEMPLATE_ID_PATTERN.test(value);
+}
+
+/**
+ * Classify a single template/group directory by the same standalone-vs-grouped
+ * predicates `tryLoadStandaloneNamedTemplate` / `tryLoadGroupedNamedTemplate`
+ * use: a directory holding {@link TEMPLATE_FILE} is `standalone`; a directory
+ * holding the {@link GROUP_MARKER} marker is `group`; anything else (neither
+ * present, or the directory is absent) is `undefined`.
+ *
+ * Shared so callers outside reference loading (e.g. install unit resolution)
+ * reuse the marker/layout knowledge instead of duplicating it. A standalone
+ * `TEMPLATE.md` takes precedence over a group marker should both somehow exist,
+ * matching the standalone-first lookup order.
+ */
+export async function classifyUnitDir(
+  unitDir: string,
+): Promise<"standalone" | "group" | undefined> {
+  if (await isFile(path.join(unitDir, TEMPLATE_FILE))) {
+    return "standalone";
+  }
+  if (await isFile(path.join(unitDir, GROUP_MARKER))) {
+    return "group";
+  }
+  return undefined;
 }
 
 async function isFile(filePath: string): Promise<boolean> {
