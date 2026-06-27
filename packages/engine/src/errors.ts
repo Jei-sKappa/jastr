@@ -31,7 +31,17 @@ export type JastrErrorCode =
   | "locked_input_flag"
   | "variant_not_found"
   | "output_stale"
-  | "output_missing";
+  | "output_missing"
+  | "git_unavailable"
+  | "clone_failed"
+  | "destination_exists"
+  | "not_installed"
+  | "not_jastr_installed"
+  | "local_modifications"
+  | "update_available"
+  | "grouped_template_not_addable"
+  | "invalid_lock"
+  | "unsupported_source_entry";
 
 export type JastrErrorDetails = Record<
   string,
