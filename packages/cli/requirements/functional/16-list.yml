@@ -11,6 +11,8 @@
   acceptance:
     - id: AC-0001
       statement: A tracked unit shows its id, kind, source@ref, and short commit; an untracked unit shows marked local.
+    - id: AC-0002
+      statement: A group row is followed by its member templates as a sorted tree of indented `<group>/<template>` refs, using `├── ` for each member but the last and `└── ` for the last; member lines carry no per-member provenance.
 
 - id: LIST-FR-0002
   title: List flags a lock entry whose unit directory is gone

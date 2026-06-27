@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "templates": {
+    "team": {
+      "source": "Jei-sKappa/jastr",
+      "url": "https://github.com/Jei-sKappa/jastr.git",
+      "ref": "main",
+      "name": "team",
+      "kind": "group",
+      "commit": "814343598f39abcdef0123456789abcdef012345",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}

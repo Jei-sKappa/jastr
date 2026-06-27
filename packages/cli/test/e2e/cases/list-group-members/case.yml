@@ -1,0 +1,17 @@
+id: list-group-members
+covers:
+  - LIST-FR-0001.AC-0002
+title: List renders a group's member templates as a tree
+description: >
+  Under a group row, list renders each member template on its own line as a
+  sorted tree (`├── ` for every member but the last, `└── ` for the last) at the
+  row's 2-space indent, carrying the runnable group/template ref and no
+  per-member provenance. A tracked group with two members shows the full tree; an
+  untracked (local) group still lists its members, and a single-member group uses
+  the `└── ` connector. The lock is hand-written (list never hashes), so the row
+  provenance is fully determined by the fixture.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""
