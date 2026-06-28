@@ -2,6 +2,7 @@
 version: 1
 status:
   approved: 260628101300Z
+  implemented: 260628142532Z
 ---
 
 # Spec: `inline` rendered-skill mode for `jastr generate agent-skill`
