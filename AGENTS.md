@@ -250,7 +250,7 @@ Current v2 direction:
   [--check] [--force] [input flags...]`,
   `jastr validate <template-ref>`, and the template-install family
   `jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g|--global]`,
-  `jastr list [--local] [--global]`,
+  `jastr list [--variants] [--local] [--global]`,
   `jastr remove <id>... [-g|--global] [--force]`, and
   `jastr update [<id>...] [-g|--global] [--force] [--check]`, where named template
   refs may include `#<variant-id>`, plus `--help`, `help [command]`, and
@@ -309,7 +309,12 @@ Current v2 direction:
   (a standalone template or a whole group) from the source's `.jastr/<name>/` and
   installs it into the local or global `.jastr/` root; `jastr list` shows the
   installed/authored inventory with provenance, listing a group row's member
-  templates beneath it as a sorted `├──`/`└──` tree of `group/template` refs;
+  templates beneath it as a sorted `├──`/`└──` tree of `group/template` refs,
+  and under the opt-in `--variants` flag additionally rendering the
+  config-defined variants as a sorted `├──`/`└──` tree of `<ref>#<variant>`
+  lines beneath each present runnable template/group-member ref, read per-root
+  from that root's own `config.yml` (plain `list` reads no `config.yml` and is
+  unchanged; a malformed consumed `config.yml` reuses `invalid_config`);
   `jastr remove <id>...` deletes
   tracked installs from one root; and `jastr update [<id>...]` refreshes installs
   from where they came. Each command operates on exactly one root per invocation

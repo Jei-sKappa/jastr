@@ -183,6 +183,9 @@ output against its inputs.
   - [LIST-FR-0003 — List spans both roots by default and restricts with a scope flag](#list-fr-0003--list-spans-both-roots-by-default-and-restricts-with-a-scope-flag)
   - [LIST-FR-0004 — List sorts by id, reports an empty inventory, and mutates nothing](#list-fr-0004--list-sorts-by-id-reports-an-empty-inventory-and-mutates-nothing)
   - [LIST-FR-0005 — List never treats a root-level file as a unit](#list-fr-0005--list-never-treats-a-root-level-file-as-a-unit)
+  - [LIST-FR-0006 — `list --variants` renders config-defined variants; default is unchanged](#list-fr-0006--list---variants-renders-config-defined-variants-default-is-unchanged)
+  - [LIST-FR-0007 — Variants attach only to present, runnable refs](#list-fr-0007--variants-attach-only-to-present-runnable-refs)
+  - [LIST-FR-0008 — `list --variants` validates consumed config and fails loudly](#list-fr-0008--list---variants-validates-consumed-config-and-fails-loudly)
 
 - [Remove](#remove)
   - [REMOVE-FR-0001 — Remove deletes a clean tracked install](#remove-fr-0001--remove-deletes-a-clean-tracked-install)
@@ -9718,7 +9721,7 @@ Covers: AC-0004
 `.jastr/config.yml`
 
 ```yaml
-   
+
 
 ```
 
@@ -16661,7 +16664,7 @@ Local:
 
 ### LIST-FR-0005 — List never treats a root-level file as a unit
 
-Enumeration skips non-directories and the root-level `config.yml` / `lock.json` files, so neither ever appears as an installed unit in the listing.
+Enumeration skips non-directories and the root-level `config.yml` / `lock.json` files, so neither ever appears as an installed unit in the listing. Reading `config.yml` content for variant data under `--variants` is a separate concern (see `LIST-FR-0006`); `config.yml` is still never a unit row.
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
@@ -16731,6 +16734,624 @@ $ jastr list
 ```console
 Local:
   widget (standalone) acme/widget @ abcabcabcabc
+```
+
+</details>
+
+### LIST-FR-0006 — `list --variants` renders config-defined variants; default is unchanged
+
+`list --variants` is an opt-in flag that reads each in-scope root's `config.yml` and renders the config-defined variants under `variants.<ref>` as a sorted tree beneath each present, runnable template row. Variants are attached row-driven: for each present standalone unit (ref = its id) and on-disk group member (ref = `<group>/<member>`), `list` looks that ref up in the same root's `config.yml`. Standalone variants are direct children at the row's 2-space indent; group-member variants are grandchildren nested one level beneath the member line. Each variant renders as the bare runnable ref `<ref>#<variant-id>` (no `(variant)` tag, no locked-input detail, no provenance), sorted ascending by variant id with the `├── `/`└── ` connectors. Each section reads only its own root's `config.yml`. Without `--variants`, `config.yml` is not read and output is byte-identical to today.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `jastr list` without `--variants` produces byte-identical output to the pre-feature behavior, and config.yml is not read. | ✅ `list-variants-default-unchanged` |
+| AC-0002 | `jastr list --variants` follows a standalone row with the variant ids under variants.<id> in that root's config.yml, rendered at the row's 2-space indent as a tree using `├── ` for every variant but the last and `└── ` for the last, each line the runnable ref <id>#<variant-id>. | ✅ `list-variants-standalone` |
+| AC-0003 | `jastr list --variants` follows an on-disk group-member line with the variant ids under variants.<group>/<member> in that root's config.yml, nested one level beneath the member: prefixed `  │   ` + connector when the member is not the group's last member, and six spaces + connector when it is; each line the runnable ref <group>/<member>#<variant-id>. | ✅ `list-variants-group-members` |
+| AC-0004 | Variant lines under a ref are sorted ascending by variant id (same ordering as rows/members), and a present runnable ref with no variants contributes no variant lines. | ✅ `list-variants-standalone` |
+| AC-0005 | `--variants` reads only the in-scope root(s)' own config.yml: --local shows local-authored variants only, --global global-authored only, and a variant authored in one root never appears under the other root's section. | ✅ `list-variants-per-root` |
+
+#### Case: Plain list ignores config.yml and shows no variant lines
+
+Description: A root holds a standalone `notes` unit beside a `config.yml` that defines variants for `notes`. Run without `--variants`, list never reads `config.yml`, so the output is byte-identical to the pre-feature behavior: only the `notes` row, no variant lines.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  notes:
+    full: {}
+    brief: {}
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  notes (standalone) (local)
+```
+
+</details>
+
+#### Case: List --variants nests group-member variants under the member line
+
+Description: A tracked group `team` (members `api`, `demo`) and an authored group `tools` (member `fmt`) sit in the local root. The local `config.yml` defines variants only for member refs: `variants.team/api` = `{ strict: {}, v2: {} }` and `variants.team/demo` = `{ draft: {} }` (no `variants.team`, no `variants.tools`, no `variants.tools/fmt`). With `--variants`, each member's variants render nested one level beneath the member line: `team/api` is a non-last member, so its variants carry the `│` continuation; `team/demo` is the last member, so its variant is indented with six spaces; `tools/fmt` has no variants and gains no grandchildren. The `team (group)` aggregate row shows no direct variant children — variants attach to the runnable member ref, not the aggregate.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   ├─ lock.json
+   ├─ team/
+   │  ├─ .jastrgroup
+   │  └─ templates/
+   │     ├─ api/
+   │     │  └─ TEMPLATE.md
+   │     └─ demo/
+   │        └─ TEMPLATE.md
+   └─ tools/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ fmt/
+            └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  team/api:
+    strict: {}
+    v2: {}
+  team/demo:
+    draft: {}
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "team": {
+      "source": "acme/lib",
+      "url": "https://github.com/acme/lib.git",
+      "ref": "main",
+      "name": "team",
+      "kind": "group",
+      "commit": "0a1b2c3d4e5f6789abcdef0123456789abcdef01",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}
+```
+
+`.jastr/team/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/team/templates/api/TEMPLATE.md`
+
+```md
+---
+name: api
+---
+Api body
+```
+
+`.jastr/team/templates/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+---
+Demo body
+```
+
+`.jastr/tools/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/tools/templates/fmt/TEMPLATE.md`
+
+```md
+---
+name: fmt
+---
+Fmt body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  team (group) acme/lib@main @ 0a1b2c3d4e5f
+  ├── team/api
+  │   ├── team/api#strict
+  │   └── team/api#v2
+  └── team/demo
+      └── team/demo#draft
+  tools (group) (local)
+  └── tools/fmt
+```
+
+</details>
+
+#### Case: List --variants reads each section's own root config.yml
+
+Description: A standalone `notes` unit is present in both roots. The local `config.yml` defines `variants.notes` = `{ localvar: {} }`; the global `config.yml` defines `variants.notes` = `{ globalvar: {} }`. With `--variants` and no scope flag, the Local section shows only `notes#localvar` and the Global section only `notes#globalvar`: each section reads only its own root's `config.yml` and a variant authored in one root never leaks into the other.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  notes:
+    localvar: {}
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Global root** — `$JASTR_HOME/.jastr`
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  notes:
+    globalvar: {}
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  notes (standalone) (local)
+  └── notes#localvar
+
+Global:
+  notes (standalone) (local)
+  └── notes#globalvar
+```
+
+</details>
+
+#### Case: List --variants renders a standalone row's variants as a tree
+
+Description: Two standalone units sit in the local root: `notes`, whose `config.yml` defines `variants.notes` = `{ full: {}, brief: {} }`, and `plain`, which has no variants entry. With `--variants`, the `notes` row is followed by its variant ids at the row's 2-space indent (`├── ` for every variant but the last, `└── ` for the last), each line the runnable ref `notes#<variant>`, sorted ascending so `brief` precedes `full`; `plain` contributes no variant lines.
+
+Covers: AC-0002, AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   ├─ notes/
+   │  └─ TEMPLATE.md
+   └─ plain/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  notes:
+    full: {}
+    brief: {}
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+`.jastr/plain/TEMPLATE.md`
+
+```md
+---
+name: plain
+---
+Plain body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  notes (standalone) (local)
+  ├── notes#brief
+  └── notes#full
+  plain (standalone) (local)
+```
+
+</details>
+
+### LIST-FR-0007 — Variants attach only to present, runnable refs
+
+Variants attach by iterating present, runnable refs only, so a group whose `config.yml` defines variants for a member ref (`variants.<group>/<member>`) renders those variants nested under the member line, while the group aggregate row (the bare group name, never a runnable ref) shows no direct variant children. The further consequences — a `missing` row and an unmatched orphan `variants.<ref>` entry gain no variant lines — are emergent entailments of the present-runnable-ref iteration and are deliberately not pinned by an acceptance criterion (the forthcoming co-location constraint will make the orphan authoring shape illegal); a future reader must not add a case encoding that transitional suppression.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | For a group whose config.yml defines variants for a member ref (variants.<group>/<member>), those variants render nested under the member line, and the group aggregate row itself shows no direct variant children. | ✅ `list-variants-group-members` |
+
+#### Case: List --variants nests group-member variants under the member line
+
+Description: A tracked group `team` (members `api`, `demo`) and an authored group `tools` (member `fmt`) sit in the local root. The local `config.yml` defines variants only for member refs: `variants.team/api` = `{ strict: {}, v2: {} }` and `variants.team/demo` = `{ draft: {} }` (no `variants.team`, no `variants.tools`, no `variants.tools/fmt`). With `--variants`, each member's variants render nested one level beneath the member line: `team/api` is a non-last member, so its variants carry the `│` continuation; `team/demo` is the last member, so its variant is indented with six spaces; `tools/fmt` has no variants and gains no grandchildren. The `team (group)` aggregate row shows no direct variant children — variants attach to the runnable member ref, not the aggregate.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   ├─ lock.json
+   ├─ team/
+   │  ├─ .jastrgroup
+   │  └─ templates/
+   │     ├─ api/
+   │     │  └─ TEMPLATE.md
+   │     └─ demo/
+   │        └─ TEMPLATE.md
+   └─ tools/
+      ├─ .jastrgroup
+      └─ templates/
+         └─ fmt/
+            └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  team/api:
+    strict: {}
+    v2: {}
+  team/demo:
+    draft: {}
+```
+
+`.jastr/lock.json`
+
+```text
+{
+  "version": 1,
+  "templates": {
+    "team": {
+      "source": "acme/lib",
+      "url": "https://github.com/acme/lib.git",
+      "ref": "main",
+      "name": "team",
+      "kind": "group",
+      "commit": "0a1b2c3d4e5f6789abcdef0123456789abcdef01",
+      "hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  }
+}
+```
+
+`.jastr/team/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/team/templates/api/TEMPLATE.md`
+
+```md
+---
+name: api
+---
+Api body
+```
+
+`.jastr/team/templates/demo/TEMPLATE.md`
+
+```md
+---
+name: demo
+---
+Demo body
+```
+
+`.jastr/tools/.jastrgroup`
+
+```text
+
+```
+
+`.jastr/tools/templates/fmt/TEMPLATE.md`
+
+```md
+---
+name: fmt
+---
+Fmt body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  team (group) acme/lib@main @ 0a1b2c3d4e5f
+  ├── team/api
+  │   ├── team/api#strict
+  │   └── team/api#v2
+  └── team/demo
+      └── team/demo#draft
+  tools (group) (local)
+  └── tools/fmt
+```
+
+</details>
+
+### LIST-FR-0008 — `list --variants` validates consumed config and fails loudly
+
+Under `--variants`, the `config.yml` that `list` reads for variant data is validated through the existing `invalid_config` path, reusing the exact same error codes and messages as the rest of the CLI. The check is row-scoped: only a root that has at least one present, runnable row is consulted, and a ref's `variants.<ref>` shape is inspected only when that ref matches a present runnable row. An unparseable `config.yml`, a non-mapping top-level `variants` section, or a non-mapping `variants.<ref>` for a consulted ref each fails the command with `invalid_config` and the established stable message. Error UX is uniform: `Error: <message>` on stderr, exit 1, empty stdout.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `jastr list --variants` against a root with a present runnable unit and an unparseable config.yml fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml could not be parsed.` | ✅ `list-variants-config-unparseable` |
+| AC-0002 | `jastr list --variants` against a root with a present runnable unit and a non-mapping top-level `variants` section fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml variants must be a mapping.` | ✅ `list-variants-variants-not-mapping` |
+| AC-0003 | `jastr list --variants` against a root with a present runnable ref whose `variants.<ref>` is not a mapping fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml variants.<ref> must be a mapping.` (e.g. `variants.notes`). | ✅ `list-variants-ref-not-mapping` |
+
+#### Case: list --variants rejects an unparseable config.yml
+
+Description: A root holds a present, runnable standalone `notes` unit beside an unparseable `config.yml`. Because a present runnable row exists, `--variants` consults the config, which fails to parse and surfaces the stable invalid_config message.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: [
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml could not be parsed.
+```
+
+</details>
+
+#### Case: list --variants rejects a non-mapping variants.<ref>
+
+Description: A root holds a present, runnable standalone `notes` unit beside a `config.yml` whose `variants.notes` entry is a scalar, not a mapping. Because `notes` matches the present runnable row, `--variants` looks it up and rejects it with the stable invalid_config message naming the ref.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  notes: true
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants.notes must be a mapping.
+```
+
+</details>
+
+#### Case: list --variants rejects a non-mapping variants section
+
+Description: A root holds a present, runnable standalone `notes` unit beside a `config.yml` whose top-level `variants` is a scalar, not a mapping. With a present runnable row in scope, `--variants` reads the config and rejects it with the stable invalid_config message.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants: true
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list --variants
+```
+
+**CLI output** — exit 1
+
+```console
+Error: .jastr/config.yml variants must be a mapping.
 ```
 
 </details>

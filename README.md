@@ -37,7 +37,7 @@ jastr run <template-ref> [input flags...]
 jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force] [input flags...]
 jastr validate <template-ref>
 jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g|--global]
-jastr list [--local] [--global]
+jastr list [--variants] [--local] [--global]
 jastr remove <id>... [-g|--global] [--force]
 jastr update [<id>...] [-g|--global] [--force] [--check]
 jastr --help
@@ -62,7 +62,10 @@ template (or whole group) into a `.jastr/` root, **inspect** what is installed,
 - `jastr list` shows the installed and authored inventory across both roots
   (`--local` / `--global` restrict scope), marking tracked installs with their
   source and locally-authored templates as `local`. A group row lists its member
-  templates beneath it as a sorted tree of `group/template` refs.
+  templates beneath it as a sorted tree of `group/template` refs. The opt-in
+  `--variants` flag additionally shows config-defined variants as a sorted
+  `<ref>#<variant>` tree under each runnable template or group-member, read from
+  each root's own `config.yml`.
 - `jastr update [<id>...]` refreshes tracked installs from their recorded source;
   bare `update` refreshes everything in the root. `--check` reports drift without
   changing anything (exit 0 when all up to date, exit 1 otherwise) and cannot be

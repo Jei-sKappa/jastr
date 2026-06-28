@@ -53,7 +53,9 @@
   description: >
     Enumeration skips non-directories and the root-level `config.yml` /
     `lock.json` files, so neither ever appears as an installed unit in the
-    listing.
+    listing. Reading `config.yml` content for variant data under `--variants` is
+    a separate concern (see `LIST-FR-0006`); `config.yml` is still never a unit
+    row.
   acceptance:
     - id: AC-0001
       statement: A root containing config.yml and lock.json beside its units lists only the units, never config.yml or lock.json.
