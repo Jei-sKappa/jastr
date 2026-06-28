@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--variants] [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";

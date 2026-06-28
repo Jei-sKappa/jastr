@@ -1,0 +1,17 @@
+id: list-variants-default-tolerates-broken-config
+covers:
+  - LIST-FR-0006.AC-0001
+title: Plain list tolerates an unparseable config.yml (never reads it)
+description: >
+  A root holds a present, runnable standalone `notes` unit beside an unparseable
+  `config.yml`. Run without `--variants`, list never reads `config.yml`, so the
+  command succeeds with the normal `notes` row even though the config is broken.
+  This is the discriminating proof of the "config.yml is not read" half of
+  AC-0001: the identical fixture fails with `invalid_config` under `--variants`
+  (see `list-variants-config-unparseable`), so a clean exit here can only mean the
+  config was never parsed.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

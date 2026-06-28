@@ -302,7 +302,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--variants] [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].
 ```
 
 </details>
@@ -16744,11 +16744,60 @@ Local:
 
 | Criterion | Statement | Coverage |
 | --- | --- | --- |
-| AC-0001 | `jastr list` without `--variants` produces byte-identical output to the pre-feature behavior, and config.yml is not read. | ✅ `list-variants-default-unchanged` |
+| AC-0001 | `jastr list` without `--variants` produces byte-identical output to the pre-feature behavior, and config.yml is not read. | ✅ `list-variants-default-tolerates-broken-config`, `list-variants-default-unchanged` |
 | AC-0002 | `jastr list --variants` follows a standalone row with the variant ids under variants.<id> in that root's config.yml, rendered at the row's 2-space indent as a tree using `├── ` for every variant but the last and `└── ` for the last, each line the runnable ref <id>#<variant-id>. | ✅ `list-variants-standalone` |
 | AC-0003 | `jastr list --variants` follows an on-disk group-member line with the variant ids under variants.<group>/<member> in that root's config.yml, nested one level beneath the member: prefixed `  │   ` + connector when the member is not the group's last member, and six spaces + connector when it is; each line the runnable ref <group>/<member>#<variant-id>. | ✅ `list-variants-group-members` |
 | AC-0004 | Variant lines under a ref are sorted ascending by variant id (same ordering as rows/members), and a present runnable ref with no variants contributes no variant lines. | ✅ `list-variants-standalone` |
 | AC-0005 | `--variants` reads only the in-scope root(s)' own config.yml: --local shows local-authored variants only, --global global-authored only, and a variant authored in one root never appears under the other root's section. | ✅ `list-variants-per-root` |
+
+#### Case: Plain list tolerates an unparseable config.yml (never reads it)
+
+Description: A root holds a present, runnable standalone `notes` unit beside an unparseable `config.yml`. Run without `--variants`, list never reads `config.yml`, so the command succeeds with the normal `notes` row even though the config is broken. This is the discriminating proof of the "config.yml is not read" half of AC-0001: the identical fixture fails with `invalid_config` under `--variants` (see `list-variants-config-unparseable`), so a clean exit here can only mean the config was never parsed.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ notes/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs: [
+```
+
+`.jastr/notes/TEMPLATE.md`
+
+```md
+---
+name: notes
+---
+Notes body
+```
+
+**Command**
+
+```console
+$ jastr list
+```
+
+**CLI output** — exit 0
+
+```console
+Local:
+  notes (standalone) (local)
+```
+
+</details>
 
 #### Case: Plain list ignores config.yml and shows no variant lines
 
