@@ -27,7 +27,10 @@ import {
 } from "./targets/agent-skill";
 import { displayPath } from "./templates/display";
 import { createFileIncludeResolver } from "./templates/includes";
-import { loadTemplateReference } from "./templates/template-ref";
+import {
+  type LoadedTemplateReference,
+  loadTemplateReference,
+} from "./templates/template-ref";
 import {
   assertNoLockedInputFlags,
   listUnlockedTemplateInputs,
@@ -35,17 +38,15 @@ import {
   sampleInputsForStaticRender,
 } from "./variants";
 
-export async function executeRun(opts: {
-  templateRef: string;
+export async function resolveTemplateInputs(opts: {
+  template: LoadedTemplateReference;
+  schema: TemplateSchema;
   flags: RawFlag[];
-  cwd: string;
-}): Promise<string> {
-  const template = await loadTemplateReference({
-    cwd: opts.cwd,
-    templateRef: opts.templateRef,
-  });
-  const parsed = parseTemplateSource(template.source);
-  const schema = validateTemplateSchema(parsed.frontmatter);
+}): Promise<{
+  inputs: Record<string, unknown>;
+  selectedVariant: ProjectConfigVariant | undefined;
+}> {
+  const { template, schema, flags } = opts;
 
   const configInputs =
     template.mode === "named"
@@ -68,14 +69,14 @@ export async function executeRun(opts: {
   // collision is reported regardless of whether the flag value would coerce.
   if (selectedVariant !== undefined && template.variantId !== undefined) {
     assertNoLockedInputFlags({
-      flags: opts.flags,
+      flags,
       lockedInputs: selectedVariant.lockedInputs,
       templateRef: template.templateRef,
       variantId: template.variantId,
     });
   }
 
-  const flagInputs = coerceRunFlags(schema, opts.flags);
+  const flagInputs = coerceRunFlags(schema, flags);
 
   // Config and locked values are not prevalidated here: CLI flags may
   // intentionally override invalid standing config values, and the engine
@@ -90,6 +91,27 @@ export async function executeRun(opts: {
             lockedInputs: selectedVariant.lockedInputs,
           })
       : flagInputs;
+
+  return { inputs, selectedVariant };
+}
+
+export async function executeRun(opts: {
+  templateRef: string;
+  flags: RawFlag[];
+  cwd: string;
+}): Promise<string> {
+  const template = await loadTemplateReference({
+    cwd: opts.cwd,
+    templateRef: opts.templateRef,
+  });
+  const parsed = parseTemplateSource(template.source);
+  const schema = validateTemplateSchema(parsed.frontmatter);
+
+  const { inputs } = await resolveTemplateInputs({
+    template,
+    schema,
+    flags: opts.flags,
+  });
 
   const result = await renderTemplateSource({
     source: template.source,
