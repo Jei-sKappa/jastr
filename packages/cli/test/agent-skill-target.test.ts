@@ -1,9 +1,14 @@
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { JastrError, type TemplateInputDefinition } from "@jastr/engine";
 import { describe, expect, it } from "vitest";
 import YAML from "yaml";
 import {
   type AgentSkillTarget,
   buildAgentSkillContent,
+  buildInlineAgentSkillContent,
+  checkAgentSkillOutput,
   validateAgentSkillTarget,
 } from "../src/targets/agent-skill";
 
@@ -639,5 +644,133 @@ If the command exits non-zero, report the exact error output to the user and sto
     expect(parseFrontmatter(content)["argument-hint"]).toBe(
       "-leading dash and [brackets] [--mode=new|merge] --manifest=<value>",
     );
+  });
+});
+
+describe("inline agent-skill content", () => {
+  const demoTarget = validateAgentSkillTarget({
+    frontmatter: { name: "demo", description: "Demo skill." },
+  });
+
+  it("joins the frontmatter header and verbatim body with one blank line", () => {
+    const body = "# Heading\n\nRendered body text.\n";
+    const content = buildInlineAgentSkillContent({
+      target: demoTarget,
+      body,
+    });
+    expect(content).toBe(`---
+name: demo
+description: Demo skill.
+---
+
+# Heading
+
+Rendered body text.
+`);
+    // Exactly one blank line between the header and the body, body verbatim.
+    expect(content).toMatch(/^---\n[\s\S]*?\n---\n\n/);
+    expect(content.endsWith(body)).toBe(true);
+  });
+
+  it("appends the body verbatim with no added or stripped trailing newline", () => {
+    const noTrailing = buildInlineAgentSkillContent({
+      target: demoTarget,
+      body: "no trailing newline",
+    });
+    expect(noTrailing.endsWith("no trailing newline")).toBe(true);
+
+    const trailingBlank = buildInlineAgentSkillContent({
+      target: demoTarget,
+      body: "trailing blank lines\n\n",
+    });
+    expect(trailingBlank.endsWith("trailing blank lines\n\n")).toBe(true);
+  });
+
+  it("uses the author prefix verbatim with no --flag form when a prefix is present", () => {
+    const prefixed = validateAgentSkillTarget({
+      frontmatter: { name: "demo", description: "Demo skill." },
+      "argument-hint-prefix": "Apply the change",
+    });
+    const content = buildInlineAgentSkillContent({
+      target: prefixed,
+      body: "body\n",
+    });
+    const frontmatter = parseFrontmatter(content);
+    // Prefix verbatim, with no auto-derived `--flag` form appended.
+    expect(frontmatter["argument-hint"]).toBe("Apply the change");
+    expect(String(frontmatter["argument-hint"])).not.toContain("--");
+  });
+
+  it("omits the argument-hint field when no prefix is present", () => {
+    const content = buildInlineAgentSkillContent({
+      target: demoTarget,
+      body: "body\n",
+    });
+    expect(parseFrontmatter(content)).not.toHaveProperty("argument-hint");
+    expect(content).not.toContain("argument-hint");
+  });
+});
+
+describe("checkAgentSkillOutput mode-aware messages", () => {
+  async function tempCwd(): Promise<string> {
+    return await mkdtemp(path.join(tmpdir(), "jastr-check-"));
+  }
+
+  it("inline output_missing message names --mode=inline", async () => {
+    const cwd = await tempCwd();
+    let error: unknown;
+    try {
+      await checkAgentSkillOutput({
+        cwd,
+        out: "SKILL.md",
+        templateRef: "demo",
+        content: "anything",
+        mode: "inline",
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect(error).toMatchObject({ code: "output_missing" });
+    expect((error as JastrError).message).toContain("--mode=inline");
+  });
+
+  it("inline output_stale message names --mode=inline alongside --force", async () => {
+    const cwd = await tempCwd();
+    const outputPath = path.join(cwd, "SKILL.md");
+    await writeFile(outputPath, "stale bytes", "utf8");
+    let error: unknown;
+    try {
+      await checkAgentSkillOutput({
+        cwd,
+        out: "SKILL.md",
+        templateRef: "demo",
+        content: "fresh bytes",
+        mode: "inline",
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect(error).toMatchObject({ code: "output_stale" });
+    expect((error as JastrError).message).toContain("--force");
+    expect((error as JastrError).message).toContain("--mode=inline");
+  });
+
+  it("router (default) messages omit --mode=inline", async () => {
+    const cwd = await tempCwd();
+    let error: unknown;
+    try {
+      await checkAgentSkillOutput({
+        cwd,
+        out: "SKILL.md",
+        templateRef: "demo",
+        content: "anything",
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(JastrError);
+    expect((error as JastrError).message).not.toContain("--mode=inline");
   });
 });

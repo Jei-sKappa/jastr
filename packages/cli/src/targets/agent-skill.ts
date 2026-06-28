@@ -236,20 +236,33 @@ function validateMetadata(value: unknown): void {
   }
 }
 
+// Assembles the `---\n<yaml>\n---` frontmatter header shared by router wrappers
+// and inline skills. `inputs` drives the derived `argument-hint` form; the
+// inline path passes `[]` so the form is empty (prefix verbatim or omitted).
+export function buildAgentSkillFrontmatterHeader(
+  target: AgentSkillTarget,
+  inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>,
+): string {
+  const form = deriveArgumentHintForm(inputs);
+  const hint = assembleArgumentHint(target.argumentHintPrefix, form);
+  const frontmatter = {
+    name: target.name,
+    description: target.description,
+    ...(hint !== undefined ? { "argument-hint": hint } : {}),
+    ...target.frontmatter,
+  };
+  return `---\n${YAML.stringify(frontmatter).trimEnd()}\n---`;
+}
+
 export function buildAgentSkillContent(options: {
   templateRef: string;
   target: AgentSkillTarget;
   inputs: ReadonlyArray<{ name: string; definition: TemplateInputDefinition }>;
 }): string {
-  const form = deriveArgumentHintForm(options.inputs);
-  const hint = assembleArgumentHint(options.target.argumentHintPrefix, form);
-  const frontmatter = {
-    name: options.target.name,
-    description: options.target.description,
-    ...(hint !== undefined ? { "argument-hint": hint } : {}),
-    ...options.target.frontmatter,
-  };
-  const header = `---\n${YAML.stringify(frontmatter).trimEnd()}\n---`;
+  const header = buildAgentSkillFrontmatterHeader(
+    options.target,
+    options.inputs,
+  );
   const command = buildCommand(options.templateRef, options.inputs);
 
   // Shape A — no rendered inputs.
@@ -301,6 +314,19 @@ ${command}
 
 ${AGENT_SKILL_FAILURE_LINE}
 `;
+}
+
+// Builds a self-contained inline skill: the frontmatter header followed by the
+// fully-rendered template body. The empty input list yields an empty derived
+// `argument-hint` form, so the field is the author prefix verbatim or omitted —
+// no `--flag` form. The body is appended verbatim (no trim, no added or stripped
+// trailing newline).
+export function buildInlineAgentSkillContent(options: {
+  target: AgentSkillTarget;
+  body: string;
+}): string {
+  const header = buildAgentSkillFrontmatterHeader(options.target, []);
+  return `${header}\n\n${options.body}`;
 }
 
 function inputDescriptor(definition: TemplateInputDefinition): {
@@ -423,8 +449,12 @@ export async function checkAgentSkillOutput(options: {
   out: string;
   templateRef: string;
   content: string;
+  // Selects the suggested-fix command in the stale/missing messages. `router`
+  // (default) keeps today's exact bytes; `inline` names `--mode=inline`.
+  mode?: "router" | "inline";
 }): Promise<string> {
   const outputPath = resolveOutputPath(options.cwd, options.out);
+  const modeFlag = options.mode === "inline" ? " --mode=inline" : "";
 
   let existing: Buffer;
   try {
@@ -435,7 +465,7 @@ export async function checkAgentSkillOutput(options: {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new JastrError(
         "output_missing",
-        `No agent-skill found at ${options.out} to check; generate it with jastr generate agent-skill ${options.templateRef} --out ${options.out}.`,
+        `No agent-skill found at ${options.out} to check; generate it with jastr generate agent-skill ${options.templateRef} --out ${options.out}${modeFlag}.`,
         { out: options.out },
       );
     }
@@ -445,7 +475,7 @@ export async function checkAgentSkillOutput(options: {
   if (!existing.equals(Buffer.from(options.content, "utf8"))) {
     throw new JastrError(
       "output_stale",
-      `Generated agent-skill at ${options.out} is stale; regenerate it with jastr generate agent-skill ${options.templateRef} --out ${options.out} --force.`,
+      `Generated agent-skill at ${options.out} is stale; regenerate it with jastr generate agent-skill ${options.templateRef} --out ${options.out} --force${modeFlag}.`,
       { out: options.out },
     );
   }
