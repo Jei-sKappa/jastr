@@ -9,7 +9,7 @@ description: >
 command: ["add", "./source", "foo"]
 expect:
   exitCode: 0
-  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stdout: "Installed `foo` from `./source` into `.jastr/foo` [`local`]."
   stderr: ""
   fileContains:
     .jastr/lock.json:

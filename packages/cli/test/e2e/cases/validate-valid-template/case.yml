@@ -8,5 +8,5 @@ description: Shows how validate confirms a clean template, exits 0, and writes n
 command: ["validate", "demo"]
 expect:
   exitCode: 0
-  stdout: "Template demo is valid."
+  stdout: "Template `demo` is valid."
   stderr: ""

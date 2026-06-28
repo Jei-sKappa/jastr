@@ -1,2 +1,2 @@
 Global:
-  glob (standalone) acme/global@release @ 202020202020
+  `glob` (standalone) `acme/global@release` @ `202020202020`

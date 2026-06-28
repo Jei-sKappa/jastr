@@ -9,4 +9,4 @@ command: ["generate", "agent-skill", "review#deep", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must not be empty or whitespace-only.\n"
+  stderr: "Error: .jastr/config.yml `variants.review.deep.agent-skill.argument-hint-prefix` must not be empty or whitespace-only.\n"

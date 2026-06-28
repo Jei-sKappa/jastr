@@ -7,4 +7,4 @@ command: ["generate", "agent-skill", "review#bad", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input depth must be one of: quick, deep.\n"
+  stderr: "Error: Input `depth` must be one of: `quick`, `deep`.\n"

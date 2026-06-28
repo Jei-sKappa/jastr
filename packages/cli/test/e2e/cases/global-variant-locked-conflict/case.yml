@@ -10,4 +10,4 @@ command: ["run", "review#deep", "--depth=quick"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input --depth is locked by variant review#deep.\n"
+  stderr: "Error: Input `--depth` is locked by variant `review#deep`.\n"

@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Interpolation references undeclared input nope.\n"
+  stderr: "Error: Interpolation references undeclared input `nope`.\n"

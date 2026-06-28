@@ -10,4 +10,4 @@ command: ["remove", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: foo is not installed in the local root; it is installed in the global root — re-run with -g to remove it.\n"
+  stderr: "Error: `foo` is not installed in the `local` root; it is installed in the global root — re-run with -g to remove it.\n"

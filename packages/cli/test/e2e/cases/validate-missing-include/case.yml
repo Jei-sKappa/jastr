@@ -7,4 +7,4 @@ command: ["validate", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include file missing.md was not found.\n"
+  stderr: "Error: Include file `missing.md` was not found.\n"

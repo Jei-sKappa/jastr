@@ -8,4 +8,4 @@ command: ["run", "review#deep"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Variant review#deep was not found in .jastr/config.yml.\n"
+  stderr: "Error: Variant `review#deep` was not found in .jastr/config.yml.\n"

@@ -14,4 +14,4 @@ env:
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: git clone failed for https://github.com/owner/repo.git (exit 1).\nfatal: repository not found\n"
+  stderr: "Error: git clone failed for `https://github.com/owner/repo.git` (exit 1).\nfatal: repository not found\n"

@@ -9,7 +9,7 @@ description: >
 command: ["remove", "foo"]
 expect:
   exitCode: 0
-  stdout: "Cleaned stale entry foo [local].\n"
+  stdout: "Cleaned stale entry `foo` [`local`].\n"
   stderr: ""
   fileNotContains:
     .jastr/lock.json:

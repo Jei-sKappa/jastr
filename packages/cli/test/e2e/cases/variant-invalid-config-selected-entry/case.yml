@@ -7,4 +7,4 @@ command: ["run", "review#deep"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: .jastr/config.yml variants.review.deep must be a mapping.\n"
+  stderr: "Error: .jastr/config.yml `variants.review.deep` must be a mapping.\n"

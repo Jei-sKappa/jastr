@@ -341,7 +341,7 @@ $ jastr run INVALID
 **CLI output** — exit 1
 
 ```console
-Error: Template reference INVALID must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+Error: Template reference `INVALID` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -377,7 +377,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).
+Error: No .jastr directory found locally (searched from the current directory up) or globally (`__GLOBAL_ROOT__/.jastr`).
 ```
 
 </details>
@@ -427,7 +427,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found. Searched local .jastr/no-such-skill/TEMPLATE.md.
+Error: Template `no-such-skill` was not found. Searched local `.jastr/no-such-skill/TEMPLATE.md`.
 ```
 
 </details>
@@ -516,7 +516,7 @@ $ jastr run BadName
 **CLI output** — exit 1
 
 ```console
-Error: Template reference BadName must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+Error: Template reference `BadName` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -573,7 +573,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found. Searched local .jastr/team/templates/demo/TEMPLATE.md.
+Error: Template `team/demo` was not found. Searched local `.jastr/team/templates/demo/TEMPLATE.md`.
 ```
 
 </details>
@@ -631,7 +631,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Template team/demo was not found. Searched local .jastr/team/templates/demo/TEMPLATE.md.
+Error: Template `team/demo` was not found. Searched local `.jastr/team/templates/demo/TEMPLATE.md`.
 ```
 
 </details>
@@ -803,7 +803,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input target-file is optional and was not provided for interpolation.
+Error: Input `target-file` is optional and was not provided for interpolation.
 ```
 
 </details>
@@ -859,7 +859,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Required input language is missing.
+Error: Required input `language` is missing.
 ```
 
 </details>
@@ -915,7 +915,7 @@ $ jastr run demo --language=ruby
 **CLI output** — exit 1
 
 ```console
-Error: Input language must be one of: typescript, python.
+Error: Input `language` must be one of: `typescript`, `python`.
 ```
 
 </details>
@@ -1222,7 +1222,7 @@ $ jastr validate demo
 **CLI output** — exit 1
 
 ```console
-Error: Description for input language must be a string.
+Error: Description for input `language` must be a string.
 ```
 
 </details>
@@ -1428,7 +1428,7 @@ $ jastr run demo --language=typescript --unknown=x
 **CLI output** — exit 1
 
 ```console
-Error: Unknown input flag --unknown.
+Error: Unknown input flag `--unknown`.
 ```
 
 </details>
@@ -1484,7 +1484,7 @@ $ jastr run demo --language=typescript --language=python
 **CLI output** — exit 1
 
 ```console
-Error: Duplicate flag --language.
+Error: Duplicate flag `--language`.
 ```
 
 </details>
@@ -1536,7 +1536,7 @@ $ jastr run demo bareword
 **CLI output** — exit 1
 
 ```console
-Error: Invalid flag syntax bareword.
+Error: Invalid flag syntax `bareword`.
 ```
 
 </details>
@@ -1577,7 +1577,7 @@ $ jastr run demo --no-dry-run
 **CLI output** — exit 1
 
 ```console
-Error: Boolean negation form --no-dry-run is not supported.
+Error: Boolean negation form `--no-dry-run` is not supported.
 ```
 
 </details>
@@ -1632,7 +1632,7 @@ $ jastr run demo --target-file=
 **CLI output** — exit 1
 
 ```console
-Error: Input --target-file cannot be empty.
+Error: Input `--target-file` cannot be empty.
 ```
 
 </details>
@@ -1687,7 +1687,7 @@ $ jastr run demo --target-file
 **CLI output** — exit 1
 
 ```console
-Error: Input --target-file requires --target-file=value.
+Error: Input `--target-file` requires `--target-file=value`.
 ```
 
 </details>
@@ -1742,7 +1742,7 @@ $ jastr run demo --dry-run=yes
 **CLI output** — exit 1
 
 ```console
-Error: Boolean input --dry-run must be true, false, or a bare flag.
+Error: Boolean input `--dry-run` must be true, false, or a bare flag.
 ```
 
 </details>
@@ -2729,7 +2729,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path /etc/hosts escapes the allowed include boundary.
+Error: Include path `/etc/hosts` escapes the allowed include boundary.
 ```
 
 </details>
@@ -2876,7 +2876,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../../outside.md escapes the allowed include boundary.
+Error: Include path `../../outside.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -2942,7 +2942,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../../outside.md escapes the allowed include boundary.
+Error: Include path `../../outside.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -3000,7 +3000,7 @@ $ jastr run team/demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../outside.md escapes the allowed include boundary.
+Error: Include path `../outside.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -3049,7 +3049,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path leak.md escapes the allowed include boundary.
+Error: Include path `leak.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -3167,7 +3167,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
+Error: Include cycle detected: `.jastr/demo/a.md` -> `.jastr/demo/b.md` -> `.jastr/demo/a.md`.
 ```
 
 </details>
@@ -3219,7 +3219,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include file missing.md was not found.
+Error: Include file `missing.md` was not found.
 ```
 
 </details>
@@ -3278,7 +3278,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include file subdir could not be read: EISDIR.
+Error: Include file `subdir` could not be read: `EISDIR`.
 ```
 
 </details>
@@ -3331,7 +3331,7 @@ $ jastr run templates/direct.md
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../outside.md escapes the allowed include boundary.
+Error: Include path `../outside.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -3612,7 +3612,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include root workspace must be template, group, or file.
+Error: Include root `workspace` must be template, group, or file.
 ```
 
 </details>
@@ -4009,7 +4009,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: else directive must immediately follow an if or else-if branch.
+Error: `else` directive must immediately follow an if or else-if branch.
 ```
 
 </details>
@@ -4293,7 +4293,7 @@ $ jastr generate typescript demo --out=out.ts
 **CLI output** — exit 1
 
 ```console
-Error: Unsupported generate target typescript.
+Error: Unsupported generate target `typescript`.
 ```
 
 </details>
@@ -4791,7 +4791,7 @@ $ jastr generate agent-skill review#bad --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: Input depth must be one of: quick, deep.
+Error: Input `depth` must be one of: `quick`, `deep`.
 ```
 
 </details>
@@ -7304,7 +7304,7 @@ $ jastr run no-such-skill
 **CLI output** — exit 1
 
 ```console
-Error: Template no-such-skill was not found. Searched local .jastr/no-such-skill/TEMPLATE.md.
+Error: Template `no-such-skill` was not found. Searched local `.jastr/no-such-skill/TEMPLATE.md`.
 ```
 
 </details>
@@ -7450,7 +7450,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input target-file must explicitly declare required: true or required: false.
+Error: Input `target-file` must explicitly declare required: true or required: false.
 ```
 
 </details>
@@ -7505,7 +7505,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input count uses unsupported type number.
+Error: Input `count` uses unsupported type `number`.
 ```
 
 </details>
@@ -7561,7 +7561,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Enum input choice must declare at least one value.
+Error: Enum input `choice` must declare at least one value.
 ```
 
 </details>
@@ -7683,7 +7683,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: else-if directive must immediately follow an if or else-if branch.
+Error: `else-if` directive must immediately follow an if or else-if branch.
 ```
 
 </details>
@@ -7789,7 +7789,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Condition references undeclared input nope.
+Error: Condition references undeclared input `nope`.
 ```
 
 </details>
@@ -7840,7 +7840,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Interpolation references undeclared input nope.
+Error: Interpolation references undeclared input `nope`.
 ```
 
 </details>
@@ -7894,7 +7894,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Default for input dry-run must be a boolean.
+Error: Default for input `dry-run` must be a boolean.
 ```
 
 </details>
@@ -7939,7 +7939,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input language cannot declare default when required is true.
+Error: Input `language` cannot declare default when required is true.
 ```
 
 </details>
@@ -8423,7 +8423,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml inputs.demo must be a mapping.
+Error: .jastr/config.yml `inputs.demo` must be a mapping.
 ```
 
 </details>
@@ -8655,7 +8655,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input depth must be one of: quick, deep.
+Error: Input `depth` must be one of: `quick`, `deep`.
 ```
 
 </details>
@@ -8708,7 +8708,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input dry-run must be a boolean.
+Error: Input `dry-run` must be a boolean.
 ```
 
 </details>
@@ -8816,7 +8816,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input extra is not declared.
+Error: Input `extra` is not declared.
 ```
 
 </details>
@@ -8965,7 +8965,7 @@ $ jastr run review#deep --depth=quick
 **CLI output** — exit 1
 
 ```console
-Error: Input --depth is locked by variant review#deep.
+Error: Input `--depth` is locked by variant `review#deep`.
 ```
 
 </details>
@@ -9197,7 +9197,7 @@ $ jastr run templates/review.md#deep
 **CLI output** — exit 1
 
 ```console
-Error: Template reference templates/review.md#deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+Error: Template reference `templates/review.md#deep` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -9224,7 +9224,7 @@ $ jastr run review#Deep
 **CLI output** — exit 1
 
 ```console
-Error: Template reference review#Deep must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
+Error: Template reference `review#Deep` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.
 ```
 
 </details>
@@ -9280,7 +9280,7 @@ $ jastr run review#deep
 **CLI output** — exit 1
 
 ```console
-Error: Variant review#deep was not found in .jastr/config.yml.
+Error: Variant `review#deep` was not found in .jastr/config.yml.
 ```
 
 </details>
@@ -9341,7 +9341,7 @@ $ jastr run review#deep
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review.deep.locked-inputs must be a mapping.
+Error: .jastr/config.yml `variants.review.deep.locked-inputs` must be a mapping.
 ```
 
 </details>
@@ -9389,7 +9389,7 @@ $ jastr run review#deep
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review.deep field locked-input is not supported.
+Error: .jastr/config.yml `variants.review.deep` field `locked-input` is not supported.
 ```
 
 </details>
@@ -9436,7 +9436,7 @@ $ jastr run review#deep
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review.deep must be a mapping.
+Error: .jastr/config.yml `variants.review.deep` must be a mapping.
 ```
 
 </details>
@@ -9482,7 +9482,7 @@ $ jastr run review#deep
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review must be a mapping.
+Error: .jastr/config.yml `variants.review` must be a mapping.
 ```
 
 </details>
@@ -9651,7 +9651,7 @@ $ jastr run review#bad
 **CLI output** — exit 1
 
 ```console
-Error: Input depth must be one of: quick, deep.
+Error: Input `depth` must be one of: `quick`, `deep`.
 ```
 
 </details>
@@ -9700,7 +9700,7 @@ $ jastr run review#bad
 **CLI output** — exit 1
 
 ```console
-Error: Input policy is not declared.
+Error: Input `policy` is not declared.
 ```
 
 </details>
@@ -10671,7 +10671,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must not be empty or whitespace-only.
+Error: .jastr/config.yml `variants.review.deep.agent-skill.argument-hint-prefix` must not be empty or whitespace-only.
 ```
 
 </details>
@@ -10736,7 +10736,7 @@ $ jastr validate team/demo
 **CLI output** — exit 0
 
 ```console
-Template team/demo is valid.
+Template `team/demo` is valid.
 ```
 
 </details>
@@ -10785,7 +10785,7 @@ $ jastr validate demo
 **CLI output** — exit 0
 
 ```console
-Template demo is valid.
+Template `demo` is valid.
 ```
 
 </details>
@@ -10837,7 +10837,7 @@ $ jastr validate demo
 **CLI output** — exit 0
 
 ```console
-Template demo is valid.
+Template `demo` is valid.
 ```
 
 </details>
@@ -10904,7 +10904,7 @@ $ jastr validate demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
+Error: Include cycle detected: `.jastr/demo/a.md` -> `.jastr/demo/b.md` -> `.jastr/demo/a.md`.
 ```
 
 </details>
@@ -10947,7 +10947,7 @@ $ jastr validate demo
 **CLI output** — exit 1
 
 ```console
-Error: Input language must explicitly declare required: true or required: false.
+Error: Input `language` must explicitly declare required: true or required: false.
 ```
 
 </details>
@@ -10988,7 +10988,7 @@ $ jastr validate demo
 **CLI output** — exit 1
 
 ```console
-Error: Include file missing.md was not found.
+Error: Include file `missing.md` was not found.
 ```
 
 </details>
@@ -11115,7 +11115,7 @@ $ jastr validate team/review#deep
 **CLI output** — exit 0
 
 ```console
-Template team/review#deep is valid.
+Template `team/review#deep` is valid.
 ```
 
 </details>
@@ -11160,7 +11160,7 @@ $ jastr validate review#deep
 **CLI output** — exit 1
 
 ```console
-Error: Variant review#deep was not found in .jastr/config.yml.
+Error: Variant `review#deep` was not found in .jastr/config.yml.
 ```
 
 </details>
@@ -11229,7 +11229,7 @@ $ jastr validate review#deep
 **CLI output** — exit 0
 
 ```console
-Template review#deep is valid.
+Template `review#deep` is valid.
 ```
 
 </details>
@@ -11288,7 +11288,7 @@ $ jastr validate templates/notes.md
 **CLI output** — exit 0
 
 ```console
-Template templates/notes.md is valid.
+Template `templates/notes.md` is valid.
 ```
 
 </details>
@@ -11325,7 +11325,7 @@ $ jastr validate demo extra
 **CLI output** — exit 1
 
 ```console
-Error: Invalid validate argument extra.
+Error: Invalid validate argument `extra`.
 ```
 
 </details>
@@ -11379,7 +11379,7 @@ $ jastr validate demo --force
 **CLI output** — exit 1
 
 ```console
-Error: Unknown validate option --force.
+Error: Unknown validate option `--force`.
 ```
 
 </details>
@@ -11489,7 +11489,7 @@ $ jastr validate demo
 **CLI output** — exit 0
 
 ```console
-Template demo is valid.
+Template `demo` is valid.
 ```
 
 </details>
@@ -11558,7 +11558,7 @@ $ jastr validate review#deep
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must be a string.
+Error: .jastr/config.yml `variants.review.deep.agent-skill.argument-hint-prefix` must be a string.
 ```
 
 </details>
@@ -11966,7 +11966,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).
+Error: No .jastr directory found locally (searched from the current directory up) or globally (`__GLOBAL_ROOT__/.jastr`).
 ```
 
 </details>
@@ -12254,7 +12254,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Input extra is not declared.
+Error: Input `extra` is not declared.
 ```
 
 </details>
@@ -12496,7 +12496,7 @@ $ jastr run review#deep --depth=quick
 **CLI output** — exit 1
 
 ```console
-Error: Input --depth is locked by variant review#deep.
+Error: Input `--depth` is locked by variant `review#deep`.
 ```
 
 </details>
@@ -12557,7 +12557,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include path ../../outside.md escapes the allowed include boundary.
+Error: Include path `../../outside.md` escapes the allowed include boundary.
 ```
 
 </details>
@@ -12630,7 +12630,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.
+Error: Include cycle detected: `__GLOBAL_ROOT__/.jastr/demo/a.md` -> `__GLOBAL_ROOT__/.jastr/demo/b.md` -> `__GLOBAL_ROOT__/.jastr/demo/a.md`.
 ```
 
 </details>
@@ -12689,7 +12689,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: .jastr/demo/a.md -> .jastr/demo/b.md -> .jastr/demo/a.md.
+Error: Include cycle detected: `.jastr/demo/a.md` -> `.jastr/demo/b.md` -> `.jastr/demo/a.md`.
 ```
 
 </details>
@@ -12822,7 +12822,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.
+Error: Template `demo` was not found. Searched local `.jastr/demo/TEMPLATE.md` and global `__GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md`.
 ```
 
 </details>
@@ -13021,7 +13021,7 @@ $ jastr validate demo
 **CLI output** — exit 0
 
 ```console
-Template demo is valid.
+Template `demo` is valid.
 ```
 
 </details>
@@ -13092,7 +13092,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.
+Error: Include cycle detected: `__GLOBAL_ROOT__/.jastr/demo/a.md` -> `__GLOBAL_ROOT__/.jastr/demo/b.md` -> `__GLOBAL_ROOT__/.jastr/demo/a.md`.
 ```
 
 </details>
@@ -13217,7 +13217,7 @@ $ jastr run demo
 **CLI output** — exit 1
 
 ```console
-Error: Template demo was not found. Searched local .jastr/demo/TEMPLATE.md and global __GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md.
+Error: Template `demo` was not found. Searched local `.jastr/demo/TEMPLATE.md` and global `__GLOBAL_ROOT__/.jastr/demo/TEMPLATE.md`.
 ```
 
 </details>
@@ -13303,7 +13303,7 @@ snippet
 **CLI output** — exit 0
 
 ```console
-Installed foo from ./source into .jastr/foo [local].
+Installed `foo` from `./source` into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -13395,7 +13395,7 @@ $ jastr add ./source mygroup
 **CLI output** — exit 0
 
 ```console
-Installed group mygroup (2 templates) from ./source into .jastr/mygroup [local].
+Installed group `mygroup` (2 templates) from `./source` into `.jastr/mygroup` [`local`].
 ```
 
 </details>
@@ -13453,7 +13453,7 @@ $ jastr add ./source grp/tpl
 **CLI output** — exit 1
 
 ```console
-Error: grp/tpl refers to a template inside a group; add the whole group by its name instead (groups install as a unit).
+Error: `grp/tpl` refers to a template inside a group; add the whole group by its name instead (groups install as a unit).
 ```
 
 </details>
@@ -13502,7 +13502,7 @@ $ jastr add ./source missing
 **CLI output** — exit 1
 
 ```console
-Error: Template missing was not found in ./source.
+Error: Template `missing` was not found in `./source`.
 ```
 
 </details>
@@ -13552,7 +13552,7 @@ $ jastr add owner/repo foo
 **CLI output** — exit 0
 
 ```console
-Installed foo from owner/repo into .jastr/foo [local].
+Installed `foo` from `owner/repo` into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -13612,7 +13612,7 @@ $ jastr add owner/repo foo --ref main
 **CLI output** — exit 0
 
 ```console
-Installed foo from owner/repo (ref main) into .jastr/foo [local].
+Installed `foo` from `owner/repo` (ref `main`) into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -13648,7 +13648,7 @@ $ jastr add owner/repo foo
 **CLI output** — exit 1
 
 ```console
-Error: git clone failed for https://github.com/owner/repo.git (exit 1).
+Error: git clone failed for `https://github.com/owner/repo.git` (exit 1).
 fatal: repository not found
 ```
 
@@ -13676,7 +13676,7 @@ $ jastr add owner/repo foo
 **CLI output** — exit 1
 
 ```console
-Error: git is not available; install git to add a remote source (owner/repo).
+Error: git is not available; install git to add a remote source (`owner/repo`).
 ```
 
 </details>
@@ -13726,7 +13726,7 @@ $ jastr add ./source bar --path /etc
 **CLI output** — exit 1
 
 ```console
-Error: --path must be a relative subpath, not an absolute path (/etc).
+Error: --path must be a relative subpath, not an absolute path (`/etc`).
 ```
 
 </details>
@@ -13778,7 +13778,7 @@ $ jastr add ./source bar --path sub
 **CLI output** — exit 0
 
 ```console
-Installed bar from ./source into .jastr/bar [local].
+Installed `bar` from `./source` into `.jastr/bar` [`local`].
 ```
 
 </details>
@@ -13838,7 +13838,7 @@ $ jastr add ./source foo
 **CLI output** — exit 0
 
 ```console
-Installed foo from ./source into .jastr/foo [local].
+Installed `foo` from `./source` into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -13879,7 +13879,7 @@ $ jastr add ./source foo -g
 **CLI output** — exit 0
 
 ```console
-Installed foo from ./source into .jastr/foo [global].
+Installed `foo` from `./source` into `.jastr/foo` [`global`].
 ```
 
 </details>
@@ -13933,7 +13933,7 @@ $ jastr add ./source foo
 **CLI output** — exit 1
 
 ```console
-Error: foo is already installed at .jastr/foo; run `jastr update foo` to refresh it.
+Error: `foo` is already installed at `.jastr/foo`; run `jastr update foo` to refresh it.
 ```
 
 </details>
@@ -13995,7 +13995,7 @@ $ jastr add ./source foo
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/foo already exists and was not jastr-installed; delete it by hand before adding foo.
+Error: `.jastr/foo` already exists and was not jastr-installed; delete it by hand before adding `foo`.
 ```
 
 </details>
@@ -14045,7 +14045,7 @@ $ jastr add ./source foo
 **CLI output** — exit 0
 
 ```console
-Installed foo from ./source into .jastr/foo [local].
+Installed `foo` from `./source` into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -14096,7 +14096,7 @@ $ jastr add ./source foo
 **CLI output** — exit 0
 
 ```console
-Installed foo from ./source into .jastr/foo [local].
+Installed `foo` from `./source` into `.jastr/foo` [`local`].
 ```
 
 </details>
@@ -14148,7 +14148,7 @@ $ jastr add ./source broken
 **CLI output** — exit 1
 
 ```console
-Error: Unable to add broken: the template failed validation. Input x must explicitly declare required: true or required: false.
+Error: Unable to add `broken`: the template failed validation. Input `x` must explicitly declare required: true or required: false.
 ```
 
 </details>
@@ -14197,7 +14197,7 @@ $ jastr add ./source evil
 **CLI output** — exit 1
 
 ```console
-Error: source/.jastr/evil/link.md is not a regular file or directory (symlinks and special files are not allowed in a source unit).
+Error: `source/.jastr/evil/link.md` is not a regular file or directory (symlinks and special files are not allowed in a source unit).
 ```
 
 </details>
@@ -14260,7 +14260,7 @@ $ jastr add ./source foo --yes
 **CLI output** — exit 1
 
 ```console
-Error: Unknown add option --yes.
+Error: Unknown add option `--yes`.
 ```
 
 </details>
@@ -14439,11 +14439,11 @@ $ jastr list
 
 ```console
 Local:
-  team (group) Jei-sKappa/jastr@main @ 814343598f39
-  ├── team/api
-  └── team/demo
-  tools (group) (local)
-  └── tools/fmt
+  `team` (group) `Jei-sKappa/jastr@main` @ `814343598f39`
+  ├── `team/api`
+  └── `team/demo`
+  `tools` (group) (local)
+  └── `tools/fmt`
 ```
 
 </details>
@@ -14516,8 +14516,8 @@ $ jastr list
 
 ```console
 Local:
-  authored (standalone) (local)
-  tracked (standalone) acme/widgets@main @ 0123456789ab
+  `authored` (standalone) (local)
+  `tracked` (standalone) `acme/widgets@main` @ `0123456789ab`
 ```
 
 </details>
@@ -14596,8 +14596,8 @@ $ jastr list
 
 ```console
 Local:
-  ghost (standalone) acme/ghost@v3 @ ffffffff0000 (missing)
-  present (standalone) acme/present@main @ aaaaaaaabbbb
+  `ghost` (standalone) `acme/ghost@v3` @ `ffffffff0000` (missing)
+  `present` (standalone) `acme/present@main` @ `aaaaaaaabbbb`
 ```
 
 </details>
@@ -14705,10 +14705,10 @@ $ jastr list
 
 ```console
 Local:
-  loc (standalone) acme/local@main @ 101010101010
+  `loc` (standalone) `acme/local@main` @ `101010101010`
 
 Global:
-  glob (standalone) acme/global@release @ 202020202020
+  `glob` (standalone) `acme/global@release` @ `202020202020`
 ```
 
 </details>
@@ -14808,7 +14808,7 @@ $ jastr list --global
 
 ```console
 Global:
-  glob (standalone) acme/global@release @ 202020202020
+  `glob` (standalone) `acme/global@release` @ `202020202020`
 ```
 
 </details>
@@ -14908,7 +14908,7 @@ $ jastr list --local
 
 ```console
 Local:
-  loc (standalone) acme/local@main @ 101010101010
+  `loc` (standalone) `acme/local@main` @ `101010101010`
 ```
 
 </details>
@@ -15096,9 +15096,9 @@ $ jastr list
 
 ```console
 Local:
-  alpha (standalone) acme/alpha @ 888888888888
-  mango (standalone) acme/mango @ 777777777777
-  zebra (standalone) acme/zebra @ 999999999999
+  `alpha` (standalone) `acme/alpha` @ `888888888888`
+  `mango` (standalone) `acme/mango` @ `777777777777`
+  `zebra` (standalone) `acme/zebra` @ `999999999999`
 ```
 
 </details>
@@ -15174,7 +15174,7 @@ $ jastr list
 
 ```console
 Local:
-  widget (standalone) acme/widget @ abcabcabcabc
+  `widget` (standalone) `acme/widget` @ `abcabcabcabc`
 ```
 
 </details>
@@ -15229,7 +15229,7 @@ $ jastr remove foo
 **CLI output** — exit 0
 
 ```console
-Removed foo (was ./source) [local].
+Removed `foo` (was `./source`) [`local`].
 ```
 
 </details>
@@ -15284,7 +15284,7 @@ $ jastr remove foo
 **CLI output** — exit 1
 
 ```console
-Error: foo has local modifications at .jastr/foo; re-run with --force to remove it anyway.
+Error: `foo` has local modifications at `.jastr/foo`; re-run with --force to remove it anyway.
 ```
 
 </details>
@@ -15330,7 +15330,7 @@ $ jastr remove foo --force
 **CLI output** — exit 0
 
 ```console
-Removed foo (was ./source) [local].
+Removed `foo` (was `./source`) [`local`].
 ```
 
 </details>
@@ -15388,7 +15388,7 @@ $ jastr remove foo
 **CLI output** — exit 0
 
 ```console
-Cleaned stale entry foo [local].
+Cleaned stale entry `foo` [`local`].
 ```
 
 </details>
@@ -15446,7 +15446,7 @@ $ jastr remove authored
 **CLI output** — exit 1
 
 ```console
-Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.
+Error: `.jastr/authored` exists but was not jastr-installed; remove it by hand if you meant to delete author work.
 ```
 
 </details>
@@ -15482,7 +15482,7 @@ $ jastr remove nope -g
 **CLI output** — exit 1
 
 ```console
-Error: nope is not installed in the global root.
+Error: `nope` is not installed in the `global` root.
 ```
 
 </details>
@@ -15546,7 +15546,7 @@ $ jastr remove foo
 **CLI output** — exit 1
 
 ```console
-Error: foo is not installed in the local root; it is installed in the global root — re-run with -g to remove it.
+Error: `foo` is not installed in the `local` root; it is installed in the global root — re-run with -g to remove it.
 ```
 
 </details>
@@ -15618,7 +15618,7 @@ $ jastr remove mygroup
 **CLI output** — exit 0
 
 ```console
-Removed mygroup (was ./source) [local].
+Removed `mygroup` (was `./source`) [`local`].
 ```
 
 </details>
@@ -15692,8 +15692,8 @@ $ jastr remove foo authored
 **CLI output** — exit 1
 
 ```console
-Removed foo (was ./source) [local].
-Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.
+Removed `foo` (was `./source`) [`local`].
+Error: `.jastr/authored` exists but was not jastr-installed; remove it by hand if you meant to delete author work.
 ```
 
 </details>
@@ -15772,7 +15772,7 @@ $ jastr remove foo
 **CLI output** — exit 1
 
 ```console
-Error: lock entry "foo" is invalid: it has an unknown field "bogus".
+Error: lock entry `foo` is invalid: it has an unknown field `bogus`.
 ```
 
 </details>
@@ -15835,7 +15835,7 @@ $ jastr remove foo --yes
 **CLI output** — exit 1
 
 ```console
-Error: Unknown remove option --yes.
+Error: Unknown remove option `--yes`.
 ```
 
 </details>
@@ -15901,8 +15901,8 @@ $ jastr update
 **CLI output** — exit 0
 
 ```console
-alpha is up to date [local].
-beta is up to date [local].
+`alpha` is up to date [`local`].
+`beta` is up to date [`local`].
 ```
 
 </details>
@@ -15929,7 +15929,7 @@ $ jastr update ghost
 **CLI output** — exit 1
 
 ```console
-Error: ghost is not installed in the local root.
+Error: `ghost` is not installed in the `local` root.
 ```
 
 </details>
@@ -15982,7 +15982,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-foo is up to date [local].
+`foo` is up to date [`local`].
 ```
 
 </details>
@@ -16046,7 +16046,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-Updated foo (unversioned) [local].
+Updated `foo` (unversioned) [`local`].
 ```
 
 </details>
@@ -16112,7 +16112,7 @@ $ jastr update foo --force
 **CLI output** — exit 0
 
 ```console
-Updated foo (unversioned) [local].
+Updated `foo` (unversioned) [`local`].
 ```
 
 </details>
@@ -16169,7 +16169,7 @@ $ jastr update foo
 **CLI output** — exit 1
 
 ```console
-Error: foo has local modifications at .jastr/foo; re-run with --force to overwrite it.
+Error: `foo` has local modifications at `.jastr/foo`; re-run with --force to overwrite it.
 ```
 
 </details>
@@ -16242,7 +16242,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-Updated foo (unversioned) [local].
+Updated `foo` (unversioned) [`local`].
 ```
 
 </details>
@@ -16297,7 +16297,7 @@ $ jastr update --check foo
 **CLI output** — exit 0
 
 ```console
-foo is up to date [local].
+`foo` is up to date [`local`].
 ```
 
 </details>
@@ -16380,7 +16380,7 @@ $ jastr update --check foo
 **CLI output** — exit 1
 
 ```console
-Error: foo is not up to date in the local root.
+Error: `foo` is not up to date in the `local` root.
 ```
 
 </details>
@@ -16433,8 +16433,8 @@ $ jastr update foo ghost
 **CLI output** — exit 1
 
 ```console
-foo is up to date [local].
-Error: ghost is not installed in the local root.
+`foo` is up to date [`local`].
+Error: `ghost` is not installed in the `local` root.
 ```
 
 </details>
@@ -16498,7 +16498,7 @@ $ jastr update foo
 **CLI output** — exit 1
 
 ```console
-Error: Unable to update foo: the template failed validation. Input x must explicitly declare required: true or required: false.
+Error: Unable to update `foo`: the template failed validation. Input `x` must explicitly declare required: true or required: false.
 ```
 
 </details>
@@ -16543,7 +16543,7 @@ $ jastr update
 **CLI output** — exit 0
 
 ```console
-Nothing to update in the local root.
+Nothing to update in the `local` root.
 ```
 
 </details>
@@ -16608,7 +16608,7 @@ $ jastr update foo
 **CLI output** — exit 0
 
 ```console
-foo reconciled to (unversioned) [local].
+`foo` reconciled to (unversioned) [`local`].
 ```
 
 </details>
@@ -16687,7 +16687,7 @@ $ jastr update foo
 **CLI output** — exit 1
 
 ```console
-Error: lock entry "foo" is invalid: it has an unknown field "bogus".
+Error: lock entry `foo` is invalid: it has an unknown field `bogus`.
 ```
 
 </details>
@@ -16745,7 +16745,7 @@ $ jastr update foo
 **CLI output** — exit 1
 
 ```console
-Error: foo is tracked but its unit directory is missing at .jastr/foo; re-add it with `jastr add`.
+Error: `foo` is tracked but its unit directory is missing at `.jastr/foo`; re-add it with `jastr add`.
 ```
 
 </details>
@@ -16780,7 +16780,7 @@ $ jastr update foo --yes
 **CLI output** — exit 1
 
 ```console
-Error: Unknown update option --yes.
+Error: Unknown update option `--yes`.
 ```
 
 </details>

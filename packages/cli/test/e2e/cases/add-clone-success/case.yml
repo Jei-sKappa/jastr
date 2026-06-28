@@ -13,7 +13,7 @@ env:
   FAKE_GIT_COMMIT: "feedface00000000000000000000000000000000"
 expect:
   exitCode: 0
-  stdout: "Installed foo from owner/repo (ref main) into .jastr/foo [local]."
+  stdout: "Installed `foo` from `owner/repo` (ref `main`) into `.jastr/foo` [`local`]."
   stderr: ""
   files:
     .jastr/foo/TEMPLATE.md: fixture/clone-source/.jastr/foo/TEMPLATE.md

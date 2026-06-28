@@ -9,4 +9,4 @@ command: ["add", "./source", "grp/tpl"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: grp/tpl refers to a template inside a group; add the whole group by its name instead (groups install as a unit).\n"
+  stderr: "Error: `grp/tpl` refers to a template inside a group; add the whole group by its name instead (groups install as a unit).\n"

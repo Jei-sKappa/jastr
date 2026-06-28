@@ -13,4 +13,4 @@ substitute:
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include cycle detected: __GLOBAL_ROOT__/.jastr/demo/a.md -> __GLOBAL_ROOT__/.jastr/demo/b.md -> __GLOBAL_ROOT__/.jastr/demo/a.md.\n"
+  stderr: "Error: Include cycle detected: `__GLOBAL_ROOT__/.jastr/demo/a.md` -> `__GLOBAL_ROOT__/.jastr/demo/b.md` -> `__GLOBAL_ROOT__/.jastr/demo/a.md`.\n"

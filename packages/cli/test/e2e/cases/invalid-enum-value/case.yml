@@ -8,4 +8,4 @@ command: ["run", "demo", "--language=ruby"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input language must be one of: typescript, python.\n"
+  stderr: "Error: Input `language` must be one of: `typescript`, `python`.\n"

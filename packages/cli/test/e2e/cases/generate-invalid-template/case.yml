@@ -8,4 +8,4 @@ command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: else directive must immediately follow an if or else-if branch.\n"
+  stderr: "Error: `else` directive must immediately follow an if or else-if branch.\n"

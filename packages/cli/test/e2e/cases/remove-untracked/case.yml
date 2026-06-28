@@ -9,6 +9,6 @@ command: ["remove", "authored"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: .jastr/authored exists but was not jastr-installed; remove it by hand if you meant to delete author work.\n"
+  stderr: "Error: `.jastr/authored` exists but was not jastr-installed; remove it by hand if you meant to delete author work.\n"
   files:
     .jastr/authored/TEMPLATE.md: fixture/.jastr/authored/TEMPLATE.md

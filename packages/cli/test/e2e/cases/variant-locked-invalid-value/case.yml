@@ -7,4 +7,4 @@ command: ["run", "review#bad"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input depth must be one of: quick, deep.\n"
+  stderr: "Error: Input `depth` must be one of: `quick`, `deep`.\n"

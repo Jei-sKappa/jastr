@@ -9,4 +9,4 @@ command: ["update", "ghost"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: ghost is not installed in the local root.\n"
+  stderr: "Error: `ghost` is not installed in the `local` root.\n"

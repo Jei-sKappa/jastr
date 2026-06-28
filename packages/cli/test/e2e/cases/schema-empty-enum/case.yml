@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Enum input choice must declare at least one value.\n"
+  stderr: "Error: Enum input `choice` must declare at least one value.\n"

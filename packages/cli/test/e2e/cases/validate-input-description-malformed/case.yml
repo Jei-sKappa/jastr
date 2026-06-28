@@ -10,4 +10,4 @@ command: ["validate", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Description for input language must be a string.\n"
+  stderr: "Error: Description for input `language` must be a string.\n"

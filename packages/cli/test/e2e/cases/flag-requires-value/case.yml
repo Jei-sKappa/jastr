@@ -8,4 +8,4 @@ command: ["run", "demo", "--target-file"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input --target-file requires --target-file=value.\n"
+  stderr: "Error: Input `--target-file` requires `--target-file=value`.\n"

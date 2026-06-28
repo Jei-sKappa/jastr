@@ -8,5 +8,5 @@ description: >
 command: ["update"]
 expect:
   exitCode: 0
-  stdout: "Nothing to update in the local root.\n"
+  stdout: "Nothing to update in the `local` root.\n"
   stderr: ""

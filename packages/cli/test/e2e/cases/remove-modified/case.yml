@@ -13,7 +13,7 @@ command: ["remove", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: foo has local modifications at .jastr/foo; re-run with --force to remove it anyway.\n"
+  stderr: "Error: `foo` has local modifications at `.jastr/foo`; re-run with --force to remove it anyway.\n"
   fileContains:
     .jastr/lock.json:
       - '"foo"'

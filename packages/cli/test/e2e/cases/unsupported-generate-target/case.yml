@@ -8,4 +8,4 @@ command: ["generate", "typescript", "demo", "--out=out.ts"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Unsupported generate target typescript.\n"
+  stderr: "Error: Unsupported generate target `typescript`.\n"

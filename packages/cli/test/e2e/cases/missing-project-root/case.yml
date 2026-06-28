@@ -10,4 +10,4 @@ substitute:
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: No .jastr directory found locally (searched from the current directory up) or globally (__GLOBAL_ROOT__/.jastr).\n"
+  stderr: "Error: No .jastr directory found locally (searched from the current directory up) or globally (`__GLOBAL_ROOT__/.jastr`).\n"

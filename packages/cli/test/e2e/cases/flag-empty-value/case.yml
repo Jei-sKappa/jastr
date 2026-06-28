@@ -8,4 +8,4 @@ command: ["run", "demo", "--target-file="]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input --target-file cannot be empty.\n"
+  stderr: "Error: Input `--target-file` cannot be empty.\n"

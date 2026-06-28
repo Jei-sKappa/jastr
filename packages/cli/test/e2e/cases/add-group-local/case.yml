@@ -8,7 +8,7 @@ description: >
 command: ["add", "./source", "mygroup"]
 expect:
   exitCode: 0
-  stdout: "Installed group mygroup (2 templates) from ./source into .jastr/mygroup [local]."
+  stdout: "Installed group `mygroup` (2 templates) from `./source` into `.jastr/mygroup` [`local`]."
   stderr: ""
   files:
     .jastr/mygroup/.jastrgroup: fixture/source/.jastr/mygroup/.jastrgroup

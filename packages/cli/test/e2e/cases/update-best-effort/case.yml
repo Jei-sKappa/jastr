@@ -11,5 +11,5 @@ setup:
 command: ["update", "foo", "ghost"]
 expect:
   exitCode: 1
-  stdout: "foo is up to date [local].\n"
-  stderr: "Error: ghost is not installed in the local root.\n"
+  stdout: "`foo` is up to date [`local`].\n"
+  stderr: "Error: `ghost` is not installed in the `local` root.\n"

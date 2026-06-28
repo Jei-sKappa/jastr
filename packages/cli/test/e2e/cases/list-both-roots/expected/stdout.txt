@@ -1,5 +1,5 @@
 Local:
-  loc (standalone) acme/local@main @ 101010101010
+  `loc` (standalone) `acme/local@main` @ `101010101010`
 
 Global:
-  glob (standalone) acme/global@release @ 202020202020
+  `glob` (standalone) `acme/global@release` @ `202020202020`

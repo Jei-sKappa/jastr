@@ -7,4 +7,4 @@ command: ["validate", "demo", "--force"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Unknown validate option --force.\n"
+  stderr: "Error: Unknown validate option `--force`.\n"

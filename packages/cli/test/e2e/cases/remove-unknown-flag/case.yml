@@ -10,4 +10,4 @@ command: ["remove", "foo", "--yes"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Unknown remove option --yes.\n"
+  stderr: "Error: Unknown remove option `--yes`.\n"

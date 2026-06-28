@@ -11,7 +11,7 @@ setup:
 command: ["remove", "foo", "--force"]
 expect:
   exitCode: 0
-  stdout: "Removed foo (was ./source) [local].\n"
+  stdout: "Removed `foo` (was `./source`) [`local`].\n"
   stderr: ""
   fileNotContains:
     .jastr/lock.json:

@@ -10,4 +10,4 @@ command: ["add", "./source", "evil"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: source/.jastr/evil/link.md is not a regular file or directory (symlinks and special files are not allowed in a source unit).\n"
+  stderr: "Error: `source/.jastr/evil/link.md` is not a regular file or directory (symlinks and special files are not allowed in a source unit).\n"

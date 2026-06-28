@@ -9,4 +9,4 @@ command: ["validate", "review#deep"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: .jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix must be a string.\n"
+  stderr: "Error: .jastr/config.yml `variants.review.deep.agent-skill.argument-hint-prefix` must be a string.\n"

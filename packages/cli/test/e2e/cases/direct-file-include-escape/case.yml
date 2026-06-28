@@ -8,4 +8,4 @@ command: ["run", "templates/direct.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include path ../outside.md escapes the allowed include boundary.\n"
+  stderr: "Error: Include path `../outside.md` escapes the allowed include boundary.\n"

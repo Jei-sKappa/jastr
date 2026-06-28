@@ -6,5 +6,5 @@ description: Shows how validate accepts a runnable template that declares no tar
 command: ["validate", "demo"]
 expect:
   exitCode: 0
-  stdout: "Template demo is valid."
+  stdout: "Template `demo` is valid."
   stderr: ""

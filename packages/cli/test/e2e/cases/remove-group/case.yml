@@ -11,7 +11,7 @@ setup:
 command: ["remove", "mygroup"]
 expect:
   exitCode: 0
-  stdout: "Removed mygroup (was ./source) [local].\n"
+  stdout: "Removed `mygroup` (was `./source`) [`local`].\n"
   stderr: ""
   fileNotContains:
     .jastr/lock.json:

@@ -8,4 +8,4 @@ command: ["run", "demo", "--language=typescript", "--language=python"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Duplicate flag --language.\n"
+  stderr: "Error: Duplicate flag `--language`.\n"

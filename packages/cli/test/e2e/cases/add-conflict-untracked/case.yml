@@ -10,6 +10,6 @@ command: ["add", "./source", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: .jastr/foo already exists and was not jastr-installed; delete it by hand before adding foo.\n"
+  stderr: "Error: `.jastr/foo` already exists and was not jastr-installed; delete it by hand before adding `foo`.\n"
   files:
     .jastr/foo/TEMPLATE.md: fixture/.jastr/foo/TEMPLATE.md

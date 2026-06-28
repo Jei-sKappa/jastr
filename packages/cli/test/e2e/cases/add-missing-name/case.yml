@@ -10,4 +10,4 @@ command: ["add", "./source", "missing"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template missing was not found in ./source.\n"
+  stderr: "Error: Template `missing` was not found in `./source`.\n"

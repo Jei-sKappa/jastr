@@ -1,6 +1,6 @@
 Local:
-  team (group) Jei-sKappa/jastr@main @ 814343598f39
-  ├── team/api
-  └── team/demo
-  tools (group) (local)
-  └── tools/fmt
+  `team` (group) `Jei-sKappa/jastr@main` @ `814343598f39`
+  ├── `team/api`
+  └── `team/demo`
+  `tools` (group) (local)
+  └── `tools/fmt`

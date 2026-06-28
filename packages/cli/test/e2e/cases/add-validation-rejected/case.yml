@@ -10,4 +10,4 @@ command: ["add", "./source", "broken"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Unable to add broken: the template failed validation. Input x must explicitly declare required: true or required: false.\n"
+  stderr: "Error: Unable to add `broken`: the template failed validation. Input `x` must explicitly declare required: true or required: false.\n"

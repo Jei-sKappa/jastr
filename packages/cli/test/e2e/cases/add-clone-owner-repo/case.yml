@@ -13,7 +13,7 @@ env:
   FAKE_GIT_SOURCE: "clone-source"
 expect:
   exitCode: 0
-  stdout: "Installed foo from owner/repo into .jastr/foo [local]."
+  stdout: "Installed `foo` from `owner/repo` into `.jastr/foo` [`local`]."
   stderr: ""
   fileContains:
     .fake-git-argv:

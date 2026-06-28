@@ -9,4 +9,4 @@ command: ["add", "./source", "bar", "--path", "/etc"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: --path must be a relative subpath, not an absolute path (/etc).\n"
+  stderr: "Error: --path must be a relative subpath, not an absolute path (`/etc`).\n"

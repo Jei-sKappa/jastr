@@ -8,7 +8,7 @@ description: >
 command: ["add", "./source", "foo"]
 expect:
   exitCode: 0
-  stdout: "Installed foo from ./source into .jastr/foo [local]."
+  stdout: "Installed `foo` from `./source` into `.jastr/foo` [`local`]."
   stderr: ""
   files:
     .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md

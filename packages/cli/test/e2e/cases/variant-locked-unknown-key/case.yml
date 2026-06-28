@@ -7,4 +7,4 @@ command: ["run", "review#bad"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input policy is not declared.\n"
+  stderr: "Error: Input `policy` is not declared.\n"

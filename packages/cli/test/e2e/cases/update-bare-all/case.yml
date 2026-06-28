@@ -12,5 +12,5 @@ setup:
 command: ["update"]
 expect:
   exitCode: 0
-  stdout: "alpha is up to date [local].\nbeta is up to date [local].\n"
+  stdout: "`alpha` is up to date [`local`].\n`beta` is up to date [`local`].\n"
   stderr: ""

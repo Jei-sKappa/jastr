@@ -7,4 +7,4 @@ command: ["run", "team/demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template team/demo was not found. Searched local .jastr/team/templates/demo/TEMPLATE.md.\n"
+  stderr: "Error: Template `team/demo` was not found. Searched local `.jastr/team/templates/demo/TEMPLATE.md`.\n"

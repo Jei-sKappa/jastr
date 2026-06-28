@@ -1,2 +1,2 @@
 Local:
-  widget (standalone) acme/widget @ abcabcabcabc
+  `widget` (standalone) `acme/widget` @ `abcabcabcabc`

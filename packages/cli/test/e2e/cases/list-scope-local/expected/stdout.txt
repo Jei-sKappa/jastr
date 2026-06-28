@@ -1,2 +1,2 @@
 Local:
-  loc (standalone) acme/local@main @ 101010101010
+  `loc` (standalone) `acme/local@main` @ `101010101010`

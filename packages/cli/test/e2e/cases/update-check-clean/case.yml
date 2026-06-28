@@ -10,5 +10,5 @@ setup:
 command: ["update", "--check", "foo"]
 expect:
   exitCode: 0
-  stdout: "foo is up to date [local].\n"
+  stdout: "`foo` is up to date [`local`].\n"
   stderr: ""

@@ -7,4 +7,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Default for input dry-run must be a boolean.\n"
+  stderr: "Error: Default for input `dry-run` must be a boolean.\n"

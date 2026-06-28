@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include root workspace must be template, group, or file.\n"
+  stderr: "Error: Include root `workspace` must be template, group, or file.\n"

@@ -13,6 +13,6 @@ command: ["update", "--check", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: foo is not up to date in the local root.\n"
+  stderr: "Error: `foo` is not up to date in the `local` root.\n"
   files:
     .jastr/foo/TEMPLATE.md: fixture/source/.jastr/foo/TEMPLATE.md

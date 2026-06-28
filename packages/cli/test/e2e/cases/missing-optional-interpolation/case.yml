@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Input target-file is optional and was not provided for interpolation.\n"
+  stderr: "Error: Input `target-file` is optional and was not provided for interpolation.\n"

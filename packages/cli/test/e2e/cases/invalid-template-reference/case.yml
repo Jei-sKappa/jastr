@@ -8,4 +8,4 @@ command: ["run", "BadName"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template reference BadName must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.\n"
+  stderr: "Error: Template reference `BadName` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.\n"

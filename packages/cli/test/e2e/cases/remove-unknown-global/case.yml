@@ -10,4 +10,4 @@ command: ["remove", "nope", "-g"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: nope is not installed in the global root.\n"
+  stderr: "Error: `nope` is not installed in the `global` root.\n"

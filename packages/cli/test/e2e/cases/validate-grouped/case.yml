@@ -7,5 +7,5 @@ description: A group/template ref resolves from the group's templates directory 
 command: ["validate", "team/demo"]
 expect:
   exitCode: 0
-  stdout: "Template team/demo is valid."
+  stdout: "Template `team/demo` is valid."
   stderr: ""

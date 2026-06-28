@@ -8,4 +8,4 @@ command: ["run", "demo", "bareword"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Invalid flag syntax bareword.\n"
+  stderr: "Error: Invalid flag syntax `bareword`.\n"

@@ -8,5 +8,5 @@ description: >
 command: ["add", "./source", "foo", "-g"]
 expect:
   exitCode: 0
-  stdout: "Installed foo from ./source into .jastr/foo [global]."
+  stdout: "Installed `foo` from `./source` into `.jastr/foo` [`global`]."
   stderr: ""

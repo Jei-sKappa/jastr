@@ -11,4 +11,4 @@ env:
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: git is not available; install git to add a remote source (owner/repo).\n"
+  stderr: "Error: git is not available; install git to add a remote source (`owner/repo`).\n"

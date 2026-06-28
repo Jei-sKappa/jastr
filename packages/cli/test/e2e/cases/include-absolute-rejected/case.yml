@@ -7,4 +7,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include path /etc/hosts escapes the allowed include boundary.\n"
+  stderr: "Error: Include path `/etc/hosts` escapes the allowed include boundary.\n"

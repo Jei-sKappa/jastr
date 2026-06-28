@@ -10,7 +10,7 @@ command: ["remove", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: lock entry \"foo\" is invalid: it has an unknown field \"bogus\".\n"
+  stderr: "Error: lock entry `foo` is invalid: it has an unknown field `bogus`.\n"
   files:
     .jastr/foo/TEMPLATE.md: fixture/.jastr/foo/TEMPLATE.md
   fileContains:

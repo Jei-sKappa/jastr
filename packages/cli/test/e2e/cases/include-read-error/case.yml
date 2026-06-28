@@ -8,4 +8,4 @@ command: ["run", "demo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Include file subdir could not be read: EISDIR.\n"
+  stderr: "Error: Include file `subdir` could not be read: `EISDIR`.\n"

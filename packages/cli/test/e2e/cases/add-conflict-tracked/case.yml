@@ -12,4 +12,4 @@ command: ["add", "./source", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: foo is already installed at .jastr/foo; run `jastr update foo` to refresh it.\n"
+  stderr: "Error: `foo` is already installed at `.jastr/foo`; run `jastr update foo` to refresh it.\n"

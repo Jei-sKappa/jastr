@@ -15,6 +15,6 @@ command: ["update", "foo"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: foo has local modifications at .jastr/foo; re-run with --force to overwrite it.\n"
+  stderr: "Error: `foo` has local modifications at `.jastr/foo`; re-run with --force to overwrite it.\n"
   files:
     .jastr/foo/TEMPLATE.md: local-edit/TEMPLATE.md
