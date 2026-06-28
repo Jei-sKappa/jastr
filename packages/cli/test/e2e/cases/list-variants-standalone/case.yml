@@ -1,0 +1,17 @@
+id: list-variants-standalone
+covers:
+  - LIST-FR-0006.AC-0002
+  - LIST-FR-0006.AC-0004
+title: List --variants renders a standalone row's variants as a tree
+description: >
+  Two standalone units sit in the local root: `notes`, whose `config.yml`
+  defines `variants.notes` = `{ full: {}, brief: {} }`, and `plain`, which has no
+  variants entry. With `--variants`, the `notes` row is followed by its variant
+  ids at the row's 2-space indent (`├── ` for every variant but the last, `└── `
+  for the last), each line the runnable ref `notes#<variant>`, sorted ascending
+  so `brief` precedes `full`; `plain` contributes no variant lines.
+command: ["list", "--variants"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

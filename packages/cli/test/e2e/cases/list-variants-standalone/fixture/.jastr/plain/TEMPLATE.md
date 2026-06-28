@@ -1,0 +1,4 @@
+---
+name: plain
+---
+Plain body

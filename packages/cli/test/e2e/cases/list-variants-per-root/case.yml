@@ -1,0 +1,16 @@
+id: list-variants-per-root
+covers:
+  - LIST-FR-0006.AC-0005
+title: List --variants reads each section's own root config.yml
+description: >
+  A standalone `notes` unit is present in both roots. The local `config.yml`
+  defines `variants.notes` = `{ localvar: {} }`; the global `config.yml` defines
+  `variants.notes` = `{ globalvar: {} }`. With `--variants` and no scope flag,
+  the Local section shows only `notes#localvar` and the Global section only
+  `notes#globalvar`: each section reads only its own root's `config.yml` and a
+  variant authored in one root never leaks into the other.
+command: ["list", "--variants"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

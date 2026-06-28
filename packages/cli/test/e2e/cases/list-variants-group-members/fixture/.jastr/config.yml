@@ -1,0 +1,6 @@
+variants:
+  team/api:
+    strict: {}
+    v2: {}
+  team/demo:
+    draft: {}

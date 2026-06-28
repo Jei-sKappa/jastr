@@ -1,0 +1,14 @@
+id: list-variants-default-unchanged
+covers:
+  - LIST-FR-0006.AC-0001
+title: Plain list ignores config.yml and shows no variant lines
+description: >
+  A root holds a standalone `notes` unit beside a `config.yml` that defines
+  variants for `notes`. Run without `--variants`, list never reads `config.yml`,
+  so the output is byte-identical to the pre-feature behavior: only the `notes`
+  row, no variant lines.
+command: ["list"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

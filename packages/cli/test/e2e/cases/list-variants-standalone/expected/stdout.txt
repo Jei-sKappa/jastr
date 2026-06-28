@@ -1,0 +1,5 @@
+Local:
+  notes (standalone) (local)
+  ├── notes#brief
+  └── notes#full
+  plain (standalone) (local)

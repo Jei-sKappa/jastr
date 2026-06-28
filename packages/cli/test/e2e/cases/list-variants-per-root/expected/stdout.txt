@@ -1,0 +1,7 @@
+Local:
+  notes (standalone) (local)
+  └── notes#localvar
+
+Global:
+  notes (standalone) (local)
+  └── notes#globalvar

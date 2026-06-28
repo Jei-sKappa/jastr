@@ -1,0 +1,21 @@
+id: list-variants-group-members
+covers:
+  - LIST-FR-0006.AC-0003
+  - LIST-FR-0007.AC-0001
+title: List --variants nests group-member variants under the member line
+description: >
+  A tracked group `team` (members `api`, `demo`) and an authored group `tools`
+  (member `fmt`) sit in the local root. The local `config.yml` defines variants
+  only for member refs: `variants.team/api` = `{ strict: {}, v2: {} }` and
+  `variants.team/demo` = `{ draft: {} }` (no `variants.team`, no `variants.tools`,
+  no `variants.tools/fmt`). With `--variants`, each member's variants render
+  nested one level beneath the member line: `team/api` is a non-last member, so
+  its variants carry the `│` continuation; `team/demo` is the last member, so its
+  variant is indented with six spaces; `tools/fmt` has no variants and gains no
+  grandchildren. The `team (group)` aggregate row shows no direct variant
+  children — variants attach to the runnable member ref, not the aggregate.
+command: ["list", "--variants"]
+expect:
+  exitCode: 0
+  stdoutFile: expected/stdout.txt
+  stderr: ""

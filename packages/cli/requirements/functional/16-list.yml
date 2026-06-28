@@ -57,3 +57,50 @@
   acceptance:
     - id: AC-0001
       statement: A root containing config.yml and lock.json beside its units lists only the units, never config.yml or lock.json.
+
+- id: LIST-FR-0006
+  title: '`list --variants` renders config-defined variants; default is unchanged'
+  status: active
+  description: >
+    `list --variants` is an opt-in flag that reads each in-scope root's
+    `config.yml` and renders the config-defined variants under
+    `variants.<ref>` as a sorted tree beneath each present, runnable template
+    row. Variants are attached row-driven: for each present standalone unit
+    (ref = its id) and on-disk group member (ref = `<group>/<member>`), `list`
+    looks that ref up in the same root's `config.yml`. Standalone variants are
+    direct children at the row's 2-space indent; group-member variants are
+    grandchildren nested one level beneath the member line. Each variant
+    renders as the bare runnable ref `<ref>#<variant-id>` (no `(variant)` tag,
+    no locked-input detail, no provenance), sorted ascending by variant id with
+    the `├── `/`└── ` connectors. Each section reads only its own root's
+    `config.yml`. Without `--variants`, `config.yml` is not read and output is
+    byte-identical to today.
+  acceptance:
+    - id: AC-0001
+      statement: '`jastr list` without `--variants` produces byte-identical output to the pre-feature behavior, and config.yml is not read.'
+    - id: AC-0002
+      statement: '`jastr list --variants` follows a standalone row with the variant ids under variants.<id> in that root''s config.yml, rendered at the row''s 2-space indent as a tree using `├── ` for every variant but the last and `└── ` for the last, each line the runnable ref <id>#<variant-id>.'
+    - id: AC-0003
+      statement: '`jastr list --variants` follows an on-disk group-member line with the variant ids under variants.<group>/<member> in that root''s config.yml, nested one level beneath the member: prefixed `  │   ` + connector when the member is not the group''s last member, and six spaces + connector when it is; each line the runnable ref <group>/<member>#<variant-id>.'
+    - id: AC-0004
+      statement: Variant lines under a ref are sorted ascending by variant id (same ordering as rows/members), and a present runnable ref with no variants contributes no variant lines.
+    - id: AC-0005
+      statement: '`--variants` reads only the in-scope root(s)'' own config.yml: --local shows local-authored variants only, --global global-authored only, and a variant authored in one root never appears under the other root''s section.'
+
+- id: LIST-FR-0007
+  title: Variants attach only to present, runnable refs
+  status: active
+  description: >
+    Variants attach by iterating present, runnable refs only, so a group whose
+    `config.yml` defines variants for a member ref (`variants.<group>/<member>`)
+    renders those variants nested under the member line, while the group
+    aggregate row (the bare group name, never a runnable ref) shows no direct
+    variant children. The further consequences — a `missing` row and an
+    unmatched orphan `variants.<ref>` entry gain no variant lines — are emergent
+    entailments of the present-runnable-ref iteration and are deliberately not
+    pinned by an acceptance criterion (the forthcoming co-location constraint
+    will make the orphan authoring shape illegal); a future reader must not add a
+    case encoding that transitional suppression.
+  acceptance:
+    - id: AC-0001
+      statement: For a group whose config.yml defines variants for a member ref (variants.<group>/<member>), those variants render nested under the member line, and the group aggregate row itself shows no direct variant children.
