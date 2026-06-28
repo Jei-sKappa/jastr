@@ -1,4 +1,5 @@
 import { JastrError } from "./errors";
+import { quote } from "./quote";
 import type {
   TemplateInputDefinition,
   TemplateInputValues,
@@ -16,7 +17,7 @@ export function validateTemplateInputs(
     if (definition === undefined) {
       throw new JastrError(
         "unknown_input",
-        `Input ${inputName} is not declared.`,
+        `Input ${quote(inputName)} is not declared.`,
         {
           inputName,
         },
@@ -37,7 +38,7 @@ export function validateTemplateInputs(
     if (definition.required) {
       throw new JastrError(
         "missing_required_input",
-        `Required input ${inputName} is missing.`,
+        `Required input ${quote(inputName)} is missing.`,
         { inputName },
       );
     }
@@ -55,7 +56,7 @@ function validateInputValue(
     if (typeof value !== "boolean") {
       throw new JastrError(
         "invalid_input_value",
-        `Input ${inputName} must be a boolean.`,
+        `Input ${quote(inputName)} must be a boolean.`,
         { inputName },
       );
     }
@@ -65,7 +66,7 @@ function validateInputValue(
   if (typeof value !== "string") {
     throw new JastrError(
       "invalid_input_value",
-      `Input ${inputName} must be a string.`,
+      `Input ${quote(inputName)} must be a string.`,
       { inputName },
     );
   }
@@ -73,7 +74,7 @@ function validateInputValue(
   if (value === "") {
     throw new JastrError(
       "invalid_input_value",
-      `Input ${inputName} cannot be empty.`,
+      `Input ${quote(inputName)} cannot be empty.`,
       { inputName },
     );
   }
@@ -81,7 +82,9 @@ function validateInputValue(
   if (definition.type === "enum" && !definition.values.includes(value)) {
     throw new JastrError(
       "invalid_input_value",
-      `Input ${inputName} must be one of: ${definition.values.join(", ")}.`,
+      `Input ${quote(inputName)} must be one of: ${definition.values
+        .map(quote)
+        .join(", ")}.`,
       { inputName, values: definition.values },
     );
   }

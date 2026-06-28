@@ -44,14 +44,14 @@ describe("domain input validation", () => {
     expect(error).toBeInstanceOf(JastrError);
     expect(error).toMatchObject({
       code: "missing_required_input",
-      message: "Required input language is missing.",
+      message: "Required input `language` is missing.",
       details: { inputName: "language" },
     });
   });
 
   it("rejects unknown inputs and invalid typed values", () => {
     expect(() => validateTemplateInputs(schema, { language: "go" })).toThrow(
-      "Input language must be one of: typescript, python.",
+      "Input `language` must be one of: `typescript`, `python`.",
     );
 
     expect(() =>
@@ -59,14 +59,14 @@ describe("domain input validation", () => {
         language: "typescript",
         "dry-run": "true",
       }),
-    ).toThrow("Input dry-run must be a boolean.");
+    ).toThrow("Input `dry-run` must be a boolean.");
 
     expect(() =>
       validateTemplateInputs(schema, {
         language: "typescript",
         extra: "value",
       }),
-    ).toThrow("Input extra is not declared.");
+    ).toThrow("Input `extra` is not declared.");
   });
 });
 

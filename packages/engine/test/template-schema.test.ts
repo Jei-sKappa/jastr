@@ -71,17 +71,17 @@ Hello {{language}}
       validateTemplateSchema({
         inputs: { "Bad-Name": { type: "string", required: false } },
       }),
-    ).toThrow("Invalid input name Bad-Name.");
+    ).toThrow("Invalid input name `Bad-Name`.");
     expect(() =>
       validateTemplateSchema({ inputs: { file: { type: "string" } } }),
     ).toThrow(
-      "Input file must explicitly declare required: true or required: false.",
+      "Input `file` must explicitly declare required: true or required: false.",
     );
     expect(() =>
       validateTemplateSchema({
         inputs: { mode: { type: "enum", values: [], required: true } },
       }),
-    ).toThrow("Enum input mode must declare at least one value.");
+    ).toThrow("Enum input `mode` must declare at least one value.");
   });
 
   it("rejects unsupported target metadata keys at the root targets level", () => {
@@ -95,7 +95,7 @@ Hello {{language}}
     expect(error).toBeInstanceOf(JastrError);
     expect(error).toMatchObject({
       code: "invalid_target_metadata",
-      message: "Unsupported target metadata typescript.",
+      message: "Unsupported target metadata `typescript`.",
       details: { target: "typescript" },
     });
   });
@@ -150,7 +150,7 @@ Hello
           },
         },
       }),
-    ).toThrow("Input language cannot declare default when required is true.");
+    ).toThrow("Input `language` cannot declare default when required is true.");
   });
 
   it("rejects default values that do not match input domain rules", () => {
@@ -164,7 +164,7 @@ Hello
           },
         },
       }),
-    ).toThrow("Default for input dry-run must be a boolean.");
+    ).toThrow("Default for input `dry-run` must be a boolean.");
 
     expect(() =>
       validateTemplateSchema({
@@ -176,7 +176,7 @@ Hello
           },
         },
       }),
-    ).toThrow("Default for input target-file must be a string.");
+    ).toThrow("Default for input `target-file` must be a string.");
 
     expect(() =>
       validateTemplateSchema({
@@ -188,7 +188,7 @@ Hello
           },
         },
       }),
-    ).toThrow("Default for input target-file cannot be empty.");
+    ).toThrow("Default for input `target-file` cannot be empty.");
 
     expect(() =>
       validateTemplateSchema({
@@ -201,7 +201,9 @@ Hello
           },
         },
       }),
-    ).toThrow("Default for input language must be one of: typescript, python.");
+    ).toThrow(
+      "Default for input `language` must be one of: `typescript`, `python`.",
+    );
   });
 
   it("accepts an optional single-line description on every input type", () => {
@@ -265,19 +267,19 @@ Body
       validateTemplateSchema({
         inputs: { tag: { type: "string", required: true, description: 42 } },
       }),
-    ).toThrow("Description for input tag must be a string.");
+    ).toThrow("Description for input `tag` must be a string.");
 
     expect(() =>
       validateTemplateSchema({
         inputs: { tag: { type: "string", required: true, description: "" } },
       }),
-    ).toThrow("Description for input tag cannot be empty.");
+    ).toThrow("Description for input `tag` cannot be empty.");
 
     expect(() =>
       validateTemplateSchema({
         inputs: { tag: { type: "string", required: true, description: "   " } },
       }),
-    ).toThrow("Description for input tag cannot be empty.");
+    ).toThrow("Description for input `tag` cannot be empty.");
 
     expect(() =>
       validateTemplateSchema({
@@ -285,7 +287,7 @@ Body
           tag: { type: "string", required: true, description: "line1\nline2" },
         },
       }),
-    ).toThrow("Description for input tag must be a single line.");
+    ).toThrow("Description for input `tag` must be a single line.");
 
     expect(() =>
       validateTemplateSchema({
@@ -293,6 +295,6 @@ Body
           tag: { type: "string", required: true, description: "line1\rline2" },
         },
       }),
-    ).toThrow("Description for input tag must be a single line.");
+    ).toThrow("Description for input `tag` must be a single line.");
   });
 });

@@ -1,4 +1,5 @@
 import { JastrError } from "./errors";
+import { quote } from "./quote";
 
 export type TemplateInputDefinition =
   | {
@@ -42,9 +43,13 @@ export const INPUT_NAME_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 export function validateInputName(name: string): string {
   if (!INPUT_NAME_PATTERN.test(name)) {
-    throw new JastrError("invalid_input_name", `Invalid input name ${name}.`, {
-      inputName: name,
-    });
+    throw new JastrError(
+      "invalid_input_name",
+      `Invalid input name ${quote(name)}.`,
+      {
+        inputName: name,
+      },
+    );
   }
   return name;
 }
@@ -88,7 +93,7 @@ function validateInputDefinition(
   if (!isRecord(rawDefinition)) {
     throw new JastrError(
       "malformed_schema",
-      `Input ${inputName} must be a mapping.`,
+      `Input ${quote(inputName)} must be a mapping.`,
       { inputName },
     );
   }
@@ -96,7 +101,7 @@ function validateInputDefinition(
   if (rawDefinition.required !== true && rawDefinition.required !== false) {
     throw new JastrError(
       "malformed_schema",
-      `Input ${inputName} must explicitly declare required: true or required: false.`,
+      `Input ${quote(inputName)} must explicitly declare required: true or required: false.`,
       { inputName },
     );
   }
@@ -105,7 +110,7 @@ function validateInputDefinition(
   if (hasDefault && rawDefinition.required === true) {
     throw new JastrError(
       "malformed_schema",
-      `Input ${inputName} cannot declare default when required is true.`,
+      `Input ${quote(inputName)} cannot declare default when required is true.`,
       { inputName },
     );
   }
@@ -150,7 +155,7 @@ function validateInputDefinition(
     ) {
       throw new JastrError(
         "malformed_schema",
-        `Enum input ${inputName} must declare at least one value.`,
+        `Enum input ${quote(inputName)} must declare at least one value.`,
         { inputName },
       );
     }
@@ -172,7 +177,9 @@ function validateInputDefinition(
 
   throw new JastrError(
     "malformed_schema",
-    `Input ${inputName} uses unsupported type ${String(rawDefinition.type)}.`,
+    `Input ${quote(inputName)} uses unsupported type ${quote(
+      String(rawDefinition.type),
+    )}.`,
     { inputName },
   );
 }
@@ -181,7 +188,7 @@ function validateBooleanDefault(inputName: string, value: unknown): boolean {
   if (typeof value !== "boolean") {
     throw new JastrError(
       "malformed_schema",
-      `Default for input ${inputName} must be a boolean.`,
+      `Default for input ${quote(inputName)} must be a boolean.`,
       { inputName },
     );
   }
@@ -192,14 +199,14 @@ function validateStringDefault(inputName: string, value: unknown): string {
   if (typeof value !== "string") {
     throw new JastrError(
       "malformed_schema",
-      `Default for input ${inputName} must be a string.`,
+      `Default for input ${quote(inputName)} must be a string.`,
       { inputName },
     );
   }
   if (value === "") {
     throw new JastrError(
       "malformed_schema",
-      `Default for input ${inputName} cannot be empty.`,
+      `Default for input ${quote(inputName)} cannot be empty.`,
       { inputName },
     );
   }
@@ -215,7 +222,9 @@ function validateEnumDefault(
   if (!values.includes(defaultValue)) {
     throw new JastrError(
       "malformed_schema",
-      `Default for input ${inputName} must be one of: ${values.join(", ")}.`,
+      `Default for input ${quote(inputName)} must be one of: ${values
+        .map(quote)
+        .join(", ")}.`,
       { inputName, values },
     );
   }
@@ -231,21 +240,21 @@ function validateOptionalDescription(
   if (typeof value !== "string") {
     throw new JastrError(
       "malformed_schema",
-      `Description for input ${inputName} must be a string.`,
+      `Description for input ${quote(inputName)} must be a string.`,
       { inputName },
     );
   }
   if (value.trim() === "") {
     throw new JastrError(
       "malformed_schema",
-      `Description for input ${inputName} cannot be empty.`,
+      `Description for input ${quote(inputName)} cannot be empty.`,
       { inputName },
     );
   }
   if (value.includes("\n") || value.includes("\r")) {
     throw new JastrError(
       "malformed_schema",
-      `Description for input ${inputName} must be a single line.`,
+      `Description for input ${quote(inputName)} must be a single line.`,
       { inputName },
     );
   }
@@ -270,7 +279,7 @@ function validateTargets(value: unknown): TemplateTargets {
     if (target !== "agent-skill") {
       throw new JastrError(
         "invalid_target_metadata",
-        `Unsupported target metadata ${target}.`,
+        `Unsupported target metadata ${quote(target)}.`,
         { target },
       );
     }
