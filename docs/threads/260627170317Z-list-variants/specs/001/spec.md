@@ -2,6 +2,7 @@
 version: 1
 status:
   approved: 260627212527Z
+  implemented: 260628095850Z
 ---
 
 # Spec: `jastr list --variants`
