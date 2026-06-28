@@ -3,6 +3,7 @@ import { lstat, mkdtemp, realpath, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 import { createGitRunner, type GitRunner } from "./git";
 
 /**
@@ -102,7 +103,7 @@ async function acquireRemote(options: {
   if (!(await git.isAvailable())) {
     throw new JastrError(
       "git_unavailable",
-      `git is not available; install git to add a remote source (${source}).`,
+      `git is not available; install git to add a remote source (${quote(source)}).`,
     );
   }
 
@@ -202,7 +203,7 @@ async function resolveBaseDir(
   if (path.isAbsolute(subPath)) {
     throw new JastrError(
       "invalid_command",
-      `--path must be a relative subpath, not an absolute path (${subPath}).`,
+      `--path must be a relative subpath, not an absolute path (${quote(subPath)}).`,
     );
   }
 
@@ -210,7 +211,7 @@ async function resolveBaseDir(
   if (!isInsideRoot(sourceRoot, resolved)) {
     throw new JastrError(
       "invalid_command",
-      `--path must stay within the source root (${subPath}).`,
+      `--path must stay within the source root (${quote(subPath)}).`,
     );
   }
 
@@ -221,7 +222,7 @@ async function resolveBaseDir(
   if (!isInsideRoot(realRoot, realResolved)) {
     throw new JastrError(
       "invalid_command",
-      `--path must stay within the source root (${subPath}).`,
+      `--path must stay within the source root (${quote(subPath)}).`,
     );
   }
 

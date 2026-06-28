@@ -1,5 +1,6 @@
 import { type SpawnOptions, spawn } from "node:child_process";
 import { JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 
 /**
  * Options for a single shallow clone.
@@ -158,7 +159,7 @@ function runGit(opts: RunGitOptions): Promise<SpawnResult> {
         reject(
           new JastrError(
             "git_unavailable",
-            `git is not available (could not run "${gitBin()}").`,
+            `git is not available (could not run ${quote(gitBin())}).`,
           ),
         );
         return;
@@ -200,7 +201,7 @@ async function clone(opts: CloneOptions): Promise<void> {
     const suffix = detail.length > 0 ? `\n${detail}` : "";
     throw new JastrError(
       "clone_failed",
-      `git clone failed for ${opts.url} (exit ${result.code}).${suffix}`,
+      `git clone failed for ${quote(opts.url)} (exit ${result.code}).${suffix}`,
     );
   }
 }
@@ -212,7 +213,7 @@ async function revParseHead(dir: string): Promise<string> {
     const suffix = detail.length > 0 ? `\n${detail}` : "";
     throw new JastrError(
       "clone_failed",
-      `git rev-parse HEAD failed in ${dir} (exit ${result.code}).${suffix}`,
+      `git rev-parse HEAD failed in ${quote(dir)} (exit ${result.code}).${suffix}`,
     );
   }
   return result.stdout.trim();

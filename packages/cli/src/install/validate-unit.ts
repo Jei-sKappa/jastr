@@ -7,6 +7,7 @@ import {
   renderTemplateSource,
   validateTemplateSchema,
 } from "@jastr/engine";
+import { quote } from "../quote";
 import { displayPath } from "../templates/display";
 import { createFileIncludeResolver } from "../templates/includes";
 import {
@@ -51,7 +52,7 @@ export async function validateStagedUnit(
  * Run {@link validateStagedUnit} for an install operation (`add` / `update`),
  * wrapping any defect so the surfaced message names the unit being installed
  * instead of only the bare engine defect (e.g.
- * `Unable to add "review": the template failed validation. <reason>`). The
+ * `` Unable to add `review`: the template failed validation. <reason> ``). The
  * engine error's CODE and details are preserved unchanged — only the message
  * gains context — so the existing-engine-code contract (`AC-ADD.17` /
  * `AC-UPDATE.9`) still holds. Non-`JastrError` failures propagate untouched.
@@ -77,7 +78,7 @@ export async function validateStagedUnitForInstall(options: {
         : "the template failed validation";
     throw new JastrError(
       error.code,
-      `Unable to ${options.operation} ${options.id}: ${subject}. ${error.message}`,
+      `Unable to ${options.operation} ${quote(options.id)}: ${subject}. ${error.message}`,
       error.details,
     );
   }

@@ -2,6 +2,7 @@ import type { Dirent } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { resolveListRoots } from "../fs/project-root";
+import { quote } from "../quote";
 import { classifyUnitDir } from "../templates/template-ref";
 import { type LockEntry, readLock } from "./lock";
 import { listGroupTemplateIds } from "./unit";
@@ -211,16 +212,16 @@ function shortCommit(entry: LockEntry): string | undefined {
  * marked `(local)`.
  */
 function formatRow(row: ListRow): string {
-  const parts = [row.id, `(${row.kind})`];
+  const parts = [quote(row.id), `(${row.kind})`];
   if (row.status === "local") {
     parts.push("(local)");
     return parts.join(" ");
   }
   if (row.sourceRef !== undefined) {
-    parts.push(row.sourceRef);
+    parts.push(quote(row.sourceRef));
   }
   if (row.shortCommit !== undefined) {
-    parts.push(`@ ${row.shortCommit}`);
+    parts.push(`@ ${quote(row.shortCommit)}`);
   }
   if (row.status === "missing") {
     parts.push("(missing)");
@@ -243,6 +244,6 @@ function formatMemberTree(row: ListRow): string[] {
   }
   return members.map((member, index) => {
     const connector = index === members.length - 1 ? "└── " : "├── ";
-    return `  ${connector}${row.id}/${member}`;
+    return `  ${connector}${quote(`${row.id}/${member}`)}`;
   });
 }

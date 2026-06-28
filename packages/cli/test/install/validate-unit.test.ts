@@ -180,7 +180,7 @@ describe("validateStagedUnitForInstall (operation context)", () => {
     expect(error.code).toBe("include_not_found");
     expect(
       error.message.startsWith(
-        "Unable to add demo: the template failed validation. ",
+        "Unable to add `demo`: the template failed validation. ",
       ),
     ).toBe(true);
   });
@@ -202,7 +202,7 @@ describe("validateStagedUnitForInstall (operation context)", () => {
     );
     expect(
       error.message.startsWith(
-        "Unable to update demo: the template failed validation. ",
+        "Unable to update `demo`: the template failed validation. ",
       ),
     ).toBe(true);
   });
@@ -226,7 +226,7 @@ describe("validateStagedUnitForInstall (operation context)", () => {
     expect(error.code).toBe("include_not_found");
     expect(
       error.message.startsWith(
-        "Unable to add grp: a template in the group failed validation. ",
+        "Unable to add `grp`: a template in the group failed validation. ",
       ),
     ).toBe(true);
   });

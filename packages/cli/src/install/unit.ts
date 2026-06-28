@@ -3,6 +3,7 @@ import type { Dirent, Stats } from "node:fs";
 import { copyFile, lstat, mkdir, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 import {
   classifyUnitDir,
   GROUP_TEMPLATES_DIR,
@@ -49,7 +50,7 @@ export async function resolveNamedUnit(
   if (name.includes("/")) {
     throw new JastrError(
       "grouped_template_not_addable",
-      `${name} refers to a template inside a group; add the whole group by its name instead (groups install as a unit).`,
+      `${quote(name)} refers to a template inside a group; add the whole group by its name instead (groups install as a unit).`,
       { name },
     );
   }
@@ -71,7 +72,7 @@ export async function resolveNamedUnit(
 
   throw new JastrError(
     "template_not_found",
-    `Template ${name} was not found in ${source}.`,
+    `Template ${quote(name)} was not found in ${quote(source)}.`,
     { name },
   );
 }
@@ -137,7 +138,7 @@ export async function assertRegularUnit(dir: string): Promise<void> {
     } else if (!stats.isFile()) {
       throw new JastrError(
         "unsupported_source_entry",
-        `${entryPath} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
+        `${quote(entryPath)} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
         { path: entryPath },
       );
     }
@@ -228,7 +229,7 @@ async function copyTree(src: string, dest: string): Promise<void> {
       // vetted unit. Fail closed rather than silently follow/skip a special file.
       throw new JastrError(
         "unsupported_source_entry",
-        `${srcPath} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
+        `${quote(srcPath)} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
         { path: srcPath },
       );
     }
