@@ -218,15 +218,15 @@ function validateAddArgs(rest: string[]): void {
 
 /**
  * Validate `list`'s argv shape. `list` takes no positionals and recognizes only
- * the scope flags `--local` and `--global`; any other option or a positional is
- * an `invalid_command`.
+ * the scope flags `--local` and `--global` and the `--variants` flag; any other
+ * option or a positional is an `invalid_command`.
  */
 function validateListArgs(rest: string[]): void {
   for (const arg of rest) {
     if (isHelpToken(arg)) {
       return;
     }
-    if (arg === "--local" || arg === "--global") {
+    if (arg === "--local" || arg === "--global" || arg === "--variants") {
       continue;
     }
     if (arg.startsWith("-")) {

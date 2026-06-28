@@ -1,6 +1,7 @@
 import type { Dirent } from "node:fs";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
+import { loadProjectConfigVariantIds } from "../config";
 import { resolveListRoots } from "../fs/project-root";
 import { classifyUnitDir } from "../templates/template-ref";
 import { type LockEntry, readLock } from "./lock";
@@ -11,6 +12,8 @@ export type ExecuteListOptions = {
   local: boolean;
   /** `true` for `--global`: restrict the inventory to the global root. */
   global: boolean;
+  /** `true` for `--variants`: render config-defined variants under each row. */
+  variants: boolean;
   /** The directory the command runs from (for local-root discovery). */
   cwd: string;
 };
@@ -33,6 +36,12 @@ type ListRow = {
   /** A group row's member template ids (sorted), rendered as a tree under the
    * row. Absent for standalone rows and for a `missing` group (its dir is gone). */
   members?: string[];
+  /** A standalone row's sorted config-defined variant ids. Populated only under
+   * `--variants`. */
+  variants?: string[];
+  /** A group row's member id → sorted variant ids (only members with ≥1
+   * variant). Populated only under `--variants`. */
+  memberVariants?: Map<string, string[]>;
 };
 
 type RootInventory = {
@@ -64,7 +73,7 @@ export async function executeList(opts: ExecuteListOptions): Promise<string> {
 
   const inventories: RootInventory[] = [];
   for (const root of roots) {
-    const rows = await inventoryRoot(root.projectRoot);
+    const rows = await inventoryRoot(root.projectRoot, opts.variants);
     if (rows.length > 0) {
       inventories.push({
         label: root.kind === "global" ? "Global" : "Local",
@@ -81,6 +90,7 @@ export async function executeList(opts: ExecuteListOptions): Promise<string> {
     const lines = [`${inventory.label}:`];
     for (const row of inventory.rows) {
       lines.push(`  ${formatRow(row)}`);
+      lines.push(...formatStandaloneVariants(row));
       lines.push(...formatMemberTree(row));
     }
     return lines.join("\n");
@@ -94,7 +104,10 @@ export async function executeList(opts: ExecuteListOptions): Promise<string> {
  * per disk unit (tracked or local) plus one row per lock entry whose unit dir is
  * gone (missing). Rows are sorted by id.
  */
-async function inventoryRoot(projectRoot: string): Promise<ListRow[]> {
+async function inventoryRoot(
+  projectRoot: string,
+  includeVariants: boolean,
+): Promise<ListRow[]> {
   const jastrDir = path.join(projectRoot, ".jastr");
   const unitKinds = await enumerateUnits(jastrDir);
   const lock = await readLock(projectRoot);
@@ -120,7 +133,57 @@ async function inventoryRoot(projectRoot: string): Promise<ListRow[]> {
   }
 
   rows.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  if (includeVariants) await attachVariants(projectRoot, rows);
   return rows;
+}
+
+/**
+ * Under `--variants`, read this root's own `config.yml` and attach each present,
+ * runnable row's config-defined variant ids. The ref set is built strictly from
+ * present runnable rows — a standalone row's id, and each on-disk member of a
+ * group row — so the config reader is only ever asked about refs that have a row.
+ * A root with no present runnable rows builds an empty ref set and returns before
+ * any config read, so its `config.yml` is never parsed.
+ */
+async function attachVariants(
+  projectRoot: string,
+  rows: ListRow[],
+): Promise<void> {
+  const refs: string[] = [];
+  for (const row of rows) {
+    if (row.status === "missing") continue;
+    if (row.kind === "standalone") {
+      refs.push(row.id);
+    } else {
+      for (const member of row.members ?? []) {
+        refs.push(`${row.id}/${member}`);
+      }
+    }
+  }
+  if (refs.length === 0) return;
+
+  const variantIds = await loadProjectConfigVariantIds({ projectRoot, refs });
+
+  for (const row of rows) {
+    if (row.status === "missing") continue;
+    if (row.kind === "standalone") {
+      const ids = variantIds.get(row.id);
+      if (ids !== undefined && ids.length > 0) {
+        row.variants = ids;
+      }
+    } else {
+      const memberVariants = new Map<string, string[]>();
+      for (const member of row.members ?? []) {
+        const ids = variantIds.get(`${row.id}/${member}`);
+        if (ids !== undefined && ids.length > 0) {
+          memberVariants.set(member, ids);
+        }
+      }
+      if (memberVariants.size > 0) {
+        row.memberVariants = memberVariants;
+      }
+    }
+  }
 }
 
 /**
@@ -229,20 +292,54 @@ function formatRow(row: ListRow): string {
 }
 
 /**
+ * Render a standalone row's config-defined variants as a tree hanging off the
+ * row: each variant on its own line at the row's 2-space indent, prefixed with
+ * the box-drawing connector (`├── ` for every variant but the last, `└── ` for
+ * the last), followed by the runnable `<id>#<variant>` ref (payload at column 6).
+ * A row with no variants contributes no lines.
+ */
+function formatStandaloneVariants(row: ListRow): string[] {
+  const variants = row.variants;
+  if (variants === undefined || variants.length === 0) {
+    return [];
+  }
+  return variants.map((variantId, index) => {
+    const connector = index === variants.length - 1 ? "└── " : "├── ";
+    return `  ${connector}${row.id}#${variantId}`;
+  });
+}
+
+/**
  * Render a group row's member templates as a tree hanging off the group row: each
  * member on its own line at the row's 2-space indent, prefixed with the
  * box-drawing connector (`├── ` for every member but the last, `└── ` for the
- * last), followed by the runnable `<group-id>/<member-id>` ref. The member lines
- * carry no provenance (the lock tracks only the group). A standalone row, or a
- * group with no members, contributes no lines.
+ * last), followed by the runnable `<group-id>/<member-id>` ref. Under `--variants`
+ * each member's own config-defined variants nest one level deeper as
+ * `<group-id>/<member-id>#<variant>` lines (payload at column 10), with the
+ * `  │   ` continuation under a non-last member and a six-space continuation under
+ * the last. The member lines carry no provenance (the lock tracks only the
+ * group). A standalone row, or a group with no members, contributes no lines.
  */
 function formatMemberTree(row: ListRow): string[] {
   const members = row.members;
   if (members === undefined || members.length === 0) {
     return [];
   }
-  return members.map((member, index) => {
-    const connector = index === members.length - 1 ? "└── " : "├── ";
-    return `  ${connector}${row.id}/${member}`;
+  const lines: string[] = [];
+  members.forEach((member, index) => {
+    const isLastMember = index === members.length - 1;
+    const memberConnector = isLastMember ? "└── " : "├── ";
+    lines.push(`  ${memberConnector}${row.id}/${member}`);
+
+    const variants = row.memberVariants?.get(member) ?? [];
+    const continuation = isLastMember ? "      " : "  │   ";
+    variants.forEach((variantId, variantIndex) => {
+      const variantConnector =
+        variantIndex === variants.length - 1 ? "└── " : "├── ";
+      lines.push(
+        `${continuation}${variantConnector}${row.id}/${member}#${variantId}`,
+      );
+    });
   });
+  return lines;
 }

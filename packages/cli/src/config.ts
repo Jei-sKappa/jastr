@@ -43,6 +43,38 @@ export async function loadProjectConfigInputs(options: {
   return selected;
 }
 
+export async function loadProjectConfigVariantIds(options: {
+  projectRoot: string;
+  refs: readonly string[];
+}): Promise<Map<string, string[]>> {
+  const parsed = await loadProjectConfig(options.projectRoot);
+
+  const map = new Map<string, string[]>();
+
+  const variants = parsed.variants;
+  if (variants === undefined) return map;
+  if (!isRecord(variants)) {
+    throw new JastrError(
+      "invalid_config",
+      ".jastr/config.yml variants must be a mapping.",
+    );
+  }
+
+  for (const ref of options.refs) {
+    const refVariants = variants[ref];
+    if (refVariants === undefined) continue;
+    if (!isRecord(refVariants)) {
+      throw new JastrError(
+        "invalid_config",
+        `.jastr/config.yml variants.${ref} must be a mapping.`,
+      );
+    }
+    map.set(ref, Object.keys(refVariants).sort());
+  }
+
+  return map;
+}
+
 export async function loadComposedConfigInputs(options: {
   roots: { local?: string; global?: string };
   templateRef: string;
