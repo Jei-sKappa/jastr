@@ -1,6 +1,7 @@
 import { readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 import { type IncludeResolver, JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 import { displayPath } from "./display";
 import type { LoadedTemplateReference } from "./template-ref";
 
@@ -39,7 +40,7 @@ function normalizeIncludeRoot(root: string | undefined): IncludeRoot {
 
   throw new JastrError(
     "invalid_include_root",
-    `Include root ${root} must be template, group, or file.`,
+    `Include root ${quote(root)} must be template, group, or file.`,
     { root },
   );
 }
@@ -85,7 +86,7 @@ async function resolveIncludePath(options: {
   if (!isInsideBoundary(resolved, options.boundary)) {
     throw new JastrError(
       "include_outside_root",
-      `Include path ${options.includePath} escapes the allowed include boundary.`,
+      `Include path ${quote(options.includePath)} escapes the allowed include boundary.`,
       { includePath: options.includePath },
     );
   }
@@ -112,14 +113,14 @@ function includeReadFailure(includePath: string, error: unknown): JastrError {
   if (code === "ENOENT") {
     return new JastrError(
       "include_not_found",
-      `Include file ${includePath} was not found.`,
+      `Include file ${quote(includePath)} was not found.`,
       { includePath },
     );
   }
 
   return new JastrError(
     "include_read_error",
-    `Include file ${includePath} could not be read: ${code ?? "unknown"}.`,
+    `Include file ${quote(includePath)} could not be read: ${quote(code ?? "unknown")}.`,
     { includePath, cause: code ?? "unknown" },
   );
 }

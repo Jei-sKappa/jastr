@@ -104,7 +104,7 @@ Review
       );
       expect(unsupported.exitCode).toBe(1);
       expect(unsupported.stderr).toBe(
-        "Error: Unsupported generate target typescript.",
+        "Error: Unsupported generate target `typescript`.",
       );
 
       const blocked = await runCli(
@@ -320,7 +320,7 @@ Review {{depth}}
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Input depth must be one of: quick, deep.",
+        "Error: Input `depth` must be one of: `quick`, `deep`.",
       );
     } finally {
       await project.cleanup();

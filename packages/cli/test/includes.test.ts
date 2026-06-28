@@ -129,7 +129,7 @@ describe("createFileIncludeResolver", () => {
         }),
       ).rejects.toMatchObject({
         code: "invalid_include_root",
-        message: "Include root workspace must be template, group, or file.",
+        message: "Include root `workspace` must be template, group, or file.",
       });
 
       await expect(
@@ -225,7 +225,7 @@ describe("createFileIncludeResolver", () => {
         resolver({ path: "leak.md", from, raw: false, stack: [from] }),
       ).rejects.toMatchObject({
         code: "include_outside_root",
-        message: "Include path leak.md escapes the allowed include boundary.",
+        message: "Include path `leak.md` escapes the allowed include boundary.",
       });
     } finally {
       await project.cleanup();

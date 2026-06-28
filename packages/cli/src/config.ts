@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import YAML from "yaml";
+import { quote } from "./quote";
 import { validateArgumentHintPrefix } from "./targets/agent-skill";
 
 const SELECTED_VARIANT_FIELDS = new Set(["locked-inputs", "agent-skill"]);
@@ -36,7 +37,7 @@ export async function loadProjectConfigInputs(options: {
   if (!isRecord(selected)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml inputs.${options.templateRef} must be a mapping.`,
+      `.jastr/config.yml ${quote(`inputs.${options.templateRef}`)} must be a mapping.`,
     );
   }
 
@@ -128,7 +129,7 @@ export async function tryLoadProjectConfigVariant(options: {
   if (!isRecord(templateVariants)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml variants.${options.templateRef} must be a mapping.`,
+      `.jastr/config.yml ${quote(`variants.${options.templateRef}`)} must be a mapping.`,
     );
   }
 
@@ -139,7 +140,7 @@ export async function tryLoadProjectConfigVariant(options: {
   if (!isRecord(selected)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml variants.${options.templateRef}.${options.variantId} must be a mapping.`,
+      `.jastr/config.yml ${quote(`variants.${options.templateRef}.${options.variantId}`)} must be a mapping.`,
     );
   }
 
@@ -147,7 +148,7 @@ export async function tryLoadProjectConfigVariant(options: {
     if (!SELECTED_VARIANT_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_config",
-        `.jastr/config.yml variants.${options.templateRef}.${options.variantId} field ${field} is not supported.`,
+        `.jastr/config.yml ${quote(`variants.${options.templateRef}.${options.variantId}`)} field ${quote(field)} is not supported.`,
         { field },
       );
     }
@@ -157,7 +158,7 @@ export async function tryLoadProjectConfigVariant(options: {
   if (lockedInputs !== undefined && !isRecord(lockedInputs)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml variants.${options.templateRef}.${options.variantId}.locked-inputs must be a mapping.`,
+      `.jastr/config.yml ${quote(`variants.${options.templateRef}.${options.variantId}.locked-inputs`)} must be a mapping.`,
     );
   }
 
@@ -226,7 +227,7 @@ function readVariantAgentSkillFrontmatter(
   if (!isRecord(value)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml variants.${templateRef}.${variantId}.agent-skill must be a mapping.`,
+      `.jastr/config.yml ${quote(`variants.${templateRef}.${variantId}.agent-skill`)} must be a mapping.`,
     );
   }
 
@@ -234,7 +235,7 @@ function readVariantAgentSkillFrontmatter(
     if (!SELECTED_AGENT_SKILL_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_config",
-        `.jastr/config.yml variants.${templateRef}.${variantId}.agent-skill field ${field} is not supported.`,
+        `.jastr/config.yml ${quote(`variants.${templateRef}.${variantId}.agent-skill`)} field ${quote(field)} is not supported.`,
         { field },
       );
     }
@@ -245,7 +246,7 @@ function readVariantAgentSkillFrontmatter(
   if (!isRecord(frontmatter)) {
     throw new JastrError(
       "invalid_config",
-      `.jastr/config.yml variants.${templateRef}.${variantId}.agent-skill.frontmatter must be a mapping.`,
+      `.jastr/config.yml ${quote(`variants.${templateRef}.${variantId}.agent-skill.frontmatter`)} must be a mapping.`,
     );
   }
   return frontmatter;
@@ -264,7 +265,7 @@ function readVariantArgumentHintPrefix(
   return validateArgumentHintPrefix(
     prefix,
     "invalid_config",
-    `.jastr/config.yml variants.${templateRef}.${variantId}.agent-skill.argument-hint-prefix`,
+    `.jastr/config.yml ${quote(`variants.${templateRef}.${variantId}.agent-skill.argument-hint-prefix`)}`,
   );
 }
 
@@ -275,7 +276,7 @@ function throwVariantNotFound(
 ): never {
   throw new JastrError(
     "variant_not_found",
-    `Variant ${variantRef} was not found in .jastr/config.yml.`,
+    `Variant ${quote(variantRef)} was not found in .jastr/config.yml.`,
     { templateRef, variantId },
   );
 }

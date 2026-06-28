@@ -104,7 +104,7 @@ describe("template references", () => {
       await expect(
         loadTemplateReference({ cwd: project.root, templateRef: "BadName" }),
       ).rejects.toThrow(
-        "Template reference BadName must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.",
+        "Template reference `BadName` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.",
       );
 
       await expect(
@@ -113,7 +113,7 @@ describe("template references", () => {
           templateRef: "team/demo/extra",
         }),
       ).rejects.toThrow(
-        "Template reference team/demo/extra must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.",
+        "Template reference `team/demo/extra` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.",
       );
     } finally {
       await project.cleanup();
@@ -135,13 +135,13 @@ describe("template references", () => {
           templateRef: "team/demo",
         }),
       ).rejects.toThrow(
-        `Template team/demo was not found. Searched local ${path.join(
+        `Template \`team/demo\` was not found. Searched local \`${path.join(
           ".jastr",
           "team",
           "templates",
           "demo",
           "TEMPLATE.md",
-        )}.`,
+        )}\`.`,
       );
     } finally {
       await project.cleanup();
@@ -243,7 +243,7 @@ describe("template references", () => {
         await expect(
           loadTemplateReference({ cwd: project.root, templateRef }),
         ).rejects.toThrow(
-          `Template reference ${templateRef} must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.`,
+          `Template reference \`${templateRef}\` must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.`,
         );
       }
     } finally {
@@ -475,7 +475,7 @@ describe("template references", () => {
           templateRef: "demo",
         }),
       ).rejects.toThrow(
-        `Template demo was not found. Searched local ${localExpected} and global ${globalExpected}.`,
+        `Template \`demo\` was not found. Searched local \`${localExpected}\` and global \`${globalExpected}\`.`,
       );
     } finally {
       await local.cleanup();

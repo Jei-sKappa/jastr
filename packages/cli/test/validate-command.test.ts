@@ -31,7 +31,7 @@ Selected: {{language}}
       const result = await runCli(["validate", "demo"], project.root);
 
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("Template demo is valid.");
+      expect(result.stdout).toBe("Template `demo` is valid.");
       expect(result.stderr).toBe("");
       // validate writes nothing: a sibling SKILL.md must not appear.
       await expect(
@@ -61,7 +61,7 @@ Selected: {{language}}
       const result = await runCli(["validate", "demo"], project.root);
 
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("Template demo is valid.");
+      expect(result.stdout).toBe("Template `demo` is valid.");
       expect(result.stderr).toBe("");
     } finally {
       await project.cleanup();
@@ -115,7 +115,7 @@ Root
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Include file missing.md was not found.",
+        "Error: Include file `missing.md` was not found.",
       );
     } finally {
       await project.cleanup();
@@ -165,7 +165,7 @@ Review {{depth}} {{language}}
       const result = await runCli(["validate", "review#deep"], project.root);
 
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("Template review#deep is valid.");
+      expect(result.stdout).toBe("Template `review#deep` is valid.");
       expect(result.stderr).toBe("");
     } finally {
       await project.cleanup();
@@ -194,7 +194,7 @@ Review {{depth}}
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Variant review#deep was not found in .jastr/config.yml.",
+        "Error: Variant `review#deep` was not found in .jastr/config.yml.",
       );
     } finally {
       await project.cleanup();
@@ -230,7 +230,7 @@ Notes about {{topic}}
       );
 
       expect(result.exitCode).toBe(0);
-      expect(result.stdout).toBe("Template templates/notes.md is valid.");
+      expect(result.stdout).toBe("Template `templates/notes.md` is valid.");
       expect(result.stderr).toBe("");
     } finally {
       await project.cleanup();

@@ -2,6 +2,7 @@ import { realpath, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 
 export type ResolvedRoot = { kind: "local" | "global"; projectRoot: string };
 
@@ -37,9 +38,8 @@ export async function resolveProjectRoots(cwd: string): Promise<ResolvedRoots> {
   if (ordered.length === 0) {
     throw new JastrError(
       "missing_project_root",
-      `No .jastr directory found locally (searched from the current directory up) or globally (${path.join(
-        globalBase(),
-        ".jastr",
+      `No .jastr directory found locally (searched from the current directory up) or globally (${quote(
+        path.join(globalBase(), ".jastr"),
       )}).`,
     );
   }

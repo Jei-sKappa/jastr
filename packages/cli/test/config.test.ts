@@ -155,7 +155,7 @@ inputs:
       await expectConfigError(
         project.root,
         "review",
-        ".jastr/config.yml inputs.review must be a mapping.",
+        ".jastr/config.yml `inputs.review` must be a mapping.",
       );
 
       await expect(
@@ -466,7 +466,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "variant_not_found",
-        "Variant review#deep was not found in .jastr/config.yml.",
+        "Variant `review#deep` was not found in .jastr/config.yml.",
       );
 
       await writeProjectFile(
@@ -482,7 +482,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "variant_not_found",
-        "Variant review#deep was not found in .jastr/config.yml.",
+        "Variant `review#deep` was not found in .jastr/config.yml.",
       );
     } finally {
       await project.cleanup();
@@ -548,7 +548,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review must be a mapping.",
+        ".jastr/config.yml `variants.review` must be a mapping.",
       );
 
       await writeProjectFile(
@@ -564,7 +564,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep must be a mapping.",
+        ".jastr/config.yml `variants.review.deep` must be a mapping.",
       );
 
       await writeProjectFile(
@@ -581,7 +581,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep.locked-inputs must be a mapping.",
+        ".jastr/config.yml `variants.review.deep.locked-inputs` must be a mapping.",
       );
 
       await writeProjectFile(
@@ -598,7 +598,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep field locked-input is not supported.",
+        ".jastr/config.yml `variants.review.deep` field `locked-input` is not supported.",
       );
 
       await writeProjectFile(
@@ -615,7 +615,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep.agent-skill must be a mapping.",
+        ".jastr/config.yml `variants.review.deep.agent-skill` must be a mapping.",
       );
 
       await writeProjectFile(
@@ -633,7 +633,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep.agent-skill field body is not supported.",
+        ".jastr/config.yml `variants.review.deep.agent-skill` field `body` is not supported.",
       );
 
       await writeProjectFile(
@@ -651,7 +651,7 @@ describe("project config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep.agent-skill.frontmatter must be a mapping.",
+        ".jastr/config.yml `variants.review.deep.agent-skill.frontmatter` must be a mapping.",
       );
     } finally {
       await project.cleanup();
@@ -748,7 +748,7 @@ describe("composed config variant loading", () => {
         "review",
         "deep",
         "variant_not_found",
-        "Variant review#deep was not found in .jastr/config.yml.",
+        "Variant `review#deep` was not found in .jastr/config.yml.",
       );
     } finally {
       await local.cleanup();
@@ -784,7 +784,7 @@ describe("composed config variant loading", () => {
         "review",
         "deep",
         "invalid_config",
-        ".jastr/config.yml variants.review.deep must be a mapping.",
+        ".jastr/config.yml `variants.review.deep` must be a mapping.",
       );
     } finally {
       await local.cleanup();
@@ -851,7 +851,7 @@ describe("per-root variant reader", () => {
       expect(error).toBeInstanceOf(JastrError);
       expect(error).toMatchObject({
         code: "invalid_config",
-        message: ".jastr/config.yml variants.review.deep must be a mapping.",
+        message: ".jastr/config.yml `variants.review.deep` must be a mapping.",
       });
     } finally {
       await project.cleanup();
@@ -1054,7 +1054,7 @@ describe("variant argument-hint-prefix directive", () => {
       expect(error).toBeInstanceOf(JastrError);
       expect(error).toMatchObject({ code: "invalid_config" });
       expect((error as JastrError).message).toContain(
-        ".jastr/config.yml variants.review.deep.agent-skill.argument-hint-prefix",
+        ".jastr/config.yml `variants.review.deep.agent-skill.argument-hint-prefix`",
       );
     } finally {
       await project.cleanup();

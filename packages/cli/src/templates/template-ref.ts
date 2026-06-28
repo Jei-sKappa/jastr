@@ -6,6 +6,7 @@ import {
   type ResolvedRoots,
   resolveProjectRoots,
 } from "../fs/project-root";
+import { quote } from "../quote";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -131,15 +132,15 @@ function templateNotFound(
     .map((root) => {
       const declaredPath = declaredTemplatePath(root.projectRoot, namedRef);
       if (root.kind === "local") {
-        return `local ${path.relative(cwd, declaredPath)}`;
+        return `local ${quote(path.relative(cwd, declaredPath))}`;
       }
-      return `global ${declaredPath}`;
+      return `global ${quote(declaredPath)}`;
     })
     .join(" and ");
 
   return new JastrError(
     "template_not_found",
-    `Template ${templateRef} was not found. Searched ${searched}.`,
+    `Template ${quote(templateRef)} was not found. Searched ${searched}.`,
     { templateRef },
   );
 }
@@ -368,7 +369,7 @@ async function isFile(filePath: string): Promise<boolean> {
 function throwInvalidTemplateReference(templateRef: string): never {
   throw new JastrError(
     "invalid_template_reference",
-    `Template reference ${templateRef} must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.`,
+    `Template reference ${quote(templateRef)} must be a template id, a group/template id, a template id#variant id, a group/template id#variant id, or a .md file path.`,
     { templateRef },
   );
 }

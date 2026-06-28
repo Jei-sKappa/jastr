@@ -14,6 +14,7 @@ import {
   type ProjectConfigVariant,
 } from "./config";
 import { coerceRunFlags } from "./flags";
+import { quote } from "./quote";
 import {
   type AgentSkillTarget,
   assertAgentSkillOutputAvailable,
@@ -112,7 +113,7 @@ export async function executeGenerate(opts: {
   if (opts.target !== "agent-skill") {
     throw new JastrError(
       "unsupported_generate_target",
-      `Unsupported generate target ${opts.target}.`,
+      `Unsupported generate target ${quote(opts.target)}.`,
       { target: opts.target },
     );
   }
@@ -200,7 +201,7 @@ export async function executeGenerate(opts: {
     content,
   });
 
-  return `Generated \`${path.relative(template.cwd, outputPath)}\` from template \`${displayPath(template, template.templatePath)}\``;
+  return `Generated ${quote(path.relative(template.cwd, outputPath))} from template ${quote(displayPath(template, template.templatePath))}`;
 }
 
 export async function executeValidate(opts: {
@@ -238,7 +239,7 @@ export async function executeValidate(opts: {
   // agent-skill metadata anywhere is still valid.
   validateDeclaredAgentSkillTarget(schema, selectedVariant);
 
-  return `Template ${opts.templateRef} is valid.`;
+  return `Template ${quote(opts.templateRef)} is valid.`;
 }
 
 function validateDeclaredAgentSkillTarget(
