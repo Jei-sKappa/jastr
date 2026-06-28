@@ -1,0 +1,12 @@
+id: generate-inline-check-missing
+covers:
+  - GEN-FR-0030.AC-0003
+title: Inline --check reports a missing skill
+description: >
+  Shows how --mode=inline --check against a missing file exits 1 with
+  output_missing, whose suggested-fix command names --mode=inline.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--check"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md --mode=inline.\n"

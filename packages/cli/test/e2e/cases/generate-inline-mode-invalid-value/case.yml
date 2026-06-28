@@ -1,0 +1,10 @@
+id: generate-inline-mode-invalid-value
+covers:
+  - GEN-FR-0024.AC-0003
+title: Reject an unknown --mode value
+description: Shows how an unknown --mode value is rejected as an invalid_command argv error.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=bogus"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Invalid generate mode bogus. Expected router or inline.\n"

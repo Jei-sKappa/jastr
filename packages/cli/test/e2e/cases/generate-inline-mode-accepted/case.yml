@@ -1,0 +1,14 @@
+id: generate-inline-mode-accepted
+covers:
+  - GEN-FR-0024.AC-0002
+title: Both --mode values are accepted
+description: >
+  Shows how an otherwise-valid invocation accepts both `--mode=router` (a setup
+  step that must exit 0) and `--mode=inline` (the main command).
+setup:
+  - cli: ["generate", "agent-skill", "demo", "--out", "router/SKILL.md", "--mode=router"]
+command: ["generate", "agent-skill", "demo", "--out", "inline/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `inline/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""

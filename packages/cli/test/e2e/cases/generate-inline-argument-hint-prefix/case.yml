@@ -1,0 +1,18 @@
+id: generate-inline-argument-hint-prefix
+covers:
+  - GEN-FR-0028.AC-0002
+title: Inline emits the argument-hint prefix verbatim
+description: >
+  Shows how inline argument-hint equals the declared argument-hint-prefix
+  verbatim with no derived --flag form, even when the template declares an input
+  that is resolved at generate time.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--topic=auth"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "--topic"

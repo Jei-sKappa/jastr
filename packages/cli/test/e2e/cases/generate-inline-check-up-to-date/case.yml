@@ -1,0 +1,12 @@
+id: generate-inline-check-up-to-date
+covers:
+  - GEN-FR-0030.AC-0001
+title: Inline --check confirms an up-to-date skill
+description: >
+  Shows how --mode=inline --check against a byte-matching committed file exits 0
+  with the up-to-date message and writes nothing.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--check"]
+expect:
+  exitCode: 0
+  stdout: "agent-skill at out/SKILL.md is up to date."
+  stderr: ""

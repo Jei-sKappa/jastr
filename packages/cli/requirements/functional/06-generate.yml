@@ -354,3 +354,147 @@
       statement: "A --check run against a committed wrapper missing the now-derived argument-hint line exits 1 with the output_stale message."
     - id: AC-0011
       statement: "An argument-hint value containing [, <, |, =, and a leading - is emitted as valid YAML and re-checks clean end-to-end."
+
+- id: GEN-FR-0024
+  title: Generate agent-skill accepts and validates a --mode option
+  status: active
+  description: >
+    `generate agent-skill` accepts `--mode <value>` whose only valid values are
+    `router` and `inline`. Omitting `--mode` defaults to `router`, preserving
+    today's wrapper behavior. Any other value, or a value-less `--mode`, is an
+    `invalid_command` argv-shape error surfaced before Commander parses.
+  acceptance:
+    - id: AC-0001
+      statement: A generate invocation with no `--mode` produces the router wrapper and exits 0.
+    - id: AC-0002
+      statement: "Both `--mode=router` and `--mode=inline` are accepted on an otherwise valid invocation (exit 0)."
+    - id: AC-0003
+      statement: "`--mode=<unknown>` exits 1 with an invalid_command Error message naming router and inline."
+    - id: AC-0004
+      statement: "A value-less `--mode` exits 1 with an invalid_command Error message."
+
+- id: GEN-FR-0025
+  title: Inline mode writes the fully-rendered template body
+  status: active
+  description: >
+    `--mode=inline` performs a single real render of the template with fully
+    resolved inputs and writes `---\n<yaml>\n---\n\n<body>`: the frontmatter
+    header, exactly one blank line, then the render output verbatim. Includes are
+    inlined, conditionals collapse to the selected branch, and interpolations are
+    substituted. None of the router body scaffolding (Inputs section,
+    construct-flags sentence, `jastr run` command block, failure-line
+    instruction) appears. A successful write prints the shared `Generated <path>
+    from template <source>` success message.
+  acceptance:
+    - id: AC-0001
+      statement: Inline output for a template with an include partial contains the included content inlined rather than an include directive.
+    - id: AC-0002
+      statement: Inline output for a template with an if/else branch on a resolved input contains only the selected branch's text.
+    - id: AC-0003
+      statement: "The inline file is exactly `---\\n<yaml>\\n---\\n\\n<body>` with a single blank line before the verbatim rendered body."
+    - id: AC-0004
+      statement: "Inline output contains none of the router scaffolding: no Inputs section, construct-flags sentence, jastr run command block, or failure-line instruction."
+    - id: AC-0005
+      statement: A successful inline write prints the same `Generated <path> from template <source>` success message the router path prints (exit 0).
+
+- id: GEN-FR-0026
+  title: Inline mode resolves inputs through run's pipeline
+  status: active
+  description: >
+    Inline resolves inputs with the same precedence `run` uses: CLI flags > local
+    config > global config > template-author defaults, plus variant locked-inputs
+    from a `<ref>#<variant>` ref. A CLI flag colliding with a locked input is
+    rejected with `locked_input_flag`. For a named ref, composed `config.yml`
+    inputs and variants participate; for a direct `.md` ref, neither config nor
+    variants apply.
+  acceptance:
+    - id: AC-0001
+      statement: An input set via `config.yml inputs.<ref>` is reflected in inline output with no CLI flag passed.
+    - id: AC-0002
+      statement: A CLI flag overrides a `config.yml` value for the same input in inline output.
+    - id: AC-0003
+      statement: "`generate agent-skill <ref>#<variant> --mode=inline` bakes the variant's locked-input values into the rendered body."
+    - id: AC-0004
+      statement: "A CLI flag naming a locked input on a `<ref>#<variant>` ref exits 1 with a locked_input_flag Error message."
+    - id: AC-0005
+      statement: For a direct `.md` ref, `config.yml` and variants are ignored and resolution uses CLI flags and author defaults only.
+
+- id: GEN-FR-0027
+  title: Inline mode fails hard on an unresolved required input
+  status: active
+  description: >
+    If, after resolution, a required input has no value and no default, inline
+    generation fails with the engine's existing `missing_required_input` error
+    and writes no file. No `<value>` placeholder is emitted.
+  acceptance:
+    - id: AC-0001
+      statement: "Inline generation of a template with an unresolved required input exits 1 with `Required input <name> is missing.` and writes no file."
+
+- id: GEN-FR-0028
+  title: Inline mode emits frontmatter with a verbatim argument-hint prefix
+  status: active
+  description: >
+    Inline emits the same `targets.agent-skill` frontmatter the router carries —
+    `name`, `description`, and validated passthrough fields — with variant
+    `agent-skill.frontmatter` overlaid when a variant is selected.
+    `targets.agent-skill` is required; its absence fails with
+    `missing_target_metadata`. Because every input is resolved at generate time,
+    the derived `argument-hint` form is empty: `argument-hint` is the author
+    `argument-hint-prefix` verbatim (no `--flag` form) when a prefix exists, the
+    variant prefix wholesale when a selected variant declares one, and is omitted
+    entirely when no prefix exists.
+  acceptance:
+    - id: AC-0001
+      statement: Inline frontmatter contains `name` and `description` from `targets.agent-skill.frontmatter` plus all validated passthrough fields.
+    - id: AC-0002
+      statement: "With a `targets.agent-skill.argument-hint-prefix` declared, inline `argument-hint` equals that prefix verbatim with no `--flag` form appended."
+    - id: AC-0003
+      statement: With no prefix declared, inline frontmatter omits `argument-hint` entirely.
+    - id: AC-0004
+      statement: With a selected variant declaring `agent-skill.argument-hint-prefix`, the variant prefix replaces the base prefix wholesale in inline `argument-hint`.
+    - id: AC-0005
+      statement: "A template lacking `targets.agent-skill` exits 1 with a missing_target_metadata Error message in inline mode."
+
+- id: GEN-FR-0029
+  title: Template input flags are gated to inline mode
+  status: active
+  description: >
+    Template input flags (e.g. `--target=spec`) are accepted only in inline mode.
+    In router mode (explicit or default) supplying any template input flag is an
+    `invalid_command` argv-shape error.
+  acceptance:
+    - id: AC-0001
+      statement: "`--mode=router` (or the default) with any template input flag exits 1 with an invalid_command Error message."
+    - id: AC-0002
+      statement: "`--mode=inline` with a declared input flag is accepted and resolves that input into the rendered body."
+
+- id: GEN-FR-0030
+  title: Inline --check parity with mode-aware suggested-fix messages
+  status: active
+  description: >
+    `--mode=inline --check` rebuilds the inline content in memory and
+    byte-compares it against `--out`, writing nothing: exit 0 with the up-to-date
+    message on an exact match, `output_stale` when bytes differ, `output_missing`
+    when no file exists. The `output_stale` and `output_missing` suggested-fix
+    commands name `--mode=inline` (and `--force` for stale). `--check` combined
+    with `--force` is rejected exactly as today.
+  acceptance:
+    - id: AC-0001
+      statement: "`--mode=inline --check` against a byte-matching file exits 0 with the up-to-date message and writes nothing."
+    - id: AC-0002
+      statement: "`--mode=inline --check` against a differing file exits 1 with output_stale whose suggested-fix command names `--mode=inline` and `--force`, leaving the stale file unchanged."
+    - id: AC-0003
+      statement: "`--mode=inline --check` against a missing file exits 1 with output_missing whose suggested-fix command names `--mode=inline`."
+    - id: AC-0004
+      statement: "`--mode=inline --check --force` is rejected with `Error: --check cannot be combined with --force.` exactly as the existing combination is."
+
+- id: GEN-FR-0031
+  title: Validate stays mode-agnostic
+  status: active
+  description: >
+    `jastr validate <ref>` takes no `--mode` flag; `--mode` is a `generate
+    agent-skill` concern only. Supplying `--mode` to validate is an
+    `invalid_command` argv-shape error reported as an unknown validate option.
+  acceptance:
+    - id: AC-0001
+      statement: "`validate <ref> --mode=inline` exits 1 with an invalid_command unknown-validate-option Error message."

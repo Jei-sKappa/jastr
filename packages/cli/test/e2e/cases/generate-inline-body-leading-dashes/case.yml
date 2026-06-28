@@ -1,0 +1,15 @@
+id: generate-inline-body-leading-dashes
+covers:
+  - GEN-FR-0025.AC-0003
+title: Inline body whose first line is ---
+description: >
+  Shows the benign double-`---` outcome (spec Unresolved questions): a rendered
+  body whose first line is `---` is appended verbatim after the frontmatter
+  header and its single blank line, with no special guarding.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

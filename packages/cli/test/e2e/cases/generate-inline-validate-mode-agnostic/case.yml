@@ -1,0 +1,12 @@
+id: generate-inline-validate-mode-agnostic
+covers:
+  - GEN-FR-0031.AC-0001
+title: Validate has no --mode flag
+description: >
+  Shows how validate stays mode-agnostic: passing --mode to validate is rejected
+  as an unknown validate option (invalid_command).
+command: ["validate", "demo", "--mode=inline"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Unknown validate option --mode=inline.\n"

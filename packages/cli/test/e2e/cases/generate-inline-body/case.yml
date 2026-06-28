@@ -1,0 +1,26 @@
+id: generate-inline-body
+covers:
+  - GEN-FR-0025.AC-0001
+  - GEN-FR-0025.AC-0002
+  - GEN-FR-0025.AC-0003
+  - GEN-FR-0025.AC-0004
+  - GEN-FR-0025.AC-0005
+title: Inline mode writes the rendered body
+description: >
+  Shows how --mode=inline inlines an include, collapses an if/else to the
+  selected branch, substitutes interpolations, and writes the
+  frontmatter-then-blank-line-then-verbatim-body file with no router scaffolding.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--target=spec"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "## Inputs"
+      - "jastr run"
+      - "report the exact error output"
+      - "Review the code"
+      - "::include"

@@ -1,0 +1,17 @@
+id: generate-inline-direct-file
+covers:
+  - GEN-FR-0026.AC-0005
+title: Inline ignores config and variants for a direct .md ref
+description: >
+  Shows how a direct .md ref resolves with CLI flags and author defaults only —
+  the config.yml inputs entry is ignored, so the author default wins.
+command: ["generate", "agent-skill", "templates/direct.md", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `templates/direct.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "from-config"

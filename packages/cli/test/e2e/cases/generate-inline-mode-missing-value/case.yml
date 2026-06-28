@@ -1,0 +1,10 @@
+id: generate-inline-mode-missing-value
+covers:
+  - GEN-FR-0024.AC-0004
+title: Reject a value-less --mode
+description: Shows how --mode with no value is rejected as an invalid_command argv error.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Missing value for --mode.\n"

@@ -1,0 +1,12 @@
+id: generate-inline-locked-flag-rejected
+covers:
+  - GEN-FR-0026.AC-0004
+title: Inline rejects a flag that names a locked input
+description: >
+  Shows how a CLI flag naming a variant-locked input on a <ref>#<variant> ref is
+  rejected with locked_input_flag, exactly as run rejects it.
+command: ["generate", "agent-skill", "review#deep", "--out", "out/SKILL.md", "--mode=inline", "--depth=quick"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Input --depth is locked by variant review#deep.\n"

@@ -1,0 +1,12 @@
+id: generate-inline-router-flag-rejected
+covers:
+  - GEN-FR-0029.AC-0001
+title: Router mode rejects template input flags
+description: >
+  Shows how supplying a template input flag in router mode (here the default) is
+  an invalid_command argv-shape error before any render.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--topic=auth"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Template input flags are only valid with --mode=inline.\n"

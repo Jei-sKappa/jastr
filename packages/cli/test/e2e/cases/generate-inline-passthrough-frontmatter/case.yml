@@ -1,0 +1,14 @@
+id: generate-inline-passthrough-frontmatter
+covers:
+  - GEN-FR-0028.AC-0001
+title: Inline frontmatter carries name, description, and passthrough fields
+description: >
+  Shows how inline frontmatter renders name and description from
+  targets.agent-skill.frontmatter plus any validated passthrough field.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

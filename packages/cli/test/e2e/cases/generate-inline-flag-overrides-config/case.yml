@@ -1,0 +1,15 @@
+id: generate-inline-flag-overrides-config
+covers:
+  - GEN-FR-0026.AC-0002
+  - GEN-FR-0029.AC-0002
+title: Inline CLI flag overrides config
+description: >
+  Shows how a CLI input flag overrides a config.yml value for the same input in
+  inline mode (flags > config), confirming inline accepts template input flags.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--depth=quick"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

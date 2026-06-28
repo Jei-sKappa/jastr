@@ -1,0 +1,19 @@
+id: generate-inline-variant-locked
+covers:
+  - GEN-FR-0026.AC-0003
+  - GEN-FR-0028.AC-0004
+title: Inline bakes a variant's locked inputs
+description: >
+  Shows how generate agent-skill <ref>#<variant> --mode=inline bakes the
+  variant's locked-input values into the body and replaces the base
+  argument-hint-prefix wholesale with the variant prefix.
+command: ["generate", "agent-skill", "review#deep", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "base policy"

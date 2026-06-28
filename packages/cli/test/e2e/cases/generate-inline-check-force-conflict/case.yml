@@ -1,0 +1,12 @@
+id: generate-inline-check-force-conflict
+covers:
+  - GEN-FR-0030.AC-0004
+title: Inline --check rejects --force
+description: >
+  Shows how --mode=inline --check --force is rejected with the same
+  invalid_command conflict message as the existing combination.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline", "--check", "--force"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: --check cannot be combined with --force.\n"

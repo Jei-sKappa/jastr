@@ -1,0 +1,12 @@
+id: generate-inline-mode-default-router
+covers:
+  - GEN-FR-0024.AC-0001
+title: Generate defaults to router mode
+description: Shows how generate with no --mode produces the router wrapper unchanged.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md

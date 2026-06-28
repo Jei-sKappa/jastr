@@ -1,0 +1,12 @@
+id: generate-inline-missing-required
+covers:
+  - GEN-FR-0027.AC-0001
+title: Inline fails on an unresolved required input
+description: >
+  Shows how inline generation of a template with an unresolved required input
+  fails with the engine's missing_required_input error and writes no file.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: Required input topic is missing.\n"

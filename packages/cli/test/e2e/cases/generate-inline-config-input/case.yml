@@ -1,0 +1,19 @@
+id: generate-inline-config-input
+covers:
+  - GEN-FR-0026.AC-0001
+  - GEN-FR-0028.AC-0003
+title: Inline reflects a config-supplied input
+description: >
+  Shows how an input set in .jastr/config.yml is baked into the inline body with
+  no CLI flag passed, and that a template with no argument-hint-prefix omits the
+  argument-hint field entirely.
+command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--mode=inline"]
+expect:
+  exitCode: 0
+  stdout: "Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`"
+  stderr: ""
+  files:
+    out/SKILL.md: expected/files/out/SKILL.md
+  fileNotContains:
+    out/SKILL.md:
+      - "argument-hint"
