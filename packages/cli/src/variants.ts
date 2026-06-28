@@ -5,6 +5,7 @@ import {
   type TemplateSchema,
 } from "@jastr/engine";
 import type { RawFlag } from "./args";
+import { quote } from "./quote";
 
 export function assertNoLockedInputFlags(options: {
   flags: RawFlag[];
@@ -17,7 +18,7 @@ export function assertNoLockedInputFlags(options: {
     if (!locked.has(flag.name)) continue;
     throw new JastrError(
       "locked_input_flag",
-      `Input --${flag.name} is locked by variant ${options.templateRef}#${options.variantId}.`,
+      `Input ${quote(`--${flag.name}`)} is locked by variant ${quote(`${options.templateRef}#${options.variantId}`)}.`,
       {
         inputName: flag.name,
         templateRef: options.templateRef,

@@ -91,7 +91,7 @@ Hello
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
-      expect(result.stderr).toBe("Error: Unknown input flag --unknown.");
+      expect(result.stderr).toBe("Error: Unknown input flag `--unknown`.");
     } finally {
       await project.cleanup();
     }
@@ -282,7 +282,7 @@ dry-run={{dry-run}}
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
-      expect(result.stderr).toBe("Error: Input dry-run must be a boolean.");
+      expect(result.stderr).toBe("Error: Input `dry-run` must be a boolean.");
     } finally {
       await project.cleanup();
     }
@@ -372,7 +372,7 @@ depth={{depth}}
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Input --depth is locked by variant review#deep.",
+        "Error: Input `--depth` is locked by variant `review#deep`.",
       );
     } finally {
       await project.cleanup();
@@ -523,7 +523,7 @@ depth={{depth}}
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Input depth must be one of: quick, deep.",
+        "Error: Input `depth` must be one of: `quick`, `deep`.",
       );
     } finally {
       await project.cleanup();

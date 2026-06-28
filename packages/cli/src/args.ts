@@ -1,4 +1,5 @@
 import { JastrError } from "@jastr/engine";
+import { quote } from "./quote";
 
 export type RawFlag =
   | { name: string; form: "bare"; value: true }
@@ -86,7 +87,7 @@ export function validateCliArgv(argv: string[]): void {
   if (!second) {
     throw new JastrError(
       "invalid_command",
-      `Missing template reference for generate ${first}.`,
+      `Missing template reference for generate ${quote(first)}.`,
     );
   }
 
@@ -99,13 +100,16 @@ export function parseRunFlags(rest: string[]): RawFlag[] {
 
   for (const arg of rest) {
     if (!arg.startsWith("--") || arg === "--") {
-      throw new JastrError("invalid_command", `Invalid flag syntax ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Invalid flag syntax ${quote(arg)}.`,
+      );
     }
 
     if (arg.startsWith("--no-")) {
       throw new JastrError(
         "invalid_command",
-        `Boolean negation form ${arg} is not supported.`,
+        `Boolean negation form ${quote(arg)} is not supported.`,
       );
     }
 
@@ -114,13 +118,16 @@ export function parseRunFlags(rest: string[]): RawFlag[] {
     const name = equalsIndex === -1 ? raw : raw.slice(0, equalsIndex);
 
     if (name === "") {
-      throw new JastrError("invalid_command", `Invalid flag syntax ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Invalid flag syntax ${quote(arg)}.`,
+      );
     }
 
     if (seen.has(name)) {
       throw new JastrError(
         "duplicate_input_flag",
-        `Duplicate flag --${name}.`,
+        `Duplicate flag ${quote(`--${name}`)}.`,
         {
           inputName: name,
         },
@@ -180,7 +187,10 @@ function validateAddArgs(rest: string[]): void {
     if (valueOptions.has(arg)) {
       const value = rest[index + 1];
       if (value === undefined || value.startsWith("--")) {
-        throw new JastrError("invalid_command", `Missing value for ${arg}.`);
+        throw new JastrError(
+          "invalid_command",
+          `Missing value for ${quote(arg)}.`,
+        );
       }
       index += 1;
       continue;
@@ -196,7 +206,10 @@ function validateAddArgs(rest: string[]): void {
     }
 
     if (arg.startsWith("-")) {
-      throw new JastrError("invalid_command", `Unknown add option ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Unknown add option ${quote(arg)}.`,
+      );
     }
 
     positionals.push(arg);
@@ -211,7 +224,7 @@ function validateAddArgs(rest: string[]): void {
   if (positionals.length > 2) {
     throw new JastrError(
       "invalid_command",
-      `Invalid add argument ${positionals[2]}.`,
+      `Invalid add argument ${quote(positionals[2] as string)}.`,
     );
   }
 }
@@ -230,9 +243,15 @@ function validateListArgs(rest: string[]): void {
       continue;
     }
     if (arg.startsWith("-")) {
-      throw new JastrError("invalid_command", `Unknown list option ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Unknown list option ${quote(arg)}.`,
+      );
     }
-    throw new JastrError("invalid_command", `Invalid list argument ${arg}.`);
+    throw new JastrError(
+      "invalid_command",
+      `Invalid list argument ${quote(arg)}.`,
+    );
   }
 }
 
@@ -253,7 +272,10 @@ function validateRemoveArgs(rest: string[]): void {
       continue;
     }
     if (arg.startsWith("-")) {
-      throw new JastrError("invalid_command", `Unknown remove option ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Unknown remove option ${quote(arg)}.`,
+      );
     }
     positionals.push(arg);
   }
@@ -292,7 +314,10 @@ function validateUpdateArgs(rest: string[]): void {
       continue;
     }
     if (arg.startsWith("-")) {
-      throw new JastrError("invalid_command", `Unknown update option ${arg}.`);
+      throw new JastrError(
+        "invalid_command",
+        `Unknown update option ${quote(arg)}.`,
+      );
     }
     // A bare positional is an id; ids are optional, so any count is accepted.
   }
@@ -309,7 +334,10 @@ function validateUpdateArgs(rest: string[]): void {
 function requireOptionValue(arg: string, option: string): void {
   const value = arg.slice(`${option}=`.length);
   if (value === "") {
-    throw new JastrError("invalid_command", `Missing value for ${option}.`);
+    throw new JastrError(
+      "invalid_command",
+      `Missing value for ${quote(option)}.`,
+    );
   }
 }
 
@@ -320,13 +348,13 @@ function validateValidateArgs(rest: string[]): void {
     if (arg.startsWith("--")) {
       throw new JastrError(
         "invalid_command",
-        `Unknown validate option ${arg}.`,
+        `Unknown validate option ${quote(arg)}.`,
       );
     }
     if (sawRef) {
       throw new JastrError(
         "invalid_command",
-        `Invalid validate argument ${arg}.`,
+        `Invalid validate argument ${quote(arg)}.`,
       );
     }
     sawRef = true;
@@ -375,13 +403,13 @@ function validateGenerateArgs(rest: string[]): void {
     if (arg.startsWith("--")) {
       throw new JastrError(
         "invalid_command",
-        `Unknown generate option ${arg}.`,
+        `Unknown generate option ${quote(arg)}.`,
       );
     }
 
     throw new JastrError(
       "invalid_command",
-      `Invalid generate argument ${arg}.`,
+      `Invalid generate argument ${quote(arg)}.`,
     );
   }
 

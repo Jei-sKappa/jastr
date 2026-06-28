@@ -90,7 +90,7 @@ describe("jastr cli shell", () => {
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
-      expect(result.stderr).toBe("Error: Unknown validate option --force.");
+      expect(result.stderr).toBe("Error: Unknown validate option `--force`.");
     } finally {
       await project.cleanup();
     }
@@ -103,7 +103,7 @@ describe("jastr cli shell", () => {
 
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
-      expect(result.stderr).toBe("Error: Invalid validate argument extra.");
+      expect(result.stderr).toBe("Error: Invalid validate argument `extra`.");
     } finally {
       await project.cleanup();
     }
