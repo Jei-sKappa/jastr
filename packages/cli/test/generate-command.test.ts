@@ -735,6 +735,40 @@ Selected language: {{language}}
     }
   });
 
+  it("fails inline generation when targets.agent-skill is absent and writes no file", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nStatic inline body.\n",
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "demo",
+          "--out",
+          "out/SKILL.md",
+          "--mode=inline",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "Error: Template must declare targets.agent-skill metadata for generate agent-skill.",
+      );
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).rejects.toThrow();
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("compares against variant-specific content under --check", async () => {
     const project = await createTempProject();
     try {

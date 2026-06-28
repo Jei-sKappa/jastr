@@ -9,4 +9,4 @@ command: ["generate", "agent-skill", "demo", "--out", "out/SKILL.md", "--topic=a
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Template input flags are only valid with --mode=inline.\n"
+  stderr: "Error: Unknown generate option or template input flag --topic=auth; template input flags are only valid with --mode=inline.\n"

@@ -412,9 +412,13 @@ function validateGenerateArgs(rest: string[]): void {
   // collected input-flag candidates against the effective mode: router rejects
   // them, inline accepts them.
   if (mode === "router" && inputFlagCandidates.length > 0) {
+    // In router mode the validator cannot tell a typo'd known option from a
+    // genuine template-input-flag candidate, so name the offending token and
+    // cover both readings: it is either an unknown option or an input flag that
+    // belongs to inline mode.
     throw new JastrError(
       "invalid_command",
-      "Template input flags are only valid with --mode=inline.",
+      `Unknown generate option or template input flag ${inputFlagCandidates[0]}; template input flags are only valid with --mode=inline.`,
     );
   }
 

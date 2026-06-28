@@ -8104,7 +8104,7 @@ $ jastr generate agent-skill demo --out out/SKILL.md --topic=auth
 **CLI output** — exit 1
 
 ```console
-Error: Template input flags are only valid with --mode=inline.
+Error: Unknown generate option or template input flag --topic=auth; template input flags are only valid with --mode=inline.
 ```
 
 </details>
