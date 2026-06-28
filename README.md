@@ -5,13 +5,21 @@ lets authors keep reusable templates in a conventional `.jastr/` catalog or in
 direct `.md` files, validate typed inputs, evaluate template directives, resolve
 safe includes, and print final Markdown to stdout.
 
-Agent Skill generation is a CLI target. A generated `SKILL.md` remains a small
-wrapper that runs `jastr run` and tells the agent to follow the rendered output.
-Required inputs are inlined into the command as `--flag=<value>` placeholders the
-agent fills in. A template with exactly one input folds it into a tailored
-instruction sentence with no `## Inputs` section; a template with two or more
-inputs lists them under a `## Inputs` section and instructs the agent to
-construct the matching `--flag=value` arguments.
+Agent Skill generation is a CLI target with two output modes, selected by
+`--mode <router|inline>` (default `router`). In **router** mode a generated
+`SKILL.md` is a small wrapper that runs `jastr run` and tells the agent to follow
+the rendered output. Required inputs are inlined into the command as
+`--flag=<value>` placeholders the agent fills in. A template with exactly one
+input folds it into a tailored instruction sentence with no `## Inputs` section; a
+template with two or more inputs lists them under a `## Inputs` section and
+instructs the agent to construct the matching `--flag=value` arguments. In
+**inline** mode the generated `SKILL.md` is fully self-contained: the same YAML
+frontmatter followed by the fully-rendered template body (includes resolved,
+conditionals evaluated, interpolations substituted), so it runs as an Agent Skill
+on a machine with no `jastr` installed — nothing is shelled out at invocation.
+Inline resolves every input at generate time through `run`'s precedence pipeline
+(template input flags are accepted only in inline mode), so an unresolved required
+input is a hard error.
 
 ## Packages
 
@@ -26,7 +34,7 @@ construct the matching `--flag=value` arguments.
 
 ```bash
 jastr run <template-ref> [input flags...]
-jastr generate agent-skill <template-ref> --out <path> [--check] [--force]
+jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force] [input flags...]
 jastr validate <template-ref>
 jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g|--global]
 jastr list [--local] [--global]
@@ -179,15 +187,17 @@ two or more unlocked inputs get a `## Inputs` section, exactly one unlocked inpu
 gets a tailored single-input sentence, and a variant that locks every declared
 input omits the inputs view entirely.
 
-`generate agent-skill --check` answers "is the committed wrapper still up to date
-with its template?" It rebuilds the wrapper in memory, byte-compares it against
-the file at `--out`, and writes nothing. It exits `0` with
-`agent-skill at <out> is up to date.` on an exact match, and exits `1` when the
-committed file is stale (its bytes differ) or missing. Comparison is exact bytes
-with no normalization, so even a line-ending or trailing-newline drift is
-reported as stale. Because `--check` runs the full template and variant
-validation first, an invalid template fails with its own error rather than a
-stale or missing report. `--check` cannot be combined with `--force`.
+`generate agent-skill --check` answers "is the committed output still up to date
+with its template?" It rebuilds the output in memory (the wrapper in router mode,
+the inline `SKILL.md` in `--mode=inline`), byte-compares it against the file at
+`--out`, and writes nothing. It exits `0` with `agent-skill at <out> is up to
+date.` on an exact match, and exits `1` when the committed file is stale (its
+bytes differ) or missing; in inline mode the suggested-fix command in those
+failures names `--mode=inline`. Comparison is exact bytes with no normalization,
+so even a line-ending or trailing-newline drift is reported as stale. Because
+`--check` runs the full template and variant validation first, an invalid template
+fails with its own error rather than a stale or missing report. `--check` cannot
+be combined with `--force`.
 
 `jastr validate <template-ref>` answers "is this template well-formed enough to
 use at all?" It runs the same static-validation pipeline as `run` and `generate`

@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**149** requirements · **333** acceptance criteria · **248** end-to-end cases.
+**157** requirements · **360** acceptance criteria · **269** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -87,6 +87,14 @@ output against its inputs.
   - [GEN-FR-0021 — Generate renders single-input wrappers without an Inputs section](#gen-fr-0021--generate-renders-single-input-wrappers-without-an-inputs-section)
   - [GEN-FR-0022 — Generate keeps the command bare when no required input is rendered](#gen-fr-0022--generate-keeps-the-command-bare-when-no-required-input-is-rendered)
   - [GEN-FR-0023 — Generate emits an argument-hint frontmatter field](#gen-fr-0023--generate-emits-an-argument-hint-frontmatter-field)
+  - [GEN-FR-0024 — Generate agent-skill accepts and validates a --mode option](#gen-fr-0024--generate-agent-skill-accepts-and-validates-a---mode-option)
+  - [GEN-FR-0025 — Inline mode writes the fully-rendered template body](#gen-fr-0025--inline-mode-writes-the-fully-rendered-template-body)
+  - [GEN-FR-0026 — Inline mode resolves inputs through run's pipeline](#gen-fr-0026--inline-mode-resolves-inputs-through-runs-pipeline)
+  - [GEN-FR-0027 — Inline mode fails hard on an unresolved required input](#gen-fr-0027--inline-mode-fails-hard-on-an-unresolved-required-input)
+  - [GEN-FR-0028 — Inline mode emits frontmatter with a verbatim argument-hint prefix](#gen-fr-0028--inline-mode-emits-frontmatter-with-a-verbatim-argument-hint-prefix)
+  - [GEN-FR-0029 — Template input flags are gated to inline mode](#gen-fr-0029--template-input-flags-are-gated-to-inline-mode)
+  - [GEN-FR-0030 — Inline --check parity with mode-aware suggested-fix messages](#gen-fr-0030--inline---check-parity-with-mode-aware-suggested-fix-messages)
+  - [GEN-FR-0031 — Validate stays mode-agnostic](#gen-fr-0031--validate-stays-mode-agnostic)
 
 - [Help](#help)
   - [HELP-FR-0001 — CLI prints help for the program and commands](#help-fr-0001--cli-prints-help-for-the-program-and-commands)
@@ -291,7 +299,7 @@ $ jastr invalid-command
 **CLI output** — exit 1
 
 ```console
-Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].
+Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].
 ```
 
 </details>
@@ -6838,6 +6846,1552 @@ Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
 
 </details>
 
+### GEN-FR-0024 — Generate agent-skill accepts and validates a --mode option
+
+`generate agent-skill` accepts `--mode <value>` whose only valid values are `router` and `inline`. Omitting `--mode` defaults to `router`, preserving today's wrapper behavior. Any other value, or a value-less `--mode`, is an `invalid_command` argv-shape error surfaced before Commander parses.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | A generate invocation with no `--mode` produces the router wrapper and exits 0. | ✅ `generate-inline-mode-default-router` |
+| AC-0002 | Both `--mode=router` and `--mode=inline` are accepted on an otherwise valid invocation (exit 0). | ✅ `generate-inline-mode-accepted` |
+| AC-0003 | `--mode=<unknown>` exits 1 with an invalid_command Error message naming router and inline. | ✅ `generate-inline-mode-invalid-value` |
+| AC-0004 | A value-less `--mode` exits 1 with an invalid_command Error message. | ✅ `generate-inline-mode-missing-value` |
+
+#### Case: Both --mode values are accepted
+
+Description: Shows how an otherwise-valid invocation accepts both `--mode=router` (a setup step that must exit 0) and `--mode=inline` (the main command).
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Setup steps** — run before the command
+
+1. Runs `jastr generate agent-skill demo --out router/SKILL.md --mode=router`
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out inline/SKILL.md --mode=inline
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `inline/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Generate defaults to router mode
+
+Description: Shows how generate with no --mode produces the router wrapper unchanged.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+````md
+---
+name: demo
+description: Demo skill
+---
+
+Run this command and follow its output exactly:
+
+```bash
+jastr run demo
+```
+
+If the command exits non-zero, report the exact error output to the user and stop.
+````
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Reject an unknown --mode value
+
+Description: Shows how an unknown --mode value is rejected as an invalid_command argv error.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=bogus
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Invalid generate mode bogus. Expected router or inline.
+```
+
+</details>
+
+#### Case: Reject a value-less --mode
+
+Description: Shows how --mode with no value is rejected as an invalid_command argv error.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Missing value for --mode.
+```
+
+</details>
+
+### GEN-FR-0025 — Inline mode writes the fully-rendered template body
+
+`--mode=inline` performs a single real render of the template with fully resolved inputs and writes `---\n<yaml>\n---\n\n<body>`: the frontmatter header, exactly one blank line, then the render output verbatim. Includes are inlined, conditionals collapse to the selected branch, and interpolations are substituted. None of the router body scaffolding (Inputs section, construct-flags sentence, `jastr run` command block, failure-line instruction) appears. A successful write prints the shared `Generated <path> from template <source>` success message.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Inline output for a template with an include partial contains the included content inlined rather than an include directive. | ✅ `generate-inline-body` |
+| AC-0002 | Inline output for a template with an if/else branch on a resolved input contains only the selected branch's text. | ✅ `generate-inline-body` |
+| AC-0003 | The inline file is exactly `---\n<yaml>\n---\n\n<body>` with a single blank line before the verbatim rendered body. | ✅ `generate-inline-body-leading-dashes`, `generate-inline-body` |
+| AC-0004 | Inline output contains none of the router scaffolding: no Inputs section, construct-flags sentence, jastr run command block, or failure-line instruction. | ✅ `generate-inline-body` |
+| AC-0005 | A successful inline write prints the same `Generated <path> from template <source>` success message the router path prints (exit 0). | ✅ `generate-inline-body` |
+
+#### Case: Inline mode writes the rendered body
+
+Description: Shows how --mode=inline inlines an include, collapses an if/else to the selected branch, substitutes interpolations, and writes the frontmatter-then-blank-line-then-verbatim-body file with no router scaffolding.
+
+Covers: AC-0001, AC-0002, AC-0003, AC-0004, AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      ├─ intro.md
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/intro.md`
+
+```md
+Shared intro boilerplate.
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review the change
+    frontmatter:
+      name: review-skill
+      description: Review a change.
+inputs:
+  target:
+    type: enum
+    values: [spec, code]
+    required: true
+  language:
+    type: string
+    required: false
+    default: typescript
+---
+::include{path="intro.md"}
+
+::::if{condition="${target} == 'spec'"}
+Review the spec for {{language}}.
+::::
+::::else
+Review the code for {{language}}.
+::::
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --target=spec
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: review-skill
+description: Review a change.
+argument-hint: review the change
+---
+
+Shared intro boilerplate.
+
+Review the spec for typescript.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline body whose first line is ---
+
+Description: Shows the benign double-`---` outcome (spec Unresolved questions): a rendered body whose first line is `---` is appended verbatim after the frontmatter header and its single blank line, with no special guarding.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+---
+title: Embedded doc
+---
+Body after embedded frontmatter.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+---
+title: Embedded doc
+---
+Body after embedded frontmatter.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0026 — Inline mode resolves inputs through run's pipeline
+
+Inline resolves inputs with the same precedence `run` uses: CLI flags > local config > global config > template-author defaults, plus variant locked-inputs from a `<ref>#<variant>` ref. A CLI flag colliding with a locked input is rejected with `locked_input_flag`. For a named ref, composed `config.yml` inputs and variants participate; for a direct `.md` ref, neither config nor variants apply.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | An input set via `config.yml inputs.<ref>` is reflected in inline output with no CLI flag passed. | ✅ `generate-inline-config-input` |
+| AC-0002 | A CLI flag overrides a `config.yml` value for the same input in inline output. | ✅ `generate-inline-flag-overrides-config` |
+| AC-0003 | `generate agent-skill <ref>#<variant> --mode=inline` bakes the variant's locked-input values into the rendered body. | ✅ `generate-inline-variant-locked` |
+| AC-0004 | A CLI flag naming a locked input on a `<ref>#<variant>` ref exits 1 with a locked_input_flag Error message. | ✅ `generate-inline-locked-flag-rejected` |
+| AC-0005 | For a direct `.md` ref, `config.yml` and variants are ignored and resolution uses CLI flags and author defaults only. | ✅ `generate-inline-direct-file` |
+
+#### Case: Inline reflects a config-supplied input
+
+Description: Shows how an input set in .jastr/config.yml is baked into the inline body with no CLI flag passed, and that a template with no argument-hint-prefix omits the argument-hint field entirely.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Depth is {{depth}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+Depth is deep.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline ignores config and variants for a direct .md ref
+
+Description: Shows how a direct .md ref resolves with CLI flags and author defaults only — the config.yml inputs entry is ignored, so the author default wins.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ config.yml
+└─ templates/
+   └─ direct.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  templates/direct.md:
+    label: from-config
+```
+
+`templates/direct.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: direct-skill
+      description: Direct skill.
+inputs:
+  label:
+    type: string
+    required: false
+    default: from-default
+---
+Label is {{label}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill templates/direct.md --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: direct-skill
+description: Direct skill.
+---
+
+Label is from-default.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `templates/direct.md`
+```
+
+</details>
+
+#### Case: Inline CLI flag overrides config
+
+Description: Shows how a CLI input flag overrides a config.yml value for the same input in inline mode (flags > config), confirming inline accepts template input flags.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Depth is {{depth}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --depth=quick
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+Depth is quick.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline rejects a flag that names a locked input
+
+Description: Shows how a CLI flag naming a variant-locked input on a <ref>#<variant> ref is rejected with locked_input_flag, exactly as run rejects it.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Reviewing at {{depth}} depth.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out out/SKILL.md --mode=inline --depth=quick
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Input --depth is locked by variant review#deep.
+```
+
+</details>
+
+#### Case: Inline bakes a variant's locked inputs
+
+Description: Shows how generate agent-skill <ref>#<variant> --mode=inline bakes the variant's locked-input values into the body and replaces the base argument-hint-prefix wholesale with the variant prefix.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: review with the deep policy
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review with the base policy
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Reviewing at {{depth}} depth.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review with the deep policy
+---
+
+Reviewing at deep depth.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0027 — Inline mode fails hard on an unresolved required input
+
+If, after resolution, a required input has no value and no default, inline generation fails with the engine's existing `missing_required_input` error and writes no file. No `<value>` placeholder is emitted.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Inline generation of a template with an unresolved required input exits 1 with `Required input <name> is missing.` and writes no file. | ✅ `generate-inline-missing-required` |
+
+#### Case: Inline fails on an unresolved required input
+
+Description: Shows how inline generation of a template with an unresolved required input fails with the engine's missing_required_input error and writes no file.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  topic:
+    type: string
+    required: true
+---
+Topic is {{topic}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Required input topic is missing.
+```
+
+</details>
+
+### GEN-FR-0028 — Inline mode emits frontmatter with a verbatim argument-hint prefix
+
+Inline emits the same `targets.agent-skill` frontmatter the router carries — `name`, `description`, and validated passthrough fields — with variant `agent-skill.frontmatter` overlaid when a variant is selected. `targets.agent-skill` is required; its absence fails with `missing_target_metadata`. Because every input is resolved at generate time, the derived `argument-hint` form is empty: `argument-hint` is the author `argument-hint-prefix` verbatim (no `--flag` form) when a prefix exists, the variant prefix wholesale when a selected variant declares one, and is omitted entirely when no prefix exists.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | Inline frontmatter contains `name` and `description` from `targets.agent-skill.frontmatter` plus all validated passthrough fields. | ✅ `generate-inline-passthrough-frontmatter` |
+| AC-0002 | With a `targets.agent-skill.argument-hint-prefix` declared, inline `argument-hint` equals that prefix verbatim with no `--flag` form appended. | ✅ `generate-inline-argument-hint-prefix` |
+| AC-0003 | With no prefix declared, inline frontmatter omits `argument-hint` entirely. | ✅ `generate-inline-config-input` |
+| AC-0004 | With a selected variant declaring `agent-skill.argument-hint-prefix`, the variant prefix replaces the base prefix wholesale in inline `argument-hint`. | ✅ `generate-inline-variant-locked` |
+| AC-0005 | A template lacking `targets.agent-skill` exits 1 with a missing_target_metadata Error message in inline mode. | ✅ `generate-inline-missing-target` |
+
+#### Case: Inline emits the argument-hint prefix verbatim
+
+Description: Shows how inline argument-hint equals the declared argument-hint-prefix verbatim with no derived --flag form, even when the template declares an input that is resolved at generate time.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: route the request
+    frontmatter:
+      name: route-skill
+      description: Route something.
+inputs:
+  topic:
+    type: string
+    required: true
+---
+Topic is {{topic}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --topic=auth
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: route-skill
+description: Route something.
+argument-hint: route the request
+---
+
+Topic is auth.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline reflects a config-supplied input
+
+Description: Shows how an input set in .jastr/config.yml is baked into the inline body with no CLI flag passed, and that a template with no argument-hint-prefix omits the argument-hint field entirely.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Depth is {{depth}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+Depth is deep.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline requires targets.agent-skill metadata
+
+Description: Shows how a template lacking targets.agent-skill fails with missing_target_metadata in inline mode, just as in router mode.
+
+Covers: AC-0005
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+Hello with no targets.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template must declare targets.agent-skill metadata for generate agent-skill.
+```
+
+</details>
+
+#### Case: Inline frontmatter carries name, description, and passthrough fields
+
+Description: Shows how inline frontmatter renders name and description from targets.agent-skill.frontmatter plus any validated passthrough field.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+      allowed-tools: Read, Grep
+---
+Static inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+allowed-tools: Read, Grep
+---
+
+Static inline body.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Inline bakes a variant's locked inputs
+
+Description: Shows how generate agent-skill <ref>#<variant> --mode=inline bakes the variant's locked-input values into the body and replaces the base argument-hint-prefix wholesale with the variant prefix.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ review/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+variants:
+  review:
+    deep:
+      locked-inputs:
+        depth: deep
+      agent-skill:
+        argument-hint-prefix: review with the deep policy
+        frontmatter:
+          name: review-deep
+          description: Review with the deep policy.
+```
+
+`.jastr/review/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    argument-hint-prefix: review with the base policy
+    frontmatter:
+      name: review-base
+      description: Review with the base policy.
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Reviewing at {{depth}} depth.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill review#deep --out out/SKILL.md --mode=inline
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: review-deep
+description: Review with the deep policy.
+argument-hint: review with the deep policy
+---
+
+Reviewing at deep depth.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/review/TEMPLATE.md`
+```
+
+</details>
+
+### GEN-FR-0029 — Template input flags are gated to inline mode
+
+Template input flags (e.g. `--target=spec`) are accepted only in inline mode. In router mode (explicit or default) supplying any template input flag is an `invalid_command` argv-shape error.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `--mode=router` (or the default) with any template input flag exits 1 with an invalid_command Error message. | ✅ `generate-inline-router-flag-rejected` |
+| AC-0002 | `--mode=inline` with a declared input flag is accepted and resolves that input into the rendered body. | ✅ `generate-inline-flag-overrides-config` |
+
+#### Case: Inline CLI flag overrides config
+
+Description: Shows how a CLI input flag overrides a config.yml value for the same input in inline mode (flags > config), confirming inline accepts template input flags.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   ├─ config.yml
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/config.yml`
+
+```yaml
+inputs:
+  demo:
+    depth: deep
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  depth:
+    type: enum
+    values: [quick, deep]
+    required: true
+---
+Depth is {{depth}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --depth=quick
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+Depth is quick.
+```
+
+**CLI output** — exit 0
+
+```console
+Generated `out/SKILL.md` from template `.jastr/demo/TEMPLATE.md`
+```
+
+</details>
+
+#### Case: Router mode rejects template input flags
+
+Description: Shows how supplying a template input flag in router mode (here the default) is an invalid_command argv-shape error before any render.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+inputs:
+  topic:
+    type: string
+    required: true
+---
+Topic is {{topic}}.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --topic=auth
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Template input flags are only valid with --mode=inline.
+```
+
+</details>
+
+### GEN-FR-0030 — Inline --check parity with mode-aware suggested-fix messages
+
+`--mode=inline --check` rebuilds the inline content in memory and byte-compares it against `--out`, writing nothing: exit 0 with the up-to-date message on an exact match, `output_stale` when bytes differ, `output_missing` when no file exists. The `output_stale` and `output_missing` suggested-fix commands name `--mode=inline` (and `--force` for stale). `--check` combined with `--force` is rejected exactly as today.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `--mode=inline --check` against a byte-matching file exits 0 with the up-to-date message and writes nothing. | ✅ `generate-inline-check-up-to-date` |
+| AC-0002 | `--mode=inline --check` against a differing file exits 1 with output_stale whose suggested-fix command names `--mode=inline` and `--force`, leaving the stale file unchanged. | ✅ `generate-inline-check-stale` |
+| AC-0003 | `--mode=inline --check` against a missing file exits 1 with output_missing whose suggested-fix command names `--mode=inline`. | ✅ `generate-inline-check-missing` |
+| AC-0004 | `--mode=inline --check --force` is rejected with `Error: --check cannot be combined with --force.` exactly as the existing combination is. | ✅ `generate-inline-check-force-conflict` |
+
+#### Case: Inline --check rejects --force
+
+Description: Shows how --mode=inline --check --force is rejected with the same invalid_command conflict message as the existing combination.
+
+Covers: AC-0004
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --check --force
+```
+
+**CLI output** — exit 1
+
+```console
+Error: --check cannot be combined with --force.
+```
+
+</details>
+
+#### Case: Inline --check reports a missing skill
+
+Description: Shows how --mode=inline --check against a missing file exits 1 with output_missing, whose suggested-fix command names --mode=inline.
+
+Covers: AC-0003
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --check
+```
+
+**CLI output** — exit 1
+
+```console
+Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md --mode=inline.
+```
+
+</details>
+
+#### Case: Inline --check reports a stale skill
+
+Description: Shows how --mode=inline --check reports a committed file whose bytes differ as stale, with a suggested-fix command naming --force and --mode=inline, leaving the stale file unchanged.
+
+Covers: AC-0002
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Stale skill
+---
+
+Old body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --check
+```
+
+**Output files**
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Stale skill
+---
+
+Old body.
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force --mode=inline.
+```
+
+</details>
+
+#### Case: Inline --check confirms an up-to-date skill
+
+Description: Shows how --mode=inline --check against a byte-matching committed file exits 0 with the up-to-date message and writes nothing.
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+├─ .jastr/
+│  └─ demo/
+│     └─ TEMPLATE.md
+└─ out/
+   └─ SKILL.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+`out/SKILL.md`
+
+```md
+---
+name: demo
+description: Demo skill
+---
+
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr generate agent-skill demo --out out/SKILL.md --mode=inline --check
+```
+
+**CLI output** — exit 0
+
+```console
+agent-skill at out/SKILL.md is up to date.
+```
+
+</details>
+
+### GEN-FR-0031 — Validate stays mode-agnostic
+
+`jastr validate <ref>` takes no `--mode` flag; `--mode` is a `generate agent-skill` concern only. Supplying `--mode` to validate is an `invalid_command` argv-shape error reported as an unknown validate option.
+
+| Criterion | Statement | Coverage |
+| --- | --- | --- |
+| AC-0001 | `validate <ref> --mode=inline` exits 1 with an invalid_command unknown-validate-option Error message. | ✅ `generate-inline-validate-mode-agnostic` |
+
+#### Case: Validate has no --mode flag
+
+Description: Shows how validate stays mode-agnostic: passing --mode to validate is rejected as an unknown validate option (invalid_command).
+
+Covers: AC-0001
+
+<details>
+<summary>Input, command & output</summary>
+
+**Local project** — ran from the project root
+
+```text
+./
+└─ .jastr/
+   └─ demo/
+      └─ TEMPLATE.md
+```
+
+`.jastr/demo/TEMPLATE.md`
+
+```md
+---
+targets:
+  agent-skill:
+    frontmatter:
+      name: demo
+      description: Demo skill
+---
+Hello inline body.
+```
+
+**Command**
+
+```console
+$ jastr validate demo --mode=inline
+```
+
+**CLI output** — exit 1
+
+```console
+Error: Unknown validate option --mode=inline.
+```
+
+</details>
+
 ## Help
 
 ### HELP-FR-0001 — CLI prints help for the program and commands
@@ -6894,7 +8448,8 @@ _No exact stdout or stderr asserted._
 Usage: jastr generate
 Template id
 #
-.md file path
+.md file
+[inputs...]
 ```
 
 </details>
@@ -6941,18 +8496,18 @@ Usage: jastr [options] [command]
 Deterministic Markdown template rendering
 
 Options:
-  -V, --version                               output the version number
-  -h, --help                                  display help for command
+  -V, --version                                           output the version number
+  -h, --help                                              display help for command
 
 Commands:
-  run <template-ref> [inputs...]              Render a Jastr template to Markdown
-  generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
-  validate <template-ref>                     Validate a Jastr template without rendering or writing output
-  add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
-  list [options]                              List installed templates and groups across the .jastr/ roots
-  remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
-  update [options] [id...]                    Refresh installed templates or groups from where they came
-  help [command]                              display help for command
+  run <template-ref> [inputs...]                          Render a Jastr template to Markdown
+  generate [options] <target> <template-ref> [inputs...]  Generate an artifact target from a Jastr template
+  validate <template-ref>                                 Validate a Jastr template without rendering or writing output
+  add [options] <repo-source> <name>                      Install a template (or group) from a git source or local path into .jastr/
+  list [options]                                          List installed templates and groups across the .jastr/ roots
+  remove [options] <id...>                                Remove installed templates or groups from a .jastr/ root
+  update [options] [id...]                                Refresh installed templates or groups from where they came
+  help [command]                                          display help for command
 ```
 
 </details>
@@ -7091,7 +8646,8 @@ _No exact stdout or stderr asserted._
 Usage: jastr generate
 Template id
 #
-.md file path
+.md file
+[inputs...]
 ```
 
 </details>
@@ -7252,18 +8808,18 @@ Usage: jastr [options] [command]
 Deterministic Markdown template rendering
 
 Options:
-  -V, --version                               output the version number
-  -h, --help                                  display help for command
+  -V, --version                                           output the version number
+  -h, --help                                              display help for command
 
 Commands:
-  run <template-ref> [inputs...]              Render a Jastr template to Markdown
-  generate [options] <target> <template-ref>  Generate an artifact target from a Jastr template
-  validate <template-ref>                     Validate a Jastr template without rendering or writing output
-  add [options] <repo-source> <name>          Install a template (or group) from a git source or local path into .jastr/
-  list [options]                              List installed templates and groups across the .jastr/ roots
-  remove [options] <id...>                    Remove installed templates or groups from a .jastr/ root
-  update [options] [id...]                    Refresh installed templates or groups from where they came
-  help [command]                              display help for command
+  run <template-ref> [inputs...]                          Render a Jastr template to Markdown
+  generate [options] <target> <template-ref> [inputs...]  Generate an artifact target from a Jastr template
+  validate <template-ref>                                 Validate a Jastr template without rendering or writing output
+  add [options] <repo-source> <name>                      Install a template (or group) from a git source or local path into .jastr/
+  list [options]                                          List installed templates and groups across the .jastr/ roots
+  remove [options] <id...>                                Remove installed templates or groups from a .jastr/ root
+  update [options] [id...]                                Refresh installed templates or groups from where they came
+  help [command]                                          display help for command
 ```
 
 </details>

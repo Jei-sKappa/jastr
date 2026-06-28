@@ -44,7 +44,12 @@ describe("jastr cli shell", () => {
       expect(generateHelp.exitCode).toBe(0);
       expect(generateHelp.stdout).toContain("Template id");
       expect(generateHelp.stdout).toContain("#");
-      expect(generateHelp.stdout).toContain(".md file path");
+      // Adding `--mode <mode>` widens the options column, so Commander wraps the
+      // template-ref description and `.md file path` spans two lines. Collapse
+      // help whitespace runs so the full phrase is still asserted.
+      expect(generateHelp.stdout.replace(/\s+/g, " ")).toContain(
+        ".md file path",
+      );
     } finally {
       await project.cleanup();
     }
@@ -58,7 +63,7 @@ describe("jastr cli shell", () => {
       expect(result.exitCode).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].",
+        "Error: Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].",
       );
     } finally {
       await project.cleanup();
