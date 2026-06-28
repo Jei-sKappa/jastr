@@ -11,5 +11,6 @@ expect:
     - "Usage: jastr generate"
     - "Template id"
     - "#"
-    - ".md file path"
+    - ".md file"
+    - "[inputs...]"
   stderr: ""

@@ -18,6 +18,7 @@ import {
   type AgentSkillTarget,
   assertAgentSkillOutputAvailable,
   buildAgentSkillContent,
+  buildInlineAgentSkillContent,
   checkAgentSkillOutput,
   readBaseArgumentHintPrefix,
   readOptionalAgentSkillFrontmatter,
@@ -129,6 +130,8 @@ export async function executeGenerate(opts: {
   out?: string;
   force: boolean;
   check: boolean;
+  mode: "router" | "inline";
+  flags: RawFlag[];
   cwd: string;
 }): Promise<string> {
   if (opts.target !== "agent-skill") {
@@ -188,21 +191,46 @@ export async function executeGenerate(opts: {
     }
   }
 
-  await renderTemplateSource({
-    source: template.source,
-    sourceId: displayPath(template, template.templatePath),
-    inputs: sampleInputsForStaticRender(schema, selectedVariant?.lockedInputs),
-    includeResolver: createFileIncludeResolver(template),
-  });
-
-  const content = buildAgentSkillContent({
-    templateRef: template.requestedTemplateRef,
-    target,
-    inputs: listUnlockedTemplateInputs(
+  let content: string;
+  if (opts.mode === "inline") {
+    // Inline mode renders the template with the real effective inputs (run's
+    // precedence) and embeds the body verbatim. The render naturally raises
+    // missing_required_input for an unresolved required input, and
+    // resolveTemplateInputs raises locked_input_flag for a flag colliding with
+    // a locked input.
+    const { inputs } = await resolveTemplateInputs({
+      template,
       schema,
-      selectedVariant?.lockedInputs ?? {},
-    ),
-  });
+      flags: opts.flags,
+    });
+    const result = await renderTemplateSource({
+      source: template.source,
+      sourceId: displayPath(template, template.templatePath),
+      inputs,
+      includeResolver: createFileIncludeResolver(template),
+    });
+    content = buildInlineAgentSkillContent({ target, body: result.markdown });
+  } else {
+    // Router mode (default): a sampled static render validates the template,
+    // then the wrapper body is built from the unlocked inputs.
+    await renderTemplateSource({
+      source: template.source,
+      sourceId: displayPath(template, template.templatePath),
+      inputs: sampleInputsForStaticRender(
+        schema,
+        selectedVariant?.lockedInputs,
+      ),
+      includeResolver: createFileIncludeResolver(template),
+    });
+    content = buildAgentSkillContent({
+      templateRef: template.requestedTemplateRef,
+      target,
+      inputs: listUnlockedTemplateInputs(
+        schema,
+        selectedVariant?.lockedInputs ?? {},
+      ),
+    });
+  }
 
   // --check rebuilds in memory and byte-compares against the committed file,
   // writing nothing. Reaching here means the template built successfully, so a
@@ -213,6 +241,7 @@ export async function executeGenerate(opts: {
       out,
       templateRef: template.requestedTemplateRef,
       content,
+      mode: opts.mode,
     });
   }
 

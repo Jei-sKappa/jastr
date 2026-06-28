@@ -577,6 +577,164 @@ Hello
     }
   });
 
+  it("writes a self-contained inline skill with the rendered body", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/guide/snippet.md",
+        "Shared snippet line.\n",
+      );
+      await writeProjectFile(
+        project.root,
+        ".jastr/guide/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: guide
+      description: Inline guide skill.
+inputs:
+  detail:
+    type: boolean
+    required: false
+    default: true
+---
+# Guide
+
+::include{path="snippet.md"}
+
+::::if{condition="\${detail}"}
+Detailed section shown.
+::::
+::::else
+Brief section shown.
+::::
+`,
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "guide",
+          "--out",
+          "out/SKILL.md",
+          "--mode=inline",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toBe(
+        "Generated `out/SKILL.md` from template `.jastr/guide/TEMPLATE.md`",
+      );
+      expect(result.stderr).toBe("");
+
+      const skill = await readProjectFile(project.root, "out/SKILL.md");
+      expect(skill.startsWith("---\n")).toBe(true);
+      expect(skill).toContain("name: guide");
+      // Body is the rendered template: include is inlined, selected branch only.
+      expect(skill).toContain("Shared snippet line.");
+      expect(skill).toContain("Detailed section shown.");
+      expect(skill).not.toContain("Brief section shown.");
+      expect(skill).not.toContain("::include");
+      expect(skill).not.toContain("::::if");
+      // No router scaffolding.
+      expect(skill).not.toContain("Run this command and follow its output");
+      expect(skill).not.toContain("jastr run guide");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("resolves a declared input flag in inline mode", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/echo/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: echo
+      description: Inline echo skill.
+inputs:
+  language:
+    type: string
+    required: true
+---
+Selected language: {{language}}
+`,
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "echo",
+          "--out",
+          "out/SKILL.md",
+          "--mode=inline",
+          "--language=typescript",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stderr).toBe("");
+      const skill = await readProjectFile(project.root, "out/SKILL.md");
+      expect(skill).toContain("Selected language: typescript");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("fails inline generation when a required input is unresolved and writes no file", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/echo/TEMPLATE.md",
+        `---
+targets:
+  agent-skill:
+    frontmatter:
+      name: echo
+      description: Inline echo skill.
+inputs:
+  language:
+    type: string
+    required: true
+---
+Selected language: {{language}}
+`,
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "echo",
+          "--out",
+          "out/SKILL.md",
+          "--mode=inline",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Required input language is missing.");
+      await expect(
+        readProjectFile(project.root, "out/SKILL.md"),
+      ).rejects.toThrow();
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("compares against variant-specific content under --check", async () => {
     const project = await createTempProject();
     try {
