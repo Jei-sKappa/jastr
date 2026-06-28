@@ -2,9 +2,27 @@
 version: 1
 status:
   approved: 260627212538Z
+  amended: 260628103921Z
 ---
 
 # Spec — backtick-quoting convention for interpolated value tokens in CLI messages
+
+> **Erratum — 260628103921Z (owner-authorized, record-backed).** The file-level
+> framing in **AC-6.2**, the **§5 "Affected surface"** parenthetical, and the
+> title of **FR-6** is **superseded**: the backtick convention now also applies
+> to the **non-Markdown** `Error:`/stdout validation and info messages emitted by
+> `packages/cli/src/targets/agent-skill.ts` (field names, the base
+> `argument-hint-prefix` config-key label, output paths, and the
+> generate/regenerate command suggestions). Only the **generated agent-skill
+> Markdown body** stays excluded — so **§3 non-scope** and **AC-6.1** are
+> unchanged and remain accurate. The original clauses below are retained and
+> annotated inline as superseded, for audit. Authorized by the thread owner and
+> backed by
+> `implementation/discussions/260628100200Z-backtick-review-findings-decision-log.md`
+> (P1); implemented in
+> `implementation/260628103624Z-agent-skill-message-quoting-implementation-report.md`
+> (commit `3ef1106`). Gap surfaced by
+> `implementation/reviews/260628085952Z-backtick-quoting-convention-implementation-review.md`.
 
 > **Decision provenance.** Every `P<N>` citation below refers to the genesis
 > decision log at
@@ -195,6 +213,10 @@ counts from the discussion survey: ~42 interpolated message lines in the engine,
 - **Pre-existing backtick sites to unify through the helper:**
   `commands.ts:203`, `install/add.ts:183`, `install/update.ts:190`.
   (`targets/agent-skill.ts` backticks are **excluded** — Markdown surface.)
+  **[Erratum 260628103921Z — superseded]** Only the *generated-Markdown body* of
+  `targets/agent-skill.ts` is excluded; the file's non-Markdown validation/info
+  messages are in scope and were backtick-quoted (decision log P1, commit
+  `3ef1106`).
 
 ## 6. Constraints
 
@@ -282,6 +304,11 @@ for the real interpolated values; the assertion is the exact rendered shape.
 - **AC-6.1** `jastr generate agent-skill … --check` still passes byte-for-byte
   against the committed wrappers (no change to generated Markdown).
 - **AC-6.2** No edit to `targets/agent-skill.ts` is made under this convention.
+  **[Erratum 260628103921Z — superseded]** This file-level assertion no longer
+  holds: the file's non-Markdown `Error:`/stdout messages were backtick-quoted as
+  a deliberate later extension (decision log P1, commit `3ef1106`). AC-6.1 (no
+  change to the generated Markdown; `--check` byte-for-byte) still holds, and the
+  generated-Markdown body remains unedited.
 
 ### FR-7 — Completeness, coverage, and the green gate
 
