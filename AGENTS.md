@@ -208,6 +208,18 @@ engine: it adds ten `JastrErrorCode` literals (`git_unavailable`, `clone_failed`
 imports no fs/child_process/network code and all command logic stays in
 `@jastr/cli`.
 
+The active CLI message backtick-quoting design thread is
+`docs/threads/260627170641Z-quote-missing-input-name/`. Its implemented v1
+contract is
+`docs/threads/260627170641Z-quote-missing-input-name/specs/001/spec.md`. It
+backtick-quotes every interpolated value token in user-facing CLI stdout/stderr
+messages (names, flags, refs, ids, paths, URLs, config-key paths, type names,
+enum values, directive snippets) via a tiny internal `quote` helper — one per
+package (`packages/engine/src/quote.ts`, `packages/cli/src/quote.ts`), neither
+exported. Wording, numerics/units, fixed vocabulary, error codes, `JastrError`
+`details` payloads, the engine public API, and the generated agent-skill Markdown
+stay untouched. CLI+engine, but no schema or `JastrErrorCode` change.
+
 Current v2 direction:
 
 - Canonical commands are `jastr run <template-ref> [input flags...]`,
@@ -378,6 +390,17 @@ Current v2 direction:
 - Error UX is uniform: every failure prints `Error: <message>` to stderr with
   exit code 1. The exit-0 informational paths are `--help`, `help [command]`,
   `--version`, and a clean `update --check` (every target already up to date).
+- CLI message quoting is uniform: every **interpolated value token** in a
+  user-facing stdout/stderr message (names, flags, refs, ids, paths, URLs,
+  config-key paths, type names, enum values, directive snippets) is
+  backtick-quoted through a tiny internal `quote` helper — one per package
+  (`packages/engine/src/quote.ts`, `packages/cli/src/quote.ts`; neither
+  exported, never hand-escape `` \` `` at a call site). Each list item is quoted
+  separately and a composite is quoted as one unit (the whole `--flag`, a
+  `ref#variant`, a dotted `inputs.<id>` key). Bare numerics/units (`5000ms`,
+  `(exit 128)`), fixed vocabulary (`required: true`, the literal `true, false`),
+  fully-literal filenames, error codes, `JastrError` `details` payloads, and the
+  generated agent-skill Markdown stay unquoted/raw.
 - `--version` prints the `@jastr/cli` package version as
   `<package version> (<git short SHA>)`, or `(dev)` when run from source/tests.
   The SHA is injected at build time via the `JASTR_GIT_SHA` define in
