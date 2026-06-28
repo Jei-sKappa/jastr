@@ -5,7 +5,7 @@ export type RawFlag =
   | { name: string; form: "value"; value: string };
 
 const expectedCommandShape =
-  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].";
+  "Expected command shape: jastr run <template-ref> [input flags...], jastr generate agent-skill <template-ref> --out <path> [--mode <router|inline>] [--check] [--force], jastr validate <template-ref>, jastr add <repo-source> <name> [--ref <ref>] [--path <subdir>] [-g], jastr list [--local] [--global], jastr remove <id>... [-g] [--force], or jastr update [<id>...] [-g] [--force] [--check].";
 
 function isHelpToken(arg: string | undefined): boolean {
   return arg === "--help" || arg === "-h";
@@ -342,6 +342,8 @@ function validateValidateArgs(rest: string[]): void {
 function validateGenerateArgs(rest: string[]): void {
   let sawCheck = false;
   let sawForce = false;
+  let mode = "router";
+  const inputFlagCandidates: string[] = [];
 
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
@@ -372,16 +374,47 @@ function validateGenerateArgs(rest: string[]): void {
       continue;
     }
 
+    if (arg === "--mode") {
+      const value = rest[index + 1];
+      if (value === undefined || value.startsWith("--")) {
+        throw new JastrError("invalid_command", "Missing value for --mode.");
+      }
+      mode = validateGenerateMode(value);
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith("--mode=")) {
+      const value = arg.slice("--mode=".length);
+      if (value === "") {
+        throw new JastrError("invalid_command", "Missing value for --mode.");
+      }
+      mode = validateGenerateMode(value);
+      continue;
+    }
+
     if (arg.startsWith("--")) {
-      throw new JastrError(
-        "invalid_command",
-        `Unknown generate option ${arg}.`,
-      );
+      // Any other `--name`/`--name=value` token is a template-input-flag
+      // candidate. It is only valid in inline mode; the gate below rejects it
+      // when the effective mode is router.
+      inputFlagCandidates.push(arg);
+      continue;
     }
 
     throw new JastrError(
       "invalid_command",
       `Invalid generate argument ${arg}.`,
+    );
+  }
+
+  // `--mode` may appear after an input flag, so the effective mode is only known
+  // after scanning the whole argv (the loop above resolves it). Gate the
+  // collected input-flag candidates against the effective mode: router rejects
+  // them, inline accepts them.
+  if (mode === "router" && inputFlagCandidates.length > 0) {
+    throw new JastrError(
+      "invalid_command",
+      "Template input flags are only valid with --mode=inline.",
     );
   }
 
@@ -394,4 +427,18 @@ function validateGenerateArgs(rest: string[]): void {
       "--check cannot be combined with --force.",
     );
   }
+}
+
+/**
+ * Validate a `--mode` value against the accepted set. Returns the value on
+ * success; throws `invalid_command` for any other value.
+ */
+function validateGenerateMode(value: string): string {
+  if (value !== "router" && value !== "inline") {
+    throw new JastrError(
+      "invalid_command",
+      `Invalid generate mode ${value}. Expected router or inline.`,
+    );
+  }
+  return value;
 }

@@ -505,6 +505,78 @@ Hello
     }
   });
 
+  it("rejects an invalid --mode value", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nBody\n",
+      );
+
+      const result = await runCli(
+        [
+          "generate",
+          "agent-skill",
+          "demo",
+          "--out=out/SKILL.md",
+          "--mode=bogus",
+        ],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toMatch(/Invalid generate mode/);
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects --mode with no value", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nBody\n",
+      );
+
+      const result = await runCli(
+        ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--mode"],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe("Error: Missing value for --mode.");
+    } finally {
+      await project.cleanup();
+    }
+  });
+
+  it("rejects template input flags in router mode", async () => {
+    const project = await createTempProject();
+    try {
+      await writeProjectFile(
+        project.root,
+        ".jastr/demo/TEMPLATE.md",
+        "---\n---\nBody\n",
+      );
+
+      const result = await runCli(
+        ["generate", "agent-skill", "demo", "--out", "x", "--target=spec"],
+        project.root,
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toMatch(/only valid with --mode=inline/);
+    } finally {
+      await project.cleanup();
+    }
+  });
+
   it("compares against variant-specific content under --check", async () => {
     const project = await createTempProject();
     try {
