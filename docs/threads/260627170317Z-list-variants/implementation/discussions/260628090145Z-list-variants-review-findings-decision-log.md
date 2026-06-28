@@ -1,0 +1,33 @@
+# Decision log — `list --variants` implementation review findings (implementation/)
+
+Thread: docs/threads/260627170317Z-list-variants/
+Target: the implementation (implementation/260628075921Z-list-variants-implementation-report.md)
+Subject: disposing the findings raised in implementation/reviews/260628084220Z-list-variants-implementation-review.md.
+
+## P1: Command-catalog usage string staleness
+
+Point: Decide how to dispose the review's Finding 1 — the CLI's command catalog still advertises `jastr list [--local] [--global]` while `AGENTS.md`/`README.md` were updated to `[--variants] [--local] [--global]`. Fix the catalog, or accept and document the divergence.
+
+What you need to know: `expectedCommandShape` (`packages/cli/src/args.ts:8`) is the global "Expected command shape: …" string printed on an unknown or empty command. Its `list` segment reads `jastr list [--local] [--global]`. It's pinned in two places — `packages/cli/test/cli-shell.test.ts:61` and `packages/cli/test/e2e/cases/unknown-command/case.yml:11` — and rendered into `packages/cli/docs/BEHAVIOR.md`. All four agree with each other; none was touched by this feature. Meanwhile `850add1` updated both `AGENTS.md` and `README.md` to `jastr list [--variants] [--local] [--global]`.
+
+The spec's Scope bullet 6 names "any `list` help/usage output ... affected by the new option," but its parenthetical names only `jastr list --help` / `jastr help list` (which Commander updates automatically). So whether this manual catalog was *meant* to be in scope is genuinely ambiguous — that is the Open Question flagged in the review.
+
+Two things settle it regardless of the spec wording: (1) the catalog isn't terse-by-convention about flags — it already enumerates `[--local] [--global]` for `list`, `[--check] [--force]` for generate, `[--ref] [--path]` for add, etc., abbreviating only the `-g`/`--global` alias, not the flag set; under that convention `--variants` belongs and omitting just this one flag is an inconsistency, not an abbreviation. (2) The human docs (AGENTS/README) already moved, so leaving the CLI's own output behind is exactly the doc-vs-reality drift this repo's AGENTS.md update rule warns against.
+
+Decision: Accept the finding and fix it in a fresh implementation pass — add `[--variants]` to the `list` segment of `expectedCommandShape` matching the README/AGENTS ordering (`jastr list [--variants] [--local] [--global]`), update the two pinned assertions (`cli-shell.test.ts:61`, `unknown-command/case.yml:11`), and regenerate `BEHAVIOR.md` via `bun run docs:cli:living`.
+
+Rationale: No sound reason to leave it. The candidate excuses all fail under scrutiny — the catalog enumerates list's other flags (so omission is an inconsistency, not deliberate terseness); reconciling a doc string the same change made stale is cleanup, not scope creep; the test/e2e churn is one line each plus a doc regen; and there is no evidence the catalog is slated for removal. The finding stays a `nit` on severity (error-path-only surface, and `jastr list --help` is already correct via Commander), but severity governs priority, not whether to fix — and since it's a cheap mechanical change bundled with this feature, now is the right time. User reached the same conclusion independently and asked only for a sanity check that nothing was being missed; nothing was.
+
+## P2: AC-0001 fixture doesn't discriminate "config.yml is not read"
+
+Point: Decide how to dispose the review's Finding 2 — AC-0001 asserts plain `jastr list` produces byte-identical output and `config.yml` is not read, but the `list-variants-default-unchanged` fixture ships a well-formed `config.yml`, so it can't tell *read-and-ignored* from *not-read*. Add a discriminating case, or leave it.
+
+What you need to know: The default-unchanged case (`packages/cli/test/e2e/cases/list-variants-default-unchanged/`) runs plain `list` with a well-formed `variants.notes` config and asserts the output is just the `notes` row. That fully verifies the byte-identical-output half of AC-0001. It cannot verify the "config.yml is not read" half, because a well-formed config produces identical behavior whether or not it's parsed. The discriminating fixture is a *malformed* `config.yml` (e.g. the unparseable `inputs: [` from `list-variants-config-unparseable`) run under plain `list`, asserting exit 0 + normal output: if plain `list` read it, it would throw `invalid_config`; passing proves non-reading.
+
+Two facts from the codebase frame the decision: (1) The "not read" property is structurally obvious — `inventoryRoot` calls `attachVariants` (the only config-reading path) solely under `if (includeVariants)`, one control-flow line. (2) This feature is what made the invariant violable: before it, `list` never touched `config.yml` at all (it's a folder-first + lock inventory), so the new `attachVariants` path is the first time `list` reads config content — "plain `list` reads config" went from impossible to one misplaced line away, and a codebase search confirmed no existing test (e2e or unit) pins plain-`list`-tolerates-broken-config (the only plain-`list`-with-config cases — `list-empty`, `list-skips-root-files`, `list-variants-default-unchanged` — all ship well-formed configs).
+
+The spec's B6 deliberately leaves some broken-config-tolerance cases unpinned (the zero-row-root no-throw), but its stated reason is fixture-resemblance to the emergent orphan/empty cases — which a plain-`list`-with-units-and-broken-config fixture does not resemble. So that under-pinning signal doesn't extend to this case.
+
+Decision: Accept the finding and add one small e2e case under `LIST-FR-0006.AC-0001` — a present `notes` unit beside a malformed `config.yml` (reuse the unparseable `inputs: [` fixture), command `["list"]` (no `--variants`), expecting exit 0 and the normal `notes`-row output. The existing default-unchanged case stays and keeps owning the byte-identical assertion; the new case owns the "not read" assertion.
+
+Rationale: This is the weaker of the two findings and a `nit` — the control flow is trivially auditable, so a reasonable reader could reject it as gold-plating. The deciding factor is regression protection: the feature itself introduced the first `list` code path that reads `config.yml`, turning a previously-impossible failure mode into a one-line-away one, and no existing test guards it. The cost is one tiny fixture mirroring an existing one. So the new case earns its keep by pinning the exact invariant this change put at risk, while the byte-identical clause remains covered by the original case. User agreed with the recommendation to add.
