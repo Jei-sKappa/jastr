@@ -1,4 +1,5 @@
 import { JastrError } from "./errors";
+import { quote } from "./quote";
 import type { TemplateInputValues, TemplateSchema } from "./schema";
 import { INPUT_NAME_PATTERN } from "./schema";
 
@@ -12,7 +13,7 @@ export function validateInterpolationReferences(
     if (!(reference in schema.inputs)) {
       throw new JastrError(
         "invalid_interpolation",
-        `Interpolation references undeclared input ${reference}.`,
+        `Interpolation references undeclared input ${quote(reference)}.`,
       );
     }
   }
@@ -30,7 +31,7 @@ export function interpolateText(
     if (!(reference in values)) {
       throw new JastrError(
         "absent_optional_interpolation",
-        `Input ${reference} is optional and was not provided for interpolation.`,
+        `Input ${quote(reference)} is optional and was not provided for interpolation.`,
       );
     }
     return String(values[reference]);
@@ -51,7 +52,7 @@ export function extractReferences(text: string): string[] {
     if (!INPUT_NAME_PATTERN.test(reference)) {
       throw new JastrError(
         "invalid_interpolation",
-        `Invalid interpolation reference ${reference}.`,
+        `Invalid interpolation reference ${quote(reference)}.`,
       );
     }
     return reference;

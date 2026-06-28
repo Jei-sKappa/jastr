@@ -131,7 +131,9 @@ Raw {{language}}
         inputs: {},
         includeResolver,
       }),
-    ).rejects.toThrow("Include cycle detected: main.md -> a.md -> main.md.");
+    ).rejects.toThrow(
+      "Include cycle detected: `main.md` -> `a.md` -> `main.md`.",
+    );
   });
 });
 
@@ -200,7 +202,7 @@ it("rejects include directives that omit path or declare unsupported attributes"
       source: '::include{root="file"}\n',
       inputs: {},
     }),
-  ).rejects.toThrow("include directive accepts path and optional root.");
+  ).rejects.toThrow("`include` directive accepts path and optional root.");
 
   await expect(
     renderTemplateSource({
@@ -208,7 +210,7 @@ it("rejects include directives that omit path or declare unsupported attributes"
       source: '::include-raw{path="raw.md" mode="text"}\n',
       inputs: {},
     }),
-  ).rejects.toThrow("include-raw directive accepts path and optional root.");
+  ).rejects.toThrow("`include-raw` directive accepts path and optional root.");
 });
 
 it("applies template defaults during render", async () => {

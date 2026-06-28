@@ -12,6 +12,7 @@ import {
   interpolateText,
   validateInterpolationReferences,
 } from "./interpolation";
+import { quote } from "./quote";
 import type { TemplateInputValues, TemplateSchema } from "./schema";
 import { validateTemplateSchema } from "./schema";
 
@@ -88,7 +89,7 @@ async function missingIncludeResolver(
 ): Promise<IncludeResolution> {
   throw new JastrError(
     "include_not_found",
-    `Include file ${request.path} was not found.`,
+    `Include file ${quote(request.path)} was not found.`,
     { includePath: request.path },
   );
 }
@@ -223,7 +224,12 @@ function detectIncludeCycle(stack: string[], nextId: string): void {
   if (existingIndex === -1) return;
 
   const chain = [...stack.slice(existingIndex), nextId].join(" -> ");
-  throw new JastrError("include_cycle", `Include cycle detected: ${chain}.`, {
-    chain,
-  });
+  const quotedChain = [...stack.slice(existingIndex), nextId]
+    .map(quote)
+    .join(" -> ");
+  throw new JastrError(
+    "include_cycle",
+    `Include cycle detected: ${quotedChain}.`,
+    { chain },
+  );
 }

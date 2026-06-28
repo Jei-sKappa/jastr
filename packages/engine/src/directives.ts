@@ -7,6 +7,7 @@ import {
   validateConditionInputs,
 } from "./conditions";
 import { JastrError } from "./errors";
+import { quote } from "./quote";
 import type { TemplateSchema } from "./schema";
 
 export type TextNode = { type: "text"; value: string };
@@ -85,7 +86,7 @@ export function scanDirectives(body: string): TemplateDocument {
       if (!hasOnlySupportedKeys || !attrs.path) {
         throw new JastrError(
           "invalid_directive",
-          `${opening.name} directive accepts path and optional root.`,
+          `${quote(opening.name)} directive accepts path and optional root.`,
         );
       }
       pendingGroups.delete(targetNodes(stack, root));
@@ -102,7 +103,7 @@ export function scanDirectives(body: string): TemplateDocument {
       if (Object.keys(attrs).length !== 1 || !attrs.condition) {
         throw new JastrError(
           "invalid_directive",
-          `${opening.name} directive requires condition.`,
+          `${quote(opening.name)} directive requires condition.`,
         );
       }
     } else if (Object.keys(attrs).length !== 0) {
@@ -130,7 +131,7 @@ export function scanDirectives(body: string): TemplateDocument {
     ) {
       throw new JastrError(
         "invalid_directive",
-        `${opening.name} directive must immediately follow an if or else-if branch.`,
+        `${quote(opening.name)} directive must immediately follow an if or else-if branch.`,
       );
     }
 
@@ -147,7 +148,7 @@ export function scanDirectives(body: string): TemplateDocument {
     if (!condition) {
       throw new JastrError(
         "invalid_directive",
-        `${opening.name} directive requires condition.`,
+        `${quote(opening.name)} directive requires condition.`,
       );
     }
 
@@ -215,7 +216,7 @@ function appendBranch(
   if (!group) {
     throw new JastrError(
       "invalid_directive",
-      `${container.name} directive must immediately follow an if or else-if branch.`,
+      `${quote(container.name)} directive must immediately follow an if or else-if branch.`,
     );
   }
 
@@ -263,7 +264,7 @@ function parseDirectiveOpening(line: string):
   if (!fence || !rawName || rawRest === undefined) {
     throw new JastrError(
       "invalid_directive",
-      `Invalid directive syntax ${line.trim()}.`,
+      `Invalid directive syntax ${quote(line.trim())}.`,
     );
   }
 
@@ -273,7 +274,7 @@ function parseDirectiveOpening(line: string):
   if (rest !== "" && !(rest.startsWith("{") && rest.endsWith("}"))) {
     throw new JastrError(
       "invalid_directive",
-      `Invalid directive attributes ${rest}.`,
+      `Invalid directive attributes ${quote(rest)}.`,
     );
   }
 
@@ -281,13 +282,13 @@ function parseDirectiveOpening(line: string):
   if (isLeaf && fenceLength !== 2) {
     throw new JastrError(
       "invalid_directive",
-      `${name} is a leaf directive and must start with exactly two colons (::${name}).`,
+      `${quote(name)} is a leaf directive and must start with exactly two colons (${quote(`::${name}`)}).`,
     );
   }
   if (!isLeaf && fenceLength < 3) {
     throw new JastrError(
       "invalid_directive",
-      `${name} is a container directive and must start with three or more colons (:::${name}).`,
+      `${quote(name)} is a container directive and must start with three or more colons (${quote(`:::${name}`)}).`,
     );
   }
 
@@ -313,7 +314,7 @@ function parseAttributes(source: string): Record<string, string> {
     if (!match) {
       throw new JastrError(
         "invalid_directive",
-        `Invalid directive attributes ${source}.`,
+        `Invalid directive attributes ${quote(source)}.`,
       );
     }
     const key = match[1];
@@ -321,7 +322,7 @@ function parseAttributes(source: string): Record<string, string> {
     if (!key || value === undefined) {
       throw new JastrError(
         "invalid_directive",
-        `Invalid directive attributes ${source}.`,
+        `Invalid directive attributes ${quote(source)}.`,
       );
     }
     attributes[key] = value.replace(/\\"/g, '"');

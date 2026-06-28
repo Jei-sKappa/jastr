@@ -1,4 +1,5 @@
 import { JastrError } from "./errors";
+import { quote } from "./quote";
 import type { TemplateInputValues, TemplateSchema } from "./schema";
 import { validateInputName } from "./schema";
 
@@ -39,7 +40,7 @@ export function validateConditionInputs(
     if (!(name in schema.inputs)) {
       throw new JastrError(
         "undeclared_condition_input",
-        `Condition references undeclared input ${name}.`,
+        `Condition references undeclared input ${quote(name)}.`,
       );
     }
   }
@@ -194,24 +195,26 @@ function tokenize(source: string): Token[] {
 function readString(
   source: string,
   start: number,
-  quote: string,
+  quoteChar: string,
 ): [string, number] {
   let value = "";
   let index = start + 1;
 
   while (index < source.length) {
     const char = source.charAt(index);
-    if (char === quote) {
+    if (char === quoteChar) {
       return [value, index + 1];
     }
     if (char === "\\") {
       const escaped = source[index + 1];
-      if (escaped === quote || escaped === "\\") {
+      if (escaped === quoteChar || escaped === "\\") {
         value += escaped;
         index += 2;
         continue;
       }
-      throw conditionError(`Unsupported escape \\${escaped ?? ""}.`);
+      throw conditionError(
+        `Unsupported escape ${quote(`\\${escaped ?? ""}`)}.`,
+      );
     }
     value += char;
     index += 1;
@@ -232,7 +235,7 @@ class Parser {
   expectEof(): void {
     const token = this.peek();
     if (token.type !== "eof") {
-      throw conditionError(`Unexpected token ${tokenValue(token)}.`);
+      throw conditionError(`Unexpected token ${quote(tokenValue(token))}.`);
     }
   }
 
@@ -315,7 +318,7 @@ class Parser {
     ) {
       throw conditionError("Expected ${input-name} reference.");
     }
-    throw conditionError(`Unexpected token ${tokenValue(token)}.`);
+    throw conditionError(`Unexpected token ${quote(tokenValue(token))}.`);
   }
 
   private matchOperator(operator: "!" | "==" | "!=" | "&&" | "||"): boolean {
