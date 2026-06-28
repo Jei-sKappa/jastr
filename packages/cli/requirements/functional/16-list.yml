@@ -104,3 +104,25 @@
   acceptance:
     - id: AC-0001
       statement: For a group whose config.yml defines variants for a member ref (variants.<group>/<member>), those variants render nested under the member line, and the group aggregate row itself shows no direct variant children.
+
+- id: LIST-FR-0008
+  title: '`list --variants` validates consumed config and fails loudly'
+  status: active
+  description: >
+    Under `--variants`, the `config.yml` that `list` reads for variant data is
+    validated through the existing `invalid_config` path, reusing the exact same
+    error codes and messages as the rest of the CLI. The check is row-scoped:
+    only a root that has at least one present, runnable row is consulted, and a
+    ref's `variants.<ref>` shape is inspected only when that ref matches a
+    present runnable row. An unparseable `config.yml`, a non-mapping top-level
+    `variants` section, or a non-mapping `variants.<ref>` for a consulted ref
+    each fails the command with `invalid_config` and the established stable
+    message. Error UX is uniform: `Error: <message>` on stderr, exit 1, empty
+    stdout.
+  acceptance:
+    - id: AC-0001
+      statement: '`jastr list --variants` against a root with a present runnable unit and an unparseable config.yml fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml could not be parsed.`'
+    - id: AC-0002
+      statement: '`jastr list --variants` against a root with a present runnable unit and a non-mapping top-level `variants` section fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml variants must be a mapping.`'
+    - id: AC-0003
+      statement: '`jastr list --variants` against a root with a present runnable ref whose `variants.<ref>` is not a mapping fails with exit 1, empty stdout, and stderr `Error: .jastr/config.yml variants.<ref> must be a mapping.` (e.g. `variants.notes`).'

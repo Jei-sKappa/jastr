@@ -1,0 +1,13 @@
+id: list-variants-config-unparseable
+covers:
+  - LIST-FR-0008.AC-0001
+title: list --variants rejects an unparseable config.yml
+description: >
+  A root holds a present, runnable standalone `notes` unit beside an unparseable
+  `config.yml`. Because a present runnable row exists, `--variants` consults the
+  config, which fails to parse and surfaces the stable invalid_config message.
+command: ["list", "--variants"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml could not be parsed.\n"

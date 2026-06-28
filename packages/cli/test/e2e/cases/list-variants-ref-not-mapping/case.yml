@@ -1,0 +1,14 @@
+id: list-variants-ref-not-mapping
+covers:
+  - LIST-FR-0008.AC-0003
+title: list --variants rejects a non-mapping variants.<ref>
+description: >
+  A root holds a present, runnable standalone `notes` unit beside a `config.yml`
+  whose `variants.notes` entry is a scalar, not a mapping. Because `notes`
+  matches the present runnable row, `--variants` looks it up and rejects it with
+  the stable invalid_config message naming the ref.
+command: ["list", "--variants"]
+expect:
+  exitCode: 1
+  stdout: ""
+  stderr: "Error: .jastr/config.yml variants.notes must be a mapping.\n"
