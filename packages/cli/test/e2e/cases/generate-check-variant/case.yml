@@ -7,5 +7,5 @@ description: Shows how --check compares against the variant-specific wrapper (me
 command: ["generate", "agent-skill", "review#deep", "--out", "out/SKILL.md", "--check"]
 expect:
   exitCode: 0
-  stdout: "agent-skill at out/SKILL.md is up to date."
+  stdout: "agent-skill at `out/SKILL.md` is up to date."
   stderr: ""

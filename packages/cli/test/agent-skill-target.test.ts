@@ -326,13 +326,13 @@ describe("Agent Skill target metadata", () => {
     );
     expect(() =>
       validateAgentSkillTarget({ name: "valid", description: "Valid" }),
-    ).toThrow("Unknown targets.agent-skill field name.");
+    ).toThrow("Unknown targets.agent-skill field `name`.");
     expect(() =>
       validateAgentSkillTarget({
         frontmatter: { name: "valid", description: "Valid" },
         extra: true,
       }),
-    ).toThrow("Unknown targets.agent-skill field extra.");
+    ).toThrow("Unknown targets.agent-skill field `extra`.");
     expect(() => validateAgentSkillTarget({})).toThrow(
       "targets.agent-skill.frontmatter is required and must be a mapping.",
     );
@@ -354,7 +354,7 @@ describe("Agent Skill target metadata", () => {
       validateAgentSkillTarget({
         frontmatter: { name: "valid", description: "Valid", inputs: {} },
       }),
-    ).toThrow("targets.agent-skill.frontmatter must not declare inputs.");
+    ).toThrow("targets.agent-skill.frontmatter must not declare `inputs`.");
     expect(() =>
       validateAgentSkillTarget({
         frontmatter: {
@@ -364,7 +364,7 @@ describe("Agent Skill target metadata", () => {
         },
       }),
     ).toThrow(
-      "targets.agent-skill.frontmatter.metadata field owner must be a string.",
+      "targets.agent-skill.frontmatter.metadata field `owner` must be a string.",
     );
   });
 
@@ -378,7 +378,7 @@ describe("Agent Skill target metadata", () => {
         },
       }),
     ).toThrow(
-      "targets.agent-skill.frontmatter must not declare argument-hint.",
+      "targets.agent-skill.frontmatter must not declare `argument-hint`.",
     );
   });
 });

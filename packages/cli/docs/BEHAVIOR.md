@@ -3872,7 +3872,7 @@ existing
 **CLI output** — exit 1
 
 ```console
-Error: Output file out/SKILL.md already exists. Use --force to overwrite it.
+Error: Output file `out/SKILL.md` already exists. Use --force to overwrite it.
 ```
 
 </details>
@@ -4203,7 +4203,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.frontmatter field customField must be kebab-case.
+Error: targets.agent-skill.frontmatter field `customField` must be kebab-case.
 ```
 
 </details>
@@ -4954,7 +4954,7 @@ $ jastr generate agent-skill demo --out out/SKILL.md --check
 **CLI output** — exit 0
 
 ```console
-agent-skill at out/SKILL.md is up to date.
+agent-skill at `out/SKILL.md` is up to date.
 ```
 
 </details>
@@ -5047,7 +5047,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 1
 
 ```console
-Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.
+Error: Generated agent-skill at `out/SKILL.md` is stale; regenerate it with `jastr generate agent-skill demo --out out/SKILL.md --force`.
 ```
 
 </details>
@@ -5101,7 +5101,7 @@ $ jastr generate agent-skill demo --out out/SKILL.md --check
 **CLI output** — exit 1
 
 ```console
-Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md.
+Error: No agent-skill found at `out/SKILL.md` to check; generate it with `jastr generate agent-skill demo --out out/SKILL.md`.
 ```
 
 </details>
@@ -5310,7 +5310,7 @@ $ jastr generate agent-skill review#deep --out out/SKILL.md --check
 **CLI output** — exit 0
 
 ```console
-agent-skill at out/SKILL.md is up to date.
+agent-skill at `out/SKILL.md` is up to date.
 ```
 
 </details>
@@ -6100,7 +6100,7 @@ If the command exits non-zero, report the exact error output to the user and sto
 **CLI output** — exit 1
 
 ```console
-Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.
+Error: Generated agent-skill at `out/SKILL.md` is stale; regenerate it with `jastr generate agent-skill demo --out out/SKILL.md --force`.
 ```
 
 </details>
@@ -6178,7 +6178,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md --check
 **CLI output** — exit 0
 
 ```console
-agent-skill at out/SKILL.md is up to date.
+agent-skill at `out/SKILL.md` is up to date.
 ```
 
 </details>
@@ -6538,7 +6538,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.argument-hint-prefix must not be empty or whitespace-only.
+Error: `targets.agent-skill.argument-hint-prefix` must not be empty or whitespace-only.
 ```
 
 </details>
@@ -6588,7 +6588,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.argument-hint-prefix must be a single line.
+Error: `targets.agent-skill.argument-hint-prefix` must be a single line.
 ```
 
 </details>
@@ -6638,7 +6638,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.argument-hint-prefix must be a string.
+Error: `targets.agent-skill.argument-hint-prefix` must be a string.
 ```
 
 </details>
@@ -6754,7 +6754,7 @@ $ jastr generate agent-skill demo --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.frontmatter must not declare argument-hint.
+Error: targets.agent-skill.frontmatter must not declare `argument-hint`.
 ```
 
 </details>
@@ -10239,7 +10239,7 @@ $ jastr generate agent-skill review#deep --out=out/SKILL.md
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.frontmatter must not declare argument-hint.
+Error: targets.agent-skill.frontmatter must not declare `argument-hint`.
 ```
 
 </details>
@@ -11439,7 +11439,7 @@ $ jastr validate demo
 **CLI output** — exit 1
 
 ```console
-Error: targets.agent-skill.argument-hint-prefix must be a single line.
+Error: `targets.agent-skill.argument-hint-prefix` must be a single line.
 ```
 
 </details>
@@ -12972,7 +12972,7 @@ $ jastr generate agent-skill demo --out out/SKILL.md --check
 **CLI output** — exit 0
 
 ```console
-agent-skill at out/SKILL.md is up to date.
+agent-skill at `out/SKILL.md` is up to date.
 ```
 
 </details>

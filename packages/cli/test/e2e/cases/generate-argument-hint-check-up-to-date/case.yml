@@ -8,5 +8,5 @@ description: >
 command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md", "--check"]
 expect:
   exitCode: 0
-  stdout: "agent-skill at out/SKILL.md is up to date."
+  stdout: "agent-skill at `out/SKILL.md` is up to date."
   stderr: ""

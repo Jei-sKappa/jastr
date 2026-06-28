@@ -7,6 +7,7 @@ import {
   type TemplateInputDefinition,
 } from "@jastr/engine";
 import YAML from "yaml";
+import { quote } from "../quote";
 
 const AGENT_SKILL_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const FRONTMATTER_FIELD_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -62,13 +63,16 @@ export function readBaseArgumentHintPrefix(value: unknown): string | undefined {
   return validateArgumentHintPrefix(
     prefix,
     "invalid_target_metadata",
-    "targets.agent-skill.argument-hint-prefix",
+    quote("targets.agent-skill.argument-hint-prefix"),
   );
 }
 
 // Shared prefix validation for the base directive
 // (`invalid_target_metadata`) and the variant directive (`invalid_config`).
-// Returns the trimmed prefix on success.
+// `label` is interpolated raw into the message, so callers pass it already
+// backtick-quoted per the message-quoting convention (the base path quotes the
+// whole config-key token; the variant path quotes the key inside a longer
+// `.jastr/config.yml …` label). Returns the trimmed prefix on success.
 export function validateArgumentHintPrefix(
   value: unknown,
   errorCode: JastrErrorCode,
@@ -102,7 +106,7 @@ function readAgentSkillFrontmatter(value: unknown): Record<string, unknown> {
     if (!AGENT_SKILL_TARGET_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_target_metadata",
-        `Unknown targets.agent-skill field ${field}.`,
+        `Unknown targets.agent-skill field ${quote(field)}.`,
         { field },
       );
     }
@@ -170,7 +174,7 @@ function collectPassthroughFrontmatter(
     if (RESERVED_FRONTMATTER_FIELDS.has(field)) {
       throw new JastrError(
         "invalid_target_metadata",
-        `targets.agent-skill.frontmatter must not declare ${field}.`,
+        `targets.agent-skill.frontmatter must not declare ${quote(field)}.`,
         { field },
       );
     }
@@ -184,7 +188,7 @@ function validateFrontmatterField(field: string, value: unknown): void {
   if (!FRONTMATTER_FIELD_PATTERN.test(field)) {
     throw new JastrError(
       "invalid_target_metadata",
-      `targets.agent-skill.frontmatter field ${field} must be kebab-case.`,
+      `targets.agent-skill.frontmatter field ${quote(field)} must be kebab-case.`,
       { field },
     );
   }
@@ -229,7 +233,7 @@ function validateMetadata(value: unknown): void {
     if (typeof metadataValue !== "string") {
       throw new JastrError(
         "invalid_target_metadata",
-        `targets.agent-skill.frontmatter.metadata field ${field} must be a string.`,
+        `targets.agent-skill.frontmatter.metadata field ${quote(field)} must be a string.`,
         { field },
       );
     }
@@ -401,7 +405,7 @@ export async function assertAgentSkillOutputAvailable(options: {
   if (await exists(resolveOutputPath(options.cwd, options.out))) {
     throw new JastrError(
       "output_exists",
-      `Output file ${options.out} already exists. Use --force to overwrite it.`,
+      `Output file ${quote(options.out)} already exists. Use --force to overwrite it.`,
       { out: options.out },
     );
   }
@@ -435,7 +439,7 @@ export async function checkAgentSkillOutput(options: {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new JastrError(
         "output_missing",
-        `No agent-skill found at ${options.out} to check; generate it with jastr generate agent-skill ${options.templateRef} --out ${options.out}.`,
+        `No agent-skill found at ${quote(options.out)} to check; generate it with ${quote(`jastr generate agent-skill ${options.templateRef} --out ${options.out}`)}.`,
         { out: options.out },
       );
     }
@@ -445,12 +449,12 @@ export async function checkAgentSkillOutput(options: {
   if (!existing.equals(Buffer.from(options.content, "utf8"))) {
     throw new JastrError(
       "output_stale",
-      `Generated agent-skill at ${options.out} is stale; regenerate it with jastr generate agent-skill ${options.templateRef} --out ${options.out} --force.`,
+      `Generated agent-skill at ${quote(options.out)} is stale; regenerate it with ${quote(`jastr generate agent-skill ${options.templateRef} --out ${options.out} --force`)}.`,
       { out: options.out },
     );
   }
 
-  return `agent-skill at ${options.out} is up to date.`;
+  return `agent-skill at ${quote(options.out)} is up to date.`;
 }
 
 function expectString(value: unknown, message: string): string {

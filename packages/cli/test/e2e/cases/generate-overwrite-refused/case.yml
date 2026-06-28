@@ -8,6 +8,6 @@ command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: Output file out/SKILL.md already exists. Use --force to overwrite it.\n"
+  stderr: "Error: Output file `out/SKILL.md` already exists. Use --force to overwrite it.\n"
   files:
     out/SKILL.md: expected/files/out/SKILL.md

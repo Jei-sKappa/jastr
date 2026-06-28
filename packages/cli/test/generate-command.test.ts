@@ -113,7 +113,7 @@ Review
       );
       expect(blocked.exitCode).toBe(1);
       expect(blocked.stderr).toBe(
-        "Error: Output file out/SKILL.md already exists. Use --force to overwrite it.",
+        "Error: Output file `out/SKILL.md` already exists. Use --force to overwrite it.",
       );
       await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
         "existing",
@@ -388,7 +388,9 @@ Hello
       );
 
       expect(checked.exitCode).toBe(0);
-      expect(checked.stdout).toBe("agent-skill at out/SKILL.md is up to date.");
+      expect(checked.stdout).toBe(
+        "agent-skill at `out/SKILL.md` is up to date.",
+      );
       expect(checked.stderr).toBe("");
       await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
         before,
@@ -431,7 +433,7 @@ Hello
       expect(checked.exitCode).toBe(1);
       expect(checked.stdout).toBe("");
       expect(checked.stderr).toBe(
-        "Error: Generated agent-skill at out/SKILL.md is stale; regenerate it with jastr generate agent-skill demo --out out/SKILL.md --force.",
+        "Error: Generated agent-skill at `out/SKILL.md` is stale; regenerate it with `jastr generate agent-skill demo --out out/SKILL.md --force`.",
       );
       await expect(readProjectFile(project.root, "out/SKILL.md")).resolves.toBe(
         `${fresh}\n`,
@@ -466,7 +468,7 @@ Hello
       expect(checked.exitCode).toBe(1);
       expect(checked.stdout).toBe("");
       expect(checked.stderr).toBe(
-        "Error: No agent-skill found at out/SKILL.md to check; generate it with jastr generate agent-skill demo --out out/SKILL.md.",
+        "Error: No agent-skill found at `out/SKILL.md` to check; generate it with `jastr generate agent-skill demo --out out/SKILL.md`.",
       );
       await expect(
         readProjectFile(project.root, "out/SKILL.md"),
@@ -562,7 +564,9 @@ Review {{depth}} {{language}}
       );
 
       expect(checked.exitCode).toBe(0);
-      expect(checked.stdout).toBe("agent-skill at out/SKILL.md is up to date.");
+      expect(checked.stdout).toBe(
+        "agent-skill at `out/SKILL.md` is up to date.",
+      );
       expect(checked.stderr).toBe("");
     } finally {
       await project.cleanup();

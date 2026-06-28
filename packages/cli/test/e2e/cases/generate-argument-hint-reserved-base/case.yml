@@ -9,4 +9,4 @@ command: ["generate", "agent-skill", "demo", "--out=out/SKILL.md"]
 expect:
   exitCode: 1
   stdout: ""
-  stderr: "Error: targets.agent-skill.frontmatter must not declare argument-hint.\n"
+  stderr: "Error: targets.agent-skill.frontmatter must not declare `argument-hint`.\n"
