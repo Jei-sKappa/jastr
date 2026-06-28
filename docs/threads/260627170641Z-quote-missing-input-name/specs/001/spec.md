@@ -3,6 +3,7 @@ version: 1
 status:
   approved: 260627212538Z
   amended: 260628103921Z
+  implemented: 260628104427Z
 ---
 
 # Spec — backtick-quoting convention for interpolated value tokens in CLI messages
