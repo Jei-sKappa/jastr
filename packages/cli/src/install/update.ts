@@ -3,6 +3,7 @@ import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import { formatCliError } from "../errors";
 import { resolveRemoveRoot } from "../fs/project-root";
+import { quote } from "../quote";
 import type { GitRunner } from "./git";
 import { hashUnitDir } from "./hash";
 import {
@@ -109,7 +110,7 @@ export async function executeUpdate(
 
   // Bare update with nothing tracked: explicit nothing-to-update success.
   if (opts.ids.length === 0 && trackedIds.length === 0) {
-    emitOut(`Nothing to update in the ${scope} root.`);
+    emitOut(`Nothing to update in the ${quote(scope)} root.`);
     return { ok: true };
   }
 
@@ -170,7 +171,7 @@ async function updateOne(args: {
   if (entry === undefined) {
     throw new JastrError(
       "not_installed",
-      `${id} is not installed in the ${scope} root.`,
+      `${quote(id)} is not installed in the ${quote(scope)} root.`,
       { name: id },
     );
   }
@@ -187,7 +188,7 @@ async function updateOne(args: {
   if (!(await pathExists(destDir))) {
     throw new JastrError(
       "update_available",
-      `${id} is tracked but its unit directory is missing at ${displayDestDir(id)}; re-add it with \`jastr add\`.`,
+      `${quote(id)} is tracked but its unit directory is missing at ${quote(displayDestDir(id))}; re-add it with ${quote("jastr add")}.`,
       { name: id },
     );
   }
@@ -218,7 +219,10 @@ async function updateOne(args: {
 
     // upstream == stored → up to date, no change.
     if (upstreamHash === storedHash) {
-      return { line: `${id} is up to date [${scope}].`, clean: true };
+      return {
+        line: `${quote(id)} is up to date [${quote(scope)}].`,
+        clean: true,
+      };
     }
 
     // upstream != stored, disk != stored, disk == upstream → interrupted prior
@@ -237,7 +241,7 @@ async function updateOne(args: {
         commit: acquired.provenance.commit,
       });
       return {
-        line: `${id} reconciled to ${commitTransition(entry.commit, acquired.provenance.commit)} [${scope}].`,
+        line: `${quote(id)} reconciled to ${commitTransition(entry.commit, acquired.provenance.commit)} [${quote(scope)}].`,
         clean: true,
       };
     }
@@ -247,7 +251,7 @@ async function updateOne(args: {
     if (locallyModified && !force) {
       throw new JastrError(
         "local_modifications",
-        `${id} has local modifications at ${displayDestDir(id)}; re-run with --force to overwrite it.`,
+        `${quote(id)} has local modifications at ${quote(displayDestDir(id))}; re-run with --force to overwrite it.`,
         { name: id },
       );
     }
@@ -292,7 +296,7 @@ async function updateOne(args: {
       commit: acquired.provenance.commit,
     });
     return {
-      line: `Updated ${id} ${commitTransition(entry.commit, acquired.provenance.commit)} [${scope}].`,
+      line: `Updated ${quote(id)} ${commitTransition(entry.commit, acquired.provenance.commit)} [${quote(scope)}].`,
       clean: true,
     };
   } finally {
@@ -305,7 +309,7 @@ async function updateOne(args: {
 function stale(id: string, scope: "local" | "global"): JastrError {
   return new JastrError(
     "update_available",
-    `${id} is not up to date in the ${scope} root.`,
+    `${quote(id)} is not up to date in the ${quote(scope)} root.`,
     { name: id },
   );
 }
@@ -363,7 +367,9 @@ export function commitTransition(
   if (before === undefined && after === undefined) {
     return `(${UNVERSIONED})`;
   }
-  return `(${before ?? UNVERSIONED} -> ${after ?? UNVERSIONED})`;
+  const beforeDisplay = before !== undefined ? quote(before) : UNVERSIONED;
+  const afterDisplay = after !== undefined ? quote(after) : UNVERSIONED;
+  return `(${beforeDisplay} -> ${afterDisplay})`;
 }
 
 /** Length of the short commit rendered in an outcome line (full SHAs are 40). */

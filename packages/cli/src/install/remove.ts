@@ -2,6 +2,7 @@ import { lstat } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import { resolveRemoveRoot } from "../fs/project-root";
+import { quote } from "../quote";
 import { hashUnitDir } from "./hash";
 import {
   type LockEntry,
@@ -95,7 +96,7 @@ async function removeOne(args: {
       // Untracked: present on disk, no lock entry → author-written. Never delete.
       throw new JastrError(
         "not_jastr_installed",
-        `${displayDestDir(id)} exists but was not jastr-installed; remove it by hand if you meant to delete author work.`,
+        `${quote(displayDestDir(id))} exists but was not jastr-installed; remove it by hand if you meant to delete author work.`,
         { name: id },
       );
     }
@@ -111,7 +112,7 @@ async function removeOne(args: {
     // Drift: tracked, but the unit directory is already gone. Drop the stale
     // entry (no unit to delete).
     await dropEntry(root, lock, id);
-    return `Cleaned stale entry ${id} [${scope}].`;
+    return `Cleaned stale entry ${quote(id)} [${quote(scope)}].`;
   }
 
   if (!force) {
@@ -120,7 +121,7 @@ async function removeOne(args: {
     if (diskHash !== entry.hash) {
       throw new JastrError(
         "local_modifications",
-        `${id} has local modifications at ${displayDestDir(id)}; re-run with --force to remove it anyway.`,
+        `${quote(id)} has local modifications at ${quote(displayDestDir(id))}; re-run with --force to remove it anyway.`,
         { name: id },
       );
     }
@@ -130,7 +131,7 @@ async function removeOne(args: {
   // lock atomically (crash order, §5.1).
   await removeUnit(destDir);
   await dropEntry(root, lock, id);
-  return `Removed ${id} (was ${sourceRef(entry)}) [${scope}].`;
+  return `Removed ${quote(id)} (was ${quote(sourceRef(entry))}) [${quote(scope)}].`;
 }
 
 /**
@@ -154,13 +155,13 @@ async function notInstalledError(args: {
         : `it is installed in the local root — re-run without -g to remove it.`;
     return new JastrError(
       "not_installed",
-      `${id} is not installed in the ${scope} root; ${hint}`,
+      `${quote(id)} is not installed in the ${quote(scope)} root; ${hint}`,
       { name: id },
     );
   }
   return new JastrError(
     "not_installed",
-    `${id} is not installed in the ${scope} root.`,
+    `${quote(id)} is not installed in the ${quote(scope)} root.`,
     { name: id },
   );
 }

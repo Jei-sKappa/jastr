@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
+import { quote } from "../quote";
 
 /**
  * One tracked install's provenance. `source` is the as-typed source string
@@ -71,18 +72,21 @@ export async function readLock(projectRoot: string): Promise<LockFile> {
   } catch {
     throw new JastrError(
       "invalid_lock",
-      `${file} is not valid JSON (it may contain unresolved merge conflict markers); resolve it by hand.`,
+      `${quote(file)} is not valid JSON (it may contain unresolved merge conflict markers); resolve it by hand.`,
     );
   }
 
   if (!isPlainObject(parsed)) {
-    throw new JastrError("invalid_lock", `${file} must be a JSON object.`);
+    throw new JastrError(
+      "invalid_lock",
+      `${quote(file)} must be a JSON object.`,
+    );
   }
 
   if (parsed.version !== LOCK_VERSION) {
     throw new JastrError(
       "invalid_lock",
-      `${file} has an unsupported version (expected ${LOCK_VERSION}).`,
+      `${quote(file)} has an unsupported version (expected ${LOCK_VERSION}).`,
     );
   }
 
@@ -90,7 +94,7 @@ export async function readLock(projectRoot: string): Promise<LockFile> {
   if (templates !== undefined && !isPlainObject(templates)) {
     throw new JastrError(
       "invalid_lock",
-      `${file} "templates" must be an object keyed by installed id.`,
+      `${quote(file)} ${quote("templates")} must be an object keyed by installed id.`,
     );
   }
 
@@ -134,7 +138,7 @@ export function validateLockEntry(
 
   for (const key of Object.keys(entry)) {
     if (!ENTRY_KEYS.has(key)) {
-      throw invalidEntry(id, `has an unknown field "${key}"`);
+      throw invalidEntry(id, `has an unknown field ${quote(key)}`);
     }
   }
 
@@ -148,13 +152,16 @@ export function validateLockEntry(
   assertOptionalString(id, entry, "commit");
 
   if (entry.kind !== "standalone" && entry.kind !== "group") {
-    throw invalidEntry(id, `"kind" must be "standalone" or "group"`);
+    throw invalidEntry(
+      id,
+      `${quote("kind")} must be ${quote("standalone")} or ${quote("group")}`,
+    );
   }
 
   if (typeof entry.path === "string" && !isSafeRelativeSubpath(entry.path)) {
     throw invalidEntry(
       id,
-      `"path" must be a relative subpath (not absolute, no "..")`,
+      `${quote("path")} must be a relative subpath (not absolute, no ${quote("..")})`,
     );
   }
 }
@@ -215,7 +222,7 @@ export async function writeLock(
 function invalidEntry(id: string, reason: string): JastrError {
   return new JastrError(
     "invalid_lock",
-    `lock entry "${id}" is invalid: it ${reason}.`,
+    `lock entry ${quote(id)} is invalid: it ${reason}.`,
   );
 }
 
@@ -227,7 +234,7 @@ function assertNonEmptyString(
 ): void {
   const value = entry[key];
   if (typeof value !== "string" || value.length === 0) {
-    throw invalidEntry(id, `is missing a non-empty "${key}" string`);
+    throw invalidEntry(id, `is missing a non-empty ${quote(key)} string`);
   }
 }
 
@@ -239,7 +246,7 @@ function assertOptionalString(
 ): void {
   const value = entry[key];
   if (value !== undefined && typeof value !== "string") {
-    throw invalidEntry(id, `has a non-string "${key}"`);
+    throw invalidEntry(id, `has a non-string ${quote(key)}`);
   }
 }
 

@@ -2,6 +2,7 @@ import { lstat, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { JastrError } from "@jastr/engine";
 import { resolveAddDestination } from "../fs/project-root";
+import { quote } from "../quote";
 import type { GitRunner } from "./git";
 import { hashUnitDir } from "./hash";
 import {
@@ -150,7 +151,7 @@ async function assertRegularSourceUnit(args: {
       const display = path.posix.join(args.source, relative);
       throw new JastrError(
         "unsupported_source_entry",
-        `${display} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
+        `${quote(display)} is not a regular file or directory (symlinks and special files are not allowed in a source unit).`,
         { path: display },
       );
     }
@@ -180,13 +181,13 @@ async function assertDestinationAvailable(args: {
   if (tracked) {
     throw new JastrError(
       "destination_exists",
-      `${id} is already installed at ${where}; run \`jastr update ${id}\` to refresh it.`,
+      `${quote(id)} is already installed at ${quote(where)}; run ${quote(`jastr update ${id}`)} to refresh it.`,
       { name: id },
     );
   }
   throw new JastrError(
     "destination_exists",
-    `${where} already exists and was not jastr-installed; delete it by hand before adding ${id}.`,
+    `${quote(where)} already exists and was not jastr-installed; delete it by hand before adding ${quote(id)}.`,
     { name: id },
   );
 }
@@ -282,16 +283,16 @@ function formatInstalledLine(args: {
 }): string {
   const { unit, provenance, scope } = args;
   const refSuffix =
-    provenance.ref !== undefined ? ` (ref ${provenance.ref})` : "";
-  const where = displayDestDir(unit.id);
+    provenance.ref !== undefined ? ` (ref ${quote(provenance.ref)})` : "";
+  const where = quote(displayDestDir(unit.id));
   const rootLabel = scope === "global" ? "global" : "local";
 
   if (unit.kind === "group") {
     const count = unit.templateCount;
     const plural = count === 1 ? "template" : "templates";
-    return `Installed group ${unit.id} (${count} ${plural}) from ${provenance.source}${refSuffix} into ${where} [${rootLabel}].`;
+    return `Installed group ${quote(unit.id)} (${count} ${plural}) from ${quote(provenance.source)}${refSuffix} into ${where} [${quote(rootLabel)}].`;
   }
-  return `Installed ${unit.id} from ${provenance.source}${refSuffix} into ${where} [${rootLabel}].`;
+  return `Installed ${quote(unit.id)} from ${quote(provenance.source)}${refSuffix} into ${where} [${quote(rootLabel)}].`;
 }
 
 /** The destination directory rendered for messages: `.jastr/<id>` always (the

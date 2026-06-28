@@ -105,7 +105,7 @@ describe("executeUpdate: up-to-date (upstream == stored)", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(sink.out.join("\n")).toContain("foo is up to date");
+    expect(sink.out.join("\n")).toContain("`foo` is up to date");
     expect(sink.err).toHaveLength(0);
     // Lock unchanged.
     expect(await readLock(dest)).toEqual(before);
@@ -138,7 +138,7 @@ describe("executeUpdate: replace + bump (upstream != stored, disk == stored)", (
     });
 
     expect(result.ok).toBe(true);
-    expect(sink.out.join("\n")).toContain("Updated foo");
+    expect(sink.out.join("\n")).toContain("Updated `foo`");
     // The installed unit now carries the new body.
     expect(
       await readFile(path.join(dest, ".jastr", "foo", "TEMPLATE.md"), "utf8"),
@@ -213,7 +213,7 @@ describe("executeUpdate: locally modified (disk != stored, disk != upstream)", (
     });
 
     expect(result.ok).toBe(true);
-    expect(sink.out.join("\n")).toContain("Updated foo");
+    expect(sink.out.join("\n")).toContain("Updated `foo`");
     expect(
       await readFile(path.join(dest, ".jastr", "foo", "TEMPLATE.md"), "utf8"),
     ).toBe("---\n---\n# foo v2\n");
@@ -333,8 +333,8 @@ describe("executeUpdate: best-effort across ids", () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(sink.out.join("\n")).toContain("foo is up to date");
-    expect(sink.err.join("\n")).toContain("ghost is not installed");
+    expect(sink.out.join("\n")).toContain("`foo` is up to date");
+    expect(sink.err.join("\n")).toContain("`ghost` is not installed");
   });
 });
 
@@ -471,7 +471,7 @@ describe("executeUpdate: clone path (injected GitRunner)", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(sink.out.join("\n")).toContain("Updated foo");
+    expect(sink.out.join("\n")).toContain("Updated `foo`");
     const after = await readLock(dest);
     expect(after.templates.foo?.url).toBe("https://github.com/owner/repo.git");
     expect(after.templates.foo?.ref).toBe("main");
@@ -515,18 +515,20 @@ describe("commitTransition: version-transition rendering", () => {
   const TO = "0f9e8d7c6b5a4039";
 
   it("renders a short from -> to when both sides record a commit", () => {
-    expect(commitTransition(FROM, TO)).toBe("(a1b2c3d4e5f6 -> 0f9e8d7c6b5a)");
+    expect(commitTransition(FROM, TO)).toBe(
+      "(`a1b2c3d4e5f6` -> `0f9e8d7c6b5a`)",
+    );
   });
 
   it("renders the missing side as unversioned (clean -> dirty/non-git)", () => {
     expect(commitTransition(FROM, undefined)).toBe(
-      "(a1b2c3d4e5f6 -> unversioned)",
+      "(`a1b2c3d4e5f6` -> unversioned)",
     );
   });
 
   it("renders the missing side as unversioned (dirty/non-git -> clean)", () => {
     expect(commitTransition(undefined, TO)).toBe(
-      "(unversioned -> 0f9e8d7c6b5a)",
+      "(unversioned -> `0f9e8d7c6b5a`)",
     );
   });
 

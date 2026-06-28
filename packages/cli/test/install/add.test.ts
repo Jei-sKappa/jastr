@@ -108,8 +108,8 @@ describe("executeAdd: local-path install", () => {
       git,
     });
 
-    expect(output).toContain("Installed foo");
-    expect(output).toContain("[local]");
+    expect(output).toContain("Installed `foo`");
+    expect(output).toContain("[`local`]");
     expect(
       await readFile(path.join(dest, ".jastr", "foo", "TEMPLATE.md"), "utf8"),
     ).toBe("---\n---\n# foo\n");
@@ -146,7 +146,7 @@ describe("executeAdd: local-path install", () => {
       git: noCloneRunner(),
     });
 
-    expect(output).toContain("group mygroup");
+    expect(output).toContain("group `mygroup`");
     expect(output).toContain("2 templates");
     expect(
       await pathExists(path.join(dest, ".jastr", "mygroup", ".jastrgroup")),
@@ -226,7 +226,7 @@ describe("executeAdd: clone path (injected GitRunner)", () => {
     expect(cloneCalls).toHaveLength(1);
     expect(cloneCalls[0]?.url).toBe("https://github.com/owner/repo.git");
     expect(cloneCalls[0]?.ref).toBe("main");
-    expect(output).toContain("ref main");
+    expect(output).toContain("ref `main`");
 
     const lock = await readLock(dest);
     const entry = lock.templates.foo;
