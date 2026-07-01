@@ -8,7 +8,7 @@ Living documentation generated from the functional requirements in
 asserted by the e2e suite, so a passing `bun run test:cli:e2e` is also proof
 this document is accurate.
 
-**157** requirements · **360** acceptance criteria · **269** end-to-end cases.
+**160** requirements · **369** acceptance criteria · **277** end-to-end cases.
 
 Each example shows its full input project (the fixture the command ran
 against, including any templates and includes) and, for `generate`, the
@@ -9721,7 +9721,7 @@ Covers: AC-0004
 `.jastr/config.yml`
 
 ```yaml
-
+   
 
 ```
 
